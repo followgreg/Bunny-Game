@@ -1246,9 +1246,11 @@ function startGame() {
   updateStats();
 }
 
-// Start the game immediately behind the directions overlay
-startGame();
+// Load images immediately; defer startGame until after the browser has
+// completed its first layout pass so wrap.clientHeight is accurate.
+// Double-rAF is the standard pattern for "after layout + paint".
 loadImages();
+requestAnimationFrame(() => requestAnimationFrame(startGame));
 
 // =============================================================================
 // SHARE
