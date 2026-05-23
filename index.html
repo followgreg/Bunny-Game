@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bunny Game</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
   <script>
@@ -258,6 +266,25 @@
     .play-again-btn:hover  { background: #3b82f6; }
     .play-again-btn:active { background: #1d4ed8; }
 
+    .share-btn {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1px solid #2d4060;
+      color: #94a3b8;
+      padding: 11px 0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: border-color 0.12s, color 0.12s;
+      letter-spacing: 0.03em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .share-btn:hover  { border-color: #94a3b8; color: #f1f5f9; }
+    .share-btn:active { background: #1e293b; }
+
     /* ── Footer ── */
     #footer {
       display: flex;
@@ -325,6 +352,7 @@
     <p class="modal-sub"   id="modal-sub"></p>
     <div class="breakdown" id="modal-breakdown"></div>
     <button class="play-again-btn" id="play-again-btn">Play Again</button>
+    <button class="share-btn" id="share-btn">🐰 Share Score</button>
   </div>
 </div>
 
@@ -849,6 +877,36 @@ function startGame() {
 // Start immediately with colored squares; icons swap in as they load
 startGame();
 loadImages();
+
+// =============================================================================
+// SHARE
+// =============================================================================
+
+document.getElementById('share-btn').addEventListener('click', () => {
+  const remaining = game ? game.countRemaining() : 0;
+  const moves     = game ? game.moves : 0;
+  const text = remaining === 0
+    ? `🎉 PERFECT CLEAR! I cleared every tile in Bunny Game in ${moves} moves. Can you beat it?`
+    : `I finished Bunny Game with ${remaining} tile${remaining !== 1 ? 's' : ''} remaining in ${moves} moves. Can you do better?`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'Bunny Game', text, url: 'https://thebunnygame.com' });
+  } else {
+    navigator.clipboard.writeText(`${text} https://thebunnygame.com`).then(() => {
+      const btn = document.getElementById('share-btn');
+      btn.textContent = '✓ Copied to clipboard';
+      setTimeout(() => { btn.textContent = '🐰 Share Score'; }, 2500);
+    });
+  }
+});
+
+// =============================================================================
+// SERVICE WORKER
+// =============================================================================
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 </script>
 </body>
 </html>
