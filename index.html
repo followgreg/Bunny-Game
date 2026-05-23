@@ -1333,7 +1333,8 @@ document.querySelectorAll('.mode-tab').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.mode));
 });
 
-window.addEventListener('resize', () => resizeCanvas());
+// ResizeObserver replaces the resize listener — it also catches the initial
+// layout settlement on first load, which rAF-based defers miss.
 
 // =============================================================================
 // DIRECTIONS
@@ -1379,11 +1380,25 @@ function startGame() {
   else stopAnimLoop();
 }
 
-// Load images immediately; defer startGame until after the browser has
-// completed its first layout pass so wrap.clientHeight is accurate.
-// Double-rAF is the standard pattern for "after layout + paint".
 loadImages();
-requestAnimationFrame(() => requestAnimationFrame(startGame));
+
+// ResizeObserver fires the moment canvas-wrap gets real dimensions from flexbox.
+// On first call (game===null) it starts the game; on all subsequent calls it
+// just resizes — catching window resize, orientation change, and browser-chrome
+// show/hide without a separate 'resize' listener.
+// Falls back to double-rAF + resize event on browsers without ResizeObserver.
+(function bootstrap() {
+  const wrap = document.getElementById('canvas-wrap');
+  if (window.ResizeObserver) {
+    new ResizeObserver(function() {
+      if (!game) { if (wrap.clientHeight > 50) startGame(); }
+      else resizeCanvas();
+    }).observe(wrap);
+  } else {
+    window.addEventListener('resize', function() { resizeCanvas(); });
+    requestAnimationFrame(function() { requestAnimationFrame(startGame); });
+  }
+})();
 
 // =============================================================================
 // SHARE
