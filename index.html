@@ -133,10 +133,11 @@
     /* ── Canvas area ── */
     #canvas-wrap {
       flex: 1;
+      min-height: 0;       /* allow flex shrink below content size */
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 8px;
+      padding: 10px 8px;   /* a touch more top/bottom breathing room */
       overflow: hidden;
       background: #ffffff;
     }
@@ -597,8 +598,8 @@ let flashCell = null; // { r, c, expiry }
 /** Largest integer cell size that fits the board in the canvas container. */
 function computeCellSize(cols, rows) {
   const wrap   = document.getElementById('canvas-wrap');
-  const availW = wrap.clientWidth  - 16;
-  const availH = wrap.clientHeight - 16;
+  const availW = wrap.clientWidth  - 20;  // 10px margin each side
+  const availH = wrap.clientHeight - 24;  // 12px margin top/bottom (slightly larger for header/footer proximity)
   return Math.max(4, Math.floor(Math.min(availW / cols, availH / rows)));
 }
 
@@ -773,7 +774,7 @@ function showGameOver() {
     if (counts[type] <= 0) continue;
     const img  = tileImages[type];
     const icon = (img && img.naturalWidth > 0)
-      ? `<img src="assets/icons/${type}.png" alt="${TILE_LABELS[type]}">`
+      ? `<img src="assets/icons/${type}.svg" alt="${TILE_LABELS[type]}">`
       : `<div class="bd-swatch" style="background:${TILE_COLORS[type]}"></div>`;
     html += `<div class="bd-row">${icon}<span>${TILE_LABELS[type]}: <strong>${counts[type]}</strong> remaining</span></div>`;
   }
