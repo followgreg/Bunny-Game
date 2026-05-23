@@ -23,15 +23,12 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html {
-      height: 100%;
-    }
+    html { height: 100%; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: #111827;
       color: #e5e7eb;
-      /* dvh accounts for mobile browser chrome (address bar); vh is fallback */
       height: 100vh;
       height: 100dvh;
       overflow: hidden;
@@ -40,7 +37,6 @@
       flex-direction: column;
       -webkit-font-smoothing: antialiased;
       user-select: none;
-      /* Safe area insets for notched phones */
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -73,12 +69,10 @@
       gap: 8px;
     }
 
-    /* Buttons — tall enough to tap comfortably on mobile */
     .icon-btn {
       background: #1e293b;
       border: 1px solid #2d3f55;
       color: #94a3b8;
-      /* Minimum 44px touch target */
       min-height: 36px;
       padding: 0 14px;
       border-radius: 8px;
@@ -93,6 +87,41 @@
     .icon-btn:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
     .icon-btn:active:not(:disabled) { background: #3b4f6a; color: #fff; }
     .icon-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+
+    /* ── Mode tabs ── */
+    #mode-tabs {
+      display: flex;
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      flex-shrink: 0;
+      height: 38px;
+      min-height: 38px;
+      padding: 0 10px;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .mode-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #475569;
+      padding: 0 16px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mode-tab:hover { background: #1e293b; color: #94a3b8; }
+    .mode-tab.active {
+      background: #1e293b;
+      border-color: #2d4060;
+      color: #f1f5f9;
+    }
 
     /* ── Stats bar ── */
     #stats {
@@ -133,11 +162,11 @@
     /* ── Canvas area ── */
     #canvas-wrap {
       flex: 1;
-      min-height: 0;       /* allow flex shrink below content size */
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 8px;   /* a touch more top/bottom breathing room */
+      padding: 10px 8px;
       overflow: hidden;
       background: #ffffff;
     }
@@ -147,7 +176,6 @@
       border-radius: 5px;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      /* Prevent tap→scroll on mobile; taps still fire as click events */
       touch-action: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -181,7 +209,6 @@
     }
 
     #perf-banner {
-      background: linear-gradient(135deg, #065f46, #10b981);
       color: #fff;
       font-size: 1rem;
       font-weight: 700;
@@ -286,6 +313,95 @@
     .share-btn:hover  { border-color: #94a3b8; color: #f1f5f9; }
     .share-btn:active { background: #1e293b; }
 
+    /* ── Directions overlay ── */
+    #directions-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.80);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      padding: 16px;
+    }
+    #directions-overlay.hidden { display: none; }
+
+    .directions-modal {
+      background: #1a2540;
+      border: 1px solid #2d4060;
+      border-radius: 16px;
+      padding: 22px 20px 20px;
+      width: min(420px, 100%);
+      max-height: 92svh;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.65);
+    }
+
+    .dir-heading {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: 0.01em;
+    }
+
+    .dir-tab-bar {
+      display: flex;
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 16px;
+      gap: 2px;
+    }
+
+    .dir-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #475569;
+      padding: 7px 0;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dir-tab-btn.active {
+      background: #1e293b;
+      color: #f1f5f9;
+    }
+
+    .dir-pane {
+      font-size: 0.86rem;
+      line-height: 1.72;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+    .dir-pane.hidden { display: none; }
+
+    .dir-close-btn {
+      display: block;
+      width: 100%;
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      padding: 13px 0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.12s;
+      letter-spacing: 0.03em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dir-close-btn:hover  { background: #3b82f6; }
+    .dir-close-btn:active { background: #1d4ed8; }
+
     /* ── Footer ── */
     #footer {
       display: flex;
@@ -300,10 +416,7 @@
       font-size: 0.65rem;
       color: #475569;
     }
-    #footer a {
-      color: #475569;
-      text-decoration: none;
-    }
+    #footer a { color: #475569; text-decoration: none; }
     #footer a:hover { color: #94a3b8; }
   </style>
 </head>
@@ -317,10 +430,16 @@
   </div>
 </div>
 
+<!-- ── Mode tabs ───────────────────────────────────────────────── -->
+<div id="mode-tabs">
+  <button class="mode-tab active" data-mode="classic">Classic</button>
+  <button class="mode-tab" data-mode="bomb">Bomb Mode</button>
+</div>
+
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
 <div id="stats">
   <div class="stat-item">
-    <span class="stat-label">Score</span>
+    <span class="stat-label" id="lbl-score">Score</span>
     <span class="stat-value" id="val-remaining">—</span>
   </div>
   <div class="stat-item">
@@ -331,6 +450,10 @@
     <span class="stat-label">Moves</span>
     <span class="stat-value" id="val-moves">0</span>
   </div>
+  <div class="stat-item" id="bomb-stat" style="display:none">
+    <span class="stat-label">Bomb</span>
+    <span class="stat-value" id="val-bomb">—</span>
+  </div>
 </div>
 
 <!-- ── Canvas ──────────────────────────────────────────────────── -->
@@ -338,17 +461,18 @@
   <canvas id="game-canvas"></canvas>
 </div>
 
-<!-- ── Game-over modal ─────────────────────────────────────────── -->
+<!-- ── Footer ──────────────────────────────────────────────────── -->
 <footer id="footer">
   <span>©2026 Never Stop Creating, LLC</span>
   <span>·</span>
   <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
 </footer>
 
+<!-- ── Game-over overlay ────────────────────────────────────────── -->
 <div id="overlay" class="hidden">
   <div class="modal">
     <div id="perf-banner" class="hidden"></div>
-    <h2>Game Over</h2>
+    <h2 id="modal-title">Game Over</h2>
     <p class="modal-score" id="modal-score"></p>
     <p class="modal-sub"   id="modal-sub"></p>
     <div class="breakdown" id="modal-breakdown"></div>
@@ -357,24 +481,41 @@
   </div>
 </div>
 
+<!-- ── Directions overlay ───────────────────────────────────────── -->
+<div id="directions-overlay">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-tab-bar">
+      <button class="dir-tab-btn active" data-dir="classic">Classic</button>
+      <button class="dir-tab-btn" data-dir="bomb">Bomb Mode</button>
+    </div>
+    <div class="dir-pane" id="dir-classic">
+      Bunny Game is a puzzle game. The board is filled with five icons: blue bunny, red bunny, mushroom, cabbage, and carrot. Click any group of two or more matching icons that are connected north, south, east, or west — not diagonal — to clear them. When you clear a group, tiles fall down to fill the gaps. If a column empties, the remaining columns shift left. Your goal is to clear the entire board. Your score is how many tiles remain — lower is better. Zero is a perfect clear. The game ends when no valid moves remain.
+    </div>
+    <div class="dir-pane hidden" id="dir-bomb">
+      Bomb Mode uses the same board and the same icons, but one square contains a bomb. Your goal is not to clear the board — it is to get the bomb to the bottom row. Clear tiles strategically to make the bomb fall. The bomb falls with gravity just like regular tiles, and stays with its column when columns shift. You cannot click the bomb. You win when the bomb reaches the bottom row. You lose when no moves remain and the bomb hasn't made it.
+    </div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
 <script>
 // =============================================================================
 // CONSTANTS
 // =============================================================================
 
-// Portrait grid — 15 wide × 25 tall fills a phone screen naturally
 const GRID_COLS = 15;
 const GRID_ROWS = 25;
 
 const TILE_TYPES = ['blue-bunny', 'red-bunny', 'mushroom', 'cabbage', 'carrot'];
 
-// Fallback fill colors used when image assets aren't present
 const TILE_COLORS = {
   'blue-bunny': '#3b82f6',
   'red-bunny':  '#ef4444',
   'mushroom':   '#a855f7',
   'cabbage':    '#22c55e',
   'carrot':     '#f97316',
+  'bomb':       '#dc2626',
 };
 
 const TILE_LABELS = {
@@ -387,8 +528,6 @@ const TILE_LABELS = {
 
 // =============================================================================
 // IMAGE LOADING
-// Loaded in the background; each successful load triggers a re-render so the
-// board upgrades from colored squares to icons without blocking startup.
 // =============================================================================
 
 const tileImages = {};
@@ -397,14 +536,20 @@ function loadImages() {
   for (const type of TILE_TYPES) {
     const img = new Image();
     img.onload  = () => render();
-    img.onerror = () => {};   // no asset → keep using color square
+    img.onerror = () => {};
     img.src = `assets/icons/${type}.svg`;
     tileImages[type] = img;
   }
+  // Bomb — PNG asset; emoji fallback renders if file is missing
+  const bombImg = new Image();
+  bombImg.onload  = () => render();
+  bombImg.onerror = () => {};
+  bombImg.src = 'assets/icons/bomb.png';
+  tileImages['bomb'] = bombImg;
 }
 
 // =============================================================================
-// GAME LOGIC
+// GAME LOGIC — Classic
 // =============================================================================
 
 class BunnyGame {
@@ -428,9 +573,8 @@ class BunnyGame {
   }
 
   // ---------------------------------------------------------------------------
-  // BFS flood-fill
-  // Returns all cells connected to (row, col) sharing the same tile type.
-  // Uses a flat Uint8Array as a visited bitset for speed.
+  // BFS flood-fill — returns all cells in the connected same-type group.
+  // Uses a flat Uint8Array visited bitset for speed.
   // ---------------------------------------------------------------------------
   findGroup(row, col) {
     const type = this.grid[row][col];
@@ -452,7 +596,6 @@ class BunnyGame {
 
       group.push([r, c]);
 
-      // Enqueue 4 orthogonal neighbors (bounds-checked)
       if (r > 0)             queue.push((r - 1) * this.cols + c);
       if (r < this.rows - 1) queue.push((r + 1) * this.cols + c);
       if (c > 0)             queue.push(r * this.cols + (c - 1));
@@ -462,17 +605,12 @@ class BunnyGame {
     return group;
   }
 
-  // ---------------------------------------------------------------------------
-  // Handle a tap/click at (row, col).
-  // Returns the removed group on success, or null if invalid (singleton).
-  // ---------------------------------------------------------------------------
   click(row, col) {
     if (this.gameOver) return null;
 
     const group = this.findGroup(row, col);
     if (group.length < 2) return null;
 
-    // Save undo snapshot before mutating (cap stack to avoid memory growth)
     this.history.push({
       grid:    this.grid.map(r => r.slice()),
       moves:   this.moves,
@@ -494,17 +632,14 @@ class BunnyGame {
   }
 
   // ---------------------------------------------------------------------------
-  // Gravity: tiles fall downward within each column, filling gaps at bottom.
-  // Relative order within a column is preserved.
+  // Gravity: tiles fall downward within each column.
   // ---------------------------------------------------------------------------
   _applyGravity() {
     for (let c = 0; c < this.cols; c++) {
-      // Collect live tiles top→bottom
       const live = [];
       for (let r = 0; r < this.rows; r++) {
         if (this.grid[r][c] !== null) live.push(this.grid[r][c]);
       }
-      // Rewrite: empty space at top, live tiles packed at bottom
       const emptyRows = this.rows - live.length;
       for (let r = 0; r < this.rows; r++) {
         this.grid[r][c] = r < emptyRows ? null : live[r - emptyRows];
@@ -513,19 +648,15 @@ class BunnyGame {
   }
 
   // ---------------------------------------------------------------------------
-  // Column compaction: remove entirely-empty columns and shift survivors left.
-  // After gravity, any cleared column is fully null, so we just check one cell.
+  // Column compaction: remove empty columns and shift survivors left.
   // ---------------------------------------------------------------------------
   _compactColumns() {
-    // Collect indices of columns that still have at least one tile
     const active = [];
     for (let c = 0; c < this.cols; c++) {
       if (this.grid.some(row => row[c] !== null)) active.push(c);
     }
+    if (active.length === this.cols) return;
 
-    if (active.length === this.cols) return; // nothing changed
-
-    // Rebuild grid with active columns packed into slots 0..n-1
     const newGrid = Array.from({ length: this.rows }, () =>
       new Array(this.cols).fill(null)
     );
@@ -539,15 +670,14 @@ class BunnyGame {
   }
 
   // ---------------------------------------------------------------------------
-  // Game-end detection: scan for any adjacent same-type pair.
-  // Only checking right + down is enough — every adjacent pair is found once.
-  // Returns false when no valid move exists (board clear or all isolated singles).
+  // Game-end: scan for any adjacent same-type pair (right + down only).
+  // Bomb tiles are skipped — they are never part of a valid move.
   // ---------------------------------------------------------------------------
   _hasValidMoves() {
     for (let r = 0; r < this.rows; r++) {
       for (let c = 0; c < this.cols; c++) {
         const t = this.grid[r][c];
-        if (!t) continue;
+        if (!t || t === 'bomb') continue;
         if (c + 1 < this.cols && this.grid[r][c + 1] === t) return true;
         if (r + 1 < this.rows && this.grid[r + 1][c] === t) return true;
       }
@@ -555,15 +685,20 @@ class BunnyGame {
     return false;
   }
 
+  // Bomb tile excluded from score count (only relevant in BombGame subclass)
   countRemaining() {
     let n = 0;
-    for (const row of this.grid) for (const cell of row) if (cell) n++;
+    for (const row of this.grid)
+      for (const cell of row)
+        if (cell && cell !== 'bomb') n++;
     return n;
   }
 
   countByType() {
     const counts = Object.fromEntries(TILE_TYPES.map(t => [t, 0]));
-    for (const row of this.grid) for (const cell of row) if (cell) counts[cell]++;
+    for (const row of this.grid)
+      for (const cell of row)
+        if (cell && counts[cell] !== undefined) counts[cell]++;
     return counts;
   }
 
@@ -579,6 +714,128 @@ class BunnyGame {
 }
 
 // =============================================================================
+// GAME LOGIC — Bomb Mode
+// =============================================================================
+
+class BombGame extends BunnyGame {
+  constructor(cols, rows) {
+    super(cols, rows);
+    this.gameWon = false;
+    // Place bomb randomly — never in the bottom row
+    const br = Math.floor(Math.random() * (rows - 1));  // 0 .. rows-2
+    const bc = Math.floor(Math.random() * cols);
+    this.bombPosition = { row: br, col: bc };
+    this.grid[br][bc] = 'bomb';
+  }
+
+  // Bomb is never part of a group — clicking it is a no-op (handled in canvas handler)
+  findGroup(row, col) {
+    if (this.grid[row][col] === 'bomb') return [];
+    return super.findGroup(row, col);
+  }
+
+  click(row, col) {
+    if (this.gameOver) return null;
+    if (this.grid[row][col] === 'bomb') return 'bomb'; // signal: ignore, no flash
+
+    const group = this.findGroup(row, col);
+    if (group.length < 2) return null;
+
+    // Snapshot includes bombPosition so undo can fully restore
+    this.history.push({
+      grid:         this.grid.map(r => r.slice()),
+      moves:        this.moves,
+      cleared:      this.cleared,
+      bombPosition: { ...this.bombPosition },
+    });
+    if (this.history.length > 50) this.history.shift();
+
+    for (const [r, c] of group) this.grid[r][c] = null;
+
+    // These call the overridden versions that update bombPosition
+    this._applyGravity();
+    this._compactColumns();
+
+    this.moves++;
+    this.cleared += group.length;
+
+    // Win: bomb reached bottom row
+    if (this.bombPosition.row === this.rows - 1) {
+      this.gameOver = true;
+      this.gameWon  = true;
+    } else if (!this._hasValidMoves()) {
+      // Lose: no moves left, bomb has not won
+      this.gameOver = true;
+      this.gameWon  = false;
+    }
+
+    return group;
+  }
+
+  // Override: after packing each column, update bombPosition.row for the bomb's column.
+  _applyGravity() {
+    const bc = this.bombPosition.col;
+    for (let c = 0; c < this.cols; c++) {
+      const live = [];
+      for (let r = 0; r < this.rows; r++) {
+        if (this.grid[r][c] !== null) live.push(this.grid[r][c]);
+      }
+      const emptyRows = this.rows - live.length;
+      for (let r = 0; r < this.rows; r++) {
+        this.grid[r][c] = r < emptyRows ? null : live[r - emptyRows];
+      }
+      // Track bomb's new row in its column
+      if (c === bc) {
+        const bombIdx = live.indexOf('bomb');
+        if (bombIdx !== -1) {
+          this.bombPosition.row = emptyRows + bombIdx;
+        }
+      }
+    }
+  }
+
+  // Override: after compacting, remap bombPosition.col to new column index.
+  _compactColumns() {
+    const active = [];
+    for (let c = 0; c < this.cols; c++) {
+      if (this.grid.some(row => row[c] !== null)) active.push(c);
+    }
+    if (active.length === this.cols) return;
+
+    // Bomb's column is always active (bomb is never null)
+    const newBombCol = active.indexOf(this.bombPosition.col);
+
+    const newGrid = Array.from({ length: this.rows }, () =>
+      new Array(this.cols).fill(null)
+    );
+    for (let newC = 0; newC < active.length; newC++) {
+      const oldC = active[newC];
+      for (let r = 0; r < this.rows; r++) {
+        newGrid[r][newC] = this.grid[r][oldC];
+      }
+    }
+    this.grid = newGrid;
+
+    if (newBombCol !== -1) {
+      this.bombPosition.col = newBombCol;
+    }
+  }
+
+  // Undo restores bombPosition alongside grid state
+  undo() {
+    if (!this.history.length) return false;
+    const snap        = this.history.pop();
+    this.grid         = snap.grid;
+    this.moves        = snap.moves;
+    this.cleared      = snap.cleared;
+    this.bombPosition = { ...snap.bombPosition };
+    this.gameOver     = false;
+    this.gameWon      = false;
+    return true;
+  }
+}
+
+// =============================================================================
 // CANVAS RENDERER
 // =============================================================================
 
@@ -588,18 +845,14 @@ const ctx    = canvas.getContext('2d');
 let game     = null;
 let cellSize = 0;
 
-// Hover highlight: the group under the cursor (desktop only — no effect on touch)
 let hoveredGroup = null;
 let lastHoverKey = null;
+let flashCell    = null; // { r, c, expiry }
 
-// Invalid-click flash: brief red overlay on a tapped singleton tile
-let flashCell = null; // { r, c, expiry }
-
-/** Largest integer cell size that fits the board in the canvas container. */
 function computeCellSize(cols, rows) {
   const wrap   = document.getElementById('canvas-wrap');
-  const availW = wrap.clientWidth  - 20;  // 10px margin each side
-  const availH = wrap.clientHeight - 24;  // 12px margin top/bottom (slightly larger for header/footer proximity)
+  const availW = wrap.clientWidth  - 20;
+  const availH = wrap.clientHeight - 24;
   return Math.max(4, Math.floor(Math.min(availW / cols, availH / rows)));
 }
 
@@ -611,15 +864,10 @@ function resizeCanvas() {
   render();
 }
 
-/**
- * Full render pass — iterates every cell once.
- * Feature flags (rounding, images, gridlines) are skipped for small cells.
- */
 function render() {
   if (!game) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -628,7 +876,6 @@ function render() {
   const useImages = cellSize >= 10;
   const useGrid   = cellSize >= 14;
 
-  // Build highlight + flash lookup sets
   const hlSet = new Set();
   if (hoveredGroup && hoveredGroup.length >= 2) {
     for (const [r, c] of hoveredGroup) hlSet.add(r * game.cols + c);
@@ -650,11 +897,15 @@ function render() {
       const y   = r * cellSize;
       const idx = r * game.cols + c;
 
-      const highlighted = hlSet.has(idx);
+      const isBomb      = type === 'bomb';
+      const highlighted = !isBomb && hlSet.has(idx);
       const flashing    = idx === flashIdx;
 
-      // Tile fill — uniform background; darken slightly on hover
-      ctx.fillStyle = highlighted ? '#ffe066' : '#ffffcc';
+      // Tile fill
+      ctx.fillStyle = isBomb      ? '#dc2626'
+                    : highlighted ? '#ffe066'
+                    :               '#ffffcc';
+
       if (useRound) {
         const rad = Math.max(1, (cellSize * 0.18) | 0);
         roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
@@ -663,15 +914,23 @@ function render() {
         ctx.fillRect(x, y, cellSize, cellSize);
       }
 
-      // Icon image — drawn flush to the tile area so it fills the box
+      // Icon image
       if (useImages) {
         const img = tileImages[type];
         if (img && img.naturalWidth > 0) {
           ctx.drawImage(img, x + 1, y + 1, cellSize - 2, cellSize - 2);
+        } else if (isBomb) {
+          // Fallback: emoji if bomb.png not present
+          ctx.save();
+          ctx.font         = `${Math.max(8, (cellSize * 0.62) | 0)}px serif`;
+          ctx.textAlign    = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('💣', x + cellSize / 2, y + cellSize / 2);
+          ctx.restore();
         }
       }
 
-      // Invalid-tap flash: translucent red overlay
+      // Invalid-tap flash overlay
       if (flashing) {
         ctx.fillStyle = 'rgba(255,50,50,0.55)';
         if (useRound) {
@@ -683,7 +942,7 @@ function render() {
         }
       }
 
-      // Hover highlight border (desktop only)
+      // Hover border (desktop only)
       if (highlighted) {
         ctx.strokeStyle = 'rgba(255,255,180,0.8)';
         ctx.lineWidth   = Math.max(1, (cellSize * 0.08) | 0);
@@ -715,7 +974,6 @@ function render() {
   }
 }
 
-/** Draw a rounded-rectangle path (does not fill/stroke — caller decides). */
 function roundRect(ctx, x, y, w, h, r) {
   r = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -731,33 +989,80 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-/** Mix a hex color toward white by factor t (0–1). Returns an rgb() string. */
-function brighten(hex, t) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgb(${Math.min(255, r + ((255 - r) * t) | 0)},`
-       + `${Math.min(255, g + ((255 - g) * t) | 0)},`
-       + `${Math.min(255, b + ((255 - b) * t) | 0)})`;
+// =============================================================================
+// TAB STATE — each tab preserves its game independently
+// =============================================================================
+
+let activeTab = 'classic';
+const savedGames = { classic: null, bomb: null };
+
+function switchTab(mode) {
+  if (mode === activeTab) return;
+
+  // Save current game state before switching
+  savedGames[activeTab] = game;
+  activeTab = mode;
+
+  if (savedGames[mode]) {
+    // Restore the previously saved game for this tab
+    game = savedGames[mode];
+    document.getElementById('overlay').classList.add('hidden');
+    if (game.gameOver) {
+      // Re-surface the result modal for the restored game
+      if (game instanceof BombGame) showBombResult(game.gameWon);
+      else showGameOver();
+    }
+    updateTabUI();
+    resizeCanvas();
+    updateStats();
+  } else {
+    // First time on this tab — start a fresh game
+    startGame();
+  }
+}
+
+function updateTabUI() {
+  document.querySelectorAll('.mode-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === activeTab);
+  });
 }
 
 // =============================================================================
-// UI — stats & game-over overlay
+// UI — stats bar
 // =============================================================================
 
 function updateStats() {
+  if (!game) return;
   document.getElementById('val-remaining').textContent = game.countRemaining();
   document.getElementById('val-cleared').textContent   = game.cleared;
   document.getElementById('val-moves').textContent     = game.moves;
+
+  const bombStat = document.getElementById('bomb-stat');
+  if (game instanceof BombGame) {
+    bombStat.style.display = '';
+    const rowsLeft = game.rows - 1 - game.bombPosition.row;
+    document.getElementById('val-bomb').textContent = rowsLeft === 0 ? '✓' : rowsLeft;
+    document.getElementById('lbl-score').textContent = 'Tiles';
+  } else {
+    bombStat.style.display = 'none';
+    document.getElementById('lbl-score').textContent = 'Score';
+  }
 }
+
+// =============================================================================
+// UI — result modals
+// =============================================================================
 
 function showGameOver() {
   const remaining = game.countRemaining();
   const isPerfect = remaining === 0;
   const counts    = game.countByType();
 
+  document.getElementById('modal-title').textContent = 'Game Over';
+
   const perfEl = document.getElementById('perf-banner');
   if (isPerfect) {
+    perfEl.style.background = 'linear-gradient(135deg, #065f46, #10b981)';
     perfEl.textContent = '🎉 PERFECT CLEAR! 🎉';
     perfEl.classList.remove('hidden');
   } else {
@@ -784,14 +1089,43 @@ function showGameOver() {
   document.getElementById('overlay').classList.remove('hidden');
 }
 
+function showBombResult(won) {
+  const remaining = game.countRemaining();
+  const rowsLeft  = game.rows - 1 - game.bombPosition.row;
+
+  const perfEl = document.getElementById('perf-banner');
+
+  if (won) {
+    perfEl.style.background = 'linear-gradient(135deg, #92400e, #f97316)';
+    perfEl.textContent = '💣 BOMB REACHED THE BOTTOM!';
+    perfEl.classList.remove('hidden');
+    document.getElementById('modal-title').textContent  = 'You Win!';
+    document.getElementById('modal-score').textContent  =
+      `${game.moves} move${game.moves !== 1 ? 's' : ''}`;
+    document.getElementById('modal-sub').textContent    =
+      `${game.cleared} tiles cleared · ${remaining} tile${remaining !== 1 ? 's' : ''} remain`;
+    document.getElementById('modal-breakdown').innerHTML =
+      '<p class="perfect-msg">The bomb reached the bottom row!</p>';
+  } else {
+    perfEl.classList.add('hidden');
+    document.getElementById('modal-title').textContent  = 'Game Over';
+    document.getElementById('modal-score').textContent  =
+      `Bomb was ${rowsLeft} row${rowsLeft !== 1 ? 's' : ''} from the bottom`;
+    document.getElementById('modal-sub').textContent    =
+      `${game.moves} move${game.moves !== 1 ? 's' : ''} · ${remaining} tile${remaining !== 1 ? 's' : ''} remaining`;
+    document.getElementById('modal-breakdown').innerHTML =
+      '<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;text-align:center;">No moves left — the bomb didn\'t make it.</p>';
+  }
+
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
 // =============================================================================
 // INPUT — tap/click & hover
 // =============================================================================
 
-/** Returns [row, col] for a pointer event, or null if outside the canvas. */
 function cellFromEvent(e) {
   const rect = canvas.getBoundingClientRect();
-  // Use clientX/Y which works for both mouse and touch (via click event)
   const col  = ((e.clientX - rect.left) / cellSize) | 0;
   const row  = ((e.clientY - rect.top)  / cellSize) | 0;
   if (col >= 0 && col < game.cols && row >= 0 && row < game.rows) return [row, col];
@@ -806,9 +1140,11 @@ canvas.addEventListener('click', e => {
 
   if (!game.grid[row][col]) return;
 
+  // Bomb tile: silently ignore, no flash
+  if (game.grid[row][col] === 'bomb') return;
+
   const group = game.findGroup(row, col);
   if (group.length < 2) {
-    // Brief red flash on the tapped singleton
     flashCell = { r: row, c: col, expiry: Date.now() + 380 };
     render();
     setTimeout(() => { flashCell = null; render(); }, 390);
@@ -822,19 +1158,24 @@ canvas.addEventListener('click', e => {
   updateStats();
   render();
 
-  if (game.gameOver) setTimeout(showGameOver, 350);
+  if (game.gameOver) {
+    setTimeout(() => {
+      if (game instanceof BombGame) showBombResult(game.gameWon);
+      else showGameOver();
+    }, 350);
+  }
 });
 
-// Hover highlight — only meaningful on pointer (mouse) devices
 canvas.addEventListener('mousemove', e => {
   if (!game || game.gameOver) return;
   const cell = cellFromEvent(e);
   const key  = cell ? `${cell[0]},${cell[1]}` : null;
 
-  if (key === lastHoverKey) return;   // still on same cell — skip BFS
+  if (key === lastHoverKey) return;
   lastHoverKey = key;
 
-  if (!cell || !game.grid[cell[0]][cell[1]]) {
+  // No hover highlight on bomb tiles
+  if (!cell || !game.grid[cell[0]][cell[1]] || game.grid[cell[0]][cell[1]] === 'bomb') {
     if (hoveredGroup) { hoveredGroup = null; render(); }
     return;
   }
@@ -859,23 +1200,53 @@ document.getElementById('play-again-btn').addEventListener('click', () => {
   startGame();
 });
 
+document.querySelectorAll('.mode-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.mode));
+});
+
 window.addEventListener('resize', () => resizeCanvas());
+
+// =============================================================================
+// DIRECTIONS
+// =============================================================================
+
+document.querySelectorAll('.dir-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.dir;
+    document.querySelectorAll('.dir-tab-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.dir === target)
+    );
+    document.querySelectorAll('.dir-pane').forEach(p =>
+      p.classList.toggle('hidden', p.id !== `dir-${target}`)
+    );
+  });
+});
+
+document.getElementById('dir-close-btn').addEventListener('click', () => {
+  document.getElementById('directions-overlay').classList.add('hidden');
+});
 
 // =============================================================================
 // BOOTSTRAP
 // =============================================================================
 
 function startGame() {
-  game         = new BunnyGame(GRID_COLS, GRID_ROWS);
+  game = activeTab === 'bomb'
+    ? new BombGame(GRID_COLS, GRID_ROWS)
+    : new BunnyGame(GRID_COLS, GRID_ROWS);
+
+  savedGames[activeTab] = game;
   hoveredGroup = null;
   lastHoverKey = null;
   flashCell    = null;
+
   document.getElementById('overlay').classList.add('hidden');
+  updateTabUI();
   resizeCanvas();
   updateStats();
 }
 
-// Start immediately with colored squares; icons swap in as they load
+// Start the game immediately behind the directions overlay
 startGame();
 loadImages();
 
@@ -884,11 +1255,22 @@ loadImages();
 // =============================================================================
 
 document.getElementById('share-btn').addEventListener('click', () => {
-  const remaining = game ? game.countRemaining() : 0;
-  const moves     = game ? game.moves : 0;
-  const text = remaining === 0
-    ? `🎉 PERFECT CLEAR! I cleared every tile in Bunny Game in ${moves} moves. Can you beat it?`
-    : `I finished Bunny Game with ${remaining} tile${remaining !== 1 ? 's' : ''} remaining in ${moves} moves. Can you do better?`;
+  const moves = game ? game.moves : 0;
+  let text;
+
+  if (game instanceof BombGame) {
+    if (game.gameWon) {
+      text = `💣 I guided the bomb to the bottom in ${moves} move${moves !== 1 ? 's' : ''} in Bunny Game Bomb Mode! Can you do it?`;
+    } else {
+      const rowsLeft = game.rows - 1 - game.bombPosition.row;
+      text = `I tried Bunny Game Bomb Mode but the bomb stopped ${rowsLeft} row${rowsLeft !== 1 ? 's' : ''} from the bottom. Can you beat it?`;
+    }
+  } else {
+    const remaining = game ? game.countRemaining() : 0;
+    text = remaining === 0
+      ? `🎉 PERFECT CLEAR! I cleared every tile in Bunny Game in ${moves} moves. Can you beat it?`
+      : `I finished Bunny Game with ${remaining} tile${remaining !== 1 ? 's' : ''} remaining in ${moves} moves. Can you do better?`;
+  }
 
   if (navigator.share) {
     navigator.share({ title: 'Bunny Game', text, url: 'https://thebunnygame.com' });
