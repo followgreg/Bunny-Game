@@ -285,7 +285,6 @@
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
-    <button class="icon-btn" id="undo-btn" disabled>↩ Undo</button>
     <button class="icon-btn" id="new-btn">↺ New</button>
   </div>
 </div>
@@ -721,7 +720,6 @@ function updateStats() {
   document.getElementById('val-remaining').textContent = game.countRemaining();
   document.getElementById('val-cleared').textContent   = game.cleared;
   document.getElementById('val-moves').textContent     = game.moves;
-  document.getElementById('undo-btn').disabled         = game.history.length === 0;
 }
 
 function showGameOver() {
@@ -824,16 +822,6 @@ canvas.addEventListener('mouseleave', () => {
 // =============================================================================
 // CONTROLS
 // =============================================================================
-
-document.getElementById('undo-btn').addEventListener('click', () => {
-  if (game && game.undo()) {
-    hoveredGroup = null;
-    lastHoverKey = null;
-    document.getElementById('overlay').classList.add('hidden');
-    updateStats();
-    render();
-  }
-});
 
 document.getElementById('new-btn').addEventListener('click', () => startGame());
 
