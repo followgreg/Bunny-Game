@@ -426,6 +426,7 @@
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
     <button class="icon-btn" id="new-btn">↺ New</button>
   </div>
 </div>
@@ -504,8 +505,8 @@
 // CONSTANTS
 // =============================================================================
 
-const GRID_COLS = 15;
-const GRID_ROWS = 25;
+const GRID_COLS = 12;
+const GRID_ROWS = 20;
 
 const TILE_TYPES = ['blue-bunny', 'red-bunny', 'mushroom', 'cabbage', 'carrot'];
 
@@ -1344,6 +1345,7 @@ canvas.addEventListener('mouseleave', () => {
 // =============================================================================
 
 document.getElementById('new-btn').addEventListener('click', () => startGame());
+document.getElementById('help-btn').addEventListener('click', () => document.getElementById('directions-overlay').classList.remove('hidden'));
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
