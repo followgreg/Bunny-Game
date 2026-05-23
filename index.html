@@ -352,7 +352,7 @@
     <p class="modal-sub"   id="modal-sub"></p>
     <div class="breakdown" id="modal-breakdown"></div>
     <button class="play-again-btn" id="play-again-btn">Play Again</button>
-    <button class="share-btn" id="share-btn">🐰 Share Score</button>
+    <button class="share-btn" id="share-btn">Share Score</button>
   </div>
 </div>
 
@@ -895,7 +895,7 @@ document.getElementById('share-btn').addEventListener('click', () => {
     navigator.clipboard.writeText(`${text} https://thebunnygame.com`).then(() => {
       const btn = document.getElementById('share-btn');
       btn.textContent = '✓ Copied to clipboard';
-      setTimeout(() => { btn.textContent = '🐰 Share Score'; }, 2500);
+      setTimeout(() => { btn.textContent = 'Share Score'; }, 2500);
     });
   }
 });
