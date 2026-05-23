@@ -714,6 +714,97 @@ class BunnyGame {
 }
 
 // =============================================================================
+// SOLVABILITY CHECKER
+// Greedy simulation: at each step pick the highest-scoring valid group
+// (tiles directly below the bomb score highest).  Returns true if the
+// simulated player can get the bomb to the bottom row.
+// Called at board-generation time; never during gameplay.
+// =============================================================================
+
+function checkBombSolvable(initGrid, initBp, rows, cols) {
+  let grid = initGrid.map(r => r.slice());
+  let bp   = { row: initBp.row, col: initBp.col };
+
+  function gravity() {
+    for (let c = 0; c < cols; c++) {
+      const live = [];
+      for (let r = 0; r < rows; r++)
+        if (grid[r][c] !== null) live.push(grid[r][c]);
+      const empty = rows - live.length;
+      for (let r = 0; r < rows; r++)
+        grid[r][c] = r < empty ? null : live[r - empty];
+      if (c === bp.col) {
+        const bi = live.indexOf('bomb');
+        if (bi !== -1) bp.row = empty + bi;
+      }
+    }
+  }
+
+  function compact() {
+    const active = [];
+    for (let c = 0; c < cols; c++)
+      if (grid.some(row => row[c] !== null)) active.push(c);
+    if (active.length === cols) return;
+    const newBc = active.indexOf(bp.col);
+    const ng = Array.from({ length: rows }, () => new Array(cols).fill(null));
+    for (let nc = 0; nc < active.length; nc++)
+      for (let r = 0; r < rows; r++)
+        ng[r][nc] = grid[r][active[nc]];
+    grid = ng;
+    if (newBc !== -1) bp.col = newBc;
+  }
+
+  for (let move = 0; move < rows * cols; move++) {
+    if (bp.row === rows - 1) return true;
+
+    let bestGroup = null, bestScore = -1;
+    const done = new Uint8Array(rows * cols);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const type = grid[r][c];
+        if (!type || type === 'bomb' || done[r * cols + c]) continue;
+
+        // BFS for this tile's connected group
+        const group = [], vis = new Uint8Array(rows * cols);
+        const q = [r * cols + c];
+        let h = 0;
+        while (h < q.length) {
+          const idx = q[h++];
+          if (vis[idx]) continue;
+          vis[idx] = 1;
+          const gr = (idx / cols) | 0, gc = idx % cols;
+          if (grid[gr][gc] !== type) continue;
+          group.push([gr, gc]);
+          done[idx] = 1;
+          if (gr > 0)        q.push((gr - 1) * cols + gc);
+          if (gr < rows - 1) q.push((gr + 1) * cols + gc);
+          if (gc > 0)        q.push(gr * cols + (gc - 1));
+          if (gc < cols - 1) q.push(gr * cols + (gc + 1));
+        }
+
+        if (group.length < 2) continue;
+
+        let score = 0;
+        for (const [gr, gc] of group) {
+          if (gc === bp.col && gr > bp.row) score += 100; // directly below bomb
+          else if (gr > bp.row)             score += 5;   // below bomb row, any col
+          else if (gc === bp.col)           score += 10;  // bomb's col, above bomb
+          else                              score += 1;   // any valid group
+        }
+        if (score > bestScore) { bestScore = score; bestGroup = group; }
+      }
+    }
+
+    if (!bestGroup) return false; // no moves remain
+    for (const [r, c] of bestGroup) grid[r][c] = null;
+    gravity();
+    compact();
+  }
+  return bp.row === rows - 1;
+}
+
+// =============================================================================
 // GAME LOGIC — Bomb Mode
 // =============================================================================
 
@@ -721,11 +812,18 @@ class BombGame extends BunnyGame {
   constructor(cols, rows) {
     super(cols, rows);
     this.gameWon = false;
-    // Place bomb randomly — never in the bottom row
-    const br = Math.floor(Math.random() * (rows - 1));  // 0 .. rows-2
-    const bc = Math.floor(Math.random() * cols);
+
+    // Keep regenerating until we find a board the greedy solver can win.
+    // In practice this takes 1-3 attempts; cap at 20 to be safe.
+    let br, bc;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      if (attempt > 0) this.grid = this._randomGrid(); // fresh board
+      br = Math.floor(Math.random() * (rows - 1));     // never bottom row
+      bc = Math.floor(Math.random() * cols);
+      this.grid[br][bc] = 'bomb';
+      if (checkBombSolvable(this.grid, { row: br, col: bc }, rows, cols)) break;
+    }
     this.bombPosition = { row: br, col: bc };
-    this.grid[br][bc] = 'bomb';
   }
 
   // Bomb is never part of a group — clicking it is a no-op (handled in canvas handler)
@@ -849,6 +947,17 @@ let hoveredGroup = null;
 let lastHoverKey = null;
 let flashCell    = null; // { r, c, expiry }
 
+// Continuous render loop — active only in Bomb Mode so the bomb animates.
+let animLoopId = null;
+function startAnimLoop() {
+  if (animLoopId !== null) return;
+  function tick() { render(); animLoopId = requestAnimationFrame(tick); }
+  animLoopId = requestAnimationFrame(tick);
+}
+function stopAnimLoop() {
+  if (animLoopId !== null) { cancelAnimationFrame(animLoopId); animLoopId = null; }
+}
+
 function computeCellSize(cols, rows) {
   const wrap   = document.getElementById('canvas-wrap');
   const availW = wrap.clientWidth  - 20;
@@ -875,6 +984,8 @@ function render() {
   const useRound  = cellSize >= 5;
   const useImages = cellSize >= 10;
   const useGrid   = cellSize >= 14;
+  // Bomb pulse: 0→1→0 cycle, period ≈ 1.6 s
+  const tPulse    = (Math.sin(now / 250) + 1) / 2;
 
   const hlSet = new Set();
   if (hoveredGroup && hoveredGroup.length >= 2) {
@@ -901,28 +1012,48 @@ function render() {
       const highlighted = !isBomb && hlSet.has(idx);
       const flashing    = idx === flashIdx;
 
-      // Tile fill
-      ctx.fillStyle = isBomb      ? '#dc2626'
-                    : highlighted ? '#ffe066'
-                    :               '#ffffcc';
+      // Tile fill — bomb pulses red→orange
+      if (isBomb) {
+        const rb = Math.round(220 + tPulse * 35);   // 220→255
+        const gb = Math.round(38  + tPulse * 102);  // 38→140
+        ctx.fillStyle = `rgb(${rb},${gb},38)`;
+      } else {
+        ctx.fillStyle = highlighted ? '#ffe066' : '#ffffcc';
+      }
 
+      const rad = useRound ? Math.max(1, (cellSize * 0.18) | 0) : 0;
       if (useRound) {
-        const rad = Math.max(1, (cellSize * 0.18) | 0);
         roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
         ctx.fill();
       } else {
         ctx.fillRect(x, y, cellSize, cellSize);
       }
 
-      // Icon image
+      // Pulsing gold border on bomb
+      if (isBomb && useRound) {
+        ctx.strokeStyle = `rgba(255,215,0,${0.25 + tPulse * 0.75})`;
+        ctx.lineWidth   = Math.max(1, cellSize * 0.09);
+        roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
+        ctx.stroke();
+      }
+
+      // Icon image — bomb pulses slightly in scale
       if (useImages) {
         const img = tileImages[type];
         if (img && img.naturalWidth > 0) {
-          ctx.drawImage(img, x + 1, y + 1, cellSize - 2, cellSize - 2);
+          if (isBomb) {
+            const enlarge = Math.round(tPulse * cellSize * 0.12);
+            ctx.drawImage(img,
+              x + 1 - enlarge, y + 1 - enlarge,
+              cellSize - 2 + enlarge * 2, cellSize - 2 + enlarge * 2);
+          } else {
+            ctx.drawImage(img, x + 1, y + 1, cellSize - 2, cellSize - 2);
+          }
         } else if (isBomb) {
-          // Fallback: emoji if bomb.png not present
+          // Emoji fallback with scale pulse
           ctx.save();
-          ctx.font         = `${Math.max(8, (cellSize * 0.62) | 0)}px serif`;
+          const fs = Math.max(8, Math.round(cellSize * (0.62 + tPulse * 0.12)));
+          ctx.font = `${fs}px serif`;
           ctx.textAlign    = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText('💣', x + cellSize / 2, y + cellSize / 2);
@@ -934,7 +1065,6 @@ function render() {
       if (flashing) {
         ctx.fillStyle = 'rgba(255,50,50,0.55)';
         if (useRound) {
-          const rad = Math.max(1, (cellSize * 0.18) | 0);
           roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
           ctx.fill();
         } else {
@@ -947,7 +1077,6 @@ function render() {
         ctx.strokeStyle = 'rgba(255,255,180,0.8)';
         ctx.lineWidth   = Math.max(1, (cellSize * 0.08) | 0);
         if (useRound) {
-          const rad = Math.max(1, (cellSize * 0.18) | 0);
           roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
           ctx.stroke();
         } else {
@@ -1008,13 +1137,13 @@ function switchTab(mode) {
     game = savedGames[mode];
     document.getElementById('overlay').classList.add('hidden');
     if (game.gameOver) {
-      // Re-surface the result modal for the restored game
       if (game instanceof BombGame) showBombResult(game.gameWon);
       else showGameOver();
     }
     updateTabUI();
     resizeCanvas();
     updateStats();
+    if (mode === 'bomb') startAnimLoop(); else stopAnimLoop();
   } else {
     // First time on this tab — start a fresh game
     startGame();
@@ -1244,6 +1373,10 @@ function startGame() {
   updateTabUI();
   resizeCanvas();
   updateStats();
+
+  // Animation loop runs only in Bomb Mode
+  if (activeTab === 'bomb') startAnimLoop();
+  else stopAnimLoop();
 }
 
 // Load images immediately; defer startGame until after the browser has
