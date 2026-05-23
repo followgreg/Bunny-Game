@@ -493,7 +493,7 @@
       Bunny Game is a puzzle game. The board is filled with five icons: blue bunny, red bunny, mushroom, cabbage, and carrot. Click any group of two or more matching icons that are connected north, south, east, or west — not diagonal — to clear them. When you clear a group, tiles fall down to fill the gaps. If a column empties, the remaining columns shift left. Your goal is to clear the entire board. Your score is how many tiles remain — lower is better. Zero is a perfect clear. The game ends when no valid moves remain.
     </div>
     <div class="dir-pane hidden" id="dir-bomb">
-      Bomb Mode uses the same board and the same icons, but one square contains a bomb. Your goal is not to clear the board — it is to get the bomb to the bottom row. Clear tiles strategically to make the bomb fall. The bomb falls with gravity just like regular tiles, and stays with its column when columns shift. You cannot click the bomb. You win when the bomb reaches the bottom row. You lose when no moves remain and the bomb hasn't made it.
+      Bomb Mode uses the same board and the same icons, but one square contains a bomb. The bomb always starts near the top, so you have the full board to work with. Your goal is to get the bomb to the bottom row. To clear tiles you need a group of three or more — pairs don't count. Clear tiles strategically to make the bomb fall. The bomb falls with gravity just like regular tiles, and stays with its column when columns shift. You cannot click the bomb. You win when the bomb reaches the bottom row. You lose when no valid moves remain and the bomb hasn't made it.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -508,6 +508,10 @@ const GRID_COLS = 15;
 const GRID_ROWS = 25;
 
 const TILE_TYPES = ['blue-bunny', 'red-bunny', 'mushroom', 'cabbage', 'carrot'];
+
+// Bomb Mode difficulty constants
+const BOMB_MIN_GROUP  = 3;                          // pairs don't clear in Bomb Mode
+const BOMB_MAX_START  = Math.floor(GRID_ROWS / 4);  // bomb spawns in top 25% only
 
 const TILE_COLORS = {
   'blue-bunny': '#3b82f6',
@@ -783,7 +787,7 @@ function checkBombSolvable(initGrid, initBp, rows, cols) {
           if (gc < cols - 1) q.push(gr * cols + (gc + 1));
         }
 
-        if (group.length < 2) continue;
+        if (group.length < BOMB_MIN_GROUP) continue; // mirrors the game rule
 
         let score = 0;
         for (const [gr, gc] of group) {
@@ -818,7 +822,7 @@ class BombGame extends BunnyGame {
     let br, bc;
     for (let attempt = 0; attempt < 20; attempt++) {
       if (attempt > 0) this.grid = this._randomGrid(); // fresh board
-      br = Math.floor(Math.random() * (rows - 1));     // never bottom row
+      br = Math.floor(Math.random() * BOMB_MAX_START); // top 25% only
       bc = Math.floor(Math.random() * cols);
       this.grid[br][bc] = 'bomb';
       if (checkBombSolvable(this.grid, { row: br, col: bc }, rows, cols)) break;
@@ -837,7 +841,7 @@ class BombGame extends BunnyGame {
     if (this.grid[row][col] === 'bomb') return 'bomb'; // signal: ignore, no flash
 
     const group = this.findGroup(row, col);
-    if (group.length < 2) return null;
+    if (group.length < BOMB_MIN_GROUP) return null; // pairs don't clear in Bomb Mode
 
     // Snapshot includes bombPosition so undo can fully restore
     this.history.push({
@@ -917,6 +921,21 @@ class BombGame extends BunnyGame {
     if (newBombCol !== -1) {
       this.bombPosition.col = newBombCol;
     }
+  }
+
+  // Override: game ends when no group of BOMB_MIN_GROUP or more exists
+  _hasValidMoves() {
+    const visited = new Uint8Array(this.rows * this.cols);
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const t = this.grid[r][c];
+        if (!t || t === 'bomb' || visited[r * this.cols + c]) continue;
+        const group = this.findGroup(r, c);
+        for (const [gr, gc] of group) visited[gr * this.cols + gc] = 1;
+        if (group.length >= BOMB_MIN_GROUP) return true;
+      }
+    }
+    return false;
   }
 
   // Undo restores bombPosition alongside grid state
@@ -1272,8 +1291,9 @@ canvas.addEventListener('click', e => {
   // Bomb tile: silently ignore, no flash
   if (game.grid[row][col] === 'bomb') return;
 
+  const minGroup = game instanceof BombGame ? BOMB_MIN_GROUP : 2;
   const group = game.findGroup(row, col);
-  if (group.length < 2) {
+  if (group.length < minGroup) {
     flashCell = { r: row, c: col, expiry: Date.now() + 380 };
     render();
     setTimeout(() => { flashCell = null; render(); }, 390);
@@ -1309,8 +1329,9 @@ canvas.addEventListener('mousemove', e => {
     return;
   }
 
+  const minGroup = game instanceof BombGame ? BOMB_MIN_GROUP : 2;
   const group  = game.findGroup(cell[0], cell[1]);
-  hoveredGroup = group.length >= 2 ? group : null;
+  hoveredGroup = group.length >= minGroup ? group : null;
   render();
 });
 
