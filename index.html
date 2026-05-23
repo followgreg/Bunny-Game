@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bunny Game</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
+      /* dvh accounts for mobile browser chrome (address bar); vh is fallback */
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      /* Safe area insets for notched phones */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* ── Header ── */
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      height: 48px;
+      min-height: 48px;
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      flex-shrink: 0;
+      gap: 10px;
+    }
+
+    #header h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #f9fafb;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Buttons — tall enough to tap comfortably on mobile */
+    .icon-btn {
+      background: #1e293b;
+      border: 1px solid #2d3f55;
+      color: #94a3b8;
+      /* Minimum 44px touch target */
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
+    .icon-btn:active:not(:disabled) { background: #3b4f6a; color: #fff; }
+    .icon-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+
+    /* ── Stats bar ── */
+    #stats {
+      display: flex;
+      align-items: center;
+      height: 34px;
+      min-height: 34px;
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      flex-shrink: 0;
+      padding: 0 16px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      padding-right: 16px;
+      margin-right: 16px;
+      border-right: 1px solid #1e293b;
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-label {
+      font-size: 0.68rem;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      min-width: 2ch;
+    }
+
+    /* ── Canvas area ── */
+    #canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    #game-canvas {
+      cursor: pointer;
+      border-radius: 5px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      /* Prevent tap→scroll on mobile; taps still fire as click events */
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Game-over overlay ── */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+    #overlay.hidden { display: none; }
+
+    .modal {
+      background: #1a2540;
+      border: 1px solid #2d4060;
+      border-radius: 16px;
+      padding: 26px 24px;
+      width: min(420px, 100%);
+      max-height: 90svh;
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.65);
+    }
+
+    #perf-banner {
+      background: linear-gradient(135deg, #065f46, #10b981);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      letter-spacing: 0.04em;
+    }
+    #perf-banner.hidden { display: none; }
+
+    .modal h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      margin-bottom: 5px;
+    }
+
+    .modal-score {
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      margin-bottom: 3px;
+    }
+
+    .modal-sub {
+      font-size: 0.76rem;
+      color: #475569;
+      margin-bottom: 16px;
+    }
+
+    .breakdown {
+      text-align: left;
+      border-top: 1px solid #2d4060;
+      border-bottom: 1px solid #2d4060;
+      padding: 4px 0;
+      margin-bottom: 20px;
+    }
+
+    .bd-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+    .bd-row img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .bd-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .bd-row strong { color: #e2e8f0; }
+
+    .perfect-msg {
+      color: #10b981;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 8px 0;
+      text-align: center;
+    }
+
+    .play-again-btn {
+      display: block;
+      width: 100%;
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      padding: 13px 0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.12s;
+      letter-spacing: 0.03em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .play-again-btn:hover  { background: #3b82f6; }
+    .play-again-btn:active { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────── -->
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="undo-btn" disabled>↩ Undo</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<!-- ── Stats bar ───────────────────────────────────────────────── -->
+<div id="stats">
+  <div class="stat-item">
+    <span class="stat-label">Score</span>
+    <span class="stat-value" id="val-remaining">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Cleared</span>
+    <span class="stat-value" id="val-cleared">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Moves</span>
+    <span class="stat-value" id="val-moves">0</span>
+  </div>
+</div>
+
+<!-- ── Canvas ──────────────────────────────────────────────────── -->
+<div id="canvas-wrap">
+  <canvas id="game-canvas"></canvas>
+</div>
+
+<!-- ── Game-over modal ─────────────────────────────────────────── -->
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2>Game Over</h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub"   id="modal-sub"></p>
+    <div class="breakdown" id="modal-breakdown"></div>
+    <button class="play-again-btn" id="play-again-btn">Play Again</button>
+  </div>
+</div>
+
+<script>
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+
+// Portrait grid — 15 wide × 25 tall fills a phone screen naturally
+const GRID_COLS = 15;
+const GRID_ROWS = 25;
+
+const TILE_TYPES = ['blue-bunny', 'red-bunny', 'mushroom', 'cabbage', 'carrot'];
+
+// Fallback fill colors used when image assets aren't present
+const TILE_COLORS = {
+  'blue-bunny': '#3b82f6',
+  'red-bunny':  '#ef4444',
+  'mushroom':   '#a855f7',
+  'cabbage':    '#22c55e',
+  'carrot':     '#f97316',
+};
+
+const TILE_LABELS = {
+  'blue-bunny': 'Blue Bunny',
+  'red-bunny':  'Red Bunny',
+  'mushroom':   'Mushroom',
+  'cabbage':    'Cabbage',
+  'carrot':     'Carrot',
+};
+
+// =============================================================================
+// IMAGE LOADING
+// Loaded in the background; each successful load triggers a re-render so the
+// board upgrades from colored squares to icons without blocking startup.
+// =============================================================================
+
+const tileImages = {};
+
+function loadImages() {
+  for (const type of TILE_TYPES) {
+    const img = new Image();
+    img.onload  = () => render();
+    img.onerror = () => {};   // no asset → keep using color square
+    img.src = `assets/icons/${type}.svg`;
+    tileImages[type] = img;
+  }
+}
+
+// =============================================================================
+// GAME LOGIC
+// =============================================================================
+
+class BunnyGame {
+  constructor(cols, rows) {
+    this.cols     = cols;
+    this.rows     = rows;
+    this.moves    = 0;
+    this.cleared  = 0;
+    this.gameOver = false;
+    // Undo stack: each entry is a {grid, moves, cleared} snapshot
+    this.history  = [];
+    this.grid     = this._randomGrid();
+  }
+
+  _randomGrid() {
+    return Array.from({ length: this.rows }, () =>
+      Array.from({ length: this.cols }, () =>
+        TILE_TYPES[(Math.random() * TILE_TYPES.length) | 0]
+      )
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // BFS flood-fill
+  // Returns all cells connected to (row, col) sharing the same tile type.
+  // Uses a flat Uint8Array as a visited bitset for speed.
+  // ---------------------------------------------------------------------------
+  findGroup(row, col) {
+    const type = this.grid[row][col];
+    if (!type) return [];
+
+    const visited = new Uint8Array(this.rows * this.cols);
+    const queue   = [row * this.cols + col];
+    const group   = [];
+    let head = 0;
+
+    while (head < queue.length) {
+      const idx = queue[head++];
+      if (visited[idx]) continue;
+      visited[idx] = 1;
+
+      const r = (idx / this.cols) | 0;
+      const c = idx % this.cols;
+      if (this.grid[r][c] !== type) continue;
+
+      group.push([r, c]);
+
+      // Enqueue 4 orthogonal neighbors (bounds-checked)
+      if (r > 0)             queue.push((r - 1) * this.cols + c);
+      if (r < this.rows - 1) queue.push((r + 1) * this.cols + c);
+      if (c > 0)             queue.push(r * this.cols + (c - 1));
+      if (c < this.cols - 1) queue.push(r * this.cols + (c + 1));
+    }
+
+    return group;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Handle a tap/click at (row, col).
+  // Returns the removed group on success, or null if invalid (singleton).
+  // ---------------------------------------------------------------------------
+  click(row, col) {
+    if (this.gameOver) return null;
+
+    const group = this.findGroup(row, col);
+    if (group.length < 2) return null;
+
+    // Save undo snapshot before mutating (cap stack to avoid memory growth)
+    this.history.push({
+      grid:    this.grid.map(r => r.slice()),
+      moves:   this.moves,
+      cleared: this.cleared,
+    });
+    if (this.history.length > 50) this.history.shift();
+
+    for (const [r, c] of group) this.grid[r][c] = null;
+
+    this._applyGravity();
+    this._compactColumns();
+
+    this.moves++;
+    this.cleared += group.length;
+
+    if (!this._hasValidMoves()) this.gameOver = true;
+
+    return group;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Gravity: tiles fall downward within each column, filling gaps at bottom.
+  // Relative order within a column is preserved.
+  // ---------------------------------------------------------------------------
+  _applyGravity() {
+    for (let c = 0; c < this.cols; c++) {
+      // Collect live tiles top→bottom
+      const live = [];
+      for (let r = 0; r < this.rows; r++) {
+        if (this.grid[r][c] !== null) live.push(this.grid[r][c]);
+      }
+      // Rewrite: empty space at top, live tiles packed at bottom
+      const emptyRows = this.rows - live.length;
+      for (let r = 0; r < this.rows; r++) {
+        this.grid[r][c] = r < emptyRows ? null : live[r - emptyRows];
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Column compaction: remove entirely-empty columns and shift survivors left.
+  // After gravity, any cleared column is fully null, so we just check one cell.
+  // ---------------------------------------------------------------------------
+  _compactColumns() {
+    // Collect indices of columns that still have at least one tile
+    const active = [];
+    for (let c = 0; c < this.cols; c++) {
+      if (this.grid.some(row => row[c] !== null)) active.push(c);
+    }
+
+    if (active.length === this.cols) return; // nothing changed
+
+    // Rebuild grid with active columns packed into slots 0..n-1
+    const newGrid = Array.from({ length: this.rows }, () =>
+      new Array(this.cols).fill(null)
+    );
+    for (let newC = 0; newC < active.length; newC++) {
+      const oldC = active[newC];
+      for (let r = 0; r < this.rows; r++) {
+        newGrid[r][newC] = this.grid[r][oldC];
+      }
+    }
+    this.grid = newGrid;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Game-end detection: scan for any adjacent same-type pair.
+  // Only checking right + down is enough — every adjacent pair is found once.
+  // Returns false when no valid move exists (board clear or all isolated singles).
+  // ---------------------------------------------------------------------------
+  _hasValidMoves() {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const t = this.grid[r][c];
+        if (!t) continue;
+        if (c + 1 < this.cols && this.grid[r][c + 1] === t) return true;
+        if (r + 1 < this.rows && this.grid[r + 1][c] === t) return true;
+      }
+    }
+    return false;
+  }
+
+  countRemaining() {
+    let n = 0;
+    for (const row of this.grid) for (const cell of row) if (cell) n++;
+    return n;
+  }
+
+  countByType() {
+    const counts = Object.fromEntries(TILE_TYPES.map(t => [t, 0]));
+    for (const row of this.grid) for (const cell of row) if (cell) counts[cell]++;
+    return counts;
+  }
+
+  undo() {
+    if (!this.history.length) return false;
+    const snap    = this.history.pop();
+    this.grid     = snap.grid;
+    this.moves    = snap.moves;
+    this.cleared  = snap.cleared;
+    this.gameOver = false;
+    return true;
+  }
+}
+
+// =============================================================================
+// CANVAS RENDERER
+// =============================================================================
+
+const canvas = document.getElementById('game-canvas');
+const ctx    = canvas.getContext('2d');
+
+let game     = null;
+let cellSize = 0;
+
+// Hover highlight: the group under the cursor (desktop only — no effect on touch)
+let hoveredGroup = null;
+let lastHoverKey = null;
+
+// Invalid-click flash: brief red overlay on a tapped singleton tile
+let flashCell = null; // { r, c, expiry }
+
+/** Largest integer cell size that fits the board in the canvas container. */
+function computeCellSize(cols, rows) {
+  const wrap   = document.getElementById('canvas-wrap');
+  const availW = wrap.clientWidth  - 16;
+  const availH = wrap.clientHeight - 16;
+  return Math.max(4, Math.floor(Math.min(availW / cols, availH / rows)));
+}
+
+function resizeCanvas() {
+  if (!game) return;
+  cellSize      = computeCellSize(game.cols, game.rows);
+  canvas.width  = cellSize * game.cols;
+  canvas.height = cellSize * game.rows;
+  render();
+}
+
+/**
+ * Full render pass — iterates every cell once.
+ * Feature flags (rounding, images, gridlines) are skipped for small cells.
+ */
+function render() {
+  if (!game) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const now       = Date.now();
+  const useRound  = cellSize >= 5;
+  const useImages = cellSize >= 10;
+  const useGrid   = cellSize >= 14;
+
+  // Build highlight + flash lookup sets
+  const hlSet = new Set();
+  if (hoveredGroup && hoveredGroup.length >= 2) {
+    for (const [r, c] of hoveredGroup) hlSet.add(r * game.cols + c);
+  }
+
+  let flashIdx = -1;
+  if (flashCell && now < flashCell.expiry) {
+    flashIdx = flashCell.r * game.cols + flashCell.c;
+  } else {
+    flashCell = null;
+  }
+
+  for (let r = 0; r < game.rows; r++) {
+    for (let c = 0; c < game.cols; c++) {
+      const type = game.grid[r][c];
+      if (!type) continue;
+
+      const x   = c * cellSize;
+      const y   = r * cellSize;
+      const idx = r * game.cols + c;
+
+      const highlighted = hlSet.has(idx);
+      const flashing    = idx === flashIdx;
+
+      // Tile fill — uniform background; darken slightly on hover
+      ctx.fillStyle = highlighted ? '#ffe066' : '#ffffcc';
+      if (useRound) {
+        const rad = Math.max(1, (cellSize * 0.18) | 0);
+        roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
+        ctx.fill();
+      } else {
+        ctx.fillRect(x, y, cellSize, cellSize);
+      }
+
+      // Icon image — drawn flush to the tile area so it fills the box
+      if (useImages) {
+        const img = tileImages[type];
+        if (img && img.naturalWidth > 0) {
+          ctx.drawImage(img, x + 1, y + 1, cellSize - 2, cellSize - 2);
+        }
+      }
+
+      // Invalid-tap flash: translucent red overlay
+      if (flashing) {
+        ctx.fillStyle = 'rgba(255,50,50,0.55)';
+        if (useRound) {
+          const rad = Math.max(1, (cellSize * 0.18) | 0);
+          roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
+          ctx.fill();
+        } else {
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
+      }
+
+      // Hover highlight border (desktop only)
+      if (highlighted) {
+        ctx.strokeStyle = 'rgba(255,255,180,0.8)';
+        ctx.lineWidth   = Math.max(1, (cellSize * 0.08) | 0);
+        if (useRound) {
+          const rad = Math.max(1, (cellSize * 0.18) | 0);
+          roundRect(ctx, x + 1, y + 1, cellSize - 2, cellSize - 2, rad);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+        }
+      }
+    }
+  }
+
+  // Subtle grid lines for larger cells
+  if (useGrid) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.lineWidth   = 0.5;
+    ctx.beginPath();
+    for (let r = 1; r < game.rows; r++) {
+      ctx.moveTo(0, r * cellSize);
+      ctx.lineTo(canvas.width, r * cellSize);
+    }
+    for (let c = 1; c < game.cols; c++) {
+      ctx.moveTo(c * cellSize, 0);
+      ctx.lineTo(c * cellSize, canvas.height);
+    }
+    ctx.stroke();
+  }
+}
+
+/** Draw a rounded-rectangle path (does not fill/stroke — caller decides). */
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y,     x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h,     x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y,         x + r, y);
+  ctx.closePath();
+}
+
+/** Mix a hex color toward white by factor t (0–1). Returns an rgb() string. */
+function brighten(hex, t) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgb(${Math.min(255, r + ((255 - r) * t) | 0)},`
+       + `${Math.min(255, g + ((255 - g) * t) | 0)},`
+       + `${Math.min(255, b + ((255 - b) * t) | 0)})`;
+}
+
+// =============================================================================
+// UI — stats & game-over overlay
+// =============================================================================
+
+function updateStats() {
+  document.getElementById('val-remaining').textContent = game.countRemaining();
+  document.getElementById('val-cleared').textContent   = game.cleared;
+  document.getElementById('val-moves').textContent     = game.moves;
+  document.getElementById('undo-btn').disabled         = game.history.length === 0;
+}
+
+function showGameOver() {
+  const remaining = game.countRemaining();
+  const isPerfect = remaining === 0;
+  const counts    = game.countByType();
+
+  const perfEl = document.getElementById('perf-banner');
+  if (isPerfect) {
+    perfEl.textContent = '🎉 PERFECT CLEAR! 🎉';
+    perfEl.classList.remove('hidden');
+  } else {
+    perfEl.classList.add('hidden');
+  }
+
+  document.getElementById('modal-score').textContent =
+    `Score: ${remaining} tile${remaining !== 1 ? 's' : ''} remaining`;
+  document.getElementById('modal-sub').textContent =
+    `${game.moves} move${game.moves !== 1 ? 's' : ''} · ${game.cleared} tiles cleared`;
+
+  let html = '';
+  for (const type of TILE_TYPES) {
+    if (counts[type] <= 0) continue;
+    const img  = tileImages[type];
+    const icon = (img && img.naturalWidth > 0)
+      ? `<img src="assets/icons/${type}.png" alt="${TILE_LABELS[type]}">`
+      : `<div class="bd-swatch" style="background:${TILE_COLORS[type]}"></div>`;
+    html += `<div class="bd-row">${icon}<span>${TILE_LABELS[type]}: <strong>${counts[type]}</strong> remaining</span></div>`;
+  }
+  if (!html) html = '<p class="perfect-msg">All tiles cleared!</p>';
+
+  document.getElementById('modal-breakdown').innerHTML = html;
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+// =============================================================================
+// INPUT — tap/click & hover
+// =============================================================================
+
+/** Returns [row, col] for a pointer event, or null if outside the canvas. */
+function cellFromEvent(e) {
+  const rect = canvas.getBoundingClientRect();
+  // Use clientX/Y which works for both mouse and touch (via click event)
+  const col  = ((e.clientX - rect.left) / cellSize) | 0;
+  const row  = ((e.clientY - rect.top)  / cellSize) | 0;
+  if (col >= 0 && col < game.cols && row >= 0 && row < game.rows) return [row, col];
+  return null;
+}
+
+canvas.addEventListener('click', e => {
+  if (!game || game.gameOver) return;
+  const cell = cellFromEvent(e);
+  if (!cell) return;
+  const [row, col] = cell;
+
+  if (!game.grid[row][col]) return;
+
+  const group = game.findGroup(row, col);
+  if (group.length < 2) {
+    // Brief red flash on the tapped singleton
+    flashCell = { r: row, c: col, expiry: Date.now() + 380 };
+    render();
+    setTimeout(() => { flashCell = null; render(); }, 390);
+    return;
+  }
+
+  game.click(row, col);
+  hoveredGroup = null;
+  lastHoverKey = null;
+
+  updateStats();
+  render();
+
+  if (game.gameOver) setTimeout(showGameOver, 350);
+});
+
+// Hover highlight — only meaningful on pointer (mouse) devices
+canvas.addEventListener('mousemove', e => {
+  if (!game || game.gameOver) return;
+  const cell = cellFromEvent(e);
+  const key  = cell ? `${cell[0]},${cell[1]}` : null;
+
+  if (key === lastHoverKey) return;   // still on same cell — skip BFS
+  lastHoverKey = key;
+
+  if (!cell || !game.grid[cell[0]][cell[1]]) {
+    if (hoveredGroup) { hoveredGroup = null; render(); }
+    return;
+  }
+
+  const group  = game.findGroup(cell[0], cell[1]);
+  hoveredGroup = group.length >= 2 ? group : null;
+  render();
+});
+
+canvas.addEventListener('mouseleave', () => {
+  if (hoveredGroup) { hoveredGroup = null; lastHoverKey = null; render(); }
+});
+
+// =============================================================================
+// CONTROLS
+// =============================================================================
+
+document.getElementById('undo-btn').addEventListener('click', () => {
+  if (game && game.undo()) {
+    hoveredGroup = null;
+    lastHoverKey = null;
+    document.getElementById('overlay').classList.add('hidden');
+    updateStats();
+    render();
+  }
+});
+
+document.getElementById('new-btn').addEventListener('click', () => startGame());
+
+document.getElementById('play-again-btn').addEventListener('click', () => {
+  document.getElementById('overlay').classList.add('hidden');
+  startGame();
+});
+
+window.addEventListener('resize', () => resizeCanvas());
+
+// =============================================================================
+// BOOTSTRAP
+// =============================================================================
+
+function startGame() {
+  game         = new BunnyGame(GRID_COLS, GRID_ROWS);
+  hoveredGroup = null;
+  lastHoverKey = null;
+  flashCell    = null;
+  document.getElementById('overlay').classList.add('hidden');
+  resizeCanvas();
+  updateStats();
+}
+
+// Start immediately with colored squares; icons swap in as they load
+startGame();
+loadImages();
+</script>
+</body>
+</html>
