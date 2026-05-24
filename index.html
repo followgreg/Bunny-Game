@@ -349,33 +349,6 @@
       letter-spacing: 0.01em;
     }
 
-    .dir-tab-bar {
-      display: flex;
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 3px;
-      margin-bottom: 16px;
-      gap: 2px;
-    }
-
-    .dir-tab-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #475569;
-      padding: 7px 0;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.12s, color 0.12s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .dir-tab-btn.active {
-      background: #1e293b;
-      color: #f1f5f9;
-    }
-
     .dir-pane {
       font-size: 0.86rem;
       line-height: 1.72;
@@ -486,10 +459,6 @@
 <div id="directions-overlay">
   <div class="directions-modal">
     <p class="dir-heading">How to Play</p>
-    <div class="dir-tab-bar">
-      <button class="dir-tab-btn active" data-dir="classic">Classic</button>
-      <button class="dir-tab-btn" data-dir="bomb">Bomb Mode</button>
-    </div>
     <div class="dir-pane" id="dir-classic">
       Bunny Game is a puzzle game. The board is filled with five icons: blue bunny, red bunny, mushroom, cabbage, and carrot. Click any group of two or more matching icons that are connected north, south, east, or west — not diagonal — to clear them. When you clear a group, tiles fall down to fill the gaps. If a column empties, the remaining columns shift left. Your goal is to clear the entire board. Your score is how many tiles remain — lower is better. Zero is a perfect clear. The game ends when no valid moves remain.
     </div>
@@ -1144,6 +1113,7 @@ function roundRect(ctx, x, y, w, h, r) {
 
 let activeTab = 'classic';
 const savedGames = { classic: null, bomb: null };
+const dirsSeen   = { classic: false, bomb: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
@@ -1168,6 +1138,9 @@ function switchTab(mode) {
     // First time on this tab — start a fresh game
     startGame();
   }
+
+  // Show mode instructions on first visit to this tab
+  if (!dirsSeen[mode]) showDirections(mode);
 }
 
 function updateTabUI() {
@@ -1345,7 +1318,7 @@ canvas.addEventListener('mouseleave', () => {
 // =============================================================================
 
 document.getElementById('new-btn').addEventListener('click', () => startGame());
-document.getElementById('help-btn').addEventListener('click', () => document.getElementById('directions-overlay').classList.remove('hidden'));
+document.getElementById('help-btn').addEventListener('click', () => showDirections(activeTab));
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
@@ -1363,19 +1336,14 @@ document.querySelectorAll('.mode-tab').forEach(btn => {
 // DIRECTIONS
 // =============================================================================
 
-document.querySelectorAll('.dir-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.dir;
-    document.querySelectorAll('.dir-tab-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.dir === target)
-    );
-    document.querySelectorAll('.dir-pane').forEach(p =>
-      p.classList.toggle('hidden', p.id !== `dir-${target}`)
-    );
-  });
-});
+function showDirections(mode) {
+  document.getElementById('dir-classic').classList.toggle('hidden', mode !== 'classic');
+  document.getElementById('dir-bomb').classList.toggle('hidden', mode !== 'bomb');
+  document.getElementById('directions-overlay').classList.remove('hidden');
+}
 
 document.getElementById('dir-close-btn').addEventListener('click', () => {
+  dirsSeen[activeTab] = true;
   document.getElementById('directions-overlay').classList.add('hidden');
 });
 
