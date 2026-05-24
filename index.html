@@ -1104,42 +1104,34 @@ class BunnyHoleGame extends BunnyGame {
   }
 
   // ---------------------------------------------------------------------------
-  // Gravity — behaviour depends on the isClearingFromClick flag.
+  // Gravity — each column packed to the bottom independently.
   //
-  //   fromClick = true  (click-initiated):
-  //     Holed columns — above-hole tiles fall through and drain.
+  // Hole columns (cols 5–6): the above-hole segment (rows 0–4) and below-hole
+  // segment (rows 7–11) are INDEPENDENT compartments.  Tiles never cross the
+  // hole via gravity — the hole is a solid floor for both segments.  A tile
+  // sitting just above the hole does not drain unless the column-collapse step
+  // physically shifts it into a hole cell, which _compactColumns handles.
+  // This applies identically for click and rotation; fromClick is unused here.
   //
-  //   fromClick = false (rotation-initiated):
-  //     Holed columns — above-hole tiles pack toward row 4 (hole acts as a
-  //     solid floor; no draining).
-  //
-  //   Normal columns always use standard pack-to-bottom.
+  // Normal columns: standard pack-to-bottom.
   // ---------------------------------------------------------------------------
   _applyGravity(fromClick = false) {
     for (let c = 0; c < this.cols; c++) {
       if (c === 5 || c === 6) {
-        // Hole rows are always void
+        // Hole cells are always void
         this.grid[5][c] = null;
         this.grid[6][c] = null;
 
-        if (fromClick) {
-          // Above-hole tiles fall through the hole and are permanently removed
-          let drained = 0;
-          for (let r = 0; r < 5; r++) {
-            if (this.grid[r][c] !== null) { drained++; this.grid[r][c] = null; }
-          }
-          this.cleared += drained;
-        } else {
-          // Rotation gravity: hole is a solid floor — tiles pile up at row 4
-          const aboveLive = [];
-          for (let r = 0; r < 5; r++)
-            if (this.grid[r][c] !== null) aboveLive.push(this.grid[r][c]);
-          for (let r = 0; r < 5; r++)
-            this.grid[r][c] = r >= 5 - aboveLive.length
-              ? aboveLive[r - (5 - aboveLive.length)]
-              : null;
-        }
-        // Below-hole segment (rows 7–11) always packs to bottom
+        // Above-hole segment: pack toward row 4 (hole is the floor)
+        const aboveLive = [];
+        for (let r = 0; r < 5; r++)
+          if (this.grid[r][c] !== null) aboveLive.push(this.grid[r][c]);
+        for (let r = 0; r < 5; r++)
+          this.grid[r][c] = r >= 5 - aboveLive.length
+            ? aboveLive[r - (5 - aboveLive.length)]
+            : null;
+
+        // Below-hole segment: pack toward row 11
         const belowLive = [];
         for (let r = 7; r <= 11; r++)
           if (this.grid[r][c] !== null) belowLive.push(this.grid[r][c]);
@@ -1180,11 +1172,11 @@ class BunnyHoleGame extends BunnyGame {
       }
     }
     // Hole cells are fixed at rows 5-6, cols 5-6 — always void.
-    // If column compaction placed tile content there, zero it out;
-    // the subsequent _applyGravity pass will properly settle / drain
-    // whatever is left in those columns.
-    newGrid[5][5] = null; newGrid[5][6] = null;
-    newGrid[6][5] = null; newGrid[6][6] = null;
+    // Column compaction may shift a non-hole column's tile content into hole
+    // positions; those tiles are permanently removed and counted as cleared.
+    for (const [hr, hc] of [[5,5],[5,6],[6,5],[6,6]]) {
+      if (newGrid[hr][hc] !== null) { this.cleared++; newGrid[hr][hc] = null; }
+    }
     this.grid = newGrid;
   }
 
