@@ -1159,8 +1159,34 @@ class BunnyHoleGame extends BunnyGame {
     }
   }
 
-  // No column compaction — 12×12 grid is fixed so the hole never moves.
-  _compactColumns() { /* intentionally empty */ }
+  // Column compaction for Bunny Hole:
+  // Collect non-empty columns (any non-null cell — hole cells are always null
+  // so they never make a column appear occupied), rebuild the grid left-aligned,
+  // then re-enforce hole cells as void in case the shift put tile content there.
+  _compactColumns() {
+    const active = [];
+    for (let c = 0; c < this.cols; c++) {
+      if (this.grid.some(row => row[c] !== null)) active.push(c);
+    }
+    if (active.length === this.cols) return;
+
+    const newGrid = Array.from({ length: this.rows }, () =>
+      new Array(this.cols).fill(null)
+    );
+    for (let newC = 0; newC < active.length; newC++) {
+      const oldC = active[newC];
+      for (let r = 0; r < this.rows; r++) {
+        newGrid[r][newC] = this.grid[r][oldC];
+      }
+    }
+    // Hole cells are fixed at rows 5-6, cols 5-6 — always void.
+    // If column compaction placed tile content there, zero it out;
+    // the subsequent _applyGravity pass will properly settle / drain
+    // whatever is left in those columns.
+    newGrid[5][5] = null; newGrid[5][6] = null;
+    newGrid[6][5] = null; newGrid[6][6] = null;
+    this.grid = newGrid;
+  }
 
   // ---------------------------------------------------------------------------
   // Click — clear group, apply drain-enabled gravity, check game-over.
@@ -1182,7 +1208,9 @@ class BunnyHoleGame extends BunnyGame {
     if (this.history.length > 50) this.history.shift();
 
     for (const [r, c] of group) this.grid[r][c] = null;
-    this._applyGravity(true);   // drain-enabled
+    this._applyGravity(true);    // gravity + drain
+    this._compactColumns();      // shift empty columns left
+    this._applyGravity(true);    // re-settle anything shifted into hole columns
     this.moves++;
     this.cleared += group.length;
 
@@ -1221,7 +1249,9 @@ class BunnyHoleGame extends BunnyGame {
     }
     this.grid = newGrid;
 
-    this._applyGravity(false);  // no drain — hole acts as solid floor
+    this._applyGravity(false);   // no drain — hole acts as solid floor
+    this._compactColumns();      // shift empty columns left
+    this._applyGravity(false);   // re-settle anything shifted into hole columns
     this.rotationsRemaining--;
     this.rotationsUsed++;
 
