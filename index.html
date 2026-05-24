@@ -399,6 +399,7 @@
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
+    <button class="icon-btn" id="rotate-btn" style="display:none" aria-label="Rotate board">↻ Rotate</button>
     <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
     <button class="icon-btn" id="new-btn">↺ New</button>
   </div>
@@ -409,6 +410,7 @@
   <button class="mode-tab active" data-mode="classic">Classic</button>
   <button class="mode-tab" data-mode="bomb">Bomb Mode</button>
   <button class="mode-tab" data-mode="86bunnies">86 Bunnies</button>
+  <button class="mode-tab" data-mode="bunnyhole">Bunny Hole</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
@@ -417,7 +419,7 @@
     <span class="stat-label" id="lbl-score">Score</span>
     <span class="stat-value" id="val-remaining">—</span>
   </div>
-  <div class="stat-item">
+  <div class="stat-item" id="cleared-stat">
     <span class="stat-label">Cleared</span>
     <span class="stat-value" id="val-cleared">0</span>
   </div>
@@ -428,6 +430,10 @@
   <div class="stat-item" id="bomb-stat" style="display:none">
     <span class="stat-label">Bomb</span>
     <span class="stat-value" id="val-bomb">—</span>
+  </div>
+  <div class="stat-item" id="rotations-stat" style="display:none">
+    <span class="stat-label">Rotations</span>
+    <span class="stat-value" id="val-rotations">0</span>
   </div>
 </div>
 
@@ -468,6 +474,9 @@
     </div>
     <div class="dir-pane hidden" id="dir-86bunnies">
       86 Bunnies is a puzzle game. The board is filled with four icons: blue bunny, mushroom, cabbage, and carrot. Your goal is to eliminate all the blue bunnies. You cannot click blue bunnies directly — you have to clear other icons strategically so that columns collapse and bring blue bunnies together. Once two or more blue bunnies are adjacent, you can click them to clear them. The game ends when all blue bunnies are gone or no moves remain. Your score is how many blue bunnies are left.
+    </div>
+    <div class="dir-pane hidden" id="dir-bunnyhole">
+      Bunny Hole is a puzzle game. The board is a 12×12 grid filled with five icons. In the center of the board is a 2×2 hole. Any tile that falls into the hole is permanently removed. Click groups of two or more matching icons connected north, south, east, or west to clear them. Tiles fall down after each move. If they land in the hole they disappear. Use the rotate button to spin the entire board 90 degrees clockwise — tiles re-settle with gravity and anything that falls through the hole is gone. Rotate as many times as you like. The game ends when no moves remain in any rotation. Your score is how many tiles you cleared.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -1061,6 +1070,214 @@ class EightySixGame extends BunnyGame {
 }
 
 // =============================================================================
+// GAME LOGIC — Bunny Hole
+// 12×12 fixed board with a permanent 2×2 drain hole at rows 5–6, cols 5–6.
+// No column compaction — the grid stays 12×12 so the hole position never moves.
+// Tiles fall into the hole and are permanently removed.
+// A rotate button spins the whole board 90° clockwise; gravity then re-settles.
+// =============================================================================
+
+class BunnyHoleGame extends BunnyGame {
+  constructor() {
+    super(12, 12);     // calls _randomGrid() which skips hole + above-hole cells
+    this.rotations = 0;
+    // No initial gravity pass needed — _randomGrid() already leaves those cells empty
+  }
+
+  // ---------------------------------------------------------------------------
+  // Returns true for the 4 permanent hole cells.
+  // ---------------------------------------------------------------------------
+  static isHole(r, c) { return r >= 5 && r <= 6 && c >= 5 && c <= 6; }
+
+  // ---------------------------------------------------------------------------
+  // Random fill — hole cells and the above-hole segment of holed columns are
+  // left empty at game start (they would drain immediately via gravity anyway).
+  // ---------------------------------------------------------------------------
+  _randomGrid() {
+    return Array.from({ length: this.rows }, (_, r) =>
+      Array.from({ length: this.cols }, (_, c) => {
+        if (BunnyHoleGame.isHole(r, c))     return null; // hole — always void
+        if ((c === 5 || c === 6) && r < 5)  return null; // above-hole drain zone
+        return TILE_TYPES[(Math.random() * TILE_TYPES.length) | 0];
+      })
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Gravity: tiles fall straight down within their column.
+  //   Normal columns — standard pack-to-bottom.
+  //   Holed columns (c=5,6) — above-hole tiles drain; below-hole tiles pack.
+  // Drained tiles are added to this.cleared.
+  // ---------------------------------------------------------------------------
+  _applyGravity() {
+    for (let c = 0; c < this.cols; c++) {
+      if (c === 5 || c === 6) {
+        // Above-hole segment (rows 0–4) drains into the hole
+        let drained = 0;
+        for (let r = 0; r < 5; r++) {
+          if (this.grid[r][c] !== null) { drained++; this.grid[r][c] = null; }
+        }
+        this.grid[5][c] = null;   // hole rows always void
+        this.grid[6][c] = null;
+        // Below-hole segment (rows 7–11) packs to bottom
+        const live = [];
+        for (let r = 7; r <= 11; r++)
+          if (this.grid[r][c] !== null) live.push(this.grid[r][c]);
+        for (let r = 7; r <= 11; r++)
+          this.grid[r][c] = r >= 12 - live.length ? live[r - (12 - live.length)] : null;
+        this.cleared += drained;
+      } else {
+        // Normal column — standard gravity
+        const live = [];
+        for (let r = 0; r < this.rows; r++)
+          if (this.grid[r][c] !== null) live.push(this.grid[r][c]);
+        const empty = this.rows - live.length;
+        for (let r = 0; r < this.rows; r++)
+          this.grid[r][c] = r < empty ? null : live[r - empty];
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // No column compaction — the 12×12 grid is fixed so the hole never moves.
+  // ---------------------------------------------------------------------------
+  _compactColumns() { /* intentionally empty */ }
+
+  // ---------------------------------------------------------------------------
+  // Click: clear group + gravity; no compaction; win/lose via _hasAnyMoves().
+  // ---------------------------------------------------------------------------
+  click(row, col) {
+    if (this.gameOver) return null;
+    if (BunnyHoleGame.isHole(row, col)) return null;
+
+    const group = this.findGroup(row, col);
+    if (group.length < 2) return null;
+
+    this.history.push({
+      grid:      this.grid.map(r => r.slice()),
+      moves:     this.moves,
+      cleared:   this.cleared,
+      rotations: this.rotations,
+    });
+    if (this.history.length > 50) this.history.shift();
+
+    for (const [r, c] of group) this.grid[r][c] = null;
+    this._applyGravity();
+    this.moves++;
+    this.cleared += group.length;
+
+    if (!this._hasAnyMoves()) this.gameOver = true;
+    return group;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Rotate 90° clockwise: new[c][rows-1-r] = old[r][c].
+  // Tiles that land in hole cells are drained immediately.
+  // Then re-run gravity until stable, then check game-over.
+  // ---------------------------------------------------------------------------
+  rotate() {
+    if (this.gameOver) return;
+
+    this.history.push({
+      grid:      this.grid.map(r => r.slice()),
+      moves:     this.moves,
+      cleared:   this.cleared,
+      rotations: this.rotations,
+    });
+    if (this.history.length > 50) this.history.shift();
+
+    const newGrid = Array.from({ length: this.rows }, () =>
+      new Array(this.cols).fill(null)
+    );
+    let drained = 0;
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const t = this.grid[r][c];
+        if (!t) continue;
+        const nr = c, nc = this.rows - 1 - r;
+        if (BunnyHoleGame.isHole(nr, nc)) { drained++; }
+        else                              { newGrid[nr][nc] = t; }
+      }
+    }
+    this.cleared += drained;
+    this.grid = newGrid;
+
+    // Gravity settles the post-rotation board (may drain more above-hole tiles)
+    this._applyGravity();
+    this.rotations++;
+
+    if (!this._hasAnyMoves()) this.gameOver = true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Game-over check: stuck only when ALL 4 rotational states have no valid
+  // moves AND no pending hole drains.  One level of lookahead is sufficient.
+  // ---------------------------------------------------------------------------
+  _hasAnyMoves() {
+    if (this._hasValidMoves()) return true;
+
+    // Simulate 3 further rotations (90°, 180°, 270° from current)
+    let g = this.grid.map(r => r.slice());
+    for (let i = 0; i < 3; i++) {
+      let drained = 0;
+      const ng = Array.from({ length: this.rows }, () => new Array(this.cols).fill(null));
+      for (let r = 0; r < this.rows; r++) {
+        for (let c = 0; c < this.cols; c++) {
+          if (!g[r][c]) continue;
+          const nr = c, nc = this.rows - 1 - r;
+          if (BunnyHoleGame.isHole(nr, nc)) { drained++; }
+          else                              { ng[nr][nc] = g[r][c]; }
+        }
+      }
+      // Apply gravity to simulated grid
+      for (let c = 0; c < this.cols; c++) {
+        if (c === 5 || c === 6) {
+          for (let r = 0; r < 5; r++) if (ng[r][c]) { drained++; ng[r][c] = null; }
+          ng[5][c] = null; ng[6][c] = null;
+          const lv = [];
+          for (let r = 7; r <= 11; r++) if (ng[r][c]) lv.push(ng[r][c]);
+          for (let r = 7; r <= 11; r++)
+            ng[r][c] = r >= 12 - lv.length ? lv[r - (12 - lv.length)] : null;
+        } else {
+          const lv = [];
+          for (let r = 0; r < this.rows; r++) if (ng[r][c]) lv.push(ng[r][c]);
+          const emp = this.rows - lv.length;
+          for (let r = 0; r < this.rows; r++) ng[r][c] = r < emp ? null : lv[r - emp];
+        }
+      }
+      // Any drain or new valid group = not stuck
+      if (drained > 0 || this._gridHasValidMoves(ng)) return true;
+      g = ng;
+    }
+    return false;
+  }
+
+  _gridHasValidMoves(grid) {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const t = grid[r][c];
+        if (!t) continue;
+        if (c + 1 < this.cols  && grid[r][c + 1] === t) return true;
+        if (r + 1 < this.rows  && grid[r + 1][c] === t) return true;
+      }
+    }
+    return false;
+  }
+
+  // Undo restores rotations alongside grid state
+  undo() {
+    if (!this.history.length) return false;
+    const snap     = this.history.pop();
+    this.grid      = snap.grid;
+    this.moves     = snap.moves;
+    this.cleared   = snap.cleared;
+    this.rotations = snap.rotations;
+    this.gameOver  = false;
+    return true;
+  }
+}
+
+// =============================================================================
 // CANVAS RENDERER
 // =============================================================================
 
@@ -1129,10 +1346,20 @@ function render() {
   for (let r = 0; r < game.rows; r++) {
     for (let c = 0; c < game.cols; c++) {
       const type = game.grid[r][c];
-      if (!type) continue;
-
       const x   = c * cellSize;
       const y   = r * cellSize;
+
+      // Draw the fixed 2×2 hole as a dark void
+      if (!type) {
+        if (game instanceof BunnyHoleGame && BunnyHoleGame.isHole(r, c)) {
+          const hRad = useRound ? Math.max(1, (cellSize * 0.15) | 0) : 0;
+          ctx.fillStyle = '#0a0f1e';
+          if (useRound) { roundRect(ctx, x, y, cellSize, cellSize, hRad); ctx.fill(); }
+          else ctx.fillRect(x, y, cellSize, cellSize);
+        }
+        continue;
+      }
+
       const idx = r * game.cols + c;
 
       const isBomb      = type === 'bomb';
@@ -1230,6 +1457,18 @@ function render() {
     }
     ctx.stroke();
   }
+
+  // Draw a glowing indigo border around the entire 2×2 hole in Bunny Hole mode
+  if (game instanceof BunnyHoleGame) {
+    const hx  = 5 * cellSize;
+    const hy  = 5 * cellSize;
+    const hw  = 2 * cellSize;
+    const hRad = useRound ? Math.max(2, (cellSize * 0.12) | 0) : 0;
+    ctx.strokeStyle = 'rgba(99,102,241,0.85)';
+    ctx.lineWidth   = Math.max(1.5, cellSize * 0.07);
+    if (hRad > 0) { roundRect(ctx, hx, hy, hw, hw, hRad); ctx.stroke(); }
+    else ctx.strokeRect(hx + 0.5, hy + 0.5, hw - 1, hw - 1);
+  }
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -1252,8 +1491,8 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null, '86bunnies': null };
-const dirsSeen   = { classic: false, bomb: false, '86bunnies': false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null, bunnyhole: null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, bunnyhole: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
@@ -1267,9 +1506,10 @@ function switchTab(mode) {
     game = savedGames[mode];
     document.getElementById('overlay').classList.add('hidden');
     if (game.gameOver) {
-      if (game instanceof BombGame)      showBombResult(game.gameWon);
+      if (game instanceof BombGame)           showBombResult(game.gameWon);
       else if (game instanceof EightySixGame) show86Result(game.gameWon);
-      else                               showGameOver();
+      else if (game instanceof BunnyHoleGame) showBunnyHoleResult();
+      else                                    showGameOver();
     }
     updateTabUI();
     resizeCanvas();
@@ -1288,6 +1528,8 @@ function updateTabUI() {
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === activeTab);
   });
+  document.getElementById('rotate-btn').style.display =
+    activeTab === 'bunnyhole' ? '' : 'none';
 }
 
 // =============================================================================
@@ -1300,19 +1542,35 @@ function updateStats() {
   document.getElementById('val-cleared').textContent   = game.cleared;
   document.getElementById('val-moves').textContent     = game.moves;
 
-  const bombStat = document.getElementById('bomb-stat');
-  if (game instanceof EightySixGame) {
-    bombStat.style.display = 'none';
+  const bombStat    = document.getElementById('bomb-stat');
+  const clearedStat = document.getElementById('cleared-stat');
+  const rotStat     = document.getElementById('rotations-stat');
+
+  if (game instanceof BunnyHoleGame) {
+    bombStat.style.display    = 'none';
+    clearedStat.style.display = 'none';
+    rotStat.style.display     = '';
+    document.getElementById('val-rotations').textContent = game.rotations;
+    document.getElementById('val-remaining').textContent = game.cleared;
+    document.getElementById('lbl-score').textContent     = 'Cleared';
+  } else if (game instanceof EightySixGame) {
+    bombStat.style.display    = 'none';
+    clearedStat.style.display = '';
+    rotStat.style.display     = 'none';
     const rem = game.countBlueBunnies();
     document.getElementById('val-remaining').textContent = `${rem} / ${game.totalBlueBunnies}`;
-    document.getElementById('lbl-score').textContent = 'Bunnies';
+    document.getElementById('lbl-score').textContent     = 'Bunnies';
   } else if (game instanceof BombGame) {
-    bombStat.style.display = '';
+    bombStat.style.display    = '';
+    clearedStat.style.display = '';
+    rotStat.style.display     = 'none';
     const rowsLeft = game.rows - 1 - game.bombPosition.row;
-    document.getElementById('val-bomb').textContent = rowsLeft === 0 ? '✓' : rowsLeft;
+    document.getElementById('val-bomb').textContent  = rowsLeft === 0 ? '✓' : rowsLeft;
     document.getElementById('lbl-score').textContent = 'Tiles';
   } else {
-    bombStat.style.display = 'none';
+    bombStat.style.display    = 'none';
+    clearedStat.style.display = '';
+    rotStat.style.display     = 'none';
     document.getElementById('lbl-score').textContent = 'Score';
   }
 }
@@ -1418,6 +1676,39 @@ function show86Result(won) {
   document.getElementById('overlay').classList.remove('hidden');
 }
 
+function showBunnyHoleResult() {
+  const remaining = game.countRemaining();
+  const perfEl    = document.getElementById('perf-banner');
+
+  if (remaining === 0) {
+    perfEl.style.background = 'linear-gradient(135deg, #065f46, #10b981)';
+    perfEl.textContent = '🎉 BOARD CLEARED!';
+    perfEl.classList.remove('hidden');
+  } else {
+    perfEl.classList.add('hidden');
+  }
+
+  document.getElementById('modal-title').textContent = 'Game Over';
+  document.getElementById('modal-score').textContent =
+    `${game.cleared} tiles cleared · ${remaining} remaining`;
+  document.getElementById('modal-sub').textContent =
+    `${game.moves} move${game.moves !== 1 ? 's' : ''} · ${game.rotations} rotation${game.rotations !== 1 ? 's' : ''}`;
+
+  const counts = game.countByType();
+  let html = '';
+  for (const type of TILE_TYPES) {
+    if (counts[type] <= 0) continue;
+    const img  = tileImages[type];
+    const icon = (img && img.naturalWidth > 0)
+      ? `<img src="assets/icons/${type}.svg" alt="${TILE_LABELS[type]}">`
+      : `<div class="bd-swatch" style="background:${TILE_COLORS[type]}"></div>`;
+    html += `<div class="bd-row">${icon}<span>${TILE_LABELS[type]}: <strong>${counts[type]}</strong> remaining</span></div>`;
+  }
+  if (!html) html = '<p class="perfect-msg">All tiles cleared!</p>';
+  document.getElementById('modal-breakdown').innerHTML = html;
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
 // =============================================================================
 // INPUT — tap/click & hover
 // =============================================================================
@@ -1461,6 +1752,7 @@ canvas.addEventListener('click', e => {
     setTimeout(() => {
       if (game instanceof BombGame)           showBombResult(game.gameWon);
       else if (game instanceof EightySixGame) show86Result(game.gameWon);
+      else if (game instanceof BunnyHoleGame) showBunnyHoleResult();
       else                                    showGameOver();
     }, 350);
   }
@@ -1474,9 +1766,9 @@ canvas.addEventListener('mousemove', e => {
   if (key === lastHoverKey) return;
   lastHoverKey = key;
 
-  // No hover highlight on bomb tiles, and 86 Bunnies has no pre-highlighting
+  // No hover highlight on bomb tiles, 86 Bunnies, or Bunny Hole
   if (!cell || !game.grid[cell[0]][cell[1]] || game.grid[cell[0]][cell[1]] === 'bomb' ||
-      game instanceof EightySixGame) {
+      game instanceof EightySixGame || game instanceof BunnyHoleGame) {
     if (hoveredGroup) { hoveredGroup = null; render(); }
     return;
   }
@@ -1497,6 +1789,17 @@ canvas.addEventListener('mouseleave', () => {
 
 document.getElementById('new-btn').addEventListener('click', () => startGame());
 document.getElementById('help-btn').addEventListener('click', () => showDirections(activeTab));
+document.getElementById('rotate-btn').addEventListener('click', () => {
+  if (!game || !(game instanceof BunnyHoleGame) || game.gameOver) return;
+  game.rotate();
+  hoveredGroup = null;
+  lastHoverKey = null;
+  updateStats();
+  render();
+  if (game.gameOver) {
+    setTimeout(() => showBunnyHoleResult(), 350);
+  }
+});
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
@@ -1518,6 +1821,7 @@ function showDirections(mode) {
   document.getElementById('dir-classic').classList.toggle('hidden',     mode !== 'classic');
   document.getElementById('dir-bomb').classList.toggle('hidden',        mode !== 'bomb');
   document.getElementById('dir-86bunnies').classList.toggle('hidden',   mode !== '86bunnies');
+  document.getElementById('dir-bunnyhole').classList.toggle('hidden',   mode !== 'bunnyhole');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -1531,9 +1835,10 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 // =============================================================================
 
 function startGame() {
-  game = activeTab === 'bomb'     ? new BombGame(GRID_COLS, GRID_ROWS)
-       : activeTab === '86bunnies' ? new EightySixGame()
-       :                             new BunnyGame(GRID_COLS, GRID_ROWS);
+  game = activeTab === 'bomb'      ? new BombGame(GRID_COLS, GRID_ROWS)
+       : activeTab === '86bunnies'  ? new EightySixGame()
+       : activeTab === 'bunnyhole'  ? new BunnyHoleGame()
+       :                              new BunnyGame(GRID_COLS, GRID_ROWS);
 
   savedGames[activeTab] = game;
   hoveredGroup = null;
@@ -1593,6 +1898,10 @@ document.getElementById('share-btn').addEventListener('click', () => {
     } else {
       text = `86 Bunnies — ${remaining} of ${total} blue bunnies remained after ${moves} move${moves !== 1 ? 's' : ''}. Can you do better?`;
     }
+  } else if (game instanceof BunnyHoleGame) {
+    const remaining = game.countRemaining();
+    const rots      = game.rotations;
+    text = `Bunny Hole — cleared ${game.cleared} tiles, ${remaining} remaining. ${moves} move${moves !== 1 ? 's' : ''}, ${rots} rotation${rots !== 1 ? 's' : ''}.`;
   } else {
     const remaining = game ? game.countRemaining() : 0;
     text = remaining === 0
