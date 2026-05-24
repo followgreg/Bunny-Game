@@ -408,6 +408,7 @@
 <div id="mode-tabs">
   <button class="mode-tab active" data-mode="classic">Classic</button>
   <button class="mode-tab" data-mode="bomb">Bomb Mode</button>
+  <button class="mode-tab" data-mode="86bunnies">86 Bunnies</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
@@ -464,6 +465,9 @@
     </div>
     <div class="dir-pane hidden" id="dir-bomb">
       Bomb Mode uses the same board and the same icons, but one square contains a bomb. The bomb always starts near the top, so you have the full board to work with. Your goal is to get the bomb to the bottom row. To clear tiles you need a group of three or more — pairs don't count. Clear tiles strategically to make the bomb fall. The bomb falls with gravity just like regular tiles, and stays with its column when columns shift. You cannot click the bomb. You win when the bomb reaches the bottom row. You lose when no valid moves remain and the bomb hasn't made it.
+    </div>
+    <div class="dir-pane hidden" id="dir-86bunnies">
+      86 Bunnies is a puzzle game. The board is filled with four icons: blue bunny, mushroom, cabbage, and carrot. Your goal is to eliminate all the blue bunnies. You cannot click blue bunnies directly — you have to clear other icons strategically so that columns collapse and bring blue bunnies together. Once two or more blue bunnies are adjacent, you can click them to clear them. The game ends when all blue bunnies are gone or no moves remain. Your score is how many blue bunnies are left.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -923,6 +927,140 @@ class BombGame extends BunnyGame {
 }
 
 // =============================================================================
+// GAME LOGIC — 86 Bunnies
+// 10×10 board, four icon types (no red bunny).
+// Blue bunnies are placed with zero adjacency to each other.
+// Goal: eliminate ALL blue bunnies by collapsing the board so they group up.
+// =============================================================================
+
+class EightySixGame extends BunnyGame {
+  constructor() {
+    super(10, 10); // fixed 10×10
+    this.gameWon = false;
+    const result = EightySixGame._generateGrid(this.rows, this.cols);
+    this.grid             = result.grid;
+    this.totalBlueBunnies = result.count;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Constrained board generation.
+  //   Step 1 — scatter N blue bunnies (15–25) with no N/S/E/W neighbours.
+  //   Step 2 — fill remaining cells with mushroom / cabbage / carrot.
+  //   Step 3 — require ≥ 4 clearable filler groups; reject otherwise.
+  // ---------------------------------------------------------------------------
+  static _generateGrid(rows, cols) {
+    const FILLER    = ['mushroom', 'cabbage', 'carrot'];
+    const BMIN      = 15, BMAX = 25, MIN_GROUPS = 4;
+
+    for (;;) {
+      const target = BMIN + Math.floor(Math.random() * (BMAX - BMIN + 1));
+      const grid   = Array.from({ length: rows }, () => new Array(cols).fill(null));
+
+      // Shuffle cell order so placement is fully random
+      const cells = [];
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+          cells.push([r, c]);
+      for (let i = cells.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [cells[i], cells[j]] = [cells[j], cells[i]];
+      }
+
+      // Place blue bunnies — reject any cell adjacent to an existing one
+      let placed = 0;
+      for (const [r, c] of cells) {
+        if (placed >= target) break;
+        const adj =
+          (r > 0      && grid[r - 1][c] === 'blue-bunny') ||
+          (r < rows-1 && grid[r + 1][c] === 'blue-bunny') ||
+          (c > 0      && grid[r][c - 1] === 'blue-bunny') ||
+          (c < cols-1 && grid[r][c + 1] === 'blue-bunny');
+        if (!adj) { grid[r][c] = 'blue-bunny'; placed++; }
+      }
+      if (placed < target) continue; // couldn't fit enough — retry
+
+      // Fill remaining cells with filler types
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+          if (!grid[r][c])
+            grid[r][c] = FILLER[(Math.random() * FILLER.length) | 0];
+
+      // Count clearable filler groups (≥ 2 connected same-type, non-blue-bunny)
+      const vis = new Uint8Array(rows * cols);
+      let groups = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const t = grid[r][c];
+          if (!t || t === 'blue-bunny' || vis[r * cols + c]) continue;
+          const q = [r * cols + c]; let h = 0, sz = 0;
+          while (h < q.length) {
+            const idx = q[h++];
+            if (vis[idx]) continue;
+            vis[idx] = 1;
+            const gr = (idx / cols) | 0, gc = idx % cols;
+            if (grid[gr][gc] !== t) continue;
+            sz++;
+            if (gr > 0)        q.push((gr - 1) * cols + gc);
+            if (gr < rows - 1) q.push((gr + 1) * cols + gc);
+            if (gc > 0)        q.push(gr * cols + (gc - 1));
+            if (gc < cols - 1) q.push(gr * cols + (gc + 1));
+          }
+          if (sz >= 2) groups++;
+        }
+      }
+      if (groups < MIN_GROUPS) continue; // too few opening moves — reject
+
+      return { grid, count: placed };
+    }
+  }
+
+  // Blue bunnies clear the same as any tile once they form a group of ≥ 2.
+  // Override only to apply 86-specific win/lose checks.
+  click(row, col) {
+    if (this.gameOver) return null;
+
+    const group = this.findGroup(row, col);
+    if (group.length < 2) return null;
+
+    this.history.push({
+      grid:    this.grid.map(r => r.slice()),
+      moves:   this.moves,
+      cleared: this.cleared,
+    });
+    if (this.history.length > 50) this.history.shift();
+
+    for (const [r, c] of group) this.grid[r][c] = null;
+    this._applyGravity();
+    this._compactColumns();
+    this.moves++;
+    this.cleared += group.length;
+
+    // Win: all blue bunnies eliminated
+    if (this.countBlueBunnies() === 0) {
+      this.gameOver = true;
+      this.gameWon  = true;
+    } else if (!this._hasValidMoves()) {
+      // Lose: no valid moves, but bunnies remain
+      this.gameOver = true;
+      this.gameWon  = false;
+    }
+
+    return group;
+  }
+
+  countBlueBunnies() {
+    let n = 0;
+    for (const row of this.grid)
+      for (const cell of row)
+        if (cell === 'blue-bunny') n++;
+    return n;
+  }
+
+  // Score for this mode = blue bunnies still on board (lower is better)
+  countRemaining() { return this.countBlueBunnies(); }
+}
+
+// =============================================================================
 // CANVAS RENDERER
 // =============================================================================
 
@@ -1001,13 +1139,15 @@ function render() {
       const highlighted = !isBomb && hlSet.has(idx);
       const flashing    = idx === flashIdx;
 
-      // Tile fill — bomb pulses red→orange
+      // Tile fill — bomb pulses red→orange; blue bunnies in 86 Bunnies get a
+      // light-blue tint so players can immediately see their targets.
+      const isTarget86 = (game instanceof EightySixGame) && type === 'blue-bunny';
       if (isBomb) {
         const rb = Math.round(220 + tPulse * 35);   // 220→255
         const gb = Math.round(38  + tPulse * 102);  // 38→140
         ctx.fillStyle = `rgb(${rb},${gb},38)`;
       } else {
-        ctx.fillStyle = highlighted ? '#ffe066' : '#ffffcc';
+        ctx.fillStyle = highlighted ? '#ffe066' : isTarget86 ? '#dbeafe' : '#ffffcc';
       }
 
       const rad = useRound ? Math.max(1, (cellSize * 0.18) | 0) : 0;
@@ -1112,8 +1252,8 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null };
-const dirsSeen   = { classic: false, bomb: false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
@@ -1127,8 +1267,9 @@ function switchTab(mode) {
     game = savedGames[mode];
     document.getElementById('overlay').classList.add('hidden');
     if (game.gameOver) {
-      if (game instanceof BombGame) showBombResult(game.gameWon);
-      else showGameOver();
+      if (game instanceof BombGame)      showBombResult(game.gameWon);
+      else if (game instanceof EightySixGame) show86Result(game.gameWon);
+      else                               showGameOver();
     }
     updateTabUI();
     resizeCanvas();
@@ -1160,7 +1301,12 @@ function updateStats() {
   document.getElementById('val-moves').textContent     = game.moves;
 
   const bombStat = document.getElementById('bomb-stat');
-  if (game instanceof BombGame) {
+  if (game instanceof EightySixGame) {
+    bombStat.style.display = 'none';
+    const rem = game.countBlueBunnies();
+    document.getElementById('val-remaining').textContent = `${rem} / ${game.totalBlueBunnies}`;
+    document.getElementById('lbl-score').textContent = 'Bunnies';
+  } else if (game instanceof BombGame) {
     bombStat.style.display = '';
     const rowsLeft = game.rows - 1 - game.bombPosition.row;
     document.getElementById('val-bomb').textContent = rowsLeft === 0 ? '✓' : rowsLeft;
@@ -1242,6 +1388,36 @@ function showBombResult(won) {
   document.getElementById('overlay').classList.remove('hidden');
 }
 
+function show86Result(won) {
+  const remaining = game.countBlueBunnies();
+  const total     = game.totalBlueBunnies;
+  const perfEl    = document.getElementById('perf-banner');
+
+  if (won) {
+    perfEl.style.background = 'linear-gradient(135deg, #1d4ed8, #3b82f6)';
+    perfEl.textContent = '🐰 ALL BUNNIES ELIMINATED!';
+    perfEl.classList.remove('hidden');
+    document.getElementById('modal-title').textContent  = 'You Win!';
+    document.getElementById('modal-score').textContent  =
+      `All ${total} blue bunnies cleared`;
+    document.getElementById('modal-sub').textContent    =
+      `${game.moves} move${game.moves !== 1 ? 's' : ''} · ${game.cleared} tiles cleared`;
+    document.getElementById('modal-breakdown').innerHTML =
+      '<p class="perfect-msg">Every last bunny is gone!</p>';
+  } else {
+    perfEl.classList.add('hidden');
+    document.getElementById('modal-title').textContent  = 'Game Over';
+    document.getElementById('modal-score').textContent  =
+      `${remaining} blue ${remaining !== 1 ? 'bunnies' : 'bunny'} remain`;
+    document.getElementById('modal-sub').textContent    =
+      `${game.moves} move${game.moves !== 1 ? 's' : ''} · eliminated ${total - remaining} of ${total}`;
+    document.getElementById('modal-breakdown').innerHTML =
+      `<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;text-align:center;">No moves left — ${remaining} ${remaining !== 1 ? 'bunnies' : 'bunny'} got away.</p>`;
+  }
+
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
 // =============================================================================
 // INPUT — tap/click & hover
 // =============================================================================
@@ -1283,8 +1459,9 @@ canvas.addEventListener('click', e => {
 
   if (game.gameOver) {
     setTimeout(() => {
-      if (game instanceof BombGame) showBombResult(game.gameWon);
-      else showGameOver();
+      if (game instanceof BombGame)           showBombResult(game.gameWon);
+      else if (game instanceof EightySixGame) show86Result(game.gameWon);
+      else                                    showGameOver();
     }, 350);
   }
 });
@@ -1297,8 +1474,9 @@ canvas.addEventListener('mousemove', e => {
   if (key === lastHoverKey) return;
   lastHoverKey = key;
 
-  // No hover highlight on bomb tiles
-  if (!cell || !game.grid[cell[0]][cell[1]] || game.grid[cell[0]][cell[1]] === 'bomb') {
+  // No hover highlight on bomb tiles, and 86 Bunnies has no pre-highlighting
+  if (!cell || !game.grid[cell[0]][cell[1]] || game.grid[cell[0]][cell[1]] === 'bomb' ||
+      game instanceof EightySixGame) {
     if (hoveredGroup) { hoveredGroup = null; render(); }
     return;
   }
@@ -1337,8 +1515,9 @@ document.querySelectorAll('.mode-tab').forEach(btn => {
 // =============================================================================
 
 function showDirections(mode) {
-  document.getElementById('dir-classic').classList.toggle('hidden', mode !== 'classic');
-  document.getElementById('dir-bomb').classList.toggle('hidden', mode !== 'bomb');
+  document.getElementById('dir-classic').classList.toggle('hidden',     mode !== 'classic');
+  document.getElementById('dir-bomb').classList.toggle('hidden',        mode !== 'bomb');
+  document.getElementById('dir-86bunnies').classList.toggle('hidden',   mode !== '86bunnies');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -1352,9 +1531,9 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 // =============================================================================
 
 function startGame() {
-  game = activeTab === 'bomb'
-    ? new BombGame(GRID_COLS, GRID_ROWS)
-    : new BunnyGame(GRID_COLS, GRID_ROWS);
+  game = activeTab === 'bomb'     ? new BombGame(GRID_COLS, GRID_ROWS)
+       : activeTab === '86bunnies' ? new EightySixGame()
+       :                             new BunnyGame(GRID_COLS, GRID_ROWS);
 
   savedGames[activeTab] = game;
   hoveredGroup = null;
@@ -1405,6 +1584,14 @@ document.getElementById('share-btn').addEventListener('click', () => {
     } else {
       const rowsLeft = game.rows - 1 - game.bombPosition.row;
       text = `I tried Bunny Game Bomb Mode but the bomb stopped ${rowsLeft} row${rowsLeft !== 1 ? 's' : ''} from the bottom. Can you beat it?`;
+    }
+  } else if (game instanceof EightySixGame) {
+    const remaining = game.countBlueBunnies();
+    const total     = game.totalBlueBunnies;
+    if (game.gameWon) {
+      text = `🐰 I eliminated all ${total} blue bunnies in 86 Bunnies in ${moves} move${moves !== 1 ? 's' : ''}! Can you do it?`;
+    } else {
+      text = `86 Bunnies — ${remaining} of ${total} blue bunnies remained after ${moves} move${moves !== 1 ? 's' : ''}. Can you do better?`;
     }
   } else {
     const remaining = game ? game.countRemaining() : 0;
