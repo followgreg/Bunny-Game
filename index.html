@@ -1403,7 +1403,7 @@ function show86Result(won) {
 
   if (won) {
     perfEl.style.background = 'linear-gradient(135deg, #1d4ed8, #3b82f6)';
-    perfEl.textContent = '🐰 ALL BUNNIES ELIMINATED!';
+    perfEl.textContent = 'ALL BUNNIES ELIMINATED!';
     perfEl.classList.remove('hidden');
     document.getElementById('modal-title').textContent  = 'You Win!';
     document.getElementById('modal-score').textContent  =
@@ -1540,9 +1540,11 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 // =============================================================================
 
 function startGame() {
+  // Classic mode: wider grid on desktop so it fills the available space.
+  const classicCols = (activeTab === 'classic' && window.innerWidth >= 600) ? 25 : GRID_COLS;
   game = activeTab === 'bomb'     ? new BombGame(GRID_COLS, GRID_ROWS)
        : activeTab === '86bunnies' ? new EightySixGame()
-       :                             new BunnyGame(GRID_COLS, GRID_ROWS);
+       :                             new BunnyGame(classicCols, GRID_ROWS);
 
   savedGames[activeTab] = game;
   hoveredGroup = null;
