@@ -376,6 +376,11 @@
     .dir-close-btn:active { background: #1d4ed8; }
 
     /* ── Hare Line board ── */
+    @keyframes hl-blank-pulse {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(99,102,241,0.25); }
+      50%       { box-shadow: 0 0 0 5px rgba(99,102,241,0.60); }
+    }
+
     #hareline-wrap {
       flex: 1;
       min-height: 0;
@@ -404,28 +409,30 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      cursor: default;
       border: 2.5px solid transparent;
-      transition: border-color 0.1s, background 0.1s, box-shadow 0.1s;
+      transition: filter 0.1s, border-color 0.12s, background 0.12s, box-shadow 0.12s;
       -webkit-tap-highlight-color: transparent;
     }
-    .hl-cell:active { opacity: 0.82; }
     .hl-cell img {
       width: 68%;
       height: 68%;
       pointer-events: none;
     }
-    .hl-cell.hl-selected {
-      border-color: #f59e0b;
-      background: #fef3c7;
-      box-shadow: 0 0 0 3px rgba(245,158,11,0.35);
+    .hl-cell.hl-red { background: #fee2e2; }
+
+    .hl-cell.hl-blank {
+      background: #1e1b2e;
+      cursor: default;
+      animation: hl-blank-pulse 2s ease-in-out infinite;
     }
-    .hl-cell.hl-red {
-      background: #fee2e2;
+
+    .hl-cell.hl-slideable { cursor: pointer; }
+    .hl-cell.hl-slideable:hover {
+      filter: brightness(1.18);
+      border-color: rgba(255,255,255,0.35);
     }
-    .hl-cell.hl-red.hl-selected {
-      background: #fef3c7;
-    }
+    .hl-cell.hl-slideable:active { opacity: 0.80; }
 
     /* ── Footer ── */
     #footer {
@@ -528,7 +535,7 @@
       The blue bunnies must go. All of them. But you can't click them directly — clear everything else strategically until the board collapses and brings bunnies together. Once two or more blue bunnies are touching, they're yours. Hunt them down. Your score is however many got away.
     </div>
     <div class="dir-pane hidden" id="dir-hareline">
-      Five characters. Five red bunnies hidden among them. Your job is to get all five red bunnies into the same row or column. Click a tile to select it, then click any tile next to it to swap their positions. That's your only move. No clearing, no gravity, no time limit. Just you and the board until the bunnies line up. Your score is how many swaps it took. There is no losing — only giving up. And giving up just means a new puzzle.
+      One blank space. Twenty four characters. Five red bunnies that need to line up. Slide tiles into the empty space to move them around the board. You can only move a tile that is directly next to the blank — click it and it slides over. No free swaps. Get all five red bunnies into the same row or column to win. The blank doesn't count as a bunny. Your score is how many slides it took. There is no losing — only a new puzzle.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -1123,10 +1130,28 @@ class EightySixGame extends BunnyGame {
 
 // =============================================================================
 // GAME LOGIC — Hare Line
-// 5×5 board, exactly 5 red bunnies. Swap adjacent tiles (N/S/E/W).
-// Win when any full row or full column is all red bunnies.
-// No clearing, gravity, or column collapse — completely separate mechanic.
+// 5×5 sliding puzzle. One blank cell. Slide adjacent tiles into the blank.
+// Win when any complete row or column contains exactly 5 red bunnies (no blank).
+// Solvability guaranteed via inversion-count parity check.
 // =============================================================================
+
+// Pure function: returns true if the board is solvable.
+// For a 5×5 grid (odd width) a board is solvable iff the inversion count is even.
+// Tile values: blue-bunny=1, red-bunny=2, mushroom=3, cabbage=4, carrot=5; blank excluded.
+function isSolvable(grid) {
+  const VAL = { 'blue-bunny': 1, 'red-bunny': 2, 'mushroom': 3, 'cabbage': 4, 'carrot': 5 };
+  const seq = [];
+  for (let r = 0; r < 5; r++)
+    for (let c = 0; c < 5; c++)
+      if (grid[r][c] !== null) seq.push(VAL[grid[r][c]]);
+
+  let inversions = 0;
+  for (let i = 0; i < seq.length - 1; i++)
+    for (let j = i + 1; j < seq.length; j++)
+      if (seq[i] > seq[j]) inversions++;
+
+  return inversions % 2 === 0;
+}
 
 class HareLineGame {
   constructor() {
@@ -1134,47 +1159,82 @@ class HareLineGame {
     this.cols     = 5;
     this.moves    = 0;
     this.gameOver = false;
-    this.selected = null;     // [row, col] or null
-    this.grid     = this._generateBoard();
+    const result  = this._generateBoard();
+    this.grid     = result.grid;
+    this.blankPos = result.blankPos;   // { row, col } — always up to date
   }
 
   _generateBoard() {
     const FILLERS = ['blue-bunny', 'mushroom', 'cabbage', 'carrot'];
+
+    // Non-corner cells eligible for the blank starting position (21 of 25)
+    const nonCorners = [];
+    for (let r = 0; r < 5; r++)
+      for (let c = 0; c < 5; c++)
+        if (!((r === 0 || r === 4) && (c === 0 || c === 4)))
+          nonCorners.push([r, c]);
+
     for (;;) {
-      // Build a flat list of 25 positions and shuffle it
-      const positions = [];
+      // --- Step 1: place tiles ---
+      // Pick a random non-corner cell for the blank
+      const [br, bc] = nonCorners[(Math.random() * nonCorners.length) | 0];
+
+      // Build and shuffle the 24 non-blank positions
+      const remaining = [];
       for (let r = 0; r < 5; r++)
         for (let c = 0; c < 5; c++)
-          positions.push([r, c]);
-      for (let i = positions.length - 1; i > 0; i--) {
+          if (!(r === br && c === bc)) remaining.push([r, c]);
+      for (let i = remaining.length - 1; i > 0; i--) {
         const j = (Math.random() * (i + 1)) | 0;
-        [positions[i], positions[j]] = [positions[j], positions[i]];
+        [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
       }
 
       const grid = Array.from({ length: 5 }, () => new Array(5).fill(null));
-
-      // First 5 positions → red bunnies
+      // First 5 → red bunnies
       for (let i = 0; i < 5; i++) {
-        const [r, c] = positions[i];
+        const [r, c] = remaining[i];
         grid[r][c] = 'red-bunny';
       }
-      // Remaining 20 → random fillers (roughly even distribution)
-      for (let i = 5; i < 25; i++) {
-        const [r, c] = positions[i];
+      // Next 19 → fillers distributed roughly evenly across four types
+      for (let i = 5; i < 24; i++) {
+        const [r, c] = remaining[i];
         grid[r][c] = FILLERS[(Math.random() * FILLERS.length) | 0];
       }
+      // blank stays null at [br][bc]
 
-      // Reject boards that already have a winning line
-      if (!this._checkWin(grid)) return grid;
+      // --- Step 2: reject instant wins ---
+      if (this._checkWin(grid)) continue;
+
+      // --- Step 3: solvability check ---
+      if (!isSolvable(grid)) {
+        // Fix parity by swapping the first pair of adjacent non-blank tiles found
+        let fixed = false;
+        outer: for (let r = 0; r < 5; r++) {
+          for (let c = 0; c < 4; c++) {
+            if (grid[r][c] !== null && grid[r][c + 1] !== null) {
+              const tmp = grid[r][c]; grid[r][c] = grid[r][c + 1]; grid[r][c + 1] = tmp;
+              fixed = true;
+              break outer;
+            }
+          }
+        }
+        if (!fixed) continue;
+        // Recheck after fix
+        if (this._checkWin(grid)) continue;
+        if (!isSolvable(grid)) continue;
+      }
+
+      // --- Step 4: accept ---
+      return { grid, blankPos: { row: br, col: bc } };
     }
   }
 
+  // A winning line is 5 red-bunny tiles — null never equals 'red-bunny' so
+  // the blank is automatically excluded from any line.
   _checkWin(grid) {
-    // Any full row of red bunnies
     for (let r = 0; r < 5; r++) {
       if (grid[r].every(cell => cell === 'red-bunny')) return true;
     }
-    // Any full column of red bunnies
     for (let c = 0; c < 5; c++) {
       let allRed = true;
       for (let r = 0; r < 5; r++) {
@@ -1186,47 +1246,28 @@ class HareLineGame {
   }
 
   // Handle a click at (row, col).
-  // Returns 'select' | 'deselect' | 'reselect' | 'swap' | 'win' | null
+  // Returns 'slide' | 'win' | null (null = not a valid move)
   click(row, col) {
     if (this.gameOver) return null;
 
-    // No selection yet → select this tile
-    if (this.selected === null) {
-      this.selected = [row, col];
-      return 'select';
-    }
+    const { row: br, col: bc } = this.blankPos;
 
-    const [sr, sc] = this.selected;
+    // Tile must be directly adjacent to the blank (N/S/E/W, distance 1)
+    const dr = Math.abs(row - br);
+    const dc = Math.abs(col - bc);
+    if (!((dr === 1 && dc === 0) || (dr === 0 && dc === 1))) return null;
 
-    // Same tile clicked again → deselect
-    if (sr === row && sc === col) {
-      this.selected = null;
-      return 'deselect';
-    }
-
-    // Check adjacency (N/S/E/W only)
-    const dr = Math.abs(row - sr);
-    const dc = Math.abs(col - sc);
-    const adjacent = (dr === 1 && dc === 0) || (dr === 0 && dc === 1);
-
-    if (!adjacent) {
-      // Non-adjacent tile → reselect
-      this.selected = [row, col];
-      return 'reselect';
-    }
-
-    // Adjacent → swap
-    const temp        = this.grid[sr][sc];
-    this.grid[sr][sc] = this.grid[row][col];
-    this.grid[row][col] = temp;
+    // Slide the tile into the blank
+    this.grid[br][bc]    = this.grid[row][col];
+    this.grid[row][col]  = null;
+    this.blankPos        = { row, col };
     this.moves++;
-    this.selected = null;
 
     if (this._checkWin(this.grid)) {
       this.gameOver = true;
       return 'win';
     }
-    return 'swap';
+    return 'slide';
   }
 }
 
@@ -1276,31 +1317,46 @@ function renderHareLine() {
   board.innerHTML = '';
   if (!(game instanceof HareLineGame)) return;
 
+  const { row: br, col: bc } = game.blankPos;
+
   for (let r = 0; r < 5; r++) {
     for (let c = 0; c < 5; c++) {
-      const type = game.grid[r][c];
+      const type      = game.grid[r][c];
+      const isBlank   = type === null;
+      const dr        = Math.abs(r - br);
+      const dc        = Math.abs(c - bc);
+      const slideable = !isBlank && ((dr === 1 && dc === 0) || (dr === 0 && dc === 1));
+
       const cell = document.createElement('div');
       cell.className = 'hl-cell';
-      if (type === 'red-bunny') cell.classList.add('hl-red');
-      if (game.selected && game.selected[0] === r && game.selected[1] === c) {
-        cell.classList.add('hl-selected');
+
+      if (isBlank) {
+        cell.classList.add('hl-blank');
+      } else {
+        if (type === 'red-bunny') cell.classList.add('hl-red');
+        if (slideable) cell.classList.add('hl-slideable');
+
+        const img = document.createElement('img');
+        img.src = `assets/icons/${type}.svg`;
+        img.alt = type;
+        cell.appendChild(img);
       }
-      const img = document.createElement('img');
-      img.src = `assets/icons/${type}.svg`;
-      img.alt = type;
-      cell.appendChild(img);
-      // Capture r and c via IIFE to avoid closure issues
-      cell.addEventListener('click', (function(row, col) {
-        return function() {
-          const result = game.click(row, col);
-          if (result === null) return;
-          renderHareLine();
-          updateStats();
-          if (result === 'win') {
-            setTimeout(() => showHareLineResult(), 350);
-          }
-        };
-      })(r, c));
+
+      // Only slideable tiles get click handlers
+      if (slideable && !game.gameOver) {
+        cell.addEventListener('click', (function(row, col) {
+          return function() {
+            const result = game.click(row, col);
+            if (result === null) return;
+            renderHareLine();
+            updateStats();
+            if (result === 'win') {
+              setTimeout(() => showHareLineResult(), 350);
+            }
+          };
+        })(r, c));
+      }
+
       board.appendChild(cell);
     }
   }
@@ -1510,7 +1566,7 @@ function updateStats() {
   if (!game) return;
 
   if (game instanceof HareLineGame) {
-    document.getElementById('lbl-score').textContent      = 'Swaps';
+    document.getElementById('lbl-score').textContent      = 'Slides';
     document.getElementById('val-remaining').textContent  = game.moves;
     document.getElementById('val-moves').textContent      = game.moves;
     document.getElementById('bomb-stat').style.display    = 'none';
@@ -1650,7 +1706,7 @@ function showHareLineResult() {
   document.getElementById('perf-banner').classList.add('hidden');
   document.getElementById('modal-title').textContent = 'Hare Line!';
   document.getElementById('modal-score').textContent =
-    `Solved in ${moves} swap${moves !== 1 ? 's' : ''}`;
+    `Solved in ${moves} slide${moves !== 1 ? 's' : ''}`;
   document.getElementById('modal-sub').textContent = '';
   document.getElementById('modal-breakdown').innerHTML =
     '<p class="perfect-msg">All five red bunnies lined up!</p>';
@@ -1824,7 +1880,7 @@ document.getElementById('share-btn').addEventListener('click', () => {
   let text;
 
   if (game instanceof HareLineGame) {
-    text = `Hare Line — solved in ${moves} swap${moves !== 1 ? 's' : ''}. https://thebunnygame.com`;
+    text = `Hare Line — slid into place in ${moves} move${moves !== 1 ? 's' : ''}. https://thebunnygame.com`;
     if (navigator.share) {
       navigator.share({ title: 'Bunny Game', text });
     } else {
