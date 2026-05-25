@@ -192,6 +192,136 @@
       border-color: rgba(255,255,255,0.22);
     }
 
+    /* ── Per-tab decorative backgrounds ── */
+
+    /* Classic — Meadow */
+    body[data-tab="classic"] #canvas-wrap {
+      background:
+        radial-gradient(circle 4px at 12% 18%, #fbbf24 0%, transparent 100%),
+        radial-gradient(circle 3px at 30% 72%, #f9a8d4 0%, transparent 100%),
+        radial-gradient(circle 4px at 52% 12%, #fde68a 0%, transparent 100%),
+        radial-gradient(circle 3px at 68% 44%, #86efac 0%, transparent 100%),
+        radial-gradient(circle 4px at 85% 78%, #fbbf24 0%, transparent 100%),
+        radial-gradient(circle 3px at 22% 88%, #f9a8d4 0%, transparent 100%),
+        radial-gradient(circle 4px at 60% 58%, #fde68a 0%, transparent 100%),
+        radial-gradient(circle 3px at 78% 8%,  #86efac 0%, transparent 100%),
+        radial-gradient(circle 4px at 43% 36%, #fbbf24 0%, transparent 100%),
+        radial-gradient(circle 3px at 7%  56%, #f9a8d4 0%, transparent 100%),
+        repeating-linear-gradient(
+          172deg,
+          transparent 0px, transparent 22px,
+          rgba(255,255,255,0.05) 22px, rgba(255,255,255,0.05) 24px
+        ),
+        linear-gradient(180deg, #4a7c59 0%, #3d6b4a 45%, #2d5438 100%);
+    }
+    body[data-tab="classic"] #game-canvas {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    /* Bomb Mode — Industrial danger */
+    body[data-tab="bomb"] #canvas-wrap {
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          transparent 0px, transparent 20px,
+          rgba(250,204,21,0.07) 20px, rgba(250,204,21,0.07) 30px,
+          transparent 30px, transparent 50px,
+          rgba(0,0,0,0.18) 50px, rgba(0,0,0,0.18) 60px
+        ),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 6px),
+        repeating-linear-gradient(0deg,  rgba(255,255,255,0.015) 0px, transparent 1px, transparent 6px),
+        #1c1c1c;
+    }
+
+    /* 86 Bunnies — Deep navy + tiled cabbages */
+    body[data-tab="86bunnies"] #canvas-wrap {
+      background: #0D1B2A;
+    }
+    body[data-tab="86bunnies"] #canvas-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/icons/cabbage.svg');
+      background-repeat: repeat;
+      background-size: 48px 48px;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body[data-tab="86bunnies"] #game-canvas {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hare Line — Graph paper */
+    body[data-tab="hareline"] #hareline-wrap {
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(148,163,184,0.38) 0px, rgba(148,163,184,0.38) 1px,
+          transparent 1px, transparent 24px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(148,163,184,0.38) 0px, rgba(148,163,184,0.38) 1px,
+          transparent 1px, transparent 24px
+        ),
+        #e8eef6;
+    }
+    body[data-tab="hareline"] .hl-cell {
+      background: #ffffff;
+    }
+    body[data-tab="hareline"] .hl-cell.hl-red {
+      background: #fef2f2;
+    }
+    body[data-tab="hareline"] .hl-cell.hl-blank {
+      background: #e2e8f0;
+      border: 2px dashed #94a3b8;
+      animation: hl-blank-pulse 2s ease-in-out infinite;
+    }
+    body[data-tab="hareline"] .hl-cell.hl-selected {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.3);
+    }
+
+    /* Shroom Mode — Deep purple + rotating mandala */
+    @keyframes mandala-spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    body[data-tab="shroom"] #canvas-wrap {
+      background: #0D0014;
+    }
+    body[data-tab="shroom"] #canvas-wrap::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 130%;
+      height: 130%;
+      transform: translate(-50%, -50%);
+      background:
+        radial-gradient(ellipse 55% 55% at 50% 50%, rgba(167,139,250,0.07) 0%, transparent 70%),
+        conic-gradient(
+          from 0deg,
+          rgba(167,139,250,0.10) 0deg,   rgba(139,92,246,0.03) 30deg,
+          rgba(192,132,252,0.10) 60deg,  rgba(167,139,250,0.03) 90deg,
+          rgba(139,92,246,0.10) 120deg,  rgba(192,132,252,0.03) 150deg,
+          rgba(167,139,250,0.10) 180deg, rgba(139,92,246,0.03) 210deg,
+          rgba(192,132,252,0.10) 240deg, rgba(167,139,250,0.03) 270deg,
+          rgba(139,92,246,0.10) 300deg,  rgba(192,132,252,0.03) 330deg,
+          rgba(167,139,250,0.10) 360deg
+        );
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: mandala-spin 25s linear infinite;
+    }
+    body[data-tab="shroom"] #game-canvas {
+      position: relative;
+      z-index: 1;
+    }
+
     /* ── Stats bar ── */
     #stats {
       display: flex;
@@ -238,6 +368,7 @@
       padding: 10px 8px;
       overflow: hidden;
       background: #ffffff;
+      position: relative;   /* needed for ::before pseudo-element backgrounds */
     }
 
     #game-canvas {
@@ -1762,8 +1893,16 @@ function renderHareLine() {
 function render() {
   if (!game) return;
 
+  // Mode checks — computed once for canvas bg colour and per-tile rendering
+  const isShroomMode = game instanceof ShroomGame;
+  const isBombMode   = game instanceof BombGame;
+  const is86Mode     = game instanceof EightySixGame;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = isShroomMode ? '#0A000F'
+                : isBombMode   ? '#2A2A2A'
+                : is86Mode     ? '#1A2B3C'
+                :                '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const now       = Date.now();
@@ -1773,8 +1912,6 @@ function render() {
   // Bomb pulse: 0→1→0 cycle, period ≈ 1.6 s
   const tPulse    = (Math.sin(now / 250) + 1) / 2;
 
-  // Shroom Mode — pre-compute shared values used per-tile below
-  const isShroomMode   = game instanceof ShroomGame;
   const nowSec         = now / 1000;
   // Single global mushroom pulse so all mushrooms throb together (~2.85 s cycle)
   const mushroomPulse  = isShroomMode ? (Math.sin(nowSec * 2.2) + 1) / 2 : 0;
@@ -1807,13 +1944,18 @@ function render() {
 
       // Tile fill — bomb pulses red→orange; blue bunnies in 86 Bunnies get a
       // light-blue tint; Shroom Mode gets animated hue-cycling or mushroom glow.
-      const isTarget86   = (game instanceof EightySixGame) && type === 'blue-bunny';
-      const isBombMode   = game instanceof BombGame;
+      const isTarget86   = is86Mode && type === 'blue-bunny';
       const isShroomTile = isShroomMode && !isBomb && !highlighted;
 
-      // Reset any leftover shadow from a previous mushroom tile
+      // Reset any leftover shadow from a previous tile
       ctx.shadowBlur  = 0;
       ctx.shadowColor = 'transparent';
+
+      // 86 Bunnies — blue bunny tiles get a soft azure glow
+      if (isTarget86 && !highlighted) {
+        ctx.shadowColor = 'rgba(59,130,246,0.55)';
+        ctx.shadowBlur  = 10;
+      }
 
       if (isBomb) {
         const rb = Math.round(220 + tPulse * 35);   // 220→255
@@ -1849,6 +1991,11 @@ function render() {
       }
       // Clear mushroom glow so it doesn't bleed onto icon, borders, or adjacent tiles
       if (isShroomTile && type === 'mushroom') {
+        ctx.shadowBlur  = 0;
+        ctx.shadowColor = 'transparent';
+      }
+      // Clear 86 Bunnies blue glow so it doesn't bleed onto icon or grid lines
+      if (isTarget86 && !highlighted) {
         ctx.shadowBlur  = 0;
         ctx.shadowColor = 'transparent';
       }
@@ -1983,6 +2130,9 @@ function switchTab(mode) {
 }
 
 function updateTabUI() {
+  // Stamp active tab on body so CSS can scope decorative backgrounds
+  document.body.setAttribute('data-tab', activeTab);
+
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === activeTab);
   });
