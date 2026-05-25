@@ -163,6 +163,15 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.4);
     }
 
+    button.mode-tab[data-mode="bunnyhop"],
+    button.mode-tab[data-mode="bunnyhop"]:hover,
+    button.mode-tab[data-mode="bunnyhop"].active {
+      background: #92400e;
+      color: #fef3c7;
+      border-color: rgba(255,255,255,0.2);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+
     /* ── Shroom Mode tab — constant tie-dye rainbow ── */
     @keyframes shroom-tab-slide {
       0%   { background-position: 0% 50%; }
@@ -494,6 +503,111 @@
     }
     .hl-cell.hl-slideable:active { opacity: 0.80; }
 
+    /* ── Bunny Hop game board ── */
+    #bunnyhop-wrap {
+      flex: 1;
+      min-height: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      overflow: auto;
+      position: relative;
+      background-color: #1e4a1e;
+    }
+    #bunnyhop-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/icons/carrot.svg');
+      background-repeat: repeat;
+      background-size: 40px 40px;
+      opacity: 0.42;
+      pointer-events: none;
+      z-index: 0;
+    }
+    #bunnyhop-wrap.bh-active { display: flex; }
+
+    .bh-fence {
+      position: relative;
+      z-index: 1;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: repeating-linear-gradient(
+        0deg,
+        #8B5E3C 0px,
+        #A0522D 5px,
+        #C68642 10px,
+        #6B3A2A 15px,
+        #8B5E3C 20px
+      );
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.12),
+        inset 0 -3px 6px rgba(0,0,0,0.4),
+        0 10px 32px rgba(0,0,0,0.65);
+    }
+
+    .bh-post {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #3d1f0a;
+      border-radius: 3px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.08), 0 1px 4px rgba(0,0,0,0.6);
+    }
+    .bh-post-tl { top: 4px; left: 4px; }
+    .bh-post-tr { top: 4px; right: 4px; }
+    .bh-post-bl { bottom: 4px; left: 4px; }
+    .bh-post-br { bottom: 4px; right: 4px; }
+
+    #bunnyhop-board {
+      --bh-cell: clamp(40px, calc((100vw - 80px) / 7), 64px);
+      display: grid;
+      grid-template-columns: repeat(7, var(--bh-cell));
+      grid-template-rows: repeat(7, var(--bh-cell));
+      gap: 3px;
+    }
+
+    .bh-cell {
+      width: var(--bh-cell);
+      height: var(--bh-cell);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      border: 2.5px solid transparent;
+      transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bh-inactive {
+      background: transparent !important;
+      border: none;
+      pointer-events: none;
+    }
+    .bh-hole {
+      background: #1A3A1C;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.7), inset 0 1px 2px rgba(0,0,0,0.5);
+      cursor: default;
+    }
+    .bh-peg {
+      background: #2C5F2E;
+      cursor: pointer;
+    }
+    .bh-peg img { width: 72%; height: 72%; pointer-events: none; }
+    .bh-peg:hover:not(.bh-selected) { background: #357a38; }
+    .bh-peg.bh-selected {
+      border-color: #F5C518;
+      background: #3a7a3e;
+      box-shadow: 0 0 0 2px rgba(245,197,24,0.5);
+    }
+    .bh-hole.bh-landing {
+      background: #3d6e3f;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 0 2px rgba(245,197,24,0.45);
+      cursor: pointer;
+    }
+    .bh-hole.bh-landing:hover { background: #4d8a50; }
+
     /* ── Footer ── */
     #footer {
       display: flex;
@@ -519,6 +633,7 @@
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
     <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="undo-btn">↩ Undo</button>
     <button class="icon-btn" id="new-btn">↺ New</button>
   </div>
 </div>
@@ -530,6 +645,7 @@
   <button class="mode-tab" data-mode="86bunnies">86 Bunnies</button>
   <button class="mode-tab" data-mode="hareline">Hare Line</button>
   <button class="mode-tab" data-mode="shroom">Shroom Mode</button>
+  <button class="mode-tab" data-mode="bunnyhop">Bunny Hop</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
@@ -560,6 +676,17 @@
 <!-- ── Hare Line board ─────────────────────────────────────────── -->
 <div id="hareline-wrap">
   <div id="hareline-board"></div>
+</div>
+
+<!-- ── Bunny Hop board ─────────────────────────────────────────── -->
+<div id="bunnyhop-wrap">
+  <div class="bh-fence">
+    <div class="bh-post bh-post-tl"></div>
+    <div class="bh-post bh-post-tr"></div>
+    <div class="bh-post bh-post-bl"></div>
+    <div class="bh-post bh-post-br"></div>
+    <div id="bunnyhop-board"></div>
+  </div>
 </div>
 
 <!-- ── Footer ──────────────────────────────────────────────────── -->
@@ -601,6 +728,9 @@
     <div class="dir-pane hidden" id="dir-shroom">
       Far out, man. Same game as Classic — five characters, one groovy grid. Click any two or more matching characters that are touching side by side and watch them float away. Tiles drift down to fill the gaps. Empty columns slide on over. Clear the whole board and you've reached enlightenment. Leave some behind and that's your karma score. Lower is better. Zero means you're one with the universe. The trip ends when no moves remain.
     </div>
+    <div class="dir-pane hidden" id="dir-bunnyhop">
+      One bunny stays. Everyone else hops out. Jump any blue bunny over an adjacent blue bunny into the empty space beyond — the bunny you jumped over disappears. You can only jump in a straight line, north south east or west, one bunny at a time. Chain your jumps wisely. The board starts with one empty space in the center. Your goal is to end with exactly one bunny remaining. That's enlightenment. Anything more than one is your score — lower is better. There is no time limit. Only the puzzle.
+    </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
 </div>
@@ -635,6 +765,19 @@ const TILE_LABELS = {
   'cabbage':    'Cabbage',
   'carrot':     'Carrot',
 };
+
+// =============================================================================
+// BUNNY HOP — board shape constant
+// 7×7 grid; true = active (playable) cell, false = inactive (transparent corner)
+// English cross: rows 0–1 & 5–6 use cols 2–4; rows 2–4 use cols 0–6.
+// =============================================================================
+
+const BH_ACTIVE_GRID = (() => {
+  const g = Array.from({ length: 7 }, () => new Array(7).fill(false));
+  for (let c = 2; c <= 4; c++) { g[0][c] = true; g[1][c] = true; g[5][c] = true; g[6][c] = true; }
+  for (let r = 2; r <= 4; r++) for (let c = 0; c <= 6; c++) g[r][c] = true;
+  return g;
+})();
 
 // =============================================================================
 // IMAGE LOADING
@@ -1357,6 +1500,116 @@ class HareLineGame {
 }
 
 // =============================================================================
+// GAME LOGIC — Bunny Hop (peg solitaire)
+// English cross, 33 holes, 32 pegs, center empty at start.
+// Jump a peg over an adjacent peg into the empty cell beyond; jumped peg removed.
+// Win = 1 peg remaining. Stuck = no valid jumps and >1 peg.
+// =============================================================================
+
+class BunnyHopGame {
+  constructor() {
+    this.moves    = 0;
+    this.gameOver = false;
+    this.selected = null;   // [row, col] or null
+    this.history  = [];
+    this.grid     = this._freshBoard();
+  }
+
+  _freshBoard() {
+    const g = Array.from({ length: 7 }, () => new Array(7).fill(null));
+    for (let r = 0; r < 7; r++)
+      for (let c = 0; c < 7; c++)
+        if (BH_ACTIVE_GRID[r][c])
+          g[r][c] = (r === 3 && c === 3) ? 0 : 1;  // 0 = empty hole, 1 = peg
+    return g;
+  }
+
+  _isActive(r, c) {
+    return r >= 0 && r < 7 && c >= 0 && c < 7 && BH_ACTIVE_GRID[r][c];
+  }
+
+  // Returns array of [landRow, landCol, midRow, midCol] for each valid jump from [r,c]
+  _validJumps(r, c) {
+    if (!this._isActive(r, c) || this.grid[r][c] !== 1) return [];
+    const jumps = [];
+    for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+      const mr = r + dr,  mc = c + dc;
+      const lr = r + 2*dr, lc = c + 2*dc;
+      if (this._isActive(mr, mc) && this._isActive(lr, lc) &&
+          this.grid[mr][mc] === 1 && this.grid[lr][lc] === 0) {
+        jumps.push([lr, lc, mr, mc]);
+      }
+    }
+    return jumps;
+  }
+
+  countPegs() {
+    let n = 0;
+    for (let r = 0; r < 7; r++)
+      for (let c = 0; c < 7; c++)
+        if (BH_ACTIVE_GRID[r][c] && this.grid[r][c] === 1) n++;
+    return n;
+  }
+
+  _hasAnyJump() {
+    for (let r = 0; r < 7; r++)
+      for (let c = 0; c < 7; c++)
+        if (BH_ACTIVE_GRID[r][c] && this.grid[r][c] === 1 && this._validJumps(r, c).length > 0)
+          return true;
+    return false;
+  }
+
+  // Returns 'select' | 'reselect' | 'deselect' | 'jump' | 'win' | 'stuck' | null
+  click(row, col) {
+    if (this.gameOver) return null;
+    if (!this._isActive(row, col)) return null;
+
+    // Clicking a filled peg
+    if (this.grid[row][col] === 1) {
+      if (this.selected && this.selected[0] === row && this.selected[1] === col) {
+        this.selected = null;
+        return 'deselect';
+      }
+      const had = this.selected !== null;
+      this.selected = [row, col];
+      return had ? 'reselect' : 'select';
+    }
+
+    // Clicking an empty cell — only acts if it's a valid landing for the selected peg
+    if (this.grid[row][col] === 0 && this.selected !== null) {
+      const [sr, sc] = this.selected;
+      const jump = this._validJumps(sr, sc).find(([lr, lc]) => lr === row && lc === col);
+      if (!jump) return null;  // invalid landing — keep selection, do nothing
+
+      const [lr, lc, mr, mc] = jump;
+      // Snapshot before mutating
+      this.history.push({ grid: this.grid.map(r => r.slice()), moves: this.moves });
+      this.grid[sr][sc] = 0;
+      this.grid[mr][mc] = 0;
+      this.grid[lr][lc] = 1;
+      this.moves++;
+      this.selected = null;
+
+      if (this.countPegs() === 1)    { this.gameOver = true; return 'win'; }
+      if (!this._hasAnyJump())       { this.gameOver = true; return 'stuck'; }
+      return 'jump';
+    }
+
+    return null;
+  }
+
+  undo() {
+    if (!this.history.length) return false;
+    const snap    = this.history.pop();
+    this.grid     = snap.grid;
+    this.moves    = snap.moves;
+    this.selected = null;
+    this.gameOver = false;
+    return true;
+  }
+}
+
+// =============================================================================
 // CANVAS RENDERER
 // =============================================================================
 
@@ -1391,10 +1644,69 @@ function computeCellSize(cols, rows) {
 function resizeCanvas() {
   if (!game) return;
   if (game instanceof HareLineGame) { renderHareLine(); return; }
+  if (game instanceof BunnyHopGame) { renderBunnyHop(); return; }
   cellSize      = computeCellSize(game.cols, game.rows);
   canvas.width  = cellSize * game.cols;
   canvas.height = cellSize * game.rows;
   render();
+}
+
+function renderBunnyHop() {
+  const board = document.getElementById('bunnyhop-board');
+  board.innerHTML = '';
+  if (!(game instanceof BunnyHopGame)) return;
+
+  // Pre-compute valid landing cells for the selected peg
+  const landings = new Set();
+  if (game.selected && !game.gameOver) {
+    const [sr, sc] = game.selected;
+    for (const [lr, lc] of game._validJumps(sr, sc)) landings.add(`${lr},${lc}`);
+  }
+
+  for (let r = 0; r < 7; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'bh-cell';
+
+      if (!BH_ACTIVE_GRID[r][c]) {
+        cell.classList.add('bh-inactive');
+        board.appendChild(cell);
+        continue;
+      }
+
+      const hasPeg     = game.grid[r][c] === 1;
+      const isSelected = game.selected && game.selected[0] === r && game.selected[1] === c;
+      const isLanding  = landings.has(`${r},${c}`);
+
+      if (hasPeg) {
+        cell.classList.add('bh-peg');
+        if (isSelected) cell.classList.add('bh-selected');
+        const img = document.createElement('img');
+        img.src = 'assets/icons/blue-bunny.svg';
+        img.alt = 'bunny';
+        cell.appendChild(img);
+      } else {
+        cell.classList.add('bh-hole');
+        if (isLanding) cell.classList.add('bh-landing');
+      }
+
+      if (!game.gameOver) {
+        cell.addEventListener('click', (function(row, col) {
+          return function() {
+            const result = game.click(row, col);
+            if (result === null) return;
+            renderBunnyHop();
+            updateStats();
+            if (result === 'win' || result === 'stuck') {
+              setTimeout(() => showBunnyHopResult(result), 350);
+            }
+          };
+        })(r, c));
+      }
+
+      board.appendChild(cell);
+    }
+  }
 }
 
 function renderHareLine() {
@@ -1636,8 +1948,8 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null };
-const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null, bunnyhop: null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false, bunnyhop: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
@@ -1654,6 +1966,7 @@ function switchTab(mode) {
       if (game instanceof BombGame)           showBombResult(game.gameWon);
       else if (game instanceof EightySixGame) show86Result(game.gameWon);
       else if (game instanceof HareLineGame)  showHareLineResult();
+      else if (game instanceof BunnyHopGame)  showBunnyHopResult(game.countPegs() === 1 ? 'win' : 'stuck');
       else                                    showGameOver();
     }
     updateTabUI();
@@ -1678,8 +1991,10 @@ function updateTabUI() {
   if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
 
   const isHL = activeTab === 'hareline';
-  document.getElementById('canvas-wrap').style.display = isHL ? 'none' : '';
+  const isBH = activeTab === 'bunnyhop';
+  document.getElementById('canvas-wrap').style.display = (isHL || isBH) ? 'none' : '';
   document.getElementById('hareline-wrap').classList.toggle('hl-active', isHL);
+  document.getElementById('bunnyhop-wrap').classList.toggle('bh-active', isBH);
 }
 
 // =============================================================================
@@ -1692,6 +2007,15 @@ function updateStats() {
   if (game instanceof HareLineGame) {
     document.getElementById('lbl-score').textContent      = 'Slides';
     document.getElementById('val-remaining').textContent  = game.moves;
+    document.getElementById('val-moves').textContent      = game.moves;
+    document.getElementById('bomb-stat').style.display    = 'none';
+    document.getElementById('cleared-stat').style.display = 'none';
+    return;
+  }
+
+  if (game instanceof BunnyHopGame) {
+    document.getElementById('lbl-score').textContent      = 'Bunnies';
+    document.getElementById('val-remaining').textContent  = game.countPegs();
     document.getElementById('val-moves').textContent      = game.moves;
     document.getElementById('bomb-stat').style.display    = 'none';
     document.getElementById('cleared-stat').style.display = 'none';
@@ -1837,6 +2161,32 @@ function showHareLineResult() {
   document.getElementById('overlay').classList.remove('hidden');
 }
 
+function showBunnyHopResult(result) {
+  const pegs  = game.countPegs();
+  const moves = game.moves;
+  const perfEl = document.getElementById('perf-banner');
+
+  if (result === 'win') {
+    perfEl.style.background = 'linear-gradient(135deg, #14532d, #22c55e)';
+    perfEl.textContent = '🐰 ONE BUNNY REMAINS!';
+    perfEl.classList.remove('hidden');
+    document.getElementById('modal-title').textContent  = 'One Bunny Remains.';
+    document.getElementById('modal-score').textContent  = 'Perfect solve.';
+    document.getElementById('modal-sub').textContent    = `${moves} move${moves !== 1 ? 's' : ''}`;
+    document.getElementById('modal-breakdown').innerHTML =
+      '<p class="perfect-msg">One bunny standing!</p>';
+  } else {
+    perfEl.classList.add('hidden');
+    document.getElementById('modal-title').textContent  = `${pegs} ${pegs !== 1 ? 'Bunnies' : 'Bunny'} Remain.`;
+    document.getElementById('modal-score').textContent  = `${moves} move${moves !== 1 ? 's' : ''} taken`;
+    document.getElementById('modal-sub').textContent    = 'No more jumps available.';
+    document.getElementById('modal-breakdown').innerHTML =
+      `<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;text-align:center;">${pegs} ${pegs !== 1 ? 'bunnies' : 'bunny'} left with nowhere to jump.</p>`;
+  }
+
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
 // =============================================================================
 // INPUT — tap/click & hover
 // =============================================================================
@@ -1851,7 +2201,8 @@ function cellFromEvent(e) {
 
 canvas.addEventListener('click', e => {
   if (!game || game.gameOver) return;
-  if (game instanceof HareLineGame) return; // HareLineGame uses DOM click handlers
+  if (game instanceof HareLineGame) return; // DOM-based
+  if (game instanceof BunnyHopGame) return;  // DOM-based
   const cell = cellFromEvent(e);
   if (!cell) return;
   const [row, col] = cell;
@@ -1889,6 +2240,7 @@ canvas.addEventListener('click', e => {
 canvas.addEventListener('mousemove', e => {
   if (!game || game.gameOver) return;
   if (game instanceof HareLineGame) return;
+  if (game instanceof BunnyHopGame) return;
   const cell = cellFromEvent(e);
   const key  = cell ? `${cell[0]},${cell[1]}` : null;
 
@@ -1919,6 +2271,17 @@ canvas.addEventListener('mouseleave', () => {
 document.getElementById('new-btn').addEventListener('click', () => startGame());
 document.getElementById('help-btn').addEventListener('click', () => showDirections(activeTab));
 
+document.getElementById('undo-btn').addEventListener('click', () => {
+  if (!game || !game.undo) return;
+  const ok = game.undo();
+  if (!ok) return;
+  document.getElementById('overlay').classList.add('hidden');
+  if (game instanceof BunnyHopGame) { renderBunnyHop(); }
+  else if (game instanceof HareLineGame) { /* HareLineGame has no undo */ }
+  else { hoveredGroup = null; lastHoverKey = null; render(); }
+  updateStats();
+});
+
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
   startGame();
@@ -1941,6 +2304,7 @@ function showDirections(mode) {
   document.getElementById('dir-86bunnies').classList.toggle('hidden',  mode !== '86bunnies');
   document.getElementById('dir-hareline').classList.toggle('hidden',   mode !== 'hareline');
   document.getElementById('dir-shroom').classList.toggle('hidden',     mode !== 'shroom');
+  document.getElementById('dir-bunnyhop').classList.toggle('hidden',   mode !== 'bunnyhop');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -1960,6 +2324,7 @@ function startGame() {
        : activeTab === '86bunnies' ? new EightySixGame()
        : activeTab === 'hareline'  ? new HareLineGame()
        : activeTab === 'shroom'    ? new ShroomGame(wideCols, GRID_ROWS)
+       : activeTab === 'bunnyhop'  ? new BunnyHopGame()
        :                             new BunnyGame(wideCols, GRID_ROWS);
 
   savedGames[activeTab] = game;
@@ -2005,7 +2370,22 @@ document.getElementById('share-btn').addEventListener('click', () => {
   const moves = game ? game.moves : 0;
   let text;
 
-  if (game instanceof ShroomGame) {
+  if (game instanceof BunnyHopGame) {
+    const pegs = game.countPegs();
+    text = pegs === 1
+      ? `Bunny Hop — perfect solve. One bunny standing in ${moves} move${moves !== 1 ? 's' : ''}. https://thebunnygame.com`
+      : `Bunny Hop — ${pegs} bunnies remaining after ${moves} move${moves !== 1 ? 's' : ''}. https://thebunnygame.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'Bunny Game', text });
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('share-btn');
+        btn.textContent = '✓ Copied to clipboard';
+        setTimeout(() => { btn.textContent = 'Share Score'; }, 2500);
+      });
+    }
+    return;
+  } else if (game instanceof ShroomGame) {
     const remaining = game.countRemaining();
     text = remaining === 0
       ? `Shroom Mode — perfect clear in ${moves} move${moves !== 1 ? 's' : ''}. One with the universe. https://thebunnygame.com`
