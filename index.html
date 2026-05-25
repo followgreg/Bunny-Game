@@ -99,7 +99,10 @@
       padding: 0 10px;
       gap: 4px;
       align-items: center;
+      overflow-x: auto;
+      scrollbar-width: none;        /* Firefox */
     }
+    #mode-tabs::-webkit-scrollbar { display: none; } /* Chrome/Safari/Edge */
 
     .mode-tab {
       background: transparent;
@@ -121,6 +124,26 @@
       background: #1e293b;
       border-color: #2d4060;
       color: #f1f5f9;
+    }
+
+    /* ── Shroom Mode tab — constant tie-dye rainbow ── */
+    @keyframes shroom-tab-slide {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    button.mode-tab[data-mode="shroom"],
+    button.mode-tab[data-mode="shroom"]:hover,
+    button.mode-tab[data-mode="shroom"].active {
+      background: linear-gradient(90deg,
+        hsl(0,90%,62%), hsl(40,90%,62%), hsl(80,90%,62%),
+        hsl(130,90%,55%), hsl(180,90%,55%), hsl(220,90%,62%),
+        hsl(270,90%,62%), hsl(320,90%,62%), hsl(360,90%,62%));
+      background-size: 200% 100%;
+      animation: shroom-tab-slide 2.8s linear infinite;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+      border-color: rgba(255,255,255,0.22);
     }
 
     /* ── Stats bar ── */
@@ -469,6 +492,7 @@
   <button class="mode-tab" data-mode="bomb">Bomb Mode</button>
   <button class="mode-tab" data-mode="86bunnies">86 Bunnies</button>
   <button class="mode-tab" data-mode="hareline">Hare Line</button>
+  <button class="mode-tab" data-mode="shroom">Shroom Mode</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
@@ -536,6 +560,9 @@
     </div>
     <div class="dir-pane hidden" id="dir-hareline">
       One blank space. Twenty four characters. Five red bunnies that need to line up. Slide tiles into the empty space to move them around the board. You can only move a tile that is directly next to the blank — click it and it slides over. No free swaps. Get all five red bunnies into the same row or column to win. The blank doesn't count as a bunny. Your score is how many slides it took. There is no losing — only a new puzzle.
+    </div>
+    <div class="dir-pane hidden" id="dir-shroom">
+      Far out, man. Same game as Classic — five characters, one groovy grid. Click any two or more matching characters that are touching side by side and watch them float away. Tiles drift down to fill the gaps. Empty columns slide on over. Clear the whole board and you've reached enlightenment. Leave some behind and that's your karma score. Lower is better. Zero means you're one with the universe. The trip ends when no moves remain.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -1129,6 +1156,27 @@ class EightySixGame extends BunnyGame {
 }
 
 // =============================================================================
+// GAME LOGIC — Shroom Mode
+// Identical mechanics to Classic. Visual layer (animated tile colours, mushroom
+// glow) is handled entirely in the canvas renderer — no game logic difference.
+// animParams[r][c] holds per-cell { hue0, speed } for the hue-cycling effect.
+// =============================================================================
+
+class ShroomGame extends BunnyGame {
+  constructor(cols, rows) {
+    super(cols, rows);
+    // Assign every cell a random starting hue and a random cycle speed.
+    // speed is in degrees-per-second; 72 = 5 s full cycle, 180 = 2 s full cycle.
+    this.animParams = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => ({
+        hue0:  Math.random() * 360,
+        speed: 72 + Math.random() * 108,
+      }))
+    );
+  }
+}
+
+// =============================================================================
 // GAME LOGIC — Hare Line
 // 5×5 sliding puzzle. One blank cell. Slide adjacent tiles into the blank.
 // Win when any complete row or column contains exactly 5 red bunnies (no blank).
@@ -1376,6 +1424,12 @@ function render() {
   // Bomb pulse: 0→1→0 cycle, period ≈ 1.6 s
   const tPulse    = (Math.sin(now / 250) + 1) / 2;
 
+  // Shroom Mode — pre-compute shared values used per-tile below
+  const isShroomMode   = game instanceof ShroomGame;
+  const nowSec         = now / 1000;
+  // Single global mushroom pulse so all mushrooms throb together (~2.85 s cycle)
+  const mushroomPulse  = isShroomMode ? (Math.sin(nowSec * 2.2) + 1) / 2 : 0;
+
   const hlSet = new Set();
   if (hoveredGroup && hoveredGroup.length >= 2) {
     for (const [r, c] of hoveredGroup) hlSet.add(r * game.cols + c);
@@ -1403,12 +1457,32 @@ function render() {
       const flashing    = idx === flashIdx;
 
       // Tile fill — bomb pulses red→orange; blue bunnies in 86 Bunnies get a
-      // light-blue tint so players can immediately see their targets.
-      const isTarget86 = (game instanceof EightySixGame) && type === 'blue-bunny';
+      // light-blue tint; Shroom Mode gets animated hue-cycling or mushroom glow.
+      const isTarget86   = (game instanceof EightySixGame) && type === 'blue-bunny';
+      const isShroomTile = isShroomMode && !isBomb && !highlighted;
+
+      // Reset any leftover shadow from a previous mushroom tile
+      ctx.shadowBlur  = 0;
+      ctx.shadowColor = 'transparent';
+
       if (isBomb) {
         const rb = Math.round(220 + tPulse * 35);   // 220→255
         const gb = Math.round(38  + tPulse * 102);  // 38→140
         ctx.fillStyle = `rgb(${rb},${gb},38)`;
+      } else if (isShroomTile) {
+        if (type === 'mushroom') {
+          // Deep purple that brightens and dims on a slow ~2.85 s cycle
+          const lightness = 18 + mushroomPulse * 22;   // 18% → 40%
+          ctx.fillStyle   = `hsl(270,72%,${lightness | 0}%)`;
+          // Soft purple glow radiates out from the tile
+          ctx.shadowColor = `rgba(167,139,250,${(0.25 + mushroomPulse * 0.55).toFixed(2)})`;
+          ctx.shadowBlur  = 4 + mushroomPulse * 14;
+        } else {
+          // Every other tile cycles through the full hue spectrum independently
+          const p   = game.animParams[r][c];
+          const hue = (p.hue0 + nowSec * p.speed) % 360;
+          ctx.fillStyle = `hsl(${hue | 0},90%,60%)`;
+        }
       } else {
         ctx.fillStyle = highlighted ? '#ffe066' : isTarget86 ? '#dbeafe' : '#ffffcc';
       }
@@ -1419,6 +1493,11 @@ function render() {
         ctx.fill();
       } else {
         ctx.fillRect(x, y, cellSize, cellSize);
+      }
+      // Clear mushroom glow so it doesn't bleed onto icon, borders, or adjacent tiles
+      if (isShroomTile && type === 'mushroom') {
+        ctx.shadowBlur  = 0;
+        ctx.shadowColor = 'transparent';
       }
 
       // Pulsing gold border on bomb
@@ -1516,8 +1595,8 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null };
-const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
@@ -1539,7 +1618,7 @@ function switchTab(mode) {
     updateTabUI();
     resizeCanvas();
     updateStats();
-    if (mode === 'bomb') startAnimLoop(); else stopAnimLoop();
+    if (mode === 'bomb' || mode === 'shroom') startAnimLoop(); else stopAnimLoop();
   } else {
     // First time on this tab — start a fresh game
     startGame();
@@ -1553,6 +1632,10 @@ function updateTabUI() {
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === activeTab);
   });
+  // Scroll the active tab into view on mobile so it centres in the tab bar
+  const activeBtn = document.querySelector(`.mode-tab[data-mode="${activeTab}"]`);
+  if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+
   const isHL = activeTab === 'hareline';
   document.getElementById('canvas-wrap').style.display = isHL ? 'none' : '';
   document.getElementById('hareline-wrap').classList.toggle('hl-active', isHL);
@@ -1816,6 +1899,7 @@ function showDirections(mode) {
   document.getElementById('dir-bomb').classList.toggle('hidden',       mode !== 'bomb');
   document.getElementById('dir-86bunnies').classList.toggle('hidden',  mode !== '86bunnies');
   document.getElementById('dir-hareline').classList.toggle('hidden',   mode !== 'hareline');
+  document.getElementById('dir-shroom').classList.toggle('hidden',     mode !== 'shroom');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -1829,12 +1913,13 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 // =============================================================================
 
 function startGame() {
-  // Classic mode: wider grid on desktop so it fills the available space.
-  const classicCols = (activeTab === 'classic' && window.innerWidth >= 600) ? 25 : GRID_COLS;
+  // Classic and Shroom Mode use a wider grid on desktop.
+  const wideCols = window.innerWidth >= 600 ? 25 : GRID_COLS;
   game = activeTab === 'bomb'      ? new BombGame(GRID_COLS, GRID_ROWS)
        : activeTab === '86bunnies' ? new EightySixGame()
        : activeTab === 'hareline'  ? new HareLineGame()
-       :                             new BunnyGame(classicCols, GRID_ROWS);
+       : activeTab === 'shroom'    ? new ShroomGame(wideCols, GRID_ROWS)
+       :                             new BunnyGame(wideCols, GRID_ROWS);
 
   savedGames[activeTab] = game;
   hoveredGroup = null;
@@ -1846,8 +1931,8 @@ function startGame() {
   resizeCanvas();   // bails to renderHareLine() automatically in hareline mode
   updateStats();
 
-  // Animation loop runs only in Bomb Mode
-  if (activeTab === 'bomb') startAnimLoop();
+  // Continuous animation loop for Bomb Mode and Shroom Mode
+  if (activeTab === 'bomb' || activeTab === 'shroom') startAnimLoop();
   else stopAnimLoop();
 }
 
@@ -1879,7 +1964,22 @@ document.getElementById('share-btn').addEventListener('click', () => {
   const moves = game ? game.moves : 0;
   let text;
 
-  if (game instanceof HareLineGame) {
+  if (game instanceof ShroomGame) {
+    const remaining = game.countRemaining();
+    text = remaining === 0
+      ? `Shroom Mode — perfect clear in ${moves} move${moves !== 1 ? 's' : ''}. One with the universe. https://thebunnygame.com`
+      : `Shroom Mode — scored ${remaining} tile${remaining !== 1 ? 's' : ''} remaining after ${moves} move${moves !== 1 ? 's' : ''}. Keep on truckin'. https://thebunnygame.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'Bunny Game', text });
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('share-btn');
+        btn.textContent = '✓ Copied to clipboard';
+        setTimeout(() => { btn.textContent = 'Share Score'; }, 2500);
+      });
+    }
+    return;
+  } else if (game instanceof HareLineGame) {
     text = `Hare Line — slid into place in ${moves} move${moves !== 1 ? 's' : ''}. https://thebunnygame.com`;
     if (navigator.share) {
       navigator.share({ title: 'Bunny Game', text });
