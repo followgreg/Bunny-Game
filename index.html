@@ -375,6 +375,58 @@
     .dir-close-btn:hover  { background: #3b82f6; }
     .dir-close-btn:active { background: #1d4ed8; }
 
+    /* ── Hare Line board ── */
+    #hareline-wrap {
+      flex: 1;
+      min-height: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    #hareline-wrap.hl-active { display: flex; }
+
+    #hareline-board {
+      --hl-cell: min(80px, calc((100vw - 40px) / 5));
+      display: grid;
+      grid-template-columns: repeat(5, var(--hl-cell));
+      grid-template-rows: repeat(5, var(--hl-cell));
+      gap: 4px;
+    }
+
+    .hl-cell {
+      width: var(--hl-cell);
+      height: var(--hl-cell);
+      background: #ffffcc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: border-color 0.1s, background 0.1s, box-shadow 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hl-cell:active { opacity: 0.82; }
+    .hl-cell img {
+      width: 68%;
+      height: 68%;
+      pointer-events: none;
+    }
+    .hl-cell.hl-selected {
+      border-color: #f59e0b;
+      background: #fef3c7;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.35);
+    }
+    .hl-cell.hl-red {
+      background: #fee2e2;
+    }
+    .hl-cell.hl-red.hl-selected {
+      background: #fef3c7;
+    }
+
     /* ── Footer ── */
     #footer {
       display: flex;
@@ -409,6 +461,7 @@
   <button class="mode-tab active" data-mode="classic">Classic</button>
   <button class="mode-tab" data-mode="bomb">Bomb Mode</button>
   <button class="mode-tab" data-mode="86bunnies">86 Bunnies</button>
+  <button class="mode-tab" data-mode="hareline">Hare Line</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
@@ -434,6 +487,11 @@
 <!-- ── Canvas ──────────────────────────────────────────────────── -->
 <div id="canvas-wrap">
   <canvas id="game-canvas"></canvas>
+</div>
+
+<!-- ── Hare Line board ─────────────────────────────────────────── -->
+<div id="hareline-wrap">
+  <div id="hareline-board"></div>
 </div>
 
 <!-- ── Footer ──────────────────────────────────────────────────── -->
@@ -468,6 +526,9 @@
     </div>
     <div class="dir-pane hidden" id="dir-86bunnies">
       The blue bunnies must go. All of them. But you can't click them directly — clear everything else strategically until the board collapses and brings bunnies together. Once two or more blue bunnies are touching, they're yours. Hunt them down. Your score is however many got away.
+    </div>
+    <div class="dir-pane hidden" id="dir-hareline">
+      Five characters. Five red bunnies hidden among them. Your job is to get all five red bunnies into the same row or column. Click a tile to select it, then click any tile next to it to swap their positions. That's your only move. No clearing, no gravity, no time limit. Just you and the board until the bunnies line up. Your score is how many swaps it took. There is no losing — only giving up. And giving up just means a new puzzle.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -1060,6 +1121,114 @@ class EightySixGame extends BunnyGame {
   countRemaining() { return this.countBlueBunnies(); }
 }
 
+// =============================================================================
+// GAME LOGIC — Hare Line
+// 5×5 board, exactly 5 red bunnies. Swap adjacent tiles (N/S/E/W).
+// Win when any full row or full column is all red bunnies.
+// No clearing, gravity, or column collapse — completely separate mechanic.
+// =============================================================================
+
+class HareLineGame {
+  constructor() {
+    this.rows     = 5;
+    this.cols     = 5;
+    this.moves    = 0;
+    this.gameOver = false;
+    this.selected = null;     // [row, col] or null
+    this.grid     = this._generateBoard();
+  }
+
+  _generateBoard() {
+    const FILLERS = ['blue-bunny', 'mushroom', 'cabbage', 'carrot'];
+    for (;;) {
+      // Build a flat list of 25 positions and shuffle it
+      const positions = [];
+      for (let r = 0; r < 5; r++)
+        for (let c = 0; c < 5; c++)
+          positions.push([r, c]);
+      for (let i = positions.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [positions[i], positions[j]] = [positions[j], positions[i]];
+      }
+
+      const grid = Array.from({ length: 5 }, () => new Array(5).fill(null));
+
+      // First 5 positions → red bunnies
+      for (let i = 0; i < 5; i++) {
+        const [r, c] = positions[i];
+        grid[r][c] = 'red-bunny';
+      }
+      // Remaining 20 → random fillers (roughly even distribution)
+      for (let i = 5; i < 25; i++) {
+        const [r, c] = positions[i];
+        grid[r][c] = FILLERS[(Math.random() * FILLERS.length) | 0];
+      }
+
+      // Reject boards that already have a winning line
+      if (!this._checkWin(grid)) return grid;
+    }
+  }
+
+  _checkWin(grid) {
+    // Any full row of red bunnies
+    for (let r = 0; r < 5; r++) {
+      if (grid[r].every(cell => cell === 'red-bunny')) return true;
+    }
+    // Any full column of red bunnies
+    for (let c = 0; c < 5; c++) {
+      let allRed = true;
+      for (let r = 0; r < 5; r++) {
+        if (grid[r][c] !== 'red-bunny') { allRed = false; break; }
+      }
+      if (allRed) return true;
+    }
+    return false;
+  }
+
+  // Handle a click at (row, col).
+  // Returns 'select' | 'deselect' | 'reselect' | 'swap' | 'win' | null
+  click(row, col) {
+    if (this.gameOver) return null;
+
+    // No selection yet → select this tile
+    if (this.selected === null) {
+      this.selected = [row, col];
+      return 'select';
+    }
+
+    const [sr, sc] = this.selected;
+
+    // Same tile clicked again → deselect
+    if (sr === row && sc === col) {
+      this.selected = null;
+      return 'deselect';
+    }
+
+    // Check adjacency (N/S/E/W only)
+    const dr = Math.abs(row - sr);
+    const dc = Math.abs(col - sc);
+    const adjacent = (dr === 1 && dc === 0) || (dr === 0 && dc === 1);
+
+    if (!adjacent) {
+      // Non-adjacent tile → reselect
+      this.selected = [row, col];
+      return 'reselect';
+    }
+
+    // Adjacent → swap
+    const temp        = this.grid[sr][sc];
+    this.grid[sr][sc] = this.grid[row][col];
+    this.grid[row][col] = temp;
+    this.moves++;
+    this.selected = null;
+
+    if (this._checkWin(this.grid)) {
+      this.gameOver = true;
+      return 'win';
+    }
+    return 'swap';
+  }
+}
 
 // =============================================================================
 // CANVAS RENDERER
@@ -1095,10 +1264,46 @@ function computeCellSize(cols, rows) {
 
 function resizeCanvas() {
   if (!game) return;
+  if (game instanceof HareLineGame) { renderHareLine(); return; }
   cellSize      = computeCellSize(game.cols, game.rows);
   canvas.width  = cellSize * game.cols;
   canvas.height = cellSize * game.rows;
   render();
+}
+
+function renderHareLine() {
+  const board = document.getElementById('hareline-board');
+  board.innerHTML = '';
+  if (!(game instanceof HareLineGame)) return;
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const type = game.grid[r][c];
+      const cell = document.createElement('div');
+      cell.className = 'hl-cell';
+      if (type === 'red-bunny') cell.classList.add('hl-red');
+      if (game.selected && game.selected[0] === r && game.selected[1] === c) {
+        cell.classList.add('hl-selected');
+      }
+      const img = document.createElement('img');
+      img.src = `assets/icons/${type}.svg`;
+      img.alt = type;
+      cell.appendChild(img);
+      // Capture r and c via IIFE to avoid closure issues
+      cell.addEventListener('click', (function(row, col) {
+        return function() {
+          const result = game.click(row, col);
+          if (result === null) return;
+          renderHareLine();
+          updateStats();
+          if (result === 'win') {
+            setTimeout(() => showHareLineResult(), 350);
+          }
+        };
+      })(r, c));
+      board.appendChild(cell);
+    }
+  }
 }
 
 function render() {
@@ -1255,8 +1460,8 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null, '86bunnies': null };
-const dirsSeen   = { classic: false, bomb: false, '86bunnies': false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
@@ -1272,6 +1477,7 @@ function switchTab(mode) {
     if (game.gameOver) {
       if (game instanceof BombGame)           showBombResult(game.gameWon);
       else if (game instanceof EightySixGame) show86Result(game.gameWon);
+      else if (game instanceof HareLineGame)  showHareLineResult();
       else                                    showGameOver();
     }
     updateTabUI();
@@ -1291,6 +1497,9 @@ function updateTabUI() {
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === activeTab);
   });
+  const isHL = activeTab === 'hareline';
+  document.getElementById('canvas-wrap').style.display = isHL ? 'none' : '';
+  document.getElementById('hareline-wrap').classList.toggle('hl-active', isHL);
 }
 
 // =============================================================================
@@ -1299,6 +1508,16 @@ function updateTabUI() {
 
 function updateStats() {
   if (!game) return;
+
+  if (game instanceof HareLineGame) {
+    document.getElementById('lbl-score').textContent      = 'Swaps';
+    document.getElementById('val-remaining').textContent  = game.moves;
+    document.getElementById('val-moves').textContent      = game.moves;
+    document.getElementById('bomb-stat').style.display    = 'none';
+    document.getElementById('cleared-stat').style.display = 'none';
+    return;
+  }
+
   document.getElementById('val-remaining').textContent = game.countRemaining();
   document.getElementById('val-cleared').textContent   = game.cleared;
   document.getElementById('val-moves').textContent     = game.moves;
@@ -1426,6 +1645,17 @@ function show86Result(won) {
   document.getElementById('overlay').classList.remove('hidden');
 }
 
+function showHareLineResult() {
+  const moves = game.moves;
+  document.getElementById('perf-banner').classList.add('hidden');
+  document.getElementById('modal-title').textContent = 'Hare Line!';
+  document.getElementById('modal-score').textContent =
+    `Solved in ${moves} swap${moves !== 1 ? 's' : ''}`;
+  document.getElementById('modal-sub').textContent = '';
+  document.getElementById('modal-breakdown').innerHTML =
+    '<p class="perfect-msg">All five red bunnies lined up!</p>';
+  document.getElementById('overlay').classList.remove('hidden');
+}
 
 // =============================================================================
 // INPUT — tap/click & hover
@@ -1441,6 +1671,7 @@ function cellFromEvent(e) {
 
 canvas.addEventListener('click', e => {
   if (!game || game.gameOver) return;
+  if (game instanceof HareLineGame) return; // HareLineGame uses DOM click handlers
   const cell = cellFromEvent(e);
   if (!cell) return;
   const [row, col] = cell;
@@ -1477,6 +1708,7 @@ canvas.addEventListener('click', e => {
 
 canvas.addEventListener('mousemove', e => {
   if (!game || game.gameOver) return;
+  if (game instanceof HareLineGame) return;
   const cell = cellFromEvent(e);
   const key  = cell ? `${cell[0]},${cell[1]}` : null;
 
@@ -1524,9 +1756,10 @@ document.querySelectorAll('.mode-tab').forEach(btn => {
 // =============================================================================
 
 function showDirections(mode) {
-  document.getElementById('dir-classic').classList.toggle('hidden',   mode !== 'classic');
-  document.getElementById('dir-bomb').classList.toggle('hidden',      mode !== 'bomb');
-  document.getElementById('dir-86bunnies').classList.toggle('hidden', mode !== '86bunnies');
+  document.getElementById('dir-classic').classList.toggle('hidden',    mode !== 'classic');
+  document.getElementById('dir-bomb').classList.toggle('hidden',       mode !== 'bomb');
+  document.getElementById('dir-86bunnies').classList.toggle('hidden',  mode !== '86bunnies');
+  document.getElementById('dir-hareline').classList.toggle('hidden',   mode !== 'hareline');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -1542,8 +1775,9 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 function startGame() {
   // Classic mode: wider grid on desktop so it fills the available space.
   const classicCols = (activeTab === 'classic' && window.innerWidth >= 600) ? 25 : GRID_COLS;
-  game = activeTab === 'bomb'     ? new BombGame(GRID_COLS, GRID_ROWS)
+  game = activeTab === 'bomb'      ? new BombGame(GRID_COLS, GRID_ROWS)
        : activeTab === '86bunnies' ? new EightySixGame()
+       : activeTab === 'hareline'  ? new HareLineGame()
        :                             new BunnyGame(classicCols, GRID_ROWS);
 
   savedGames[activeTab] = game;
@@ -1553,7 +1787,7 @@ function startGame() {
 
   document.getElementById('overlay').classList.add('hidden');
   updateTabUI();
-  resizeCanvas();
+  resizeCanvas();   // bails to renderHareLine() automatically in hareline mode
   updateStats();
 
   // Animation loop runs only in Bomb Mode
@@ -1589,7 +1823,19 @@ document.getElementById('share-btn').addEventListener('click', () => {
   const moves = game ? game.moves : 0;
   let text;
 
-  if (game instanceof BombGame) {
+  if (game instanceof HareLineGame) {
+    text = `Hare Line — solved in ${moves} swap${moves !== 1 ? 's' : ''}. https://thebunnygame.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'Bunny Game', text });
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('share-btn');
+        btn.textContent = '✓ Copied to clipboard';
+        setTimeout(() => { btn.textContent = 'Share Score'; }, 2500);
+      });
+    }
+    return;
+  } else if (game instanceof BombGame) {
     if (game.gameWon) {
       text = `💣 I guided the bomb to the bottom in ${moves} move${moves !== 1 ? 's' : ''} in Bunny Game Bomb Mode! Can you do it?`;
     } else {
