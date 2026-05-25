@@ -1022,7 +1022,6 @@
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
     <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
-    <button class="icon-btn" id="undo-btn">↩ Undo</button>
     <button class="icon-btn" id="new-btn">↺ New</button>
   </div>
 </div>
@@ -1104,6 +1103,8 @@
   <span>©2026 Never Stop Creating, LLC</span>
   <span>·</span>
   <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
 </footer>
 
 <!-- ── Game-over overlay ────────────────────────────────────────── -->
@@ -2954,16 +2955,6 @@ canvas.addEventListener('mouseleave', () => {
 document.getElementById('new-btn').addEventListener('click', () => startGame());
 document.getElementById('help-btn').addEventListener('click', () => showDirections(activeTab));
 
-document.getElementById('undo-btn').addEventListener('click', () => {
-  if (!game || !game.undo) return;
-  const ok = game.undo();
-  if (!ok) return;
-  document.getElementById('overlay').classList.add('hidden');
-  if (game instanceof BunnyHopGame) { renderBunnyHop(); }
-  else if (game instanceof HareLineGame) { /* HareLineGame has no undo */ }
-  else { hoveredGroup = null; lastHoverKey = null; render(); }
-  updateStats();
-});
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
