@@ -1496,6 +1496,7 @@ function render() {
       // Tile fill — bomb pulses red→orange; blue bunnies in 86 Bunnies get a
       // light-blue tint; Shroom Mode gets animated hue-cycling or mushroom glow.
       const isTarget86   = (game instanceof EightySixGame) && type === 'blue-bunny';
+      const isBombMode   = game instanceof BombGame;
       const isShroomTile = isShroomMode && !isBomb && !highlighted;
 
       // Reset any leftover shadow from a previous mushroom tile
@@ -1521,7 +1522,10 @@ function render() {
           ctx.fillStyle = `hsl(${hue | 0},90%,60%)`;
         }
       } else {
-        ctx.fillStyle = highlighted ? '#ffe066' : isTarget86 ? '#dbeafe' : '#ffffcc';
+        ctx.fillStyle = highlighted ? '#ffe066'
+                      : isTarget86  ? '#dbeafe'
+                      : isBombMode  ? '#000000'
+                      :               '#ffffcc';
       }
 
       const rad = useRound ? Math.max(1, (cellSize * 0.18) | 0) : 0;
