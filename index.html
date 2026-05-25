@@ -12,6 +12,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Arcade font for Cabbage Drop timer -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
   <script>
@@ -172,6 +176,16 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.4);
     }
 
+    /* ── Cabbage Drop tab — leafy green ── */
+    button.mode-tab[data-mode="cabbagdrop"],
+    button.mode-tab[data-mode="cabbagdrop"]:hover,
+    button.mode-tab[data-mode="cabbagdrop"].active {
+      background: #15803d;
+      color: #dcfce7;
+      border-color: rgba(255,255,255,0.2);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+    }
+
     /* ── Shroom Mode tab — constant tie-dye rainbow ── */
     @keyframes shroom-tab-slide {
       0%   { background-position: 0% 50%; }
@@ -320,6 +334,97 @@
     body[data-tab="shroom"] #game-canvas {
       position: relative;
       z-index: 1;
+    }
+
+    /* Cabbage Drop — Garden cross-section (soil + grass strip) */
+    body[data-tab="cabbagdrop"] #canvas-wrap {
+      background:
+        /* Sparse soil pebble / root details */
+        radial-gradient(ellipse 5px 3px at  8% 28%, rgba(160,100,50,0.45) 0%, transparent 100%),
+        radial-gradient(ellipse 3px 2px at 75% 42%, rgba(140, 85,35,0.38) 0%, transparent 100%),
+        radial-gradient(ellipse 6px 3px at 40% 68%, rgba(120, 70,25,0.42) 0%, transparent 100%),
+        radial-gradient(ellipse 3px 2px at 20% 78%, rgba(160,100,50,0.30) 0%, transparent 100%),
+        radial-gradient(ellipse 5px 3px at 87% 85%, rgba(140, 85,35,0.38) 0%, transparent 100%),
+        radial-gradient(ellipse 4px 2px at 55% 52%, rgba(120, 70,25,0.32) 0%, transparent 100%),
+        radial-gradient(ellipse 3px 2px at 30% 48%, rgba(100, 55,20,0.30) 0%, transparent 100%),
+        radial-gradient(ellipse 4px 2px at 63% 22%, rgba(160,100,50,0.35) 0%, transparent 100%),
+        /* Soil grain texture */
+        repeating-linear-gradient(
+          177deg,
+          transparent 0px, transparent 10px,
+          rgba(74,38,16,0.28) 10px, rgba(74,38,16,0.28) 12px,
+          transparent 12px, transparent 26px,
+          rgba(51,26,8,0.18) 26px, rgba(51,26,8,0.18) 28px,
+          transparent 28px, transparent 44px
+        ),
+        repeating-linear-gradient(
+          91deg,
+          transparent 0px, transparent 18px,
+          rgba(61,31,10,0.14) 18px, rgba(61,31,10,0.14) 20px,
+          transparent 20px, transparent 40px
+        ),
+        /* Base soil */
+        #3D1F0A;
+    }
+    /* Grass strip at top of canvas-wrap */
+    body[data-tab="cabbagdrop"] #canvas-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(180deg, #4a8f30 0%, #6ab84a 55%, rgba(90,155,58,0.4) 85%, transparent 100%);
+      clip-path: polygon(
+        0% 0%, 100% 0%, 100% 100%,
+        96% 86%, 93% 100%, 89% 82%, 86% 96%, 82% 84%, 78% 100%,
+        74% 86%, 70% 98%, 66% 82%, 62% 96%, 58% 84%, 54% 100%,
+        50% 86%, 46% 100%, 42% 84%, 38% 98%, 34% 82%, 30% 96%,
+        26% 84%, 22% 100%, 18% 86%, 14% 98%, 10% 82%, 6% 96%, 2% 84%, 0% 100%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+    body[data-tab="cabbagdrop"] #game-canvas {
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 0 3px #2A1205, 0 6px 28px rgba(0,0,0,0.65);
+    }
+
+    /* ── Cabbage Drop timer & popup ── */
+    .cd-timer {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .cd-timer.cd-warn { color: #ef4444; }
+
+    @keyframes cd-pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @keyframes cd-pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .cd-timer.cd-blink-slow { animation: cd-pulse-slow 0.8s ease-in-out infinite; }
+    .cd-timer.cd-blink-fast { animation: cd-pulse-fast 0.32s ease-in-out infinite; }
+
+    @keyframes cd-popup-rise {
+      0%   { opacity: 1; transform: translateX(-50%) translateY(-40%); }
+      70%  { opacity: 1; transform: translateX(-50%) translateY(-110%); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-130%); }
+    }
+    .cd-popup {
+      position: absolute;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.68rem;
+      color: #fbbf24;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 10;
+      animation: cd-popup-rise 0.52s ease-out forwards;
+    }
+    .cd-popup-bonus {
+      color: #4ade80;
+      font-size: 0.78rem;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.9), 0 0 10px rgba(74,222,128,0.4);
     }
 
     /* ── Stats bar ── */
@@ -777,6 +882,7 @@
   <button class="mode-tab" data-mode="hareline">Hare Line</button>
   <button class="mode-tab" data-mode="shroom">Shroom Mode</button>
   <button class="mode-tab" data-mode="bunnyhop">Bunny Hop</button>
+  <button class="mode-tab" data-mode="cabbagdrop">Cabbage Drop</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
@@ -796,6 +902,14 @@
   <div class="stat-item" id="bomb-stat" style="display:none">
     <span class="stat-label">Bomb</span>
     <span class="stat-value" id="val-bomb">—</span>
+  </div>
+  <div class="stat-item" id="cd-timer-stat" style="display:none">
+    <span class="stat-label">Time</span>
+    <span class="stat-value cd-timer" id="val-cd-timer">2:00</span>
+  </div>
+  <div class="stat-item" id="cd-best-stat" style="display:none">
+    <span class="stat-label">Best</span>
+    <span class="stat-value" id="val-cd-best">—</span>
   </div>
 </div>
 
@@ -861,6 +975,9 @@
     </div>
     <div class="dir-pane hidden" id="dir-bunnyhop">
       One bunny stays. Everyone else hops out. Jump any blue bunny over an adjacent blue bunny into the empty space beyond — the bunny you jumped over disappears. You can only jump in a straight line, north south east or west, one bunny at a time. Chain your jumps wisely. The board starts with one empty space in the center. Your goal is to end with exactly one bunny remaining. That's enlightenment. Anything more than one is your score — lower is better. There is no time limit. Only the puzzle.
+    </div>
+    <div class="dir-pane hidden" id="dir-cabbagdrop">
+      Two minutes. Full board. Click groups of two or more matching characters to clear them. New ones drop in from the top immediately — the board never empties. Groups of two are worth 20 points. Every extra character in the group adds 10 more. Cabbages score double. Always. Chain your clears fast. The clock is always running. Your score is what you earned before time ran out. Beat your personal best.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -1741,6 +1858,60 @@ class BunnyHopGame {
 }
 
 // =============================================================================
+// GAME LOGIC — Cabbage Drop
+// Timed arcade mode. Board is always full (10×20). Click groups of 2+ to clear;
+// cleared cells refill immediately from the top with random new characters.
+// No leftward column collapse. Cabbages score 2× base. 2 minutes on the clock.
+// =============================================================================
+
+class CabbageDropGame extends BunnyGame {
+  constructor() {
+    super(10, 20);   // fixed 10×20 board
+    this.score     = 0;
+    this.timeLeft  = 120;   // seconds — counted down by cdTimerInterval
+    this.lastClear = null;  // { group, points, isBonus } — consumed by click handler
+  }
+
+  // Override: no leftward column collapse — board stays full-width
+  _compactColumns() { /* intentionally empty */ }
+
+  // Immediately refill every null cell (top of columns after gravity)
+  _refill() {
+    for (let r = 0; r < this.rows; r++)
+      for (let c = 0; c < this.cols; c++)
+        if (this.grid[r][c] === null)
+          this.grid[r][c] = TILE_TYPES[(Math.random() * TILE_TYPES.length) | 0];
+  }
+
+  // Board is always playable — timer ends the game, not move exhaustion
+  _hasValidMoves() { return true; }
+
+  click(row, col) {
+    if (this.gameOver) return null;
+
+    const group = this.findGroup(row, col);
+    if (group.length < 2) return null;
+
+    const type    = this.grid[row][col];
+    const isBonus = type === 'cabbage';
+    const points  = group.length * 10 * (isBonus ? 2 : 1);
+
+    for (const [r, c] of group) this.grid[r][c] = null;
+    this._applyGravity();
+    this._refill();
+
+    this.moves++;
+    this.cleared += group.length;
+    this.score   += points;
+
+    // Store result so the canvas click handler can spawn the floating popup
+    this.lastClear = { group, points, isBonus };
+
+    return group;   // non-null signals a successful clear
+  }
+}
+
+// =============================================================================
 // CANVAS RENDERER
 // =============================================================================
 
@@ -1763,6 +1934,107 @@ function startAnimLoop() {
 }
 function stopAnimLoop() {
   if (animLoopId !== null) { cancelAnimationFrame(animLoopId); animLoopId = null; }
+}
+
+// =============================================================================
+// CABBAGE DROP — timer, display, result, floating score popup
+// =============================================================================
+
+let cdTimerInterval = null;
+
+function startCDTimer() {
+  if (!(game instanceof CabbageDropGame)) return;
+  clearInterval(cdTimerInterval);
+  cdTimerInterval = setInterval(() => {
+    if (!(game instanceof CabbageDropGame) || game.gameOver) {
+      clearInterval(cdTimerInterval);
+      return;
+    }
+    game.timeLeft = Math.max(0, game.timeLeft - 0.1);
+    updateCDDisplay();
+    if (game.timeLeft <= 0) {
+      game.gameOver = true;
+      clearInterval(cdTimerInterval);
+      setTimeout(() => showCabbageDropResult(), 150);
+    }
+  }, 100);
+}
+
+function stopCDTimer() {
+  clearInterval(cdTimerInterval);
+}
+
+function updateCDDisplay() {
+  if (!(game instanceof CabbageDropGame)) return;
+  const t    = Math.max(0, game.timeLeft);
+  const mins = Math.floor(t / 60) | 0;
+  const secs = Math.floor(t % 60) | 0;
+  const timerEl = document.getElementById('val-cd-timer');
+  timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+  timerEl.classList.remove('cd-warn', 'cd-blink-slow', 'cd-blink-fast');
+  if (t <= 10) {
+    timerEl.classList.add('cd-warn', 'cd-blink-fast');
+  } else if (t <= 30) {
+    timerEl.classList.add('cd-warn', 'cd-blink-slow');
+  }
+  document.getElementById('val-remaining').textContent = game.score.toLocaleString();
+}
+
+function showCabbageDropResult() {
+  const score   = (game instanceof CabbageDropGame) ? game.score : 0;
+  const stored  = parseInt(localStorage.getItem('cabbageDrop_bestScore') || '0');
+  const isNewBest = score > stored;
+  if (isNewBest) localStorage.setItem('cabbageDrop_bestScore', String(score));
+  const best = isNewBest ? score : stored;
+
+  const perfEl = document.getElementById('perf-banner');
+  if (isNewBest) {
+    perfEl.style.background = 'linear-gradient(135deg, #14532d, #16a34a)';
+    perfEl.textContent = '🥬 NEW PERSONAL BEST!';
+    perfEl.classList.remove('hidden');
+    document.getElementById('modal-title').textContent = 'NEW PERSONAL BEST';
+  } else {
+    perfEl.classList.add('hidden');
+    document.getElementById('modal-title').textContent = "TIME'S UP";
+  }
+
+  document.getElementById('modal-score').textContent =
+    `Score: ${score.toLocaleString()} pts`;
+  document.getElementById('modal-sub').textContent =
+    `Personal Best: ${best.toLocaleString()} pts`;
+
+  const cleared = (game instanceof CabbageDropGame) ? game.cleared : 0;
+  const moves   = (game instanceof CabbageDropGame) ? game.moves   : 0;
+  document.getElementById('modal-breakdown').innerHTML =
+    `<div class="bd-row"><span>Tiles cleared: <strong>${cleared}</strong></span></div>` +
+    `<div class="bd-row"><span>Groups cleared: <strong>${moves}</strong></span></div>`;
+
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+// Spawn a floating "+NNN" indicator above the cleared group centre
+function spawnScorePopup(group, points, isBonus) {
+  if (!group || group.length === 0) return;
+  const avgRow = group.reduce((s, [r])    => s + r, 0) / group.length;
+  const avgCol = group.reduce((s, [, c])  => s + c, 0) / group.length;
+
+  const wrap       = document.getElementById('canvas-wrap');
+  const wrapRect   = wrap.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  const offX = canvasRect.left - wrapRect.left;
+  const offY = canvasRect.top  - wrapRect.top;
+
+  const px = offX + (avgCol + 0.5) * cellSize;
+  const py = offY + (avgRow + 0.5) * cellSize;
+
+  const el = document.createElement('div');
+  el.className = 'cd-popup' + (isBonus ? ' cd-popup-bonus' : '');
+  el.textContent = `+${points}`;
+  el.style.left  = `${px}px`;
+  el.style.top   = `${py}px`;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 560);
 }
 
 function computeCellSize(cols, rows) {
@@ -1897,11 +2169,13 @@ function render() {
   const isShroomMode = game instanceof ShroomGame;
   const isBombMode   = game instanceof BombGame;
   const is86Mode     = game instanceof EightySixGame;
+  const isCDMode     = game instanceof CabbageDropGame;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = isShroomMode ? '#0A000F'
                 : isBombMode   ? '#2A2A2A'
                 : is86Mode     ? '#1A2B3C'
+                : isCDMode     ? '#3D1F0A'
                 :                '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -2095,11 +2369,14 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null, bunnyhop: null };
-const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false, bunnyhop: false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null, bunnyhop: null, cabbagdrop: null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false, bunnyhop: false, cabbagdrop: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
+
+  // Pause Cabbage Drop timer before switching away
+  if (activeTab === 'cabbagdrop') stopCDTimer();
 
   // Save current game state before switching
   savedGames[activeTab] = game;
@@ -2110,16 +2387,19 @@ function switchTab(mode) {
     game = savedGames[mode];
     document.getElementById('overlay').classList.add('hidden');
     if (game.gameOver) {
-      if (game instanceof BombGame)           showBombResult(game.gameWon);
-      else if (game instanceof EightySixGame) show86Result(game.gameWon);
-      else if (game instanceof HareLineGame)  showHareLineResult();
-      else if (game instanceof BunnyHopGame)  showBunnyHopResult(game.countPegs() === 1 ? 'win' : 'stuck');
-      else                                    showGameOver();
+      if (game instanceof BombGame)             showBombResult(game.gameWon);
+      else if (game instanceof EightySixGame)   show86Result(game.gameWon);
+      else if (game instanceof HareLineGame)    showHareLineResult();
+      else if (game instanceof BunnyHopGame)    showBunnyHopResult(game.countPegs() === 1 ? 'win' : 'stuck');
+      else if (game instanceof CabbageDropGame) showCabbageDropResult();
+      else                                      showGameOver();
     }
     updateTabUI();
     resizeCanvas();
     updateStats();
     if (mode === 'bomb' || mode === 'shroom') startAnimLoop(); else stopAnimLoop();
+    // Resume Cabbage Drop timer if the game is still running
+    if (mode === 'cabbagdrop' && !game.gameOver) startCDTimer();
   } else {
     // First time on this tab — start a fresh game
     startGame();
@@ -2154,6 +2434,10 @@ function updateTabUI() {
 function updateStats() {
   if (!game) return;
 
+  // Hide CD-specific stats by default; show only for CabbageDropGame
+  document.getElementById('cd-timer-stat').style.display = 'none';
+  document.getElementById('cd-best-stat').style.display  = 'none';
+
   if (game instanceof HareLineGame) {
     document.getElementById('lbl-score').textContent      = 'Slides';
     document.getElementById('val-remaining').textContent  = game.moves;
@@ -2169,6 +2453,19 @@ function updateStats() {
     document.getElementById('val-moves').textContent      = game.moves;
     document.getElementById('bomb-stat').style.display    = 'none';
     document.getElementById('cleared-stat').style.display = 'none';
+    return;
+  }
+
+  if (game instanceof CabbageDropGame) {
+    document.getElementById('lbl-score').textContent       = 'Score';
+    document.getElementById('val-moves').textContent       = game.moves;
+    document.getElementById('bomb-stat').style.display     = 'none';
+    document.getElementById('cleared-stat').style.display  = 'none';
+    document.getElementById('cd-timer-stat').style.display = '';
+    document.getElementById('cd-best-stat').style.display  = '';
+    const best = parseInt(localStorage.getItem('cabbageDrop_bestScore') || '0');
+    document.getElementById('val-cd-best').textContent = best > 0 ? best.toLocaleString() : '—';
+    updateCDDisplay();
     return;
   }
 
@@ -2372,6 +2669,14 @@ canvas.addEventListener('click', e => {
   }
 
   game.click(row, col);
+
+  // Cabbage Drop: spawn floating score popup from the cleared group
+  if (game instanceof CabbageDropGame && game.lastClear) {
+    const { group, points, isBonus } = game.lastClear;
+    game.lastClear = null;
+    spawnScorePopup(group, points, isBonus);
+  }
+
   hoveredGroup = null;
   lastHoverKey = null;
 
@@ -2380,17 +2685,19 @@ canvas.addEventListener('click', e => {
 
   if (game.gameOver) {
     setTimeout(() => {
-      if (game instanceof BombGame)           showBombResult(game.gameWon);
-      else if (game instanceof EightySixGame) show86Result(game.gameWon);
-      else                                    showGameOver();
+      if (game instanceof BombGame)             showBombResult(game.gameWon);
+      else if (game instanceof EightySixGame)   show86Result(game.gameWon);
+      else if (game instanceof CabbageDropGame) showCabbageDropResult();
+      else                                      showGameOver();
     }, 350);
   }
 });
 
 canvas.addEventListener('mousemove', e => {
   if (!game || game.gameOver) return;
-  if (game instanceof HareLineGame) return;
-  if (game instanceof BunnyHopGame) return;
+  if (game instanceof HareLineGame)    return;
+  if (game instanceof BunnyHopGame)    return;
+  if (game instanceof CabbageDropGame) return;  // no pre-highlighting in timed mode
   const cell = cellFromEvent(e);
   const key  = cell ? `${cell[0]},${cell[1]}` : null;
 
@@ -2449,12 +2756,13 @@ document.querySelectorAll('.mode-tab').forEach(btn => {
 // =============================================================================
 
 function showDirections(mode) {
-  document.getElementById('dir-classic').classList.toggle('hidden',    mode !== 'classic');
-  document.getElementById('dir-bomb').classList.toggle('hidden',       mode !== 'bomb');
-  document.getElementById('dir-86bunnies').classList.toggle('hidden',  mode !== '86bunnies');
-  document.getElementById('dir-hareline').classList.toggle('hidden',   mode !== 'hareline');
-  document.getElementById('dir-shroom').classList.toggle('hidden',     mode !== 'shroom');
-  document.getElementById('dir-bunnyhop').classList.toggle('hidden',   mode !== 'bunnyhop');
+  document.getElementById('dir-classic').classList.toggle('hidden',     mode !== 'classic');
+  document.getElementById('dir-bomb').classList.toggle('hidden',        mode !== 'bomb');
+  document.getElementById('dir-86bunnies').classList.toggle('hidden',   mode !== '86bunnies');
+  document.getElementById('dir-hareline').classList.toggle('hidden',    mode !== 'hareline');
+  document.getElementById('dir-shroom').classList.toggle('hidden',      mode !== 'shroom');
+  document.getElementById('dir-bunnyhop').classList.toggle('hidden',    mode !== 'bunnyhop');
+  document.getElementById('dir-cabbagdrop').classList.toggle('hidden',  mode !== 'cabbagdrop');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -2468,14 +2776,18 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 // =============================================================================
 
 function startGame() {
+  // Stop any running Cabbage Drop timer before creating a new game
+  stopCDTimer();
+
   // Classic and Shroom Mode use a wider grid on desktop.
   const wideCols = window.innerWidth >= 600 ? 25 : GRID_COLS;
-  game = activeTab === 'bomb'      ? new BombGame(GRID_COLS, GRID_ROWS)
-       : activeTab === '86bunnies' ? new EightySixGame()
-       : activeTab === 'hareline'  ? new HareLineGame()
-       : activeTab === 'shroom'    ? new ShroomGame(wideCols, GRID_ROWS)
-       : activeTab === 'bunnyhop'  ? new BunnyHopGame()
-       :                             new BunnyGame(wideCols, GRID_ROWS);
+  game = activeTab === 'bomb'       ? new BombGame(GRID_COLS, GRID_ROWS)
+       : activeTab === '86bunnies'  ? new EightySixGame()
+       : activeTab === 'hareline'   ? new HareLineGame()
+       : activeTab === 'shroom'     ? new ShroomGame(wideCols, GRID_ROWS)
+       : activeTab === 'bunnyhop'   ? new BunnyHopGame()
+       : activeTab === 'cabbagdrop' ? new CabbageDropGame()
+       :                              new BunnyGame(wideCols, GRID_ROWS);
 
   savedGames[activeTab] = game;
   hoveredGroup = null;
@@ -2490,6 +2802,9 @@ function startGame() {
   // Continuous animation loop for Bomb Mode and Shroom Mode
   if (activeTab === 'bomb' || activeTab === 'shroom') startAnimLoop();
   else stopAnimLoop();
+
+  // Start countdown for Cabbage Drop
+  if (activeTab === 'cabbagdrop') startCDTimer();
 }
 
 loadImages();
@@ -2520,7 +2835,24 @@ document.getElementById('share-btn').addEventListener('click', () => {
   const moves = game ? game.moves : 0;
   let text;
 
-  if (game instanceof BunnyHopGame) {
+  if (game instanceof CabbageDropGame) {
+    const score   = game.score;
+    const stored  = parseInt(localStorage.getItem('cabbageDrop_bestScore') || '0');
+    const isNewBest = score >= stored && score > 0;
+    text = isNewBest
+      ? `Cabbage Drop — NEW PERSONAL BEST: ${score.toLocaleString()} points in 2 minutes. Can you beat it? https://thebunnygame.com`
+      : `Cabbage Drop — scored ${score.toLocaleString()} points in 2 minutes. https://thebunnygame.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'Bunny Game', text });
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('share-btn');
+        btn.textContent = '✓ Copied to clipboard';
+        setTimeout(() => { btn.textContent = 'Share Score'; }, 2500);
+      });
+    }
+    return;
+  } else if (game instanceof BunnyHopGame) {
     const pegs = game.countPegs();
     text = pegs === 1
       ? `Bunny Hop — perfect solve. One bunny standing in ${moves} move${moves !== 1 ? 's' : ''}. https://thebunnygame.com`
