@@ -520,6 +520,44 @@
       text-shadow: 0 0 10px rgba(253,224,71,0.85), 0 1px 4px rgba(0,0,0,0.9);
     }
 
+    /* ── Cabbage Drop start overlay ── */
+    #cd-start-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      background: rgba(0,0,0,0.38);
+      pointer-events: none;
+    }
+    #cd-start-overlay.cd-start-visible {
+      display: flex;
+      pointer-events: auto;
+    }
+
+    @keyframes cd-start-pulse {
+      0%, 100% { box-shadow: 0 6px 32px rgba(0,0,0,0.55), 0 0 0 0   rgba(22,163,74,0.7); }
+      50%       { box-shadow: 0 6px 32px rgba(0,0,0,0.55), 0 0 0 18px rgba(22,163,74,0); }
+    }
+    #cd-start-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.25rem;
+      color: #fff;
+      background: #16a34a;
+      border: 3px solid rgba(255,255,255,0.28);
+      border-radius: 14px;
+      padding: 22px 48px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.55);
+      animation: cd-start-pulse 1.8s ease-in-out infinite;
+      transition: background 0.12s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #cd-start-btn:hover  { background: #15803d; transform: scale(1.05); }
+    #cd-start-btn:active { transform: scale(0.96); }
+
     /* ── Stats bar ── */
     #stats {
       display: flex;
@@ -1039,6 +1077,10 @@
   </div>
   <!-- Full-canvas flash for cabbage bonus -->
   <div id="cd-flash"></div>
+  <!-- Cabbage Drop pre-game start overlay -->
+  <div id="cd-start-overlay">
+    <button id="cd-start-btn">▶ START</button>
+  </div>
 </div>
 
 <!-- ── Hare Line board ─────────────────────────────────────────── -->
@@ -1992,6 +2034,7 @@ class CabbageDropGame extends BunnyGame {
   constructor() {
     super(10, 20);   // fixed 10×20 board
     this.score     = 0;
+    this.started   = false; // true once the player taps START
     this.timeLeft  = 60;    // seconds — counted down by cdTimerInterval
     this.lastClear = null;  // { group, points, isBonus } — consumed by click handler
   }
@@ -2086,6 +2129,13 @@ function startCDTimer() {
 
 function stopCDTimer() {
   clearInterval(cdTimerInterval);
+}
+
+function showCDStartOverlay() {
+  document.getElementById('cd-start-overlay').classList.add('cd-start-visible');
+}
+function hideCDStartOverlay() {
+  document.getElementById('cd-start-overlay').classList.remove('cd-start-visible');
 }
 
 function updateCDDisplay() {
@@ -2547,8 +2597,8 @@ const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: 
 function switchTab(mode) {
   if (mode === activeTab) return;
 
-  // Pause Cabbage Drop timer before switching away
-  if (activeTab === 'cabbagdrop') stopCDTimer();
+  // Pause Cabbage Drop timer (and hide start overlay) before switching away
+  if (activeTab === 'cabbagdrop') { stopCDTimer(); hideCDStartOverlay(); }
 
   // Save current game state before switching
   savedGames[activeTab] = game;
@@ -2570,8 +2620,11 @@ function switchTab(mode) {
     resizeCanvas();
     updateStats();
     if (mode === 'bomb' || mode === 'shroom') startAnimLoop(); else stopAnimLoop();
-    // Resume Cabbage Drop timer if the game is still running
-    if (mode === 'cabbagdrop' && !game.gameOver) startCDTimer();
+    // Cabbage Drop: resume timer if already started, or re-show the start button
+    if (mode === 'cabbagdrop' && !game.gameOver) {
+      if (game.started) startCDTimer();
+      else showCDStartOverlay();
+    }
   } else {
     // First time on this tab — start a fresh game
     startGame();
@@ -2822,6 +2875,7 @@ canvas.addEventListener('click', e => {
   if (!game || game.gameOver) return;
   if (game instanceof HareLineGame) return; // DOM-based
   if (game instanceof BunnyHopGame) return;  // DOM-based
+  if (game instanceof CabbageDropGame && !game.started) return; // waiting for START
   const cell = cellFromEvent(e);
   if (!cell) return;
   const [row, col] = cell;
@@ -2921,6 +2975,14 @@ document.getElementById('modal-close-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
 });
 
+// Cabbage Drop: START button — begin the countdown on first tap
+document.getElementById('cd-start-btn').addEventListener('click', () => {
+  if (!(game instanceof CabbageDropGame) || game.started) return;
+  game.started = true;
+  hideCDStartOverlay();
+  startCDTimer();
+});
+
 document.querySelectorAll('.mode-tab').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.mode));
 });
@@ -2980,8 +3042,8 @@ function startGame() {
   if (activeTab === 'bomb' || activeTab === 'shroom') startAnimLoop();
   else stopAnimLoop();
 
-  // Start countdown for Cabbage Drop
-  if (activeTab === 'cabbagdrop') startCDTimer();
+  // Cabbage Drop: show the START button — timer begins only when player taps it
+  if (activeTab === 'cabbagdrop') showCDStartOverlay();
 }
 
 loadImages();
