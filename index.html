@@ -405,15 +405,97 @@
     .cd-timer.cd-blink-slow { animation: cd-pulse-slow 0.8s ease-in-out infinite; }
     .cd-timer.cd-blink-fast { animation: cd-pulse-fast 0.32s ease-in-out infinite; }
 
+    /* ── Cabbage Drop HUD (score + timer over the board) ── */
+    #cd-hud {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 14px;
+      z-index: 5;
+      pointer-events: none;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 10px;
+      padding: 8px 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+    }
+    body[data-tab="cabbagdrop"] #cd-hud { display: flex; }
+    #cd-hud-score {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.05rem;
+      color: #fbbf24;
+      text-shadow: 0 0 10px rgba(251,191,36,0.45);
+      min-width: 5ch;
+      text-align: right;
+    }
+    #cd-hud-sep {
+      color: rgba(255,255,255,0.22);
+      font-size: 1rem;
+      font-family: monospace;
+    }
+    #cd-hud-timer {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.05rem;
+      color: #e2e8f0;
+      min-width: 4ch;
+      text-align: left;
+    }
+    #cd-hud-timer.cd-warn {
+      color: #ef4444;
+      text-shadow: 0 0 10px rgba(239,68,68,0.55);
+    }
+
+    /* HUD score pulse on cabbage bonus */
+    @keyframes cd-score-bounce {
+      0%   { transform: scale(1);    color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.45); }
+      28%  { transform: scale(1.45); color: #4ade80; text-shadow: 0 0 18px rgba(74,222,128,0.9); }
+      55%  { transform: scale(0.92); }
+      100% { transform: scale(1);    color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.45); }
+    }
+    #cd-hud-score.cd-score-bounce { animation: cd-score-bounce 0.42s ease-out forwards; }
+
+    /* Full-canvas green flash on cabbage clear */
+    #cd-flash {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      opacity: 0;
+      background: radial-gradient(ellipse at center,
+        rgba(74,222,128,0.42) 0%,
+        rgba(74,222,128,0.18) 55%,
+        transparent 100%);
+    }
+    @keyframes cd-flash-anim {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Score popups */
     @keyframes cd-popup-rise {
       0%   { opacity: 1; transform: translateX(-50%) translateY(-40%); }
       70%  { opacity: 1; transform: translateX(-50%) translateY(-110%); }
       100% { opacity: 0; transform: translateX(-50%) translateY(-130%); }
     }
+    /* Cabbage bonus — dramatic burst-shake-float */
+    @keyframes cd-popup-cabbage {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(-10%) scale(0.3); }
+      12%  { opacity: 1; transform: translateX(-50%) translateY(-55%) scale(1.55); }
+      25%  { transform: translateX(-54%) translateY(-62%) scale(1.35); }
+      40%  { transform: translateX(-46%) translateY(-68%) scale(1.45); }
+      58%  { opacity: 1; transform: translateX(-50%) translateY(-88%) scale(1.15); }
+      80%  { opacity: 0.7; transform: translateX(-50%) translateY(-108%) scale(0.95); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-125%) scale(0.75); }
+    }
     .cd-popup {
       position: absolute;
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       color: #fbbf24;
       text-shadow: 0 1px 5px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6);
       pointer-events: none;
@@ -423,8 +505,19 @@
     }
     .cd-popup-bonus {
       color: #4ade80;
-      font-size: 0.78rem;
-      text-shadow: 0 1px 5px rgba(0,0,0,0.9), 0 0 10px rgba(74,222,128,0.4);
+      font-size: 1.4rem;
+      text-shadow:
+        0 0 14px rgba(74,222,128,0.95),
+        0 0 28px rgba(74,222,128,0.55),
+        0 2px 6px rgba(0,0,0,0.95);
+      animation: cd-popup-cabbage 0.78s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      z-index: 12;
+    }
+    /* 2× badge that floats alongside the bonus text */
+    .cd-popup-badge {
+      color: #fde047;
+      font-size: 0.85rem;
+      text-shadow: 0 0 10px rgba(253,224,71,0.85), 0 1px 4px rgba(0,0,0,0.9);
     }
 
     /* ── Stats bar ── */
@@ -905,7 +998,7 @@
   </div>
   <div class="stat-item" id="cd-timer-stat" style="display:none">
     <span class="stat-label">Time</span>
-    <span class="stat-value cd-timer" id="val-cd-timer">2:00</span>
+    <span class="stat-value cd-timer" id="val-cd-timer">1:00</span>
   </div>
   <div class="stat-item" id="cd-best-stat" style="display:none">
     <span class="stat-label">Best</span>
@@ -916,6 +1009,14 @@
 <!-- ── Canvas ──────────────────────────────────────────────────── -->
 <div id="canvas-wrap">
   <canvas id="game-canvas"></canvas>
+  <!-- Cabbage Drop HUD — score + timer overlaid on the board -->
+  <div id="cd-hud">
+    <span id="cd-hud-score">0</span>
+    <span id="cd-hud-sep">|</span>
+    <span id="cd-hud-timer">1:00</span>
+  </div>
+  <!-- Full-canvas flash for cabbage bonus -->
+  <div id="cd-flash"></div>
 </div>
 
 <!-- ── Hare Line board ─────────────────────────────────────────── -->
@@ -1861,14 +1962,14 @@ class BunnyHopGame {
 // GAME LOGIC — Cabbage Drop
 // Timed arcade mode. Board is always full (10×20). Click groups of 2+ to clear;
 // cleared cells refill immediately from the top with random new characters.
-// No leftward column collapse. Cabbages score 2× base. 2 minutes on the clock.
+// No leftward column collapse. Cabbages score 2× base. 1 minute on the clock.
 // =============================================================================
 
 class CabbageDropGame extends BunnyGame {
   constructor() {
     super(10, 20);   // fixed 10×20 board
     this.score     = 0;
-    this.timeLeft  = 120;   // seconds — counted down by cdTimerInterval
+    this.timeLeft  = 60;    // seconds — counted down by cdTimerInterval
     this.lastClear = null;  // { group, points, isBonus } — consumed by click handler
   }
 
@@ -1966,18 +2067,36 @@ function stopCDTimer() {
 
 function updateCDDisplay() {
   if (!(game instanceof CabbageDropGame)) return;
-  const t    = Math.max(0, game.timeLeft);
-  const mins = Math.floor(t / 60) | 0;
-  const secs = Math.floor(t % 60) | 0;
+  const t       = Math.max(0, game.timeLeft);
+  const mins    = Math.floor(t / 60) | 0;
+  const secs    = Math.floor(t % 60) | 0;
+  const timeStr = `${mins}:${String(secs).padStart(2, '0')}`;
+
+  // Stats-bar timer
   const timerEl = document.getElementById('val-cd-timer');
-  timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+  timerEl.textContent = timeStr;
   timerEl.classList.remove('cd-warn', 'cd-blink-slow', 'cd-blink-fast');
+
+  // HUD timer
+  const hudTimer = document.getElementById('cd-hud-timer');
+  if (hudTimer) {
+    hudTimer.textContent = timeStr;
+    hudTimer.classList.remove('cd-warn', 'cd-blink-slow', 'cd-blink-fast');
+  }
+
   if (t <= 10) {
     timerEl.classList.add('cd-warn', 'cd-blink-fast');
+    if (hudTimer) hudTimer.classList.add('cd-warn', 'cd-blink-fast');
   } else if (t <= 30) {
     timerEl.classList.add('cd-warn', 'cd-blink-slow');
+    if (hudTimer) hudTimer.classList.add('cd-warn', 'cd-blink-slow');
   }
-  document.getElementById('val-remaining').textContent = game.score.toLocaleString();
+
+  // Stats-bar score + HUD score
+  const scoreStr = game.score.toLocaleString();
+  document.getElementById('val-remaining').textContent = scoreStr;
+  const hudScore = document.getElementById('cd-hud-score');
+  if (hudScore) hudScore.textContent = scoreStr;
 }
 
 function showCabbageDropResult() {
@@ -2015,8 +2134,8 @@ function showCabbageDropResult() {
 // Spawn a floating "+NNN" indicator above the cleared group centre
 function spawnScorePopup(group, points, isBonus) {
   if (!group || group.length === 0) return;
-  const avgRow = group.reduce((s, [r])    => s + r, 0) / group.length;
-  const avgCol = group.reduce((s, [, c])  => s + c, 0) / group.length;
+  const avgRow = group.reduce((s, [r])   => s + r, 0) / group.length;
+  const avgCol = group.reduce((s, [, c]) => s + c, 0) / group.length;
 
   const wrap       = document.getElementById('canvas-wrap');
   const wrapRect   = wrap.getBoundingClientRect();
@@ -2028,13 +2147,43 @@ function spawnScorePopup(group, points, isBonus) {
   const px = offX + (avgCol + 0.5) * cellSize;
   const py = offY + (avgRow + 0.5) * cellSize;
 
+  // Main score label
   const el = document.createElement('div');
   el.className = 'cd-popup' + (isBonus ? ' cd-popup-bonus' : '');
   el.textContent = `+${points}`;
   el.style.left  = `${px}px`;
   el.style.top   = `${py}px`;
   wrap.appendChild(el);
-  setTimeout(() => el.remove(), 560);
+  const lifespan = isBonus ? 820 : 560;
+  setTimeout(() => el.remove(), lifespan);
+
+  if (isBonus) {
+    // Green radial flash across the whole board
+    const flash = document.getElementById('cd-flash');
+    if (flash) {
+      flash.style.animation = 'none';
+      void flash.offsetHeight;   // force reflow so the animation restarts
+      flash.style.animation = 'cd-flash-anim 0.48s ease-out forwards';
+    }
+
+    // HUD score pops green then snaps back to gold
+    const hudScore = document.getElementById('cd-hud-score');
+    if (hudScore) {
+      hudScore.classList.remove('cd-score-bounce');
+      void hudScore.offsetHeight;
+      hudScore.classList.add('cd-score-bounce');
+      setTimeout(() => hudScore.classList.remove('cd-score-bounce'), 450);
+    }
+
+    // "2×" badge floats up alongside the main popup
+    const badge = document.createElement('div');
+    badge.className = 'cd-popup cd-popup-badge';
+    badge.textContent = '2×';
+    badge.style.left = `${px + cellSize * 0.9}px`;
+    badge.style.top  = `${py - cellSize * 0.4}px`;
+    wrap.appendChild(badge);
+    setTimeout(() => badge.remove(), 820);
+  }
 }
 
 function computeCellSize(cols, rows) {
@@ -2840,8 +2989,8 @@ document.getElementById('share-btn').addEventListener('click', () => {
     const stored  = parseInt(localStorage.getItem('cabbageDrop_bestScore') || '0');
     const isNewBest = score >= stored && score > 0;
     text = isNewBest
-      ? `Cabbage Drop — NEW PERSONAL BEST: ${score.toLocaleString()} points in 2 minutes. Can you beat it? https://thebunnygame.com`
-      : `Cabbage Drop — scored ${score.toLocaleString()} points in 2 minutes. https://thebunnygame.com`;
+      ? `Cabbage Drop — NEW PERSONAL BEST: ${score.toLocaleString()} points in 1 minute. Can you beat it? https://thebunnygame.com`
+      : `Cabbage Drop — scored ${score.toLocaleString()} points in 1 minute. https://thebunnygame.com`;
     if (navigator.share) {
       navigator.share({ title: 'Bunny Game', text });
     } else {
