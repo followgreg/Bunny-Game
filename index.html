@@ -997,6 +997,147 @@
     }
     .bh-hole.bh-landing:hover { background: #4d8a50; }
 
+    /* ── HexFlip tab — monochrome B&W ── */
+    button.mode-tab[data-mode="hexflip"],
+    button.mode-tab[data-mode="hexflip"]:hover,
+    button.mode-tab[data-mode="hexflip"].active {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: rgba(0,0,0,0.18);
+      text-shadow: none;
+    }
+
+    /* ── HexFlip play area ── */
+    #hexflip-wrap {
+      flex: 1;
+      min-height: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px 12px 8px;
+      overflow: hidden;
+      background: #f8fafc;
+      gap: 8px;
+    }
+    #hexflip-wrap.hf-active { display: flex; }
+
+    body[data-tab="hexflip"] #hexflip-wrap {
+      background:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, transparent 1px, transparent 28px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.03) 0px, transparent 1px, transparent 28px),
+        #f8fafc;
+    }
+
+    /* Move pips */
+    #hf-pips {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-shrink: 0;
+      padding: 2px 0;
+    }
+    .hf-pip {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 2.5px solid #0f172a;
+      background: transparent;
+      transition: background 0.18s;
+      display: inline-block;
+    }
+    .hf-pip.hf-pip-filled { background: #0f172a; }
+
+    /* SVG board wrap */
+    #hf-board-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+    #hf-svg { overflow: visible; display: block; }
+    .hf-hex { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .hf-hex:active polygon { opacity: 0.75; }
+    .hf-hex.hf-solving { cursor: default; pointer-events: none; }
+
+    /* "Not quite" feedback line */
+    #hf-feedback {
+      font-size: 0.72rem;
+      color: #64748b;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    /* Shake on failed attempt */
+    @keyframes hf-shake {
+      0%, 100% { transform: translateX(0); }
+      16% { transform: translateX(-8px); }
+      33% { transform: translateX(8px); }
+      50% { transform: translateX(-5px); }
+      66% { transform: translateX(5px); }
+      83% { transform: translateX(-2px); }
+    }
+    #hexflip-wrap.hf-shake { animation: hf-shake 0.44s ease-out; }
+
+    /* HexFlip control buttons */
+    #hf-controls {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .hf-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 7px 18px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s;
+      letter-spacing: 0.02em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hf-btn:hover  { background: #334155; }
+    .hf-btn:active { background: #475569; }
+
+    /* Solution panel */
+    #hf-solution-panel {
+      font-size: 0.76rem;
+      color: #475569;
+      text-align: center;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    /* Progress dots */
+    #hf-progress {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 260px;
+      padding-bottom: 2px;
+    }
+    .hf-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      flex-shrink: 0;
+    }
+    .hf-dot.hf-dot-done    { background: #0f172a; }
+    .hf-dot.hf-dot-current { width: 9px; height: 9px; background: transparent; border: 2px solid #0f172a; }
+
     /* ── Footer ── */
     #footer {
       display: flex;
@@ -1036,20 +1177,21 @@
   <button class="mode-tab" data-mode="shroom">Shroom Mode</button>
   <button class="mode-tab" data-mode="bunnyhop">Bunny Hop</button>
   <button class="mode-tab" data-mode="cabbagdrop">Cabbage Drop</button>
+  <button class="mode-tab" data-mode="hexflip">HexFlip</button>
 </div>
 
 <!-- ── Stats bar ───────────────────────────────────────────────── -->
 <div id="stats">
-  <div class="stat-item">
+  <div class="stat-item" id="score-stat">
     <span class="stat-label" id="lbl-score">Score</span>
     <span class="stat-value" id="val-remaining">—</span>
   </div>
   <div class="stat-item" id="cleared-stat">
-    <span class="stat-label">Cleared</span>
+    <span class="stat-label" id="lbl-cleared">Cleared</span>
     <span class="stat-value" id="val-cleared">0</span>
   </div>
-  <div class="stat-item">
-    <span class="stat-label">Moves</span>
+  <div class="stat-item" id="moves-stat">
+    <span class="stat-label" id="lbl-moves">Moves</span>
     <span class="stat-value" id="val-moves">0</span>
   </div>
   <div class="stat-item" id="bomb-stat" style="display:none">
@@ -1063,6 +1205,18 @@
   <div class="stat-item" id="cd-best-stat" style="display:none">
     <span class="stat-label">Best</span>
     <span class="stat-value" id="val-cd-best">—</span>
+  </div>
+  <div class="stat-item" id="hf-black-stat" style="display:none">
+    <span class="stat-label">Black</span>
+    <span class="stat-value" id="val-hf-black">—</span>
+  </div>
+  <div class="stat-item" id="hf-white-stat" style="display:none">
+    <span class="stat-label">White</span>
+    <span class="stat-value" id="val-hf-white">—</span>
+  </div>
+  <div class="stat-item" id="hf-tries-stat" style="display:none">
+    <span class="stat-label">Tries</span>
+    <span class="stat-value" id="val-hf-tries">0</span>
   </div>
 </div>
 
@@ -1097,6 +1251,31 @@
     <div class="bh-post bh-post-br"></div>
     <div id="bunnyhop-board"></div>
   </div>
+</div>
+
+<!-- ── HexFlip board ───────────────────────────────────────────── -->
+<div id="hexflip-wrap">
+  <!-- 3 move pips -->
+  <div id="hf-pips">
+    <span class="hf-pip" id="hf-pip-0"></span>
+    <span class="hf-pip" id="hf-pip-1"></span>
+    <span class="hf-pip" id="hf-pip-2"></span>
+  </div>
+  <!-- SVG hex board -->
+  <div id="hf-board-wrap">
+    <svg id="hf-svg"></svg>
+  </div>
+  <!-- "not quite" feedback text -->
+  <div id="hf-feedback"></div>
+  <!-- Reset + Show Solution buttons -->
+  <div id="hf-controls">
+    <button class="hf-btn" id="hf-reset-btn">↺ Reset</button>
+    <button class="hf-btn" id="hf-show-solution-btn" style="display:none">Show Solution</button>
+  </div>
+  <!-- Solution hex numbers panel -->
+  <div id="hf-solution-panel" style="display:none"></div>
+  <!-- Level progress dots -->
+  <div id="hf-progress"></div>
 </div>
 
 <!-- ── Footer ──────────────────────────────────────────────────── -->
@@ -1146,6 +1325,9 @@
     </div>
     <div class="dir-pane hidden" id="dir-cabbagdrop">
       Two minutes. Full board. Click groups of two or more matching characters to clear them. New ones drop in from the top immediately — the board never empties. Groups of two are worth 20 points. Every extra character in the group adds 10 more. Cabbages score double. Always. Chain your clears fast. The clock is always running. Your score is what you earned before time ran out. Beat your personal best.
+    </div>
+    <div class="dir-pane hidden" id="dir-hexflip">
+      A hex grid. All black is the goal. Click any hex and it flips — along with every hex touching it. You get exactly 3 clicks. If the board isn't all black after 3 clicks, it resets and you try again. No time limit. No penalty for trying. The puzzle has exactly one solution. Find it.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -2081,6 +2263,409 @@ class CabbageDropGame extends BunnyGame {
 }
 
 // =============================================================================
+// GAME LOGIC — HexFlip
+// Hexagonal grid logic puzzle. Click exactly 3 hexes to turn the board all-black.
+// Clicking flips that hex plus all its immediate neighbors. One unique solution.
+// =============================================================================
+
+function hfRingsForLevel(lvl) {
+  if (lvl <= 6)  return 1;
+  if (lvl <= 14) return 2;
+  if (lvl <= 24) return 3;
+  return 3 + Math.floor((lvl - 15) / 10);
+}
+
+function hfBuildHexList(rings) {
+  const hexes = [];
+  for (let q = -rings; q <= rings; q++) {
+    const r1 = Math.max(-rings, -q - rings);
+    const r2 = Math.min( rings, -q + rings);
+    for (let r = r1; r <= r2; r++) hexes.push({ q, r });
+  }
+  return hexes;
+}
+
+function hfBuildFlipMasks(hexes) {
+  const DIRS  = [[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,1]];
+  const idxMap = new Map(hexes.map((h, i) => [`${h.q},${h.r}`, i]));
+  return hexes.map((h, i) => {
+    const mask = [i];
+    for (const [dq, dr] of DIRS) {
+      const ni = idxMap.get(`${h.q + dq},${h.r + dr}`);
+      if (ni !== undefined) mask.push(ni);
+    }
+    return mask;
+  });
+}
+
+function hfSeededRng(seed) {
+  let s = (seed ^ 0xDEADBEEF) >>> 0;
+  return function() {
+    s ^= s << 13; s ^= s >>> 17; s ^= s << 5;
+    return (s >>> 0) / 0x100000000;
+  };
+}
+
+let hfCurrentLevel    = parseInt(localStorage.getItem('hexflip_level')    || '1');
+let hfCompletedLevels = new Set(JSON.parse(localStorage.getItem('hexflip_completed') || '[]'));
+
+class HexFlipGame {
+  constructor(level) {
+    this.level      = level;
+    this.rings      = hfRingsForLevel(level);
+    this.hexes      = hfBuildHexList(this.rings);
+    this.N          = this.hexes.length;
+    this.flipMasks  = hfBuildFlipMasks(this.hexes);
+
+    this.state      = null;    // Uint8Array: 0=black, 1=white
+    this.startState = null;    // saved initial state (for reset)
+    this.solution   = null;    // [i, j, k] 0-based hex indices (sorted)
+    this.noSolution = false;
+
+    this.movesMade      = [];
+    this.tries          = 0;
+    this.solved         = false;
+    this.failed         = false;   // true after first wrong attempt
+    this.showingSolution = false;
+    this.highlightedHex  = -1;    // hex index highlighted during animation, -1 = none
+    this.pendingReset    = false;
+
+    this._generate();
+  }
+
+  _generate() {
+    const N   = this.N;
+    const fm  = this.flipMasks;
+    const rng = hfSeededRng(this.level * 9973 + 31337);
+
+    // Build BigInt flip bitmasks for O(N²) uniqueness check
+    const flipBM = fm.map(mask => {
+      let bm = 0n;
+      for (const idx of mask) bm |= (1n << BigInt(idx));
+      return bm;
+    });
+    const flipBMMap = new Map(flipBM.map((bm, i) => [bm, i]));
+
+    for (let attempt = 0; attempt < 5000; attempt++) {
+      let a = (rng() * N) | 0;
+      let b; do { b = (rng() * N) | 0; } while (b === a);
+      let c; do { c = (rng() * N) | 0; } while (c === a || c === b);
+
+      const startBM = flipBM[a] ^ flipBM[b] ^ flipBM[c];
+      if (startBM === 0n) continue;          // all-black start — skip
+
+      // Count forward solutions with O(N²) pair check:
+      // For each (i,j), find k > j such that flip(i)^flip(j)^flip(k) = startBM
+      let solCount = 0;
+      let solFound = null;
+      found:
+      for (let i = 0; i < N; i++) {
+        for (let j = i + 1; j < N; j++) {
+          const target = startBM ^ flipBM[i] ^ flipBM[j];
+          const k = flipBMMap.get(target);
+          if (k !== undefined && k > j) {
+            solCount++;
+            if (solFound === null) solFound = [i, j, k];
+            if (solCount > 1) break found;
+          }
+        }
+      }
+      if (solCount !== 1) continue;
+
+      // Build Uint8Array from BigInt bitmask
+      const state = new Uint8Array(N);
+      for (let i = 0; i < N; i++) {
+        if (startBM & (1n << BigInt(i))) state[i] = 1;
+      }
+
+      this.solution  = solFound;
+      this.state     = state;
+      this.startState = new Uint8Array(state);
+      return;
+    }
+
+    // 5000 attempts exhausted — produce unsolvable placeholder (blank white board)
+    this.noSolution = true;
+    this.solution   = null;
+    this.state      = new Uint8Array(N).fill(1);
+    this.startState = new Uint8Array(N).fill(1);
+  }
+
+  click(hexIndex) {
+    if (this.solved || this.showingSolution || this.pendingReset) return null;
+    if (this.movesMade.length >= 3) return null;
+
+    this.movesMade.push(hexIndex);
+    for (const idx of this.flipMasks[hexIndex]) this.state[idx] ^= 1;
+
+    if (this.movesMade.length === 3) {
+      this.tries++;
+      const allBlack = !this.state.some(v => v);
+      if (allBlack) {
+        this.solved = true;
+        return 'solved';
+      } else {
+        this.failed      = true;
+        this.pendingReset = true;
+        return 'failed';
+      }
+    }
+    return 'click';
+  }
+
+  resetToStart() {
+    this.state       = new Uint8Array(this.startState);
+    this.movesMade   = [];
+    this.pendingReset = false;
+  }
+
+  blackCount() { let n = 0; for (const v of this.state) if (!v) n++; return n; }
+  whiteCount() { let n = 0; for (const v of this.state) if (v)  n++; return n; }
+}
+
+// =============================================================================
+// HEXFLIP — renderer, animation, and UI helpers
+// =============================================================================
+
+let hfAnimTimeout = null;
+
+function hfHexCornerPoints(cx, cy, size) {
+  const pts = [];
+  for (let i = 0; i < 6; i++) {
+    const a = Math.PI / 3 * i - Math.PI / 6;   // pointy-top: start at -30°
+    pts.push(`${(cx + size * Math.cos(a)).toFixed(2)},${(cy + size * Math.sin(a)).toFixed(2)}`);
+  }
+  return pts.join(' ');
+}
+
+const HF_SQRT3 = Math.sqrt(3);
+
+function hfHexToPixel(h, size) {
+  return [
+    size * HF_SQRT3 * (h.q + h.r / 2),
+    size * 1.5 * h.r,
+  ];
+}
+
+function renderHexFlip() {
+  if (!(game instanceof HexFlipGame)) return;
+
+  const boardWrap = document.getElementById('hf-board-wrap');
+  const svg       = document.getElementById('hf-svg');
+  if (!svg || !boardWrap) return;
+
+  const availW = boardWrap.clientWidth  || (window.innerWidth  - 20);
+  const availH = boardWrap.clientHeight || (window.innerHeight - 230);
+  const rings  = game.rings;
+
+  // Size hex to fill the available space
+  const maxByW = (availW - 12) / (HF_SQRT3 * (2 * rings + 1));
+  const maxByH = (availH - 12) / (1.5 * (2 * rings) + 1);
+  const size   = Math.max(15, Math.floor(Math.min(maxByW, maxByH)));
+
+  svg.innerHTML = '';
+
+  const N  = game.N;
+  const hs = game.hexes;
+
+  // Compute bounding box
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const h of hs) {
+    const [px, py] = hfHexToPixel(h, size);
+    minX = Math.min(minX, px - size); maxX = Math.max(maxX, px + size);
+    minY = Math.min(minY, py - size); maxY = Math.max(maxY, py + size);
+  }
+  const pad = 3;
+  const bW  = maxX - minX + pad * 2;
+  const bH  = maxY - minY + pad * 2;
+
+  svg.setAttribute('width',   bW);
+  svg.setAttribute('height',  bH);
+  svg.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${bW} ${bH}`);
+
+  const showNumbers = size >= 22;
+  const gap = Math.max(1, size * 0.06);
+
+  for (let i = 0; i < N; i++) {
+    const [px, py] = hfHexToPixel(hs[i], size);
+    const isWhite  = game.state[i] === 1;
+    const isHighlit = game.highlightedHex === i;
+    const wasMoved  = game.movesMade.includes(i);
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.classList.add('hf-hex');
+    if (game.solved || game.showingSolution || game.pendingReset) g.classList.add('hf-solving');
+
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', hfHexCornerPoints(px, py, size - gap));
+    poly.setAttribute('fill',
+      isHighlit ? '#9ca3af'
+      : isWhite  ? '#ffffff'
+      :             '#111827');
+    poly.setAttribute('stroke',       '#111827');
+    poly.setAttribute('stroke-width', isHighlit ? '2.5' : '1.5');
+
+    g.appendChild(poly);
+
+    if (showNumbers) {
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x',                   px.toFixed(2));
+      txt.setAttribute('y',                   py.toFixed(2));
+      txt.setAttribute('text-anchor',         'middle');
+      txt.setAttribute('dominant-baseline',   'central');
+      txt.setAttribute('fill',   isWhite ? '#111827' : '#e5e7eb');
+      txt.setAttribute('font-size',   Math.max(8, (size * 0.30) | 0));
+      txt.setAttribute('font-weight', '700');
+      txt.setAttribute('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif');
+      txt.setAttribute('pointer-events', 'none');
+      txt.textContent = String(i + 1);
+      g.appendChild(txt);
+    }
+
+    if (!game.solved && !game.showingSolution && !game.pendingReset) {
+      g.addEventListener('click', (idx => () => hfHandleClick(idx))(i));
+    }
+
+    svg.appendChild(g);
+  }
+
+  hfUpdatePips();
+  hfUpdateProgress();
+  hfUpdateControls();
+}
+
+function hfHandleClick(hexIndex) {
+  if (!(game instanceof HexFlipGame)) return;
+  const result = game.click(hexIndex);
+  if (!result) return;
+
+  renderHexFlip();
+  updateStats();
+
+  if (result === 'solved') {
+    hfCompletedLevels.add(game.level);
+    localStorage.setItem('hexflip_completed', JSON.stringify([...hfCompletedLevels]));
+    setTimeout(() => showHexFlipResult(), 420);
+  } else if (result === 'failed') {
+    const wrap = document.getElementById('hexflip-wrap');
+    wrap.classList.remove('hf-shake');
+    void wrap.offsetHeight;
+    wrap.classList.add('hf-shake');
+    const fb = document.getElementById('hf-feedback');
+    fb.textContent = 'not quite';
+    fb.style.opacity = '1';
+    setTimeout(() => {
+      game.resetToStart();
+      fb.style.opacity = '0';
+      wrap.classList.remove('hf-shake');
+      document.getElementById('hf-solution-panel').style.display = 'none';
+      renderHexFlip();
+      updateStats();
+    }, 1000);
+  }
+}
+
+function hfUpdatePips() {
+  const n = (game instanceof HexFlipGame) ? game.movesMade.length : 0;
+  for (let i = 0; i < 3; i++) {
+    const pip = document.getElementById(`hf-pip-${i}`);
+    if (pip) pip.classList.toggle('hf-pip-filled', i < n);
+  }
+}
+
+function hfUpdateProgress() {
+  const prog = document.getElementById('hf-progress');
+  if (!prog || !(game instanceof HexFlipGame)) return;
+  const lvl   = game.level;
+  const start = Math.max(1, lvl - 6);
+  const end   = lvl + 6;
+  let html = '';
+  for (let l = start; l <= end; l++) {
+    const done = hfCompletedLevels.has(l);
+    const cur  = l === lvl;
+    const cls  = cur ? 'hf-dot hf-dot-current' : done ? 'hf-dot hf-dot-done' : 'hf-dot';
+    html += `<span class="${cls}" title="Level ${l}"></span>`;
+  }
+  prog.innerHTML = html;
+}
+
+function hfUpdateControls() {
+  if (!(game instanceof HexFlipGame)) return;
+  const btn = document.getElementById('hf-show-solution-btn');
+  if (btn) btn.style.display = (game.failed && !game.solved && game.solution) ? '' : 'none';
+}
+
+function hfShowSolution() {
+  if (!(game instanceof HexFlipGame) || !game.solution) return;
+  clearTimeout(hfAnimTimeout);
+
+  game.showingSolution = true;
+  game.resetToStart();
+  game.highlightedHex = -1;
+  hfUpdateControls();
+
+  const solPanel = document.getElementById('hf-solution-panel');
+  solPanel.textContent = `Solution: ${game.solution.map(i => `hex ${i + 1}`).join(', ')}`;
+  solPanel.style.display = '';
+  renderHexFlip();
+
+  const steps = [...game.solution];
+  let s = 0;
+
+  function tick() {
+    if (s >= steps.length) {
+      game.highlightedHex  = -1;
+      game.showingSolution = false;
+      renderHexFlip();
+      return;
+    }
+    // Highlight the current solution hex
+    game.highlightedHex = steps[s];
+    renderHexFlip();
+
+    hfAnimTimeout = setTimeout(() => {
+      // Apply the flip
+      for (const idx of game.flipMasks[steps[s]]) game.state[idx] ^= 1;
+      game.highlightedHex = -1;
+      s++;
+      renderHexFlip();
+      if (s < steps.length) {
+        hfAnimTimeout = setTimeout(tick, 250);
+      } else {
+        game.showingSolution = false;
+      }
+    }, 900);
+  }
+  tick();
+}
+
+function showHexFlipResult() {
+  if (!(game instanceof HexFlipGame)) return;
+  const tries = game.tries;
+  const lvl   = game.level;
+  const N     = game.N;
+
+  const perfEl = document.getElementById('perf-banner');
+  if (tries === 1) {
+    perfEl.style.background = 'linear-gradient(135deg, #111827, #374151)';
+    perfEl.textContent = '⬡ PERFECT — FIRST TRY!';
+    perfEl.classList.remove('hidden');
+  } else {
+    perfEl.classList.add('hidden');
+  }
+
+  document.getElementById('modal-title').textContent =
+    tries === 1 ? 'First try.' : `Solved in ${tries} tries.`;
+  document.getElementById('modal-score').textContent = `Level ${lvl}`;
+  document.getElementById('modal-sub').textContent   = `${N} hexes`;
+  document.getElementById('modal-breakdown').innerHTML =
+    '<p class="perfect-msg">All hexes are black. ⬡</p>';
+
+  document.getElementById('play-again-btn').textContent = 'Next Level →';
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+// =============================================================================
 // CANVAS RENDERER
 // =============================================================================
 
@@ -2272,6 +2857,7 @@ function resizeCanvas() {
   if (!game) return;
   if (game instanceof HareLineGame) { renderHareLine(); return; }
   if (game instanceof BunnyHopGame) { renderBunnyHop(); return; }
+  if (game instanceof HexFlipGame)  { renderHexFlip(); return; }
   cellSize      = computeCellSize(game.cols, game.rows);
   canvas.width  = cellSize * game.cols;
   canvas.height = cellSize * game.rows;
@@ -2593,14 +3179,20 @@ function roundRect(ctx, x, y, w, h, r) {
 // =============================================================================
 
 let activeTab = 'classic';
-const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null, bunnyhop: null, cabbagdrop: null };
-const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false, bunnyhop: false, cabbagdrop: false };
+const savedGames = { classic: null, bomb: null, '86bunnies': null, hareline: null, shroom: null, bunnyhop: null, cabbagdrop: null, hexflip: null };
+const dirsSeen   = { classic: false, bomb: false, '86bunnies': false, hareline: false, shroom: false, bunnyhop: false, cabbagdrop: false, hexflip: false };
 
 function switchTab(mode) {
   if (mode === activeTab) return;
 
   // Pause Cabbage Drop timer (and hide start overlay) before switching away
   if (activeTab === 'cabbagdrop') { stopCDTimer(); hideCDStartOverlay(); }
+  // Cancel any in-progress HexFlip animation
+  if (activeTab === 'hexflip') {
+    clearTimeout(hfAnimTimeout);
+    const fb = document.getElementById('hf-feedback');
+    if (fb) fb.style.opacity = '0';
+  }
 
   // Save current game state before switching
   savedGames[activeTab] = game;
@@ -2610,7 +3202,9 @@ function switchTab(mode) {
     // Restore the previously saved game for this tab
     game = savedGames[mode];
     document.getElementById('overlay').classList.add('hidden');
-    if (game.gameOver) {
+    if (game instanceof HexFlipGame) {
+      if (game.solved) showHexFlipResult();
+    } else if (game.gameOver) {
       if (game instanceof BombGame)             showBombResult(game.gameWon);
       else if (game instanceof EightySixGame)   show86Result(game.gameWon);
       else if (game instanceof HareLineGame)    showHareLineResult();
@@ -2649,9 +3243,11 @@ function updateTabUI() {
 
   const isHL = activeTab === 'hareline';
   const isBH = activeTab === 'bunnyhop';
-  document.getElementById('canvas-wrap').style.display = (isHL || isBH) ? 'none' : '';
+  const isHF = activeTab === 'hexflip';
+  document.getElementById('canvas-wrap').style.display   = (isHL || isBH || isHF) ? 'none' : '';
   document.getElementById('hareline-wrap').classList.toggle('hl-active', isHL);
   document.getElementById('bunnyhop-wrap').classList.toggle('bh-active', isBH);
+  document.getElementById('hexflip-wrap').classList.toggle('hf-active',  isHF);
 }
 
 // =============================================================================
@@ -2661,9 +3257,32 @@ function updateTabUI() {
 function updateStats() {
   if (!game) return;
 
-  // Hide CD-specific stats by default; show only for CabbageDropGame
+  // Hide mode-specific stats by default
   document.getElementById('cd-timer-stat').style.display = 'none';
   document.getElementById('cd-best-stat').style.display  = 'none';
+  document.getElementById('hf-black-stat').style.display = 'none';
+  document.getElementById('hf-white-stat').style.display = 'none';
+  document.getElementById('hf-tries-stat').style.display = 'none';
+  // Reset repurposed labels
+  document.getElementById('lbl-score').textContent   = 'Score';
+  document.getElementById('lbl-cleared').textContent = 'Cleared';
+  document.getElementById('lbl-moves').textContent   = 'Moves';
+  document.getElementById('score-stat').style.display   = '';
+  document.getElementById('cleared-stat').style.display = '';
+  document.getElementById('moves-stat').style.display   = '';
+
+  if (game instanceof HexFlipGame) {
+    document.getElementById('score-stat').style.display   = 'none';
+    document.getElementById('cleared-stat').style.display = 'none';
+    document.getElementById('moves-stat').style.display   = 'none';
+    document.getElementById('hf-black-stat').style.display = '';
+    document.getElementById('hf-white-stat').style.display = '';
+    document.getElementById('hf-tries-stat').style.display = '';
+    document.getElementById('val-hf-black').textContent = game.blackCount();
+    document.getElementById('val-hf-white').textContent = game.whiteCount();
+    document.getElementById('val-hf-tries').textContent = game.tries;
+    return;
+  }
 
   if (game instanceof HareLineGame) {
     document.getElementById('lbl-score').textContent      = 'Slides';
@@ -2959,6 +3578,13 @@ document.getElementById('help-btn').addEventListener('click', () => showDirectio
 
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
+  document.getElementById('play-again-btn').textContent = 'Play Again'; // reset label
+  if (activeTab === 'hexflip') {
+    // Advance to next level
+    hfCurrentLevel++;
+    localStorage.setItem('hexflip_level', hfCurrentLevel);
+    savedGames['hexflip'] = null;
+  }
   startGame();
 });
 
@@ -2979,6 +3605,21 @@ document.querySelectorAll('.mode-tab').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.mode));
 });
 
+document.getElementById('hf-reset-btn').addEventListener('click', () => {
+  if (!(game instanceof HexFlipGame) || game.solved || game.showingSolution) return;
+  clearTimeout(hfAnimTimeout);
+  game.resetToStart();
+  document.getElementById('hf-feedback').style.opacity  = '0';
+  document.getElementById('hf-solution-panel').style.display = 'none';
+  document.getElementById('hexflip-wrap').classList.remove('hf-shake');
+  renderHexFlip();
+  updateStats();
+});
+
+document.getElementById('hf-show-solution-btn').addEventListener('click', () => {
+  hfShowSolution();
+});
+
 // ResizeObserver replaces the resize listener — it also catches the initial
 // layout settlement on first load, which rAF-based defers miss.
 
@@ -2994,6 +3635,7 @@ function showDirections(mode) {
   document.getElementById('dir-shroom').classList.toggle('hidden',      mode !== 'shroom');
   document.getElementById('dir-bunnyhop').classList.toggle('hidden',    mode !== 'bunnyhop');
   document.getElementById('dir-cabbagdrop').classList.toggle('hidden',  mode !== 'cabbagdrop');
+  document.getElementById('dir-hexflip').classList.toggle('hidden',     mode !== 'hexflip');
   document.getElementById('directions-overlay').classList.remove('hidden');
 }
 
@@ -3007,8 +3649,29 @@ document.getElementById('dir-close-btn').addEventListener('click', () => {
 // =============================================================================
 
 function startGame() {
-  // Stop any running Cabbage Drop timer before creating a new game
   stopCDTimer();
+  clearTimeout(hfAnimTimeout);
+
+  // HexFlip: async generation with brief "generating" UI state
+  if (activeTab === 'hexflip') {
+    game = null;
+    savedGames['hexflip'] = null;
+    stopAnimLoop();
+    document.getElementById('overlay').classList.add('hidden');
+    document.getElementById('hf-solution-panel').style.display = 'none';
+    document.getElementById('hf-feedback').style.opacity = '0';
+    document.getElementById('hexflip-wrap').classList.remove('hf-shake');
+    updateTabUI();
+    updateStats();
+    setTimeout(() => {
+      game = new HexFlipGame(hfCurrentLevel);
+      savedGames['hexflip'] = game;
+      renderHexFlip();
+      updateStats();
+      if (!dirsSeen['hexflip']) showDirections('hexflip');
+    }, 30);
+    return;
+  }
 
   // Classic and Shroom Mode use a wider grid on desktop.
   const wideCols = window.innerWidth >= 600 ? 25 : GRID_COLS;
@@ -3027,14 +3690,12 @@ function startGame() {
 
   document.getElementById('overlay').classList.add('hidden');
   updateTabUI();
-  resizeCanvas();   // bails to renderHareLine() automatically in hareline mode
+  resizeCanvas();
   updateStats();
 
-  // Continuous animation loop for Bomb Mode and Shroom Mode
   if (activeTab === 'bomb' || activeTab === 'shroom') startAnimLoop();
   else stopAnimLoop();
 
-  // Cabbage Drop: show the START button — timer begins only when player taps it
   if (activeTab === 'cabbagdrop') showCDStartOverlay();
 }
 
@@ -3046,12 +3707,17 @@ loadImages();
 // show/hide without a separate 'resize' listener.
 // Falls back to double-rAF + resize event on browsers without ResizeObserver.
 (function bootstrap() {
-  const wrap = document.getElementById('canvas-wrap');
+  const wrap   = document.getElementById('canvas-wrap');
+  const hfWrap = document.getElementById('hf-board-wrap');
   if (window.ResizeObserver) {
     new ResizeObserver(function() {
       if (!game) { if (wrap.clientHeight > 50) startGame(); }
       else resizeCanvas();
     }).observe(wrap);
+    // Re-render hex grid when its container resizes (orientation change, etc.)
+    new ResizeObserver(function() {
+      if (game instanceof HexFlipGame) renderHexFlip();
+    }).observe(hfWrap);
   } else {
     window.addEventListener('resize', function() { resizeCanvas(); });
     requestAnimationFrame(function() { requestAnimationFrame(startGame); });
@@ -3065,6 +3731,24 @@ loadImages();
 document.getElementById('share-btn').addEventListener('click', () => {
   const moves = game ? game.moves : 0;
   let text;
+
+  if (game instanceof HexFlipGame) {
+    const tries = game.tries;
+    const lvl   = game.level;
+    text = tries === 1
+      ? `HexFlip level ${lvl} -- solved first try hexflip.com`
+      : `HexFlip level ${lvl} -- solved in ${tries} tries hexflip.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'HexFlip', text });
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('share-btn');
+        btn.textContent = '✓ Copied to clipboard';
+        setTimeout(() => { btn.textContent = 'Share Score'; }, 2500);
+      });
+    }
+    return;
+  }
 
   if (game instanceof CabbageDropGame) {
     const score   = game.score;
