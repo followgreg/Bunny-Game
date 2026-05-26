@@ -2454,13 +2454,18 @@ function renderHexFlip() {
   const svg       = document.getElementById('hf-svg');
   if (!svg || !boardWrap) return;
 
-  const availW = boardWrap.clientWidth  || (window.innerWidth  - 20);
-  const availH = boardWrap.clientHeight || (window.innerHeight - 230);
+  // Measure the outer wrap via getBoundingClientRect — reliable even during
+  // first flex layout when clientHeight can still be 0.
+  const hexWrap  = document.getElementById('hexflip-wrap');
+  const wrapRect = hexWrap.getBoundingClientRect();
+  // Reserve ~110 px for pips, feedback line, buttons, progress dots, and padding.
+  const availW = (wrapRect.width  || window.innerWidth)  - 24;
+  const availH = (wrapRect.height || (window.innerHeight - 148)) - 110;
   const rings  = game.rings;
 
   // Size hex to fill the available space
-  const maxByW = (availW - 12) / (HF_SQRT3 * (2 * rings + 1));
-  const maxByH = (availH - 12) / (1.5 * (2 * rings) + 1);
+  const maxByW = availW / (HF_SQRT3 * (2 * rings + 1));
+  const maxByH = availH / (1.5 * (2 * rings) + 1);
   const size   = Math.max(15, Math.floor(Math.min(maxByW, maxByH)));
 
   svg.innerHTML = '';
