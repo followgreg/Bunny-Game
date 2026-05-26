@@ -1138,6 +1138,43 @@
     .hf-dot.hf-dot-done    { background: #0f172a; }
     .hf-dot.hf-dot-current { width: 9px; height: 9px; background: transparent; border: 2px solid #0f172a; }
 
+    /* HexFlip inline win state */
+    #hf-win-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+      flex: 1;
+      min-height: 0;
+      padding: 10px 20px;
+    }
+    #hf-win-state.hf-win-visible { display: flex; }
+    .hf-win-headline {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .hf-win-subline {
+      font-size: 0.82rem;
+      color: #64748b;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin: 0;
+    }
+    .hf-btn-primary {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #f1f5f9 !important;
+      font-size: 0.88rem;
+      padding: 10px 28px;
+    }
+    .hf-btn-primary:hover { background: #1e293b !important; }
+
     /* ── Footer ── */
     #footer {
       display: flex;
@@ -1265,14 +1302,22 @@
   <div id="hf-board-wrap">
     <svg id="hf-svg"></svg>
   </div>
+  <!-- Inline win / level-complete state (replaces board-wrap when visible) -->
+  <div id="hf-win-state">
+    <p class="hf-win-headline" id="hf-win-headline"></p>
+    <p class="hf-win-subline"  id="hf-win-subline"></p>
+    <button class="hf-btn hf-btn-primary" id="hf-next-level-btn">Next Level →</button>
+    <button class="hf-btn" id="hf-copy-result-btn">Copy Result</button>
+  </div>
   <!-- "not quite" feedback text -->
   <div id="hf-feedback"></div>
-  <!-- Reset + Show Solution buttons -->
+  <!-- Reset + Show Solution + Skip buttons -->
   <div id="hf-controls">
     <button class="hf-btn" id="hf-reset-btn">↺ Reset</button>
     <button class="hf-btn" id="hf-show-solution-btn" style="display:none">Show Solution</button>
+    <button class="hf-btn hf-btn-primary" id="hf-skip-btn" style="display:none">Next Level →</button>
   </div>
-  <!-- Solution hex numbers panel -->
+  <!-- Solution moves panel -->
   <div id="hf-solution-panel" style="display:none"></div>
   <!-- Level progress dots -->
   <div id="hf-progress"></div>
@@ -1327,7 +1372,7 @@
       60 seconds. Full board. Click groups of two or more to score points. Cabbages are double. The clock is always running. Good luck!
     </div>
     <div class="dir-pane hidden" id="dir-hexflip">
-      A hex grid. All black is the goal. Click any hex and it flips — along with every hex touching it. You get exactly 3 clicks. If the board isn't all black after 3 clicks, it resets and you try again. No time limit. No penalty for trying. The puzzle has exactly one solution. Find it.
+      A hex grid. All black is the goal. Click any hex and it flips -- along with every hex touching it. You get exactly 3 clicks. If the board isn't all black after 3 clicks it resets and you try again. No time limit. No penalty for trying. The puzzle has exactly one solution. Find it.
     </div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
   </div>
@@ -2488,14 +2533,12 @@ function renderHexFlip() {
   svg.setAttribute('height',  bH);
   svg.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${bW} ${bH}`);
 
-  const showNumbers = size >= 22;
   const gap = Math.max(1, size * 0.06);
 
   for (let i = 0; i < N; i++) {
     const [px, py] = hfHexToPixel(hs[i], size);
-    const isWhite  = game.state[i] === 1;
+    const isWhite   = game.state[i] === 1;
     const isHighlit = game.highlightedHex === i;
-    const wasMoved  = game.movesMade.includes(i);
 
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.classList.add('hf-hex');
@@ -2509,23 +2552,7 @@ function renderHexFlip() {
       :             '#111827');
     poly.setAttribute('stroke',       '#111827');
     poly.setAttribute('stroke-width', isHighlit ? '2.5' : '1.5');
-
     g.appendChild(poly);
-
-    if (showNumbers) {
-      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      txt.setAttribute('x',                   px.toFixed(2));
-      txt.setAttribute('y',                   py.toFixed(2));
-      txt.setAttribute('text-anchor',         'middle');
-      txt.setAttribute('dominant-baseline',   'central');
-      txt.setAttribute('fill',   isWhite ? '#111827' : '#e5e7eb');
-      txt.setAttribute('font-size',   Math.max(8, (size * 0.30) | 0));
-      txt.setAttribute('font-weight', '700');
-      txt.setAttribute('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif');
-      txt.setAttribute('pointer-events', 'none');
-      txt.textContent = String(i + 1);
-      g.appendChild(txt);
-    }
 
     if (!game.solved && !game.showingSolution && !game.pendingReset) {
       g.addEventListener('click', (idx => () => hfHandleClick(idx))(i));
@@ -2550,7 +2577,8 @@ function hfHandleClick(hexIndex) {
   if (result === 'solved') {
     hfCompletedLevels.add(game.level);
     localStorage.setItem('hexflip_completed', JSON.stringify([...hfCompletedLevels]));
-    setTimeout(() => showHexFlipResult(), 420);
+    // Brief pause so player sees the solved board, then show win state
+    setTimeout(() => hfShowWin(), 420);
   } else if (result === 'failed') {
     const wrap = document.getElementById('hexflip-wrap');
     wrap.classList.remove('hf-shake');
@@ -2570,6 +2598,46 @@ function hfHandleClick(hexIndex) {
   }
 }
 
+let hfAdvanceTimer = null;
+
+function hfAdvanceLevel() {
+  clearTimeout(hfAdvanceTimer);
+  hfCurrentLevel++;
+  localStorage.setItem('hexflip_level', String(hfCurrentLevel));
+  savedGames['hexflip'] = null;
+  hfHideWin();
+  startGame();
+}
+
+function hfShowWin() {
+  if (!(game instanceof HexFlipGame)) return;
+  const tries = game.tries;
+  const lvl   = game.level;
+
+  // Hide board, show win state
+  document.getElementById('hf-board-wrap').style.display  = 'none';
+  document.getElementById('hf-controls').style.display    = 'none';
+  document.getElementById('hf-feedback').style.opacity    = '0';
+  document.getElementById('hf-solution-panel').style.display = 'none';
+
+  document.getElementById('hf-win-headline').textContent =
+    tries === 1 ? 'perfect — first try' : `solved in ${tries} ${tries === 1 ? 'try' : 'tries'}`;
+  document.getElementById('hf-win-subline').textContent = `level ${lvl} complete`;
+  document.getElementById('hf-win-state').classList.add('hf-win-visible');
+
+  hfUpdateProgress();
+
+  // Auto-advance after 600ms; button cancels timer and advances immediately
+  hfAdvanceTimer = setTimeout(() => hfAdvanceLevel(), 600);
+}
+
+function hfHideWin() {
+  clearTimeout(hfAdvanceTimer);
+  document.getElementById('hf-win-state').classList.remove('hf-win-visible');
+  document.getElementById('hf-board-wrap').style.display  = '';
+  document.getElementById('hf-controls').style.display    = '';
+}
+
 function hfUpdatePips() {
   const n = (game instanceof HexFlipGame) ? game.movesMade.length : 0;
   for (let i = 0; i < 3; i++) {
@@ -2582,8 +2650,8 @@ function hfUpdateProgress() {
   const prog = document.getElementById('hf-progress');
   if (!prog || !(game instanceof HexFlipGame)) return;
   const lvl   = game.level;
-  const start = Math.max(1, lvl - 6);
-  const end   = lvl + 6;
+  const start = Math.max(1, lvl - 4);
+  const end   = lvl + 4;
   let html = '';
   for (let l = start; l <= end; l++) {
     const done = hfCompletedLevels.has(l);
@@ -2622,6 +2690,12 @@ function hfShowSolution() {
       game.highlightedHex  = -1;
       game.showingSolution = false;
       renderHexFlip();
+      // Show solution label and "Next Level →" skip button
+      const solPanel = document.getElementById('hf-solution-panel');
+      solPanel.textContent = steps.map((idx, i) => `move ${i + 1}: hex ${idx + 1}`).join('  ·  ');
+      solPanel.style.display = '';
+      document.getElementById('hf-skip-btn').style.display = '';
+      hfUpdateControls();
       return;
     }
     // Highlight the current solution hex
@@ -2637,7 +2711,7 @@ function hfShowSolution() {
       if (s < steps.length) {
         hfAnimTimeout = setTimeout(tick, 250);
       } else {
-        game.showingSolution = false;
+        hfAnimTimeout = setTimeout(tick, 250); // run one more tick to finalize
       }
     }, 900);
   }
@@ -3208,7 +3282,11 @@ function switchTab(mode) {
     game = savedGames[mode];
     document.getElementById('overlay').classList.add('hidden');
     if (game instanceof HexFlipGame) {
-      if (game.solved) showHexFlipResult();
+      if (game.solved) {
+        // Already solved — quietly advance to next level
+        hfAdvanceLevel();
+        return;
+      }
     } else if (game.gameOver) {
       if (game instanceof BombGame)             showBombResult(game.gameWon);
       else if (game instanceof EightySixGame)   show86Result(game.gameWon);
@@ -3584,12 +3662,6 @@ document.getElementById('help-btn').addEventListener('click', () => showDirectio
 document.getElementById('play-again-btn').addEventListener('click', () => {
   document.getElementById('overlay').classList.add('hidden');
   document.getElementById('play-again-btn').textContent = 'Play Again'; // reset label
-  if (activeTab === 'hexflip') {
-    // Advance to next level
-    hfCurrentLevel++;
-    localStorage.setItem('hexflip_level', hfCurrentLevel);
-    savedGames['hexflip'] = null;
-  }
   startGame();
 });
 
@@ -3614,8 +3686,9 @@ document.getElementById('hf-reset-btn').addEventListener('click', () => {
   if (!(game instanceof HexFlipGame) || game.solved || game.showingSolution) return;
   clearTimeout(hfAnimTimeout);
   game.resetToStart();
-  document.getElementById('hf-feedback').style.opacity  = '0';
+  document.getElementById('hf-feedback').style.opacity       = '0';
   document.getElementById('hf-solution-panel').style.display = 'none';
+  document.getElementById('hf-skip-btn').style.display       = 'none';
   document.getElementById('hexflip-wrap').classList.remove('hf-shake');
   renderHexFlip();
   updateStats();
@@ -3623,6 +3696,32 @@ document.getElementById('hf-reset-btn').addEventListener('click', () => {
 
 document.getElementById('hf-show-solution-btn').addEventListener('click', () => {
   hfShowSolution();
+});
+
+document.getElementById('hf-next-level-btn').addEventListener('click', () => {
+  hfAdvanceLevel();
+});
+
+document.getElementById('hf-skip-btn').addEventListener('click', () => {
+  hfAdvanceLevel();
+});
+
+document.getElementById('hf-copy-result-btn').addEventListener('click', () => {
+  if (!(game instanceof HexFlipGame)) return;
+  const tries = game.tries;
+  const lvl   = game.level;
+  const text  = tries === 1
+    ? `HexFlip level ${lvl} -- solved first try thebunnygame.com`
+    : `HexFlip level ${lvl} -- solved in ${tries} tries thebunnygame.com`;
+  const btn = document.getElementById('hf-copy-result-btn');
+  if (navigator.share) {
+    navigator.share({ title: 'HexFlip', text });
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = 'Copy Result'; }, 2500);
+    });
+  }
 });
 
 // ResizeObserver replaces the resize listener — it also catches the initial
@@ -3664,8 +3763,13 @@ function startGame() {
     stopAnimLoop();
     document.getElementById('overlay').classList.add('hidden');
     document.getElementById('hf-solution-panel').style.display = 'none';
-    document.getElementById('hf-feedback').style.opacity = '0';
+    document.getElementById('hf-skip-btn').style.display       = 'none';
+    document.getElementById('hf-feedback').style.opacity       = '0';
     document.getElementById('hexflip-wrap').classList.remove('hf-shake');
+    // Ensure win state is hidden and board is visible for the incoming puzzle
+    document.getElementById('hf-win-state').classList.remove('hf-win-visible');
+    document.getElementById('hf-board-wrap').style.display = '';
+    document.getElementById('hf-controls').style.display   = '';
     updateTabUI();
     updateStats();
     setTimeout(() => {
