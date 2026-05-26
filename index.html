@@ -2598,10 +2598,7 @@ function hfHandleClick(hexIndex) {
   }
 }
 
-let hfAdvanceTimer = null;
-
 function hfAdvanceLevel() {
-  clearTimeout(hfAdvanceTimer);
   hfCurrentLevel++;
   localStorage.setItem('hexflip_level', String(hfCurrentLevel));
   savedGames['hexflip'] = null;
@@ -2626,13 +2623,9 @@ function hfShowWin() {
   document.getElementById('hf-win-state').classList.add('hf-win-visible');
 
   hfUpdateProgress();
-
-  // Auto-advance after 600ms; button cancels timer and advances immediately
-  hfAdvanceTimer = setTimeout(() => hfAdvanceLevel(), 600);
 }
 
 function hfHideWin() {
-  clearTimeout(hfAdvanceTimer);
   document.getElementById('hf-win-state').classList.remove('hf-win-visible');
   document.getElementById('hf-board-wrap').style.display  = '';
   document.getElementById('hf-controls').style.display    = '';
