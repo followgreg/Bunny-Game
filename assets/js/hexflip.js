@@ -271,7 +271,8 @@ function hfHandleClick(hexIndex) {
       document.getElementById('hf-solution-panel').style.display = 'none';
       renderHexFlip();
       updateStats();
-    }, 1000);
+      hfShowFail();
+    }, 700);
   }
 }
 
@@ -305,6 +306,26 @@ function hfShowWin() {
 
 function hfHideWin() {
   document.getElementById('hf-win-state').classList.remove('hf-win-visible');
+  document.getElementById('hf-board-wrap').style.display = '';
+  document.getElementById('hf-controls').style.display   = '';
+}
+
+function hfShowFail() {
+  if (!(game instanceof HexFlipGame)) return;
+  document.getElementById('hf-board-wrap').style.display = 'none';
+  document.getElementById('hf-controls').style.display   = 'none';
+  document.getElementById('hf-feedback').style.opacity   = '0';
+  document.getElementById('hf-fail-subline').textContent =
+    `Level ${hfDisplayLevel(game.level)} incomplete`;
+  // Show "Show Solution" only after 3+ unsuccessful attempts
+  document.getElementById('hf-fail-solution-btn').style.display =
+    game.tries >= 3 ? '' : 'none';
+  document.getElementById('hf-fail-state').classList.add('hf-fail-visible');
+  hfUpdateProgress();
+}
+
+function hfHideFail() {
+  document.getElementById('hf-fail-state').classList.remove('hf-fail-visible');
   document.getElementById('hf-board-wrap').style.display = '';
   document.getElementById('hf-controls').style.display   = '';
 }
@@ -420,6 +441,17 @@ document.getElementById('hf-show-solution-btn').addEventListener('click', () => 
 document.getElementById('hf-next-level-btn').addEventListener('click', () => hfAdvanceLevel());
 document.getElementById('hf-skip-btn').addEventListener('click', () => hfAdvanceLevel());
 
+document.getElementById('hf-try-again-btn').addEventListener('click', () => {
+  hfHideFail();
+  renderHexFlip();
+  updateStats();
+});
+
+document.getElementById('hf-fail-solution-btn').addEventListener('click', () => {
+  hfHideFail();
+  hfShowSolution();
+});
+
 document.getElementById('hf-copy-result-btn').addEventListener('click', () => {
   if (!game) return;
   const tries = game.tries;
@@ -462,6 +494,7 @@ function startGame() {
   document.getElementById('hf-feedback').style.opacity       = '0';
   document.getElementById('hexflip-wrap').classList.remove('hf-shake');
   document.getElementById('hf-win-state').classList.remove('hf-win-visible');
+  document.getElementById('hf-fail-state').classList.remove('hf-fail-visible');
   document.getElementById('hf-board-wrap').style.display = '';
   document.getElementById('hf-controls').style.display   = '';
 

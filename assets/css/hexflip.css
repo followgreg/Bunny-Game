@@ -150,6 +150,20 @@ body[data-tab="hexflip"] #hexflip-wrap {
 .hf-dot.hf-dot-done    { background: #0f172a; cursor: pointer; }
 .hf-dot.hf-dot-current { width: 9px; height: 9px; background: transparent; border: 2px solid #0f172a; }
 
+/* Inline fail state */
+#hf-fail-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  flex: 1;
+  min-height: 0;
+  padding: 10px 20px;
+}
+#hf-fail-state.hf-fail-visible { display: flex; }
+
 /* Inline win state */
 #hf-win-state {
   display: none;
