@@ -1,0 +1,181 @@
+/* HexFlip — monochrome hex logic puzzle */
+
+#hexflip-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 12px 8px;
+  overflow: hidden;
+  background: #f8fafc;
+  gap: 8px;
+}
+
+body[data-tab="hexflip"] #hexflip-wrap {
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.03) 0px, transparent 1px, transparent 28px),
+    #f8fafc;
+}
+
+/* Move pips + level label row */
+#hf-pips {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 0;
+}
+.hf-pip {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2.5px solid #0f172a;
+  background: transparent;
+  transition: background 0.18s;
+  display: inline-block;
+}
+.hf-pip.hf-pip-filled { background: #0f172a; }
+.hf-pip-sep {
+  color: #cbd5e1;
+  font-size: 1rem;
+  line-height: 1;
+  user-select: none;
+}
+.hf-level-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.03em;
+  min-width: 2em;
+  text-align: right;
+}
+
+/* SVG board wrap */
+#hf-board-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+#hf-svg { overflow: visible; display: block; }
+.hf-hex { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hf-hex:active polygon { opacity: 0.75; }
+.hf-hex.hf-solving { cursor: default; pointer-events: none; }
+
+/* "Not quite" feedback line */
+#hf-feedback {
+  font-size: 0.72rem;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* Shake on failed attempt */
+@keyframes hf-shake {
+  0%, 100% { transform: translateX(0); }
+  16% { transform: translateX(-8px); }
+  33% { transform: translateX(8px); }
+  50% { transform: translateX(-5px); }
+  66% { transform: translateX(5px); }
+  83% { transform: translateX(-2px); }
+}
+#hexflip-wrap.hf-shake { animation: hf-shake 0.44s ease-out; }
+
+/* Control buttons */
+#hf-controls {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.hf-btn {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+  letter-spacing: 0.02em;
+  -webkit-tap-highlight-color: transparent;
+}
+.hf-btn:hover  { background: #334155; }
+.hf-btn:active { background: #475569; }
+
+/* Solution panel */
+#hf-solution-panel {
+  font-size: 0.76rem;
+  color: #475569;
+  text-align: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+/* Progress dots */
+#hf-progress {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 260px;
+  padding-bottom: 2px;
+}
+.hf-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+.hf-dot.hf-dot-done    { background: #0f172a; cursor: pointer; }
+.hf-dot.hf-dot-current { width: 9px; height: 9px; background: transparent; border: 2px solid #0f172a; }
+
+/* Inline win state */
+#hf-win-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  flex: 1;
+  min-height: 0;
+  padding: 10px 20px;
+}
+#hf-win-state.hf-win-visible { display: flex; }
+.hf-win-headline {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.hf-win-subline {
+  font-size: 0.82rem;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0;
+}
+.hf-btn-primary {
+  background: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #f1f5f9 !important;
+  font-size: 0.88rem;
+  padding: 10px 28px;
+}
+.hf-btn-primary:hover { background: #1e293b !important; }

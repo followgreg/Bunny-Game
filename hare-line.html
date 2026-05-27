@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Bunny Game — Classic Mode</title>
-  <meta name="description" content="Match and clear tiles in Classic Mode — the original Bunny Game. Zero tiles left is a perfect clear.">
-  <meta property="og:title" content="Bunny Game — Classic Mode">
-  <meta property="og:description" content="Click matching tiles to clear them. Tiles fall. Columns collapse. Can you get a perfect clear?">
-  <meta property="og:url" content="https://www.thebunnygame.com">
-  <link rel="canonical" href="https://www.thebunnygame.com">
+  <title>Hare Line — Bunny Game</title>
+  <meta name="description" content="Slide tiles into the empty space to line up all five red bunnies in the same row or column. A 5×5 sliding puzzle.">
+  <meta property="og:title" content="Hare Line — Bunny Game">
+  <meta property="og:description" content="One blank space. Twenty-four tiles. Get all five red bunnies into the same row or column.">
+  <meta property="og:url" content="https://www.thebunnygame.com/hare-line">
+  <link rel="canonical" href="https://www.thebunnygame.com/hare-line">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
@@ -31,9 +31,9 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/classic.css">
+  <link rel="stylesheet" href="assets/css/hare-line.css">
 </head>
-<body data-tab="classic">
+<body data-tab="hareline">
 
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
@@ -47,12 +47,8 @@
 
 <div id="stats">
   <div class="stat-item">
-    <span class="stat-label">Score</span>
-    <span class="stat-value" id="val-remaining">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Cleared</span>
-    <span class="stat-value" id="val-cleared">0</span>
+    <span class="stat-label">Slides</span>
+    <span class="stat-value" id="val-remaining">0</span>
   </div>
   <div class="stat-item">
     <span class="stat-label">Moves</span>
@@ -60,8 +56,8 @@
   </div>
 </div>
 
-<div id="canvas-wrap">
-  <canvas id="game-canvas"></canvas>
+<div id="hareline-wrap">
+  <div id="hareline-board"></div>
 </div>
 
 <footer id="footer">
@@ -75,7 +71,7 @@
 <div id="overlay" class="hidden">
   <div class="modal">
     <div id="perf-banner" class="hidden"></div>
-    <h2 id="modal-title">Game Over</h2>
+    <h2 id="modal-title">Hare Line!</h2>
     <p class="modal-score" id="modal-score"></p>
     <p class="modal-sub"   id="modal-sub"></p>
     <div class="breakdown" id="modal-breakdown"></div>
@@ -94,6 +90,6 @@
 
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
-<script src="assets/js/classic.js"></script>
+<script src="assets/js/hare-line.js"></script>
 </body>
 </html>

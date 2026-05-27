@@ -1,0 +1,219 @@
+/* Cabbage Drop — timed arcade mode */
+
+/* Close button visible on Cabbage Drop end screen */
+body[data-tab="cabbagdrop"] #modal-close-btn { display: block; }
+
+/* Press Start 2P timer */
+.cd-timer {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.cd-timer.cd-warn { color: #ef4444; }
+
+@keyframes cd-pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes cd-pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.cd-timer.cd-blink-slow { animation: cd-pulse-slow 0.8s ease-in-out infinite; }
+.cd-timer.cd-blink-fast { animation: cd-pulse-fast 0.32s ease-in-out infinite; }
+
+/* HUD (score + timer overlaid on board) */
+#cd-hud {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 5;
+  pointer-events: none;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 10px;
+  padding: 8px 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+#cd-hud-score {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.05rem;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251,191,36,0.45);
+  min-width: 5ch;
+  text-align: right;
+}
+#cd-hud-sep {
+  color: rgba(255,255,255,0.22);
+  font-size: 1rem;
+  font-family: monospace;
+}
+#cd-hud-timer {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.05rem;
+  color: #e2e8f0;
+  min-width: 4ch;
+  text-align: left;
+}
+#cd-hud-timer.cd-warn {
+  color: #ef4444;
+  text-shadow: 0 0 10px rgba(239,68,68,0.55);
+}
+
+@keyframes cd-score-bounce {
+  0%   { transform: scale(1);    color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.45); }
+  28%  { transform: scale(1.45); color: #4ade80; text-shadow: 0 0 18px rgba(74,222,128,0.9); }
+  55%  { transform: scale(0.92); }
+  100% { transform: scale(1);    color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.45); }
+}
+#cd-hud-score.cd-score-bounce { animation: cd-score-bounce 0.42s ease-out forwards; }
+
+/* Full-canvas green flash on cabbage clear */
+#cd-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+  background: radial-gradient(ellipse at center,
+    rgba(74,222,128,0.42) 0%,
+    rgba(74,222,128,0.18) 55%,
+    transparent 100%);
+}
+@keyframes cd-flash-anim {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Score popups */
+@keyframes cd-popup-rise {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(-40%); }
+  70%  { opacity: 1; transform: translateX(-50%) translateY(-110%); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-130%); }
+}
+@keyframes cd-popup-cabbage {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-10%) scale(0.3); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(-55%) scale(1.55); }
+  25%  { transform: translateX(-54%) translateY(-62%) scale(1.35); }
+  40%  { transform: translateX(-46%) translateY(-68%) scale(1.45); }
+  58%  { opacity: 1; transform: translateX(-50%) translateY(-88%) scale(1.15); }
+  80%  { opacity: 0.7; transform: translateX(-50%) translateY(-108%) scale(0.95); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-125%) scale(0.75); }
+}
+.cd-popup {
+  position: absolute;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  color: #fbbf24;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+  animation: cd-popup-rise 0.52s ease-out forwards;
+}
+.cd-popup-bonus {
+  color: #4ade80;
+  font-size: 1.4rem;
+  text-shadow:
+    0 0 14px rgba(74,222,128,0.95),
+    0 0 28px rgba(74,222,128,0.55),
+    0 2px 6px rgba(0,0,0,0.95);
+  animation: cd-popup-cabbage 0.78s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  z-index: 12;
+}
+.cd-popup-badge {
+  color: #fde047;
+  font-size: 0.85rem;
+  text-shadow: 0 0 10px rgba(253,224,71,0.85), 0 1px 4px rgba(0,0,0,0.9);
+}
+
+/* Pre-game start overlay */
+#cd-start-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  background: rgba(0,0,0,0.38);
+  pointer-events: none;
+}
+#cd-start-overlay.cd-start-visible {
+  display: flex;
+  pointer-events: auto;
+}
+
+@keyframes cd-start-pulse {
+  0%, 100% { box-shadow: 0 6px 32px rgba(0,0,0,0.55), 0 0 0 0   rgba(22,163,74,0.7); }
+  50%       { box-shadow: 0 6px 32px rgba(0,0,0,0.55), 0 0 0 18px rgba(22,163,74,0); }
+}
+#cd-start-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.25rem;
+  color: #fff;
+  background: #16a34a;
+  border: 3px solid rgba(255,255,255,0.28);
+  border-radius: 14px;
+  padding: 22px 48px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.55);
+  animation: cd-start-pulse 1.8s ease-in-out infinite;
+  transition: background 0.12s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+#cd-start-btn:hover  { background: #15803d; transform: scale(1.05); }
+#cd-start-btn:active { transform: scale(0.96); }
+
+/* Garden / soil background */
+body[data-tab="cabbagdrop"] #canvas-wrap {
+  background:
+    radial-gradient(ellipse 5px 3px at  8% 28%, rgba(160,100,50,0.45) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 75% 42%, rgba(140, 85,35,0.38) 0%, transparent 100%),
+    radial-gradient(ellipse 6px 3px at 40% 68%, rgba(120, 70,25,0.42) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 20% 78%, rgba(160,100,50,0.30) 0%, transparent 100%),
+    radial-gradient(ellipse 5px 3px at 87% 85%, rgba(140, 85,35,0.38) 0%, transparent 100%),
+    radial-gradient(ellipse 4px 2px at 55% 52%, rgba(120, 70,25,0.32) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 30% 48%, rgba(100, 55,20,0.30) 0%, transparent 100%),
+    radial-gradient(ellipse 4px 2px at 63% 22%, rgba(160,100,50,0.35) 0%, transparent 100%),
+    repeating-linear-gradient(
+      177deg,
+      transparent 0px, transparent 10px,
+      rgba(74,38,16,0.28) 10px, rgba(74,38,16,0.28) 12px,
+      transparent 12px, transparent 26px,
+      rgba(51,26,8,0.18) 26px, rgba(51,26,8,0.18) 28px,
+      transparent 28px, transparent 44px
+    ),
+    repeating-linear-gradient(
+      91deg,
+      transparent 0px, transparent 18px,
+      rgba(61,31,10,0.14) 18px, rgba(61,31,10,0.14) 20px,
+      transparent 20px, transparent 40px
+    ),
+    #3D1F0A;
+}
+/* Grass strip at top */
+body[data-tab="cabbagdrop"] #canvas-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(180deg, #4a8f30 0%, #6ab84a 55%, rgba(90,155,58,0.4) 85%, transparent 100%);
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 100%,
+    96% 86%, 93% 100%, 89% 82%, 86% 96%, 82% 84%, 78% 100%,
+    74% 86%, 70% 98%, 66% 82%, 62% 96%, 58% 84%, 54% 100%,
+    50% 86%, 46% 100%, 42% 84%, 38% 98%, 34% 82%, 30% 96%,
+    26% 84%, 22% 100%, 18% 86%, 14% 98%, 10% 82%, 6% 96%, 2% 84%, 0% 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+body[data-tab="cabbagdrop"] #game-canvas {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 3px #2A1205, 0 6px 28px rgba(0,0,0,0.65);
+}

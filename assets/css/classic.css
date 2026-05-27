@@ -1,0 +1,23 @@
+/* Classic Mode — Meadow background */
+body[data-tab="classic"] #canvas-wrap {
+  background:
+    radial-gradient(circle 4px at 12% 18%, #fbbf24 0%, transparent 100%),
+    radial-gradient(circle 3px at 30% 72%, #f9a8d4 0%, transparent 100%),
+    radial-gradient(circle 4px at 52% 12%, #fde68a 0%, transparent 100%),
+    radial-gradient(circle 3px at 68% 44%, #86efac 0%, transparent 100%),
+    radial-gradient(circle 4px at 85% 78%, #fbbf24 0%, transparent 100%),
+    radial-gradient(circle 3px at 22% 88%, #f9a8d4 0%, transparent 100%),
+    radial-gradient(circle 4px at 60% 58%, #fde68a 0%, transparent 100%),
+    radial-gradient(circle 3px at 78% 8%,  #86efac 0%, transparent 100%),
+    radial-gradient(circle 4px at 43% 36%, #fbbf24 0%, transparent 100%),
+    radial-gradient(circle 3px at 7%  56%, #f9a8d4 0%, transparent 100%),
+    repeating-linear-gradient(
+      172deg,
+      transparent 0px, transparent 22px,
+      rgba(255,255,255,0.05) 22px, rgba(255,255,255,0.05) 24px
+    ),
+    linear-gradient(180deg, #4a7c59 0%, #3d6b4a 45%, #2d5438 100%);
+}
+body[data-tab="classic"] #game-canvas {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25);
+}

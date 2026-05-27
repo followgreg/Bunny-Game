@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Bunny Game — Classic Mode</title>
-  <meta name="description" content="Match and clear tiles in Classic Mode — the original Bunny Game. Zero tiles left is a perfect clear.">
-  <meta property="og:title" content="Bunny Game — Classic Mode">
-  <meta property="og:description" content="Click matching tiles to clear them. Tiles fall. Columns collapse. Can you get a perfect clear?">
-  <meta property="og:url" content="https://www.thebunnygame.com">
-  <link rel="canonical" href="https://www.thebunnygame.com">
+  <title>Bunny Hop — Bunny Game</title>
+  <meta name="description" content="A peg solitaire puzzle. Jump bunnies over each other to eliminate them. Your goal: end with exactly one bunny remaining.">
+  <meta property="og:title" content="Bunny Hop — Bunny Game">
+  <meta property="og:description" content="One bunny stays. Everyone else hops out. Can you solve it?">
+  <meta property="og:url" content="https://www.thebunnygame.com/bunny-hop">
+  <link rel="canonical" href="https://www.thebunnygame.com/bunny-hop">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
@@ -31,9 +31,9 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/classic.css">
+  <link rel="stylesheet" href="assets/css/bunny-hop.css">
 </head>
-<body data-tab="classic">
+<body data-tab="bunnyhop">
 
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
@@ -47,12 +47,8 @@
 
 <div id="stats">
   <div class="stat-item">
-    <span class="stat-label">Score</span>
+    <span class="stat-label">Bunnies</span>
     <span class="stat-value" id="val-remaining">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Cleared</span>
-    <span class="stat-value" id="val-cleared">0</span>
   </div>
   <div class="stat-item">
     <span class="stat-label">Moves</span>
@@ -60,8 +56,14 @@
   </div>
 </div>
 
-<div id="canvas-wrap">
-  <canvas id="game-canvas"></canvas>
+<div id="bunnyhop-wrap">
+  <div class="bh-fence">
+    <div class="bh-post bh-post-tl"></div>
+    <div class="bh-post bh-post-tr"></div>
+    <div class="bh-post bh-post-bl"></div>
+    <div class="bh-post bh-post-br"></div>
+    <div id="bunnyhop-board"></div>
+  </div>
 </div>
 
 <footer id="footer">
@@ -94,6 +96,6 @@
 
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
-<script src="assets/js/classic.js"></script>
+<script src="assets/js/bunny-hop.js"></script>
 </body>
 </html>

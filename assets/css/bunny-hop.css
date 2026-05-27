@@ -1,0 +1,104 @@
+/* Bunny Hop — peg solitaire board */
+
+#bunnyhop-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow: auto;
+  position: relative;
+  background-color: #1e4a1e;
+}
+#bunnyhop-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../icons/carrot.svg');
+  background-repeat: repeat;
+  background-size: 40px 40px;
+  opacity: 0.42;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bh-fence {
+  position: relative;
+  z-index: 1;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    0deg,
+    #8B5E3C 0px,
+    #A0522D 5px,
+    #C68642 10px,
+    #6B3A2A 15px,
+    #8B5E3C 20px
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.12),
+    inset 0 -3px 6px rgba(0,0,0,0.4),
+    0 10px 32px rgba(0,0,0,0.65);
+}
+
+.bh-post {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #3d1f0a;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.08), 0 1px 4px rgba(0,0,0,0.6);
+}
+.bh-post-tl { top: 4px; left: 4px; }
+.bh-post-tr { top: 4px; right: 4px; }
+.bh-post-bl { bottom: 4px; left: 4px; }
+.bh-post-br { bottom: 4px; right: 4px; }
+
+#bunnyhop-board {
+  --bh-cell: clamp(40px, calc((100vw - 80px) / 7), 64px);
+  display: grid;
+  grid-template-columns: repeat(7, var(--bh-cell));
+  grid-template-rows: repeat(7, var(--bh-cell));
+  gap: 3px;
+}
+
+.bh-cell {
+  width: var(--bh-cell);
+  height: var(--bh-cell);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 2.5px solid transparent;
+  transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.bh-inactive {
+  background: transparent !important;
+  border: none;
+  pointer-events: none;
+}
+.bh-hole {
+  background: #1A3A1C;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.7), inset 0 1px 2px rgba(0,0,0,0.5);
+  cursor: default;
+}
+.bh-peg {
+  background: #2C5F2E;
+  cursor: pointer;
+}
+.bh-peg img { width: 72%; height: 72%; pointer-events: none; }
+.bh-peg:hover:not(.bh-selected) { background: #357a38; }
+.bh-peg.bh-selected {
+  border-color: #F5C518;
+  background: #3a7a3e;
+  box-shadow: 0 0 0 2px rgba(245,197,24,0.5);
+}
+.bh-hole.bh-landing {
+  background: #3d6e3f;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 0 2px rgba(245,197,24,0.45);
+  cursor: pointer;
+}
+.bh-hole.bh-landing:hover { background: #4d8a50; }

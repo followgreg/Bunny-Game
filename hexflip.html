@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Bunny Game — Classic Mode</title>
-  <meta name="description" content="Match and clear tiles in Classic Mode — the original Bunny Game. Zero tiles left is a perfect clear.">
-  <meta property="og:title" content="Bunny Game — Classic Mode">
-  <meta property="og:description" content="Click matching tiles to clear them. Tiles fall. Columns collapse. Can you get a perfect clear?">
-  <meta property="og:url" content="https://www.thebunnygame.com">
-  <link rel="canonical" href="https://www.thebunnygame.com">
+  <title>HexFlip — Bunny Game</title>
+  <meta name="description" content="A hex grid logic puzzle. Click exactly 3 hexes to turn the whole board black. One solution. Find it.">
+  <meta property="og:title" content="HexFlip">
+  <meta property="og:description" content="A hex grid. All black is the goal. 3 clicks. One solution.">
+  <meta property="og:url" content="https://www.thebunnygame.com/hexflip">
+  <link rel="canonical" href="https://www.thebunnygame.com/hexflip">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
@@ -31,9 +31,9 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/classic.css">
+  <link rel="stylesheet" href="assets/css/hexflip.css">
 </head>
-<body data-tab="classic">
+<body data-tab="hexflip">
 
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
@@ -47,21 +47,44 @@
 
 <div id="stats">
   <div class="stat-item">
-    <span class="stat-label">Score</span>
-    <span class="stat-value" id="val-remaining">—</span>
+    <span class="stat-label">Black</span>
+    <span class="stat-value" id="val-hf-black">—</span>
   </div>
   <div class="stat-item">
-    <span class="stat-label">Cleared</span>
-    <span class="stat-value" id="val-cleared">0</span>
+    <span class="stat-label">White</span>
+    <span class="stat-value" id="val-hf-white">—</span>
   </div>
   <div class="stat-item">
-    <span class="stat-label">Moves</span>
-    <span class="stat-value" id="val-moves">0</span>
+    <span class="stat-label">Tries</span>
+    <span class="stat-value" id="val-hf-tries">0</span>
   </div>
 </div>
 
-<div id="canvas-wrap">
-  <canvas id="game-canvas"></canvas>
+<div id="hexflip-wrap">
+  <div id="hf-pips">
+    <span id="hf-level-label" class="hf-level-label"></span>
+    <span class="hf-pip-sep">·</span>
+    <span class="hf-pip" id="hf-pip-0"></span>
+    <span class="hf-pip" id="hf-pip-1"></span>
+    <span class="hf-pip" id="hf-pip-2"></span>
+  </div>
+  <div id="hf-board-wrap">
+    <svg id="hf-svg"></svg>
+  </div>
+  <div id="hf-win-state">
+    <p class="hf-win-headline" id="hf-win-headline"></p>
+    <p class="hf-win-subline"  id="hf-win-subline"></p>
+    <button class="hf-btn hf-btn-primary" id="hf-next-level-btn">Next Level →</button>
+    <button class="hf-btn" id="hf-copy-result-btn">Copy Result</button>
+  </div>
+  <div id="hf-feedback"></div>
+  <div id="hf-controls">
+    <button class="hf-btn" id="hf-reset-btn">↺ Reset</button>
+    <button class="hf-btn" id="hf-show-solution-btn" style="display:none">Show Solution</button>
+    <button class="hf-btn hf-btn-primary" id="hf-skip-btn" style="display:none">Next Level →</button>
+  </div>
+  <div id="hf-solution-panel" style="display:none"></div>
+  <div id="hf-progress"></div>
 </div>
 
 <footer id="footer">
@@ -75,7 +98,7 @@
 <div id="overlay" class="hidden">
   <div class="modal">
     <div id="perf-banner" class="hidden"></div>
-    <h2 id="modal-title">Game Over</h2>
+    <h2 id="modal-title">HexFlip</h2>
     <p class="modal-score" id="modal-score"></p>
     <p class="modal-sub"   id="modal-sub"></p>
     <div class="breakdown" id="modal-breakdown"></div>
@@ -94,6 +117,6 @@
 
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
-<script src="assets/js/classic.js"></script>
+<script src="assets/js/hexflip.js"></script>
 </body>
 </html>

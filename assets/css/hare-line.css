@@ -1,0 +1,89 @@
+/* Hare Line — sliding puzzle board */
+
+@keyframes hl-blank-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(99,102,241,0.25); }
+  50%       { box-shadow: 0 0 0 5px rgba(99,102,241,0.60); }
+}
+
+#hareline-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+#hareline-board {
+  --hl-cell: min(80px, calc((100vw - 40px) / 5));
+  display: grid;
+  grid-template-columns: repeat(5, var(--hl-cell));
+  grid-template-rows: repeat(5, var(--hl-cell));
+  gap: 4px;
+}
+
+.hl-cell {
+  width: var(--hl-cell);
+  height: var(--hl-cell);
+  background: #ffffcc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  border: 2.5px solid transparent;
+  transition: filter 0.1s, border-color 0.12s, background 0.12s, box-shadow 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hl-cell img {
+  width: 68%;
+  height: 68%;
+  pointer-events: none;
+}
+.hl-cell.hl-red { background: #fee2e2; }
+
+.hl-cell.hl-blank {
+  background: #1e1b2e;
+  cursor: default;
+  animation: hl-blank-pulse 2s ease-in-out infinite;
+}
+
+.hl-cell.hl-slideable { cursor: pointer; }
+.hl-cell.hl-slideable:hover {
+  filter: brightness(1.18);
+  border-color: rgba(255,255,255,0.35);
+}
+.hl-cell.hl-slideable:active { opacity: 0.80; }
+
+/* Graph-paper background */
+body[data-tab="hareline"] #hareline-wrap {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(148,163,184,0.38) 0px, rgba(148,163,184,0.38) 1px,
+      transparent 1px, transparent 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(148,163,184,0.38) 0px, rgba(148,163,184,0.38) 1px,
+      transparent 1px, transparent 24px
+    ),
+    #e8eef6;
+}
+body[data-tab="hareline"] .hl-cell {
+  background: #ffffff;
+}
+body[data-tab="hareline"] .hl-cell.hl-red {
+  background: #fef2f2;
+}
+body[data-tab="hareline"] .hl-cell.hl-blank {
+  background: #e2e8f0;
+  border: 2px dashed #94a3b8;
+  animation: hl-blank-pulse 2s ease-in-out infinite;
+}
+body[data-tab="hareline"] .hl-cell.hl-selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.3);
+}

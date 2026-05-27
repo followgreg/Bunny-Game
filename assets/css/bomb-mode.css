@@ -1,0 +1,14 @@
+/* Bomb Mode — Industrial danger background */
+body[data-tab="bomb"] #canvas-wrap {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px, transparent 20px,
+      rgba(250,204,21,0.07) 20px, rgba(250,204,21,0.07) 30px,
+      transparent 30px, transparent 50px,
+      rgba(0,0,0,0.18) 50px, rgba(0,0,0,0.18) 60px
+    ),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 6px),
+    repeating-linear-gradient(0deg,  rgba(255,255,255,0.015) 0px, transparent 1px, transparent 6px),
+    #1c1c1c;
+}

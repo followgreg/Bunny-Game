@@ -1,0 +1,19 @@
+/* 86 Bunnies — Deep navy + tiled cabbages background */
+body[data-tab="86bunnies"] #canvas-wrap {
+  background: #0D1B2A;
+}
+body[data-tab="86bunnies"] #canvas-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../icons/cabbage.svg');
+  background-repeat: repeat;
+  background-size: 48px 48px;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+body[data-tab="86bunnies"] #game-canvas {
+  position: relative;
+  z-index: 1;
+}
