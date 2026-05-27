@@ -189,14 +189,72 @@ a.mode-tab[data-mode="shroom"].active {
   border-color: rgba(255,255,255,0.22);
 }
 
-a.mode-tab[data-mode="hexflip"],
-a.mode-tab[data-mode="hexflip"]:hover,
-a.mode-tab[data-mode="hexflip"].active {
-  background: #f1f5f9;
+a.mode-tab[data-mode="hexflip"] {
+  background: #ffffff;
   color: #0f172a;
-  border-color: rgba(0,0,0,0.18);
+  border-color: rgba(0,0,0,0.15);
   text-shadow: none;
 }
+a.mode-tab[data-mode="hexflip"]:hover {
+  background: #f0f0f0;
+  color: #0f172a;
+  border-color: rgba(0,0,0,0.15);
+}
+a.mode-tab[data-mode="hexflip"].active {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0,0,0,0.10);
+  border-bottom: 3px solid #231f20;
+}
+
+/* ── Tab logo image (HexFlip) ── */
+.tab-logo {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+/* ── "Other Games →" separator ── */
+.tab-separator {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  padding: 0 6px;
+  cursor: default;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* ── NOON external tab ── */
+a.mode-tab[data-mode="noon"] {
+  background: #231f20;
+  border-color: rgba(255,255,255,0.12);
+}
+a.mode-tab[data-mode="noon"]:hover {
+  background: #3a3536;
+  border-color: rgba(255,255,255,0.12);
+  color: #f5c518;
+}
+.tab-logo--noon,
+.tab-logo--poise {
+  display: flex;
+  align-items: center;
+}
+.tab-logo--noon svg path { fill: #f5c518; }
+
+/* ── POISE external tab ── */
+a.mode-tab[data-mode="poise"] {
+  background: #0d1a0d;
+  border-color: rgba(255,255,255,0.10);
+}
+a.mode-tab[data-mode="poise"]:hover {
+  background: #162616;
+  border-color: rgba(255,255,255,0.10);
+  color: #4cd137;
+}
+.tab-logo--poise svg path { fill: #4cd137; }
 
 /* ── Stats bar ── */
 #stats {

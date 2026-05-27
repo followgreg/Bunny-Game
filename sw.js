@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v34';
+const CACHE = 'bunnygame-v35';
 const ASSETS = [
   '/',
   '/index.html',
@@ -30,6 +30,9 @@ const ASSETS = [
   '/assets/js/cabbage-drop.js',
   '/assets/js/hexflip.js',
   '/assets/icons/hexflip-logo.svg',
+  '/assets/logos/Hexflip_Logo.svg',
+  '/assets/logos/noon_logo.svg',
+  '/assets/logos/POISE_LOGO.svg',
   '/assets/icons/blue-bunny.svg',
   '/assets/icons/red-bunny.svg',
   '/assets/icons/mushroom.svg',
