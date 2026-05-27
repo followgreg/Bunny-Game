@@ -313,7 +313,7 @@ function hfUpdatePips() {
   }
   const lbl = document.getElementById('hf-level-label');
   if (lbl && game instanceof HexFlipGame) {
-    lbl.textContent = `#${hfDisplayLevel(game.level)}`;
+    lbl.textContent = `Level #${hfDisplayLevel(game.level)}`;
   }
 }
 
