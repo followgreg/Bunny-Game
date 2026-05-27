@@ -1,13 +1,11 @@
 /* HexFlip — monochrome hex logic puzzle */
 
-/* HexFlip wordmark logo */
+/* HexFlip wordmark logo — width set dynamically to match 3 hex widths */
 #hf-logo {
-  height: 28px;
-  width: auto;
   display: block;
   flex-shrink: 0;
+  height: auto;
   opacity: 0.85;
-  margin-bottom: 2px;
 }
 
 #hexflip-wrap {

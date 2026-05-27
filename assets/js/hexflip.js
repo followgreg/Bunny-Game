@@ -188,6 +188,10 @@ function renderHexFlip() {
   const sizeCap = rings <= 1 ? 54 : rings <= 2 ? 40 : rings <= 3 ? 30 : 24;
   const size    = Math.max(15, Math.min(Math.floor(Math.min(maxByW, maxByH)), sizeCap));
 
+  // Scale logo to the width of 3 hexagons (each hex is √3 × size wide)
+  const logoEl = document.getElementById('hf-logo');
+  if (logoEl) logoEl.style.width = Math.round(3 * HF_SQRT3 * size) + 'px';
+
   svg.innerHTML = '';
 
   const N  = game.N;
