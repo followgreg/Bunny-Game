@@ -2,7 +2,7 @@
 
 var CUBRICK_DIRECTIONS = 'Select a piece from the tray. Tap the grid to place it. Fill every cell to build the city. Use Rotate to spin the selected piece before placing. Undo takes back your last move.';
 
-// ── Button event listeners ─────────────────────────────────────────────────
+// ── Event listeners ────────────────────────────────────────────────────────
 document.getElementById('help-btn').addEventListener('click', function () { openDirections(CUBRICK_DIRECTIONS); });
 document.getElementById('new-btn').addEventListener('click', loadNewPuzzle);
 document.getElementById('cub-undo-btn').addEventListener('click', doUndo);
@@ -15,19 +15,45 @@ document.getElementById('share-btn').addEventListener('click', doShare);
 var puzzles       = [];
 var currentPuzzle = null;
 var moveCount     = 0;
-var selectedPiece = null;   // piece id ('A'–'G') or null
+var selectedPiece = null;
 var selectedCells = null;   // normalized [r,c] pairs for selected piece (may be rotated)
-var placedPieces  = {};     // { pieceId: [[r,c],...] } absolute grid coords
-var undoStack     = [];     // [{pieceId, cells}]
+var placedPieces  = {};     // { pieceId: [[r,c],...] } absolute coords
+var undoStack     = [];
 var winState      = false;
 var lastPuzzleId  = null;
-var hoverCell     = null;   // {r,c} under pointer, or null
+var hoverCell     = null;   // {r,c} or null
 
 // ── Canvas ─────────────────────────────────────────────────────────────────
 var canvas     = document.getElementById('cub-canvas');
 var ctx        = canvas.getContext('2d');
 var canvasWrap = document.getElementById('cub-canvas-wrap');
 
+// ── Isometric layout ───────────────────────────────────────────────────────
+var CELL    = 32;   // updated in computeIsoLayout
+var originX = 0;
+var originY = 0;
+
+function computeIsoLayout() {
+  var dpr = window.devicePixelRatio || 1;
+  var W   = canvas.width  / dpr;
+  var H   = canvas.height / dpr;
+
+  // Base cell: 36 desktop, 24 mobile — clamped so 8×8 diamond (16*CELL wide) fits
+  var base = W < 600 ? 24 : 36;
+  CELL = Math.min(base, Math.floor(W * 0.94 / 16));
+
+  // Center horizontally; grid spans ±8*CELL from originX
+  originX = W / 2;
+
+  // Visual height: 1.5*CELL block headroom + 8*CELL grid + 2*CELL slab = 11.5*CELL
+  originY = (H - 11.5 * CELL) / 2 + 1.5 * CELL;
+}
+
+function isoX(row, col)  { return originX + (col - row) * CELL; }
+function isoY(row, col)  { return originY + (col + row) * (CELL / 2); }
+function heightOffset(h) { return h * (CELL / 2); }
+
+// ── Canvas resize ──────────────────────────────────────────────────────────
 function resizeCanvas() {
   var rect = canvasWrap.getBoundingClientRect();
   if (rect.width === 0 || rect.height === 0) return;
@@ -37,167 +63,190 @@ function resizeCanvas() {
   canvas.style.width  = rect.width  + 'px';
   canvas.style.height = rect.height + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  computeIsoLayout();
   render();
 }
 
-// ── Layout ─────────────────────────────────────────────────────────────────
-function computeLayout() {
-  var dpr = window.devicePixelRatio || 1;
-  var W = canvas.width  / dpr;
-  var H = canvas.height / dpr;
-  // iso diamond: hw = tileW/2, hh = tileW/4 (2:1 ratio)
-  // grid spans 8*tileW wide, 4*tileW tall + 3*hh headroom for max height
-  var tileFromW = (W * 0.88) / 8;
-  var tileFromH = (H * 0.88) / (4 + 3 * 0.25);
-  var tileW  = Math.min(tileFromW, tileFromH);
-  var hw     = tileW / 2;
-  var hh     = tileW / 4;   // = hw/2, standard 2:1 iso
-  var floorH = hh;           // pixels per height unit
-
-  var headroom = 3 * floorH;
-  var gridH    = 4 * tileW;
-  var originX  = W / 2;
-  var originY  = (H - headroom - gridH) / 2 + headroom;
-
-  return { tileW: tileW, hw: hw, hh: hh, floorH: floorH, originX: originX, originY: originY, W: W, H: H };
-}
-
-// ── Coordinate transforms ──────────────────────────────────────────────────
-function toScreen(r, c, L) {
-  return {
-    x: L.originX + (c - r) * L.hw,
-    y: L.originY + (c + r) * L.hh
-  };
-}
-
-function screenToCell(mx, my, L) {
-  var dx = mx - L.originX;
-  var dy = my - L.originY;
-  var c = Math.floor((dx / L.hw + dy / L.hh) / 2);
-  var r = Math.floor((dy / L.hh - dx / L.hw) / 2);
-  if (r < 0 || r > 7 || c < 0 || c > 7) return null;
-  return { r: r, c: c };
-}
-
-// ── Color helpers ──────────────────────────────────────────────────────────
-function darkenHex(hex, factor) {
-  var r = Math.min(255, Math.round(parseInt(hex.slice(1, 3), 16) * factor));
-  var g = Math.min(255, Math.round(parseInt(hex.slice(3, 5), 16) * factor));
-  var b = Math.min(255, Math.round(parseInt(hex.slice(5, 7), 16) * factor));
+// ── Color utility ──────────────────────────────────────────────────────────
+function darken(hex, pct) {
+  var f = 1 - pct / 100;
+  var r = Math.min(255, Math.round(parseInt(hex.slice(1, 3), 16) * f));
+  var g = Math.min(255, Math.round(parseInt(hex.slice(3, 5), 16) * f));
+  var b = Math.min(255, Math.round(parseInt(hex.slice(5, 7), 16) * f));
   return '#' + [r, g, b].map(function (v) { return v.toString(16).padStart(2, '0'); }).join('');
 }
 
-// ── Drawing primitives ─────────────────────────────────────────────────────
-function drawDiamond(t, L, style) {
+// ── Path builders ──────────────────────────────────────────────────────────
+// h = block height (lifts top face upward by heightOffset(h))
+function pathTopFace(row, col, h) {
+  var x = isoX(row, col);
+  var y = isoY(row, col) - heightOffset(h);
   ctx.beginPath();
-  ctx.moveTo(t.x,        t.y);
-  ctx.lineTo(t.x + L.hw, t.y + L.hh);
-  ctx.lineTo(t.x,        t.y + 2 * L.hh);
-  ctx.lineTo(t.x - L.hw, t.y + L.hh);
+  ctx.moveTo(x,        y);
+  ctx.lineTo(x + CELL, y + CELL / 2);
+  ctx.lineTo(x,        y + CELL);
+  ctx.lineTo(x - CELL, y + CELL / 2);
   ctx.closePath();
-  ctx.fillStyle = style;
-  ctx.fill();
 }
 
-function drawBlock(r, c, color, floors, L, alpha) {
-  var t    = toScreen(r, c, L);
-  var rise = floors * L.floorH;
-  ctx.globalAlpha = (alpha === undefined) ? 1 : alpha;
-
-  // Left (SW) face
+function pathLeftFace(row, col, h) {
+  var x    = isoX(row, col);
+  var y    = isoY(row, col);
+  var rise = heightOffset(h);
   ctx.beginPath();
-  ctx.moveTo(t.x - L.hw, t.y + L.hh - rise);
-  ctx.lineTo(t.x,        t.y + 2 * L.hh - rise);
-  ctx.lineTo(t.x,        t.y + 2 * L.hh);
-  ctx.lineTo(t.x - L.hw, t.y + L.hh);
+  ctx.moveTo(x - CELL, y + CELL / 2 - rise);
+  ctx.lineTo(x,        y + CELL - rise);
+  ctx.lineTo(x,        y + CELL);
+  ctx.lineTo(x - CELL, y + CELL / 2);
   ctx.closePath();
-  ctx.fillStyle = darkenHex(color, 0.52);
-  ctx.fill();
+}
 
-  // Right (SE) face
+function pathRightFace(row, col, h) {
+  var x    = isoX(row, col);
+  var y    = isoY(row, col);
+  var rise = heightOffset(h);
   ctx.beginPath();
-  ctx.moveTo(t.x + L.hw, t.y + L.hh - rise);
-  ctx.lineTo(t.x,        t.y + 2 * L.hh - rise);
-  ctx.lineTo(t.x,        t.y + 2 * L.hh);
-  ctx.lineTo(t.x + L.hw, t.y + L.hh);
+  ctx.moveTo(x + CELL, y + CELL / 2 - rise);
+  ctx.lineTo(x,        y + CELL - rise);
+  ctx.lineTo(x,        y + CELL);
+  ctx.lineTo(x + CELL, y + CELL / 2);
   ctx.closePath();
-  ctx.fillStyle = darkenHex(color, 0.70);
-  ctx.fill();
+}
 
-  // Top face
-  ctx.beginPath();
-  ctx.moveTo(t.x,        t.y - rise);
-  ctx.lineTo(t.x + L.hw, t.y + L.hh - rise);
-  ctx.lineTo(t.x,        t.y + 2 * L.hh - rise);
-  ctx.lineTo(t.x - L.hw, t.y + L.hh - rise);
-  ctx.closePath();
-  ctx.fillStyle = color;
+// ── Face drawing ───────────────────────────────────────────────────────────
+function drawTopFace(row, col, color, opacity, h) {
+  pathTopFace(row, col, h || 0);
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle   = color;
   ctx.fill();
-
+  ctx.strokeStyle = '#1A1A1A';
+  ctx.lineWidth   = 1;
+  ctx.stroke();
   ctx.globalAlpha = 1;
 }
 
-// ── Monolith base ──────────────────────────────────────────────────────────
-function drawGridBase(L) {
-  // Grid boundary key points
-  var pL   = { x: L.originX - 8 * L.hw, y: L.originY + 8  * L.hh };  // leftmost
-  var pBot = { x: L.originX,             y: L.originY + 16 * L.hh };  // bottommost
-  var pR   = { x: L.originX + 8 * L.hw, y: L.originY + 8  * L.hh };  // rightmost
-  var SLAB = L.floorH * 0.5;
+function drawLeftFace(row, col, color, h, opacity) {
+  pathLeftFace(row, col, h || 0);
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle   = color;
+  ctx.fill();
+  ctx.strokeStyle = '#1A1A1A';
+  ctx.lineWidth   = 1;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
 
-  // Top face cells — back-to-front by diagonal
-  for (var d = 0; d <= 14; d++) {
-    for (var r = Math.max(0, d - 7); r <= Math.min(7, d); r++) {
-      var c = d - r;
-      if (c < 0 || c > 7) continue;
-      var t = toScreen(r, c, L);
-      drawDiamond(t, L, '#1C1C1C');
-      ctx.beginPath();
-      ctx.moveTo(t.x,        t.y);
-      ctx.lineTo(t.x + L.hw, t.y + L.hh);
-      ctx.lineTo(t.x,        t.y + 2 * L.hh);
-      ctx.lineTo(t.x - L.hw, t.y + L.hh);
-      ctx.closePath();
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-      ctx.lineWidth = 0.5;
-      ctx.stroke();
-    }
+function drawRightFace(row, col, color, h, opacity) {
+  pathRightFace(row, col, h || 0);
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle   = color;
+  ctx.fill();
+  ctx.strokeStyle = '#1A1A1A';
+  ctx.lineWidth   = 1;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function drawIsoCube(row, col, baseColor, h, opacity) {
+  drawLeftFace(row,  col, darken(baseColor, 20), h, opacity);
+  drawRightFace(row, col, darken(baseColor, 35), h, opacity);
+  drawTopFace(row,   col, baseColor, opacity, h);
+}
+
+// Ghost cube: tan at low opacity — all empty cells
+function drawGhostCube(row, col) {
+  pathLeftFace(row, col, 1);
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle   = '#E8DCC8';
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  pathRightFace(row, col, 1);
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle   = '#E8DCC8';
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  pathTopFace(row, col, 1);
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle   = '#E8DCC8';
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+// ── Monolith surface ───────────────────────────────────────────────────────
+function drawMonolithSurface() {
+  // Solid dark diamond
+  ctx.beginPath();
+  ctx.moveTo(originX,          originY);
+  ctx.lineTo(originX + 8*CELL, originY + 4*CELL);
+  ctx.lineTo(originX,          originY + 8*CELL);
+  ctx.lineTo(originX - 8*CELL, originY + 4*CELL);
+  ctx.closePath();
+  ctx.fillStyle = '#0A0A0A';
+  ctx.fill();
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(26,26,26,0.25)';
+  ctx.lineWidth   = 0.5;
+  ctx.beginPath();
+  for (var r = 0; r <= 8; r++) {
+    ctx.moveTo(isoX(r, 0), isoY(r, 0));
+    ctx.lineTo(isoX(r, 8), isoY(r, 8));
   }
+  for (var c = 0; c <= 8; c++) {
+    ctx.moveTo(isoX(0, c), isoY(0, c));
+    ctx.lineTo(isoX(8, c), isoY(8, c));
+  }
+  ctx.stroke();
+}
 
-  // Left (SW) slab face
+// ── Slab ───────────────────────────────────────────────────────────────────
+// Drawn last so slab faces appear in front of the grid edge
+function drawSlab() {
+  var slabH = 4 * (CELL / 2);   // 4 iso units → 2*CELL px
+  var pL    = { x: originX - 8*CELL, y: originY + 4*CELL };
+  var pBot  = { x: originX,          y: originY + 8*CELL };
+  var pR    = { x: originX + 8*CELL, y: originY + 4*CELL };
+
+  // Left (SW) face — darkest
   ctx.beginPath();
   ctx.moveTo(pL.x,   pL.y);
   ctx.lineTo(pBot.x, pBot.y);
-  ctx.lineTo(pBot.x, pBot.y + SLAB);
-  ctx.lineTo(pL.x,   pL.y   + SLAB);
+  ctx.lineTo(pBot.x, pBot.y + slabH);
+  ctx.lineTo(pL.x,   pL.y   + slabH);
   ctx.closePath();
-  ctx.fillStyle = '#0D0D0D';
+  ctx.fillStyle   = '#050505';
   ctx.fill();
+  ctx.strokeStyle = '#1A1A1A';
+  ctx.lineWidth   = 0.5;
+  ctx.stroke();
 
-  // Right (SE) slab face
+  // Front-right (SE) face — slightly lighter
   ctx.beginPath();
   ctx.moveTo(pBot.x, pBot.y);
   ctx.lineTo(pR.x,   pR.y);
-  ctx.lineTo(pR.x,   pR.y   + SLAB);
-  ctx.lineTo(pBot.x, pBot.y + SLAB);
+  ctx.lineTo(pR.x,   pR.y   + slabH);
+  ctx.lineTo(pBot.x, pBot.y + slabH);
   ctx.closePath();
-  ctx.fillStyle = '#141414';
+  ctx.fillStyle   = '#080808';
   ctx.fill();
+  ctx.strokeStyle = '#1A1A1A';
+  ctx.lineWidth   = 0.5;
+  ctx.stroke();
 }
 
-// Back-to-front render order for 8×8 grid
-function renderOrder() {
-  var order = [];
-  for (var d = 0; d <= 14; d++) {
-    for (var r = Math.max(0, d - 7); r <= Math.min(7, d); r++) {
-      var c = d - r;
-      if (c >= 0 && c <= 7) order.push([r, c]);
-    }
-  }
-  return order;
+// ── Render helpers ─────────────────────────────────────────────────────────
+function normalizeCells(cells) {
+  var minR = Math.min.apply(null, cells.map(function (c) { return c[0]; }));
+  var minC = Math.min.apply(null, cells.map(function (c) { return c[1]; }));
+  return cells.map(function (c) { return [c[0] - minR, c[1] - minC]; });
 }
 
-// ── Ghost helpers ──────────────────────────────────────────────────────────
+function findPiece(id) {
+  return currentPuzzle && currentPuzzle.pieces.find(function (p) { return p.id === id; });
+}
+
 function ghostCells(hr, hc) {
   if (!selectedCells) return null;
   return selectedCells.map(function (cell) { return [cell[0] + hr, cell[1] + hc]; });
@@ -209,9 +258,9 @@ function isGhostValid(cells) {
     var r = cells[i][0], c = cells[i][1];
     if (r < 0 || r > 7 || c < 0 || c > 7) return false;
     for (var pid in placedPieces) {
-      var pcells = placedPieces[pid];
-      for (var j = 0; j < pcells.length; j++) {
-        if (pcells[j][0] === r && pcells[j][1] === c) return false;
+      var pc = placedPieces[pid];
+      for (var j = 0; j < pc.length; j++) {
+        if (pc[j][0] === r && pc[j][1] === c) return false;
       }
     }
   }
@@ -220,59 +269,64 @@ function isGhostValid(cells) {
 
 // ── Main render ────────────────────────────────────────────────────────────
 function render() {
-  if (!canvas.width || !canvas.height) return;
-  var L = computeLayout();
-  ctx.clearRect(0, 0, L.W, L.H);
+  if (!canvas.width || !canvas.height || !CELL) return;
+  var dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
 
-  drawGridBase(L);
-  if (!currentPuzzle) return;
+  drawMonolithSurface();
 
-  // Build cell lookup for placed pieces
-  var cellInfo = {};  // "r,c" → {color, height}
-  for (var pid in placedPieces) {
-    var piece = findPiece(pid);
-    if (!piece) continue;
-    placedPieces[pid].forEach(function (cell) {
-      cellInfo[cell[0] + ',' + cell[1]] = { color: piece.color, height: piece.height };
-    });
-  }
-
-  // Ghost
-  var ghostSet = {};
-  if (selectedPiece && hoverCell && !placedPieces[selectedPiece]) {
-    var gCells = ghostCells(hoverCell.r, hoverCell.c);
-    if (isGhostValid(gCells)) {
-      var gPiece = findPiece(selectedPiece);
-      gCells.forEach(function (cell) {
-        ghostSet[cell[0] + ',' + cell[1]] = { color: gPiece.color, height: gPiece.height };
+  // Build placed-cell lookup
+  var placed = {};
+  if (currentPuzzle) {
+    for (var pid in placedPieces) {
+      var piece = findPiece(pid);
+      if (!piece) continue;
+      placedPieces[pid].forEach(function (cell) {
+        placed[cell[0] + ',' + cell[1]] = { color: piece.color, height: piece.height };
       });
     }
   }
 
-  // Draw blocks back-to-front
-  var order = renderOrder();
-  for (var oi = 0; oi < order.length; oi++) {
-    var r = order[oi][0], c = order[oi][1];
-    var key = r + ',' + c;
-    if (cellInfo[key]) {
-      drawBlock(r, c, cellInfo[key].color, cellInfo[key].height, L, 1);
-    } else if (ghostSet[key]) {
-      drawBlock(r, c, ghostSet[key].color, ghostSet[key].height, L, 0.55);
+  // Build hover-ghost lookup
+  var hoverGhost = {};
+  if (currentPuzzle && selectedPiece && hoverCell && !placedPieces[selectedPiece]) {
+    var gc = ghostCells(hoverCell.r, hoverCell.c);
+    if (isGhostValid(gc)) {
+      var gPiece = findPiece(selectedPiece);
+      gc.forEach(function (cell) {
+        hoverGhost[cell[0] + ',' + cell[1]] = { color: gPiece.color, height: gPiece.height };
+      });
     }
   }
-}
 
-function findPiece(id) {
-  return currentPuzzle && currentPuzzle.pieces.find(function (p) { return p.id === id; });
+  // Pass 1 — ghost cubes for all empty cells (row 0→7, col 0→7)
+  for (var row = 0; row < 8; row++) {
+    for (var col = 0; col < 8; col++) {
+      var key = row + ',' + col;
+      if (!placed[key]) {
+        if (hoverGhost[key]) {
+          drawIsoCube(row, col, hoverGhost[key].color, hoverGhost[key].height, 0.55);
+        } else {
+          drawGhostCube(row, col);
+        }
+      }
+    }
+  }
+
+  // Pass 2 — placed piece cubes
+  for (var r2 = 0; r2 < 8; r2++) {
+    for (var c2 = 0; c2 < 8; c2++) {
+      var key2 = r2 + ',' + c2;
+      if (placed[key2]) {
+        drawIsoCube(r2, c2, placed[key2].color, placed[key2].height, 1);
+      }
+    }
+  }
+
+  drawSlab();
 }
 
 // ── Tray ───────────────────────────────────────────────────────────────────
-function normalizeCells(cells) {
-  var minR = Math.min.apply(null, cells.map(function (c) { return c[0]; }));
-  var minC = Math.min.apply(null, cells.map(function (c) { return c[1]; }));
-  return cells.map(function (c) { return [c[0] - minR, c[1] - minC]; });
-}
-
 function renderTrayMini(mc, cells, color) {
   var mctx = mc.getContext('2d');
   var dpr  = window.devicePixelRatio || 1;
@@ -286,15 +340,10 @@ function renderTrayMini(mc, cells, color) {
   var cs   = Math.floor(Math.min(size / (maxC + 1), size / (maxR + 1)) * 0.9);
   var padX = (size - (maxC + 1) * cs) / 2;
   var padY = (size - (maxR + 1) * cs) / 2;
-  var gap  = 1.5;
 
   mctx.fillStyle = color;
   norm.forEach(function (cell) {
-    mctx.fillRect(
-      padX + cell[1] * cs + gap / 2,
-      padY + cell[0] * cs + gap / 2,
-      cs - gap, cs - gap
-    );
+    mctx.fillRect(padX + cell[1] * cs + 0.75, padY + cell[0] * cs + 0.75, cs - 1.5, cs - 1.5);
   });
 }
 
@@ -309,7 +358,7 @@ function buildTray() {
     item.className = 'cub-tray-item';
     item.dataset.pieceId = piece.id;
 
-    var mc = document.createElement('canvas');
+    var mc  = document.createElement('canvas');
     var dpr = window.devicePixelRatio || 1;
     mc.width  = MINI * dpr;
     mc.height = MINI * dpr;
@@ -357,19 +406,25 @@ function selectPiece(id) {
   render();
 }
 
-// ── Pointer helpers ────────────────────────────────────────────────────────
+// ── Pointer handling ───────────────────────────────────────────────────────
 function getEventCell(e) {
   var rect = canvas.getBoundingClientRect();
   var src  = e.touches ? e.touches[0] : e;
   var mx   = src.clientX - rect.left;
   var my   = src.clientY - rect.top;
-  return screenToCell(mx, my, computeLayout());
+  // Inverse iso: dx=(c-r)*CELL, dy=(c+r)*CELL/2
+  var dx = mx - originX;
+  var dy = my - originY;
+  var c  = Math.floor((dx / CELL + dy / (CELL / 2)) / 2);
+  var r  = Math.floor((dy / (CELL / 2) - dx / CELL) / 2);
+  if (r < 0 || r > 7 || c < 0 || c > 7) return null;
+  return { r: r, c: c };
 }
 
 canvas.addEventListener('mousemove', function (e) {
-  var cell = getEventCell(e);
+  var cell    = getEventCell(e);
   var changed = JSON.stringify(cell) !== JSON.stringify(hoverCell);
-  hoverCell = cell;
+  hoverCell   = cell;
   if (selectedPiece && changed) render();
 });
 
@@ -423,31 +478,25 @@ function loadNewPuzzle() {
 function updateMoveCounter() {
   document.getElementById('cub-moves').textContent = moveCount;
 }
-
 function updateUndoButton() {
   document.getElementById('cub-undo-btn').disabled = (undoStack.length === 0);
 }
-
 function updateRotateButton() {
   document.getElementById('cub-rotate-btn').disabled = !selectedPiece || !!placedPieces[selectedPiece];
 }
-
 function shakeCanvas() {
   canvasWrap.classList.add('cub-shake');
   setTimeout(function () { canvasWrap.classList.remove('cub-shake'); }, 320);
 }
 
-// ── Actions ────────────────────────────────────────────────────────────────
+// ── Actions (stubs filled in Part 5) ──────────────────────────────────────
 function placePiece(hr, hc) { /* Part 5 */ }
-
-function doUndo() { /* Part 5 */ }
-
-function doReset() { /* Part 5 */ }
+function doUndo()            { /* Part 5 */ }
+function doReset()           { /* Part 5 */ }
 
 function doRotate() {
   if (!selectedPiece || !selectedCells) return;
   var maxR = Math.max.apply(null, selectedCells.map(function (c) { return c[0]; }));
-  // 90° CW: (r, c) → (c, maxR - r), then re-normalize
   selectedCells = normalizeCells(
     selectedCells.map(function (cell) { return [cell[1], maxR - cell[0]]; })
   );
@@ -455,9 +504,11 @@ function doRotate() {
 }
 
 function doShare() {
-  var n    = moveCount;
-  var text = 'Cubrick — built the city in ' + n + ' move' + (n === 1 ? '' : 's') + '. https://www.thebunnygame.com/cubrick';
-  shareText(text, 'Cubrick — Bunny Game');
+  var n = moveCount;
+  shareText(
+    'Cubrick — built the city in ' + n + ' move' + (n === 1 ? '' : 's') + '. https://www.thebunnygame.com/cubrick',
+    'Cubrick — Bunny Game'
+  );
 }
 
 // ── Resize ─────────────────────────────────────────────────────────────────
