@@ -8,7 +8,7 @@ document.getElementById('new-btn').addEventListener('click', loadNewPuzzle);
 document.getElementById('frag-undo-btn').addEventListener('click', doUndo);
 document.getElementById('frag-reset-btn').addEventListener('click', doReset);
 document.getElementById('frag-new-puzzle-btn').addEventListener('click', loadNewPuzzle);
-document.getElementById('frag-share-btn').addEventListener('click', doShare);
+document.getElementById('share-btn').addEventListener('click', doShare);
 
 // ── State ──────────────────────────────────────────────────────────────────
 var puzzles       = [];
@@ -20,6 +20,7 @@ var board         = [];   // board[l][r][c] = pieceId | null
 var undoStack     = [];   // [{pieceId, cells: [[l,r,c],...]}]
 var moveCount     = 0;
 var winState      = false;
+var lastPuzzleId  = null;
 
 // ── Size helpers ───────────────────────────────────────────────────────────
 function getCellSize()       { return window.innerWidth < 600 ? 22 : 32; }
@@ -312,13 +313,15 @@ function renderAtAngle(W, H, theta, S) {
         cells.push([l, r, c, c * (cosT - sinT) + r * (sinT + cosT) + l]);
   cells.sort(function (a, b) { return a[3] - b[3]; });
 
+  var pieceCache = {};   // memoize getPieceById within this frame
   for (var i = 0; i < cells.length; i++) {
     var lv = cells[i][0], rv = cells[i][1], cv = cells[i][2];
     var px = originX + (cv * (cosT + sinT) + rv * (sinT - cosT)) * S;
     var py = originY + (cv * (cosT - sinT) + rv * (sinT + cosT)) * S / 2 - lv * S;
     var pid = board[lv][rv][cv];
     if (pid) {
-      var piece = getPieceById(pid);
+      if (!pieceCache[pid]) pieceCache[pid] = getPieceById(pid);
+      var piece = pieceCache[pid];
       drawCube(ctx, px, py, S, piece.color, darkenHex(piece.color, 0.15), darkenHex(piece.color, 0.30), 'rgba(26,26,26,0.45)');
     } else {
       drawCube(ctx, px, py, S, 'rgba(232,220,200,0.30)', 'rgba(232,220,200,0.30)', 'rgba(232,220,200,0.30)', 'rgba(26,26,26,0.20)');
@@ -335,13 +338,9 @@ function showResults() {
 }
 
 function doShare() {
-  var text = 'I assembled Fragment in ' + moveCount + ' move' + (moveCount === 1 ? '' : 's') +
-             '! Can you beat it? thebunnygame.com/fragment';
-  if (navigator.share) {
-    navigator.share({ text: text }).catch(function () {});
-  } else {
-    navigator.clipboard && navigator.clipboard.writeText(text).catch(function () {});
-  }
+  var text = 'Fragment — assembled the cube in ' + moveCount + ' move' + (moveCount === 1 ? '' : 's') +
+             '. https://www.thebunnygame.com/fragment';
+  shareText(text, 'Fragment — Bunny Game');
 }
 
 // ── Piece tray ─────────────────────────────────────────────────────────────
@@ -428,7 +427,11 @@ function loadPuzzleData() {
 
 function loadNewPuzzle() {
   if (!puzzles.length) return;
-  currentPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+  var candidates = puzzles.length > 1
+    ? puzzles.filter(function (p) { return p.id !== lastPuzzleId; })
+    : puzzles;
+  currentPuzzle = candidates[Math.floor(Math.random() * candidates.length)];
+  lastPuzzleId  = currentPuzzle.id;
   activeLayer   = 0;
   selectedPiece = null;
   placedPieces  = {};
@@ -455,6 +458,8 @@ function loadNewPuzzle() {
 var resizeObserver = new ResizeObserver(function () { resizeCanvas(); });
 resizeObserver.observe(cubeWrap);
 window.addEventListener('resize', function () { resizeCanvas(); });
+// iOS fires orientationchange before the layout has settled; short defer ensures correct dimensions
+window.addEventListener('orientationchange', function () { setTimeout(resizeCanvas, 120); });
 
 requestAnimationFrame(function () {
   resizeCanvas();
