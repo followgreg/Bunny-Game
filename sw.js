@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v36';
+const CACHE = 'bunnygame-v37';
 const ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   '/bunny-hop.html',
   '/cabbage-drop.html',
   '/fragment.html',
+  '/fragment-puzzles.json',
   '/hexflip.html',
   '/manifest.json',
   '/assets/css/shared.css',
