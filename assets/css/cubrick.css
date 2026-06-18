@@ -1,13 +1,13 @@
-/* Fragment — 3D polycube assembly puzzle */
+/* Cubrick — 3D polycube assembly puzzle */
 
 /* ── Page theme override ── */
-body[data-tab="fragment"] {
+body[data-tab="cubrick"] {
   background: #E8DCC8;
   color: #1A1A1A;
 }
 
 /* ── Main wrapper ── */
-#fragment-wrap {
+#cubrick-wrap {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -259,5 +259,5 @@ body[data-tab="fragment"] {
   margin: 0;
 }
 
-/* ── Fragment tab in nav — default styling, no colour override ── */
-/* The Fragment tab inherits .mode-tab base styles intentionally. */
+/* ── Cubrick tab in nav — tan background with dark logo ── */
+/* Cubrick tab colour identity is defined in shared.css under [data-mode="cubrick"]. */

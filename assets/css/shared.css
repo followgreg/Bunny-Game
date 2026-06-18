@@ -189,6 +189,24 @@ a.mode-tab[data-mode="shroom"].active {
   border-color: rgba(255,255,255,0.22);
 }
 
+/* ── Cubrick tab — tan background, dark near-black logo ── */
+a.mode-tab[data-mode="cubrick"] {
+  background: #E8DCC8;
+  color: #1A1A1A;
+  border-color: rgba(26,26,26,0.15);
+}
+a.mode-tab[data-mode="cubrick"]:hover {
+  background: #D9CCBA;
+  color: #1A1A1A;
+  border-color: rgba(26,26,26,0.15);
+}
+a.mode-tab[data-mode="cubrick"].active {
+  background: #E8DCC8;
+  color: #1A1A1A;
+  border-color: rgba(26,26,26,0.15);
+  border-bottom: 3px solid #1A1A1A;
+}
+
 a.mode-tab[data-mode="hexflip"] {
   background: #ffffff;
   color: #0f172a;

@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Fragment — 3D cube assembly puzzle — Bunny Game</title>
-  <meta name="description" content="Place polycube pieces to fill the cube. A modern elegant 3D puzzle game.">
-  <meta property="og:title" content="Fragment">
-  <meta property="og:description" content="Place polycube pieces to fill the cube. A modern elegant 3D puzzle game.">
-  <meta property="og:url" content="https://www.thebunnygame.com/fragment">
-  <link rel="canonical" href="https://www.thebunnygame.com/fragment">
+  <title>Cubrick — 3D cube assembly puzzle — Bunny Game</title>
+  <meta name="description" content="Place polycube pieces to fill the cube. Cubrick is a modern elegant 3D puzzle game on Bunny Game.">
+  <meta property="og:title" content="Cubrick — 3D cube assembly puzzle">
+  <meta property="og:description" content="Place polycube pieces to fill the cube. Cubrick is a modern elegant 3D puzzle game on Bunny Game.">
+  <meta property="og:url" content="https://www.thebunnygame.com/cubrick">
+  <link rel="canonical" href="https://www.thebunnygame.com/cubrick">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
@@ -23,9 +23,9 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/fragment.css">
+  <link rel="stylesheet" href="assets/css/cubrick.css">
 </head>
-<body data-tab="fragment">
+<body data-tab="cubrick">
 
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
@@ -37,7 +37,7 @@
 
 <div id="nav-root"></div>
 
-<div id="fragment-wrap">
+<div id="cubrick-wrap">
 
   <!-- HUD: move counter + undo/reset -->
   <div id="frag-hud">
@@ -51,7 +51,7 @@
   <!-- Main play area: layer selector + cube canvas -->
   <div id="frag-play-area">
     <div id="frag-layers">
-      <!-- Layer dot buttons injected by fragment.js -->
+      <!-- Layer dot buttons injected by cubrick.js -->
     </div>
     <div id="frag-cube-wrap">
       <canvas id="frag-cube-canvas"></canvas>
@@ -60,18 +60,18 @@
 
   <!-- Piece tray: scrollable row of piece canvases -->
   <div id="frag-tray">
-    <!-- Piece items injected by fragment.js -->
+    <!-- Piece items injected by cubrick.js -->
   </div>
 
   <!-- Results screen (hidden until win) -->
   <div id="frag-results">
-    <h2 class="frag-results-headline">Fragment Complete</h2>
+    <h2 class="frag-results-headline">Cubrick Complete</h2>
     <p class="frag-results-subline" id="frag-results-subline"></p>
     <button class="frag-btn frag-btn-primary" id="share-btn">Share</button>
     <button class="frag-btn" id="frag-new-puzzle-btn">New Puzzle</button>
   </div>
 
-</div><!-- /#fragment-wrap -->
+</div><!-- /#cubrick-wrap -->
 
 <footer id="footer">
   <span>©2026 Never Stop Creating, LLC</span>
@@ -91,6 +91,6 @@
 
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
-<script src="assets/js/fragment.js"></script>
+<script src="assets/js/cubrick.js"></script>
 </body>
 </html>

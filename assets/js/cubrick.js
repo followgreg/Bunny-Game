@@ -1,9 +1,9 @@
-// fragment.js — Fragment 3D polycube puzzle
+// cubrick.js — Cubrick 3D polycube puzzle
 // Part 5: placement, undo, reset, win detection + rotation animation
 
-var FRAGMENT_DIRECTIONS = 'Fragment is a 3D assembly puzzle. Your goal is to fill the cube completely using all eight pieces. Each piece is a unique three-dimensional shape that spans multiple layers of the cube. Select a piece from the tray, choose which layer to place it on using the dots on the left, then tap a cell on the cube to place it. Pieces anchor at the cell you tap and extend through the cube according to their shape. If a piece does not fit where you tapped, try a different cell or a different layer. Use undo to take back your last placement. Use reset to start the puzzle over. There is no time limit. Your score is how many moves it took to fill the cube. Every puzzle is different. The satisfaction is in the solve.';
+var CUBRICK_DIRECTIONS = 'Cubrick is a 3D assembly puzzle. Your goal is to fill the cube completely using all eight pieces. Each piece is a unique three-dimensional shape that spans multiple layers of the cube. Select a piece from the tray, choose which layer to place it on using the dots on the left, then tap a cell on the cube to place it. Pieces anchor at the cell you tap and extend through the cube according to their shape. If a piece does not fit where you tapped, try a different cell or a different layer. Use undo to take back your last placement. Use reset to start the puzzle over. There is no time limit. Your score is how many moves it took to fill the cube. Every puzzle is different. The satisfaction is in the solve.';
 
-document.getElementById('help-btn').addEventListener('click', function () { openDirections(FRAGMENT_DIRECTIONS); });
+document.getElementById('help-btn').addEventListener('click', function () { openDirections(CUBRICK_DIRECTIONS); });
 document.getElementById('new-btn').addEventListener('click', loadNewPuzzle);
 document.getElementById('frag-undo-btn').addEventListener('click', doUndo);
 document.getElementById('frag-reset-btn').addEventListener('click', doReset);
@@ -338,9 +338,9 @@ function showResults() {
 }
 
 function doShare() {
-  var text = 'Fragment — assembled the cube in ' + moveCount + ' move' + (moveCount === 1 ? '' : 's') +
-             '. https://www.thebunnygame.com/fragment';
-  shareText(text, 'Fragment — Bunny Game');
+  var text = 'Cubrick — assembled the cube in ' + moveCount + ' move' + (moveCount === 1 ? '' : 's') +
+             '. https://www.thebunnygame.com/cubrick';
+  shareText(text, 'Cubrick — Bunny Game');
 }
 
 // ── Piece tray ─────────────────────────────────────────────────────────────
@@ -419,10 +419,10 @@ function renderPieceTray(pctx, piece, sz) {
 
 // ── Puzzle loading ─────────────────────────────────────────────────────────
 function loadPuzzleData() {
-  fetch('fragment-puzzles.json')
+  fetch('cubrick-puzzles.json')
     .then(function (res) { return res.json(); })
     .then(function (data) { puzzles = data; loadNewPuzzle(); })
-    .catch(function (err) { console.error('Fragment: failed to load puzzles:', err); render(); });
+    .catch(function (err) { console.error('Cubrick: failed to load puzzles:', err); render(); });
 }
 
 function loadNewPuzzle() {
@@ -466,4 +466,4 @@ requestAnimationFrame(function () {
   loadPuzzleData();
 });
 
-openDirections(FRAGMENT_DIRECTIONS);
+openDirections(CUBRICK_DIRECTIONS);

@@ -9,7 +9,7 @@
     { label: 'Shroom Mode',  href: 'shroom-mode.html',  mode: 'shroom' },
     { label: 'Bunny Hop',    href: 'bunny-hop.html',    mode: 'bunnyhop' },
     { label: 'Cabbage Drop', href: 'cabbage-drop.html', mode: 'cabbagdrop' },
-    { label: 'Fragment',     href: 'fragment.html',     mode: 'fragment' },
+    { label: 'Cubrick',      href: 'cubrick.html',      mode: 'cubrick'  },
     { label: 'HexFlip',      href: 'hexflip.html',      mode: 'hexflip' },
   ];
 
@@ -40,10 +40,12 @@
   // "Other Games →" separator
   html += '<span class="tab-separator">Other Games →</span>';
 
-  // Fragment tab — text label (no logo asset yet)
-  var fragPage = PAGES[7];
-  var fragCls = 'mode-tab' + (fragPage.mode === activeMode ? ' active' : '');
-  html += '<a class="' + fragCls + '" data-mode="' + fragPage.mode + '" href="' + fragPage.href + '">' + fragPage.label + '</a>';
+  // Cubrick tab — logo image instead of text label
+  var cubrickPage = PAGES[7];
+  var cubrickCls = 'mode-tab' + (cubrickPage.mode === activeMode ? ' active' : '');
+  html += '<a class="' + cubrickCls + '" data-mode="' + cubrickPage.mode + '" href="' + cubrickPage.href + '">'
+        + '<img class="tab-logo" src="/assets/logos/cubrick_logo.svg" alt="Cubrick">'
+        + '</a>';
 
   // HexFlip tab — logo image instead of text label
   var hfPage = PAGES[8];
