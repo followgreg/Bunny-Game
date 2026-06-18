@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fragment — 3D cube assembly puzzle — Bunny Game</title>
+  <meta name="description" content="Place polycube pieces to fill the cube. A modern elegant 3D puzzle game.">
+  <meta property="og:title" content="Fragment">
+  <meta property="og:description" content="Place polycube pieces to fill the cube. A modern elegant 3D puzzle game.">
+  <meta property="og:url" content="https://www.thebunnygame.com/fragment">
+  <link rel="canonical" href="https://www.thebunnygame.com/fragment">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#E8DCC8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/fragment.css">
+</head>
+<body data-tab="fragment">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="fragment-wrap">
+
+  <!-- HUD: move counter + undo/reset -->
+  <div id="frag-hud">
+    <span id="frag-moves-label">Moves <span id="frag-moves">0</span></span>
+    <div id="frag-controls">
+      <button class="frag-btn" id="frag-undo-btn" disabled>Undo</button>
+      <button class="frag-btn" id="frag-reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <!-- Main play area: layer selector + cube canvas -->
+  <div id="frag-play-area">
+    <div id="frag-layers">
+      <!-- Layer dot buttons injected by fragment.js -->
+    </div>
+    <div id="frag-cube-wrap">
+      <canvas id="frag-cube-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Piece tray: scrollable row of piece canvases -->
+  <div id="frag-tray">
+    <!-- Piece items injected by fragment.js -->
+  </div>
+
+  <!-- Results screen (hidden until win) -->
+  <div id="frag-results">
+    <h2 class="frag-results-headline">Fragment Complete</h2>
+    <p class="frag-results-subline" id="frag-results-subline"></p>
+    <button class="frag-btn frag-btn-primary" id="frag-share-btn">Share</button>
+    <button class="frag-btn" id="frag-new-puzzle-btn">New Puzzle</button>
+  </div>
+
+</div><!-- /#fragment-wrap -->
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/fragment.js"></script>
+</body>
+</html>

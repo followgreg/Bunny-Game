@@ -9,6 +9,7 @@
     { label: 'Shroom Mode',  href: 'shroom-mode.html',  mode: 'shroom' },
     { label: 'Bunny Hop',    href: 'bunny-hop.html',    mode: 'bunnyhop' },
     { label: 'Cabbage Drop', href: 'cabbage-drop.html', mode: 'cabbagdrop' },
+    { label: 'Fragment',     href: 'fragment.html',     mode: 'fragment' },
     { label: 'HexFlip',      href: 'hexflip.html',      mode: 'hexflip' },
   ];
 
@@ -29,8 +30,8 @@
 
   var html = '';
 
-  // Text tabs: Classic through Cabbage Drop (first 7 pages)
-  for (var j = 0; j < PAGES.length - 1; j++) {
+  // Text tabs: Classic through Cabbage Drop (first 7 pages, indices 0–6)
+  for (var j = 0; j < 7; j++) {
     var pg = PAGES[j];
     var cls = 'mode-tab' + (pg.mode === activeMode ? ' active' : '');
     html += '<a class="' + cls + '" data-mode="' + pg.mode + '" href="' + pg.href + '">' + pg.label + '</a>';
@@ -39,8 +40,13 @@
   // "Other Games →" separator
   html += '<span class="tab-separator">Other Games →</span>';
 
+  // Fragment tab — text label (no logo asset yet)
+  var fragPage = PAGES[7];
+  var fragCls = 'mode-tab' + (fragPage.mode === activeMode ? ' active' : '');
+  html += '<a class="' + fragCls + '" data-mode="' + fragPage.mode + '" href="' + fragPage.href + '">' + fragPage.label + '</a>';
+
   // HexFlip tab — logo image instead of text label
-  var hfPage = PAGES[PAGES.length - 1];
+  var hfPage = PAGES[8];
   var hfCls = 'mode-tab' + (hfPage.mode === activeMode ? ' active' : '');
   html += '<a class="' + hfCls + '" data-mode="' + hfPage.mode + '" href="' + hfPage.href + '">'
         + '<img class="tab-logo" src="/assets/logos/Hexflip_Logo.svg" alt="HexFlip">'
