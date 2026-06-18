@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Cubrick — 3D cube assembly puzzle — Bunny Game</title>
-  <meta name="description" content="Place polycube pieces to fill the cube. Cubrick is a modern elegant 3D puzzle game on Bunny Game.">
-  <meta property="og:title" content="Cubrick — 3D cube assembly puzzle">
-  <meta property="og:description" content="Place polycube pieces to fill the cube. Cubrick is a modern elegant 3D puzzle game on Bunny Game.">
+  <title>Cubrick — isometric city puzzle — Bunny Game</title>
+  <meta name="description" content="Place pieces on the monolith. Watch a city rise. Cubrick is an isometric puzzle game on Bunny Game.">
+  <meta property="og:title" content="Cubrick — isometric city puzzle">
+  <meta property="og:description" content="Place pieces on the monolith. Watch a city rise. Cubrick is an isometric puzzle game on Bunny Game.">
   <meta property="og:url" content="https://www.thebunnygame.com/cubrick">
   <link rel="canonical" href="https://www.thebunnygame.com/cubrick">
   <!-- PWA -->
@@ -39,36 +39,34 @@
 
 <div id="cubrick-wrap">
 
-  <!-- HUD: move counter + undo/reset -->
-  <div id="frag-hud">
-    <span id="frag-moves-label">Moves <span id="frag-moves">0</span></span>
-    <div id="frag-controls">
-      <button class="frag-btn" id="frag-undo-btn" disabled>Undo</button>
-      <button class="frag-btn" id="frag-reset-btn">Reset</button>
+  <!-- HUD: move counter + controls -->
+  <div id="cub-hud">
+    <span id="cub-moves-label">Moves <span id="cub-moves">0</span></span>
+    <div id="cub-controls">
+      <button class="cub-btn" id="cub-rotate-btn" disabled>Rotate ↻</button>
+      <button class="cub-btn" id="cub-undo-btn" disabled>Undo</button>
+      <button class="cub-btn" id="cub-reset-btn">Reset</button>
     </div>
   </div>
 
-  <!-- Main play area: layer selector + cube canvas -->
-  <div id="frag-play-area">
-    <div id="frag-layers">
-      <!-- Layer dot buttons injected by cubrick.js -->
-    </div>
-    <div id="frag-cube-wrap">
-      <canvas id="frag-cube-canvas"></canvas>
+  <!-- Main play area: isometric canvas (dominant) -->
+  <div id="cub-canvas-area">
+    <div id="cub-canvas-wrap">
+      <canvas id="cub-canvas"></canvas>
     </div>
   </div>
 
-  <!-- Piece tray: scrollable row of piece canvases -->
-  <div id="frag-tray">
+  <!-- Piece tray: scrollable row of piece previews -->
+  <div id="cub-tray">
     <!-- Piece items injected by cubrick.js -->
   </div>
 
   <!-- Results screen (hidden until win) -->
-  <div id="frag-results">
-    <h2 class="frag-results-headline">Cubrick Complete</h2>
-    <p class="frag-results-subline" id="frag-results-subline"></p>
-    <button class="frag-btn frag-btn-primary" id="share-btn">Share</button>
-    <button class="frag-btn" id="frag-new-puzzle-btn">New Puzzle</button>
+  <div id="cub-results">
+    <h2 class="cub-results-headline">City Complete</h2>
+    <p class="cub-results-subline" id="cub-results-subline"></p>
+    <button class="cub-btn cub-btn-primary" id="share-btn">Share</button>
+    <button class="cub-btn" id="cub-new-puzzle-btn">New Puzzle</button>
   </div>
 
 </div><!-- /#cubrick-wrap -->
