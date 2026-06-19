@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Cubrick — isometric city puzzle — Bunny Game</title>
-  <meta name="description" content="Place pieces on the monolith. Watch a city rise. Cubrick is an isometric puzzle game on Bunny Game.">
-  <meta property="og:title" content="Cubrick — isometric city puzzle">
-  <meta property="og:description" content="Place pieces on the monolith. Watch a city rise. Cubrick is an isometric puzzle game on Bunny Game.">
+  <title>Cubrick — 8-level puzzle — Bunny Game</title>
+  <meta name="description" content="Fill the board. Build the cube. Eight levels of polyomino puzzles on Bunny Game.">
+  <meta property="og:title" content="Cubrick — 8-level puzzle">
+  <meta property="og:description" content="Fill the board. Build the cube. Eight levels of polyomino puzzles on Bunny Game.">
   <meta property="og:url" content="https://www.thebunnygame.com/cubrick">
   <link rel="canonical" href="https://www.thebunnygame.com/cubrick">
   <!-- PWA -->
@@ -39,34 +39,55 @@
 
 <div id="cubrick-wrap">
 
-  <!-- HUD: move counter + controls -->
+  <!-- HUD: level indicator, move counter, action buttons -->
   <div id="cub-hud">
-    <span id="cub-moves-label">Moves <span id="cub-moves">0</span></span>
-    <div id="cub-controls">
+    <div id="cub-hud-left">
+      <span id="cub-level-label">Level <span id="cub-level">1</span> of 8</span>
+      <span id="cub-moves-label">Moves <span id="cub-moves">0</span></span>
+    </div>
+    <div id="cub-hud-right">
       <button class="cub-btn" id="cub-rotate-btn" disabled>Rotate ↻</button>
       <button class="cub-btn" id="cub-undo-btn" disabled>Undo</button>
       <button class="cub-btn" id="cub-reset-btn">Reset</button>
     </div>
   </div>
 
-  <!-- Main play area: isometric canvas (dominant) -->
-  <div id="cub-canvas-area">
-    <div id="cub-canvas-wrap">
-      <canvas id="cub-canvas"></canvas>
+  <!-- Board: flat 8×8 grid (cells injected by cubrick.js) -->
+  <div id="cub-board-area">
+    <div id="cub-grid"></div>
+  </div>
+
+  <!-- Piece tray + progress cube widget -->
+  <div id="cub-tray-row">
+    <div id="cub-tray">
+      <!-- Piece items injected by cubrick.js -->
+    </div>
+    <div id="cub-progress-wrap">
+      <canvas id="cub-progress-cube" aria-label="Levels complete"></canvas>
+      <span id="cub-progress-label">0 / 8</span>
     </div>
   </div>
 
-  <!-- Piece tray: scrollable row of piece previews -->
-  <div id="cub-tray">
-    <!-- Piece items injected by cubrick.js -->
+  <!-- Level-complete overlay (hidden until a level is finished) -->
+  <div id="cub-level-complete" class="cub-overlay hidden">
+    <div class="cub-modal">
+      <p class="cub-headline">Level <span id="cub-lc-num"></span> complete!</p>
+      <p class="cub-subline" id="cub-lc-moves"></p>
+      <button class="cub-btn cub-btn-primary" id="cub-next-btn">Next Level →</button>
+    </div>
   </div>
 
-  <!-- Results screen (hidden until win) -->
-  <div id="cub-results">
-    <h2 class="cub-results-headline">City Complete</h2>
-    <p class="cub-results-subline" id="cub-results-subline"></p>
-    <button class="cub-btn cub-btn-primary" id="share-btn">Share</button>
-    <button class="cub-btn" id="cub-new-puzzle-btn">New Puzzle</button>
+  <!-- Final win screen (hidden until all 8 levels done) -->
+  <div id="cub-win" class="cub-overlay hidden">
+    <div class="cub-modal">
+      <p class="cub-headline">Cubrick Complete!</p>
+      <canvas id="cub-win-cube"></canvas>
+      <p class="cub-subline" id="cub-win-moves"></p>
+      <div class="cub-modal-btns">
+        <button class="cub-btn" id="cub-share-btn">Share</button>
+        <button class="cub-btn cub-btn-primary" id="cub-play-again-btn">Play Again</button>
+      </div>
+    </div>
   </div>
 
 </div><!-- /#cubrick-wrap -->
