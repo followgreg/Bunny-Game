@@ -9,6 +9,14 @@ function openDirections(text) {
   if (el) el.textContent = text;
   var overlay = document.getElementById('directions-overlay');
   if (overlay) overlay.classList.remove('hidden');
+  var modal = overlay && overlay.querySelector('.directions-modal');
+  if (modal) {
+    if (document.body.dataset.tab === 'cubrick') {
+      modal.classList.add('popup--cubrick');
+    } else {
+      modal.classList.remove('popup--cubrick');
+    }
+  }
 }
 
 (function () {
@@ -17,6 +25,8 @@ function openDirections(text) {
     btn.addEventListener('click', function () {
       var overlay = document.getElementById('directions-overlay');
       if (overlay) overlay.classList.add('hidden');
+      var modal = overlay && overlay.querySelector('.directions-modal');
+      if (modal) modal.classList.remove('popup--cubrick');
     });
   }
 })();

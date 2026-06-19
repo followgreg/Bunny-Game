@@ -286,6 +286,27 @@ body[data-tab="cubrick"] {
   flex-wrap: wrap;
 }
 
+/* ── Directions popup (Cubrick palette) ────────────────────────────────────── */
+.directions-modal.popup--cubrick {
+  background: #E8DCC8;
+  border: 1.5px solid #1A1A1A;
+}
+.popup--cubrick .dir-heading {
+  font-family: 'DM Serif Display', Georgia, serif;
+  color: #1A1A1A;
+}
+.popup--cubrick .dir-pane {
+  font-family: 'DM Sans', sans-serif;
+  color: rgba(26,26,26,0.85);
+}
+.popup--cubrick .dir-close-btn {
+  background: #E8DCC8;
+  border: 1.5px solid #1A1A1A;
+  color: #1A1A1A;
+}
+.popup--cubrick .dir-close-btn:hover  { background: #D9CCBA; }
+.popup--cubrick .dir-close-btn:active { background: #CFC2AC; }
+
 /* ── Invalid placement shake ───────────────────────────────────────────────── */
 @keyframes cub-shake {
   0%,100% { transform: translateX(0); }

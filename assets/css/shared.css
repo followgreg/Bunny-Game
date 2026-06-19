@@ -232,6 +232,11 @@ a.mode-tab[data-mode="hexflip"].active {
   display: block;
 }
 
+/* Cubrick logo runs wide — reduce to match HexFlip's visual weight */
+a[data-mode="cubrick"] .tab-logo {
+  height: 15px;
+}
+
 /* ── "Other Games →" separator ── */
 .tab-separator {
   color: rgba(255, 255, 255, 0.55);
