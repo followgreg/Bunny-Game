@@ -2,7 +2,7 @@
 (function () {
   // Internal Bunny Game pages (used for active-tab detection)
   var PAGES = [
-    { label: 'Classic',      href: 'index.html',        mode: 'classic' },
+    { label: 'Classic',      href: 'classic.html',      mode: 'classic' },
     { label: 'Bomb Mode',    href: 'bomb-mode.html',    mode: 'bomb' },
     { label: '86 Bunnies',   href: '86-bunnies.html',   mode: '86bunnies' },
     { label: 'Hare Line',    href: 'hare-line.html',    mode: 'hareline' },
@@ -15,7 +15,7 @@
 
   // Determine active page from the URL pathname
   var filename = window.location.pathname.split('/').pop() || '';
-  var activeMode = 'classic'; // default: root or index.html = Classic
+  var activeMode = null; // no default — lobby (index.html) gets no active tab
   for (var i = 0; i < PAGES.length; i++) {
     var p = PAGES[i];
     if (filename === p.href || filename === p.href.replace('.html', '')) {

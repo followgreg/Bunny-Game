@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bunny Game — Classic Mode</title>
+  <meta name="description" content="Match and clear tiles in Classic Mode — the original Bunny Game. Zero tiles left is a perfect clear.">
+  <meta property="og:title" content="Bunny Game — Classic Mode">
+  <meta property="og:description" content="Click matching tiles to clear them. Tiles fall. Columns collapse. Can you get a perfect clear?">
+  <meta property="og:url" content="https://www.thebunnygame.com/classic">
+  <link rel="canonical" href="https://www.thebunnygame.com/classic">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/classic.css">
+</head>
+<body data-tab="classic">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="stats">
+  <div class="stat-item">
+    <span class="stat-label">Score</span>
+    <span class="stat-value" id="val-remaining">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Cleared</span>
+    <span class="stat-value" id="val-cleared">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Moves</span>
+    <span class="stat-value" id="val-moves">0</span>
+  </div>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="game-canvas"></canvas>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2 id="modal-title">Game Over</h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub"   id="modal-sub"></p>
+    <div class="breakdown" id="modal-breakdown"></div>
+    <button class="play-again-btn" id="play-again-btn">Play Again</button>
+    <button class="share-btn" id="share-btn">Share Score</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/classic.js"></script>
+</body>
+</html>

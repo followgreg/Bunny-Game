@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Bunny Game — Classic Mode</title>
-  <meta name="description" content="Match and clear tiles in Classic Mode — the original Bunny Game. Zero tiles left is a perfect clear.">
-  <meta property="og:title" content="Bunny Game — Classic Mode">
-  <meta property="og:description" content="Click matching tiles to clear them. Tiles fall. Columns collapse. Can you get a perfect clear?">
+  <title>Bunny Game — puzzle games starring blue bunnies, red bunnies, and friends</title>
+  <meta name="description" content="Classic, Bomb Mode, 86 Bunnies, Hare Line, Shroom Mode, Bunny Hop, Cabbage Drop, and more. A growing collection of browser puzzle games.">
+  <meta property="og:title" content="Bunny Game — puzzle games starring blue bunnies, red bunnies, and friends">
+  <meta property="og:description" content="Classic, Bomb Mode, 86 Bunnies, Hare Line, Shroom Mode, Bunny Hop, Cabbage Drop, and more. A growing collection of browser puzzle games.">
   <meta property="og:url" content="https://www.thebunnygame.com">
   <link rel="canonical" href="https://www.thebunnygame.com">
   <!-- PWA -->
@@ -20,7 +20,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
   <script>
@@ -31,37 +31,178 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/classic.css">
+  <style>
+    /* ── Lobby page ─────────────────────────────────────────────────────────── */
+    .lobby-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 32px 20px 48px;
+    }
+
+    .lobby-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .lobby-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: #f1f5f9;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .lobby-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: #94a3b8;
+      max-width: 440px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .lobby-section {
+      max-width: 800px;
+      margin: 0 auto 36px;
+    }
+
+    .lobby-section-heading {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .lobby-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media (min-width: 560px) {
+      .lobby-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 380px) {
+      .lobby-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .lobby-card {
+      display: block;
+      text-decoration: none;
+      background: #1a2540;
+      border: 1px solid #2d4060;
+      border-radius: 10px;
+      padding: 14px 13px;
+      transition: background 0.13s, box-shadow 0.13s, transform 0.13s, border-color 0.13s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .lobby-card:hover {
+      background: #1e2f4a;
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+
+    .lobby-card:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .lobby-card-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .lobby-card-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      line-height: 1.45;
+    }
+  </style>
 </head>
-<body data-tab="classic">
+<body>
 
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
-  <div class="header-controls">
-    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
-    <button class="icon-btn" id="new-btn">↺ New</button>
-  </div>
 </div>
 
 <div id="nav-root"></div>
 
-<div id="stats">
-  <div class="stat-item">
-    <span class="stat-label">Score</span>
-    <span class="stat-value" id="val-remaining">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Cleared</span>
-    <span class="stat-value" id="val-cleared">0</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Moves</span>
-    <span class="stat-value" id="val-moves">0</span>
-  </div>
-</div>
+<div class="lobby-wrap">
 
-<div id="canvas-wrap">
-  <canvas id="game-canvas"></canvas>
+  <div class="lobby-hero">
+    <p class="lobby-title">Bunny Game</p>
+    <p class="lobby-sub">Click, clear, solve. A growing collection of bunny-powered puzzle games.</p>
+  </div>
+
+  <div class="lobby-section">
+    <p class="lobby-section-heading">Bunny Game</p>
+    <div class="lobby-grid">
+      <a class="lobby-card" href="classic.html">
+        <p class="lobby-card-name">Classic</p>
+        <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+      <a class="lobby-card" href="bomb-mode.html">
+        <p class="lobby-card-name">Bomb Mode</p>
+        <p class="lobby-card-desc">Guide the bomb to the bottom row.</p>
+      </a>
+      <a class="lobby-card" href="86-bunnies.html">
+        <p class="lobby-card-name">86 Bunnies</p>
+        <p class="lobby-card-desc">Clear everything to bring the blue bunnies together.</p>
+      </a>
+      <a class="lobby-card" href="hare-line.html">
+        <p class="lobby-card-name">Hare Line</p>
+        <p class="lobby-card-desc">Slide tiles to line up all five red bunnies.</p>
+      </a>
+      <a class="lobby-card" href="shroom-mode.html">
+        <p class="lobby-card-name">Shroom Mode</p>
+        <p class="lobby-card-desc">Match tiles as the board pulses with color.</p>
+      </a>
+      <a class="lobby-card" href="bunny-hop.html">
+        <p class="lobby-card-name">Bunny Hop</p>
+        <p class="lobby-card-desc">Jump bunnies to end with exactly one.</p>
+      </a>
+      <a class="lobby-card" href="cabbage-drop.html">
+        <p class="lobby-card-name">Cabbage Drop</p>
+        <p class="lobby-card-desc">60 seconds. Full board. Race the clock.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="lobby-section">
+    <p class="lobby-section-heading">Other Games</p>
+    <div class="lobby-grid">
+      <a class="lobby-card" href="hexflip.html">
+        <p class="lobby-card-name">HexFlip</p>
+        <p class="lobby-card-desc">Click exactly 3 hexes to turn the whole board black.</p>
+      </a>
+      <a class="lobby-card" href="cubrick.html">
+        <p class="lobby-card-name">Cubrick</p>
+        <p class="lobby-card-desc">Fill the board. Build the cube. Eight puzzle levels.</p>
+      </a>
+      <a class="lobby-card" href="https://www.noonwords.com" target="_blank" rel="noopener noreferrer">
+        <p class="lobby-card-name">NOON</p>
+        <p class="lobby-card-desc">A daily word puzzle from Never Stop Creating.</p>
+      </a>
+      <a class="lobby-card" href="https://followgreg.github.io/poise-game/" target="_blank" rel="noopener noreferrer">
+        <p class="lobby-card-name">POISE</p>
+        <p class="lobby-card-desc">A puzzle game from Never Stop Creating.</p>
+      </a>
+    </div>
+  </div>
+
 </div>
 
 <footer id="footer">
@@ -72,28 +213,7 @@
   <a href="macigame.html">About</a>
 </footer>
 
-<div id="overlay" class="hidden">
-  <div class="modal">
-    <div id="perf-banner" class="hidden"></div>
-    <h2 id="modal-title">Game Over</h2>
-    <p class="modal-score" id="modal-score"></p>
-    <p class="modal-sub"   id="modal-sub"></p>
-    <div class="breakdown" id="modal-breakdown"></div>
-    <button class="play-again-btn" id="play-again-btn">Play Again</button>
-    <button class="share-btn" id="share-btn">Share Score</button>
-  </div>
-</div>
-
-<div id="directions-overlay" class="hidden">
-  <div class="directions-modal">
-    <p class="dir-heading">How to Play</p>
-    <div class="dir-pane" id="directions-text"></div>
-    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
-  </div>
-</div>
-
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
-<script src="assets/js/classic.js"></script>
 </body>
 </html>

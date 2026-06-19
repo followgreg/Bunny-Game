@@ -383,8 +383,8 @@ document.getElementById('share-btn').addEventListener('click', () => {
   const remaining = game ? game.countRemaining() : 0;
   const moves     = game ? game.moves : 0;
   const text = remaining === 0
-    ? `🎉 PERFECT CLEAR! I cleared every tile in Bunny Game in ${moves} moves. Can you beat it? https://www.thebunnygame.com`
-    : `I finished Bunny Game with ${remaining} tile${remaining !== 1 ? 's' : ''} remaining in ${moves} moves. Can you do better? https://www.thebunnygame.com`;
+    ? `🎉 PERFECT CLEAR! I cleared every tile in Bunny Game in ${moves} moves. Can you beat it? https://www.thebunnygame.com/classic`
+    : `I finished Bunny Game with ${remaining} tile${remaining !== 1 ? 's' : ''} remaining in ${moves} moves. Can you do better? https://www.thebunnygame.com/classic`;
   shareText(text, 'Bunny Game');
 });
 
