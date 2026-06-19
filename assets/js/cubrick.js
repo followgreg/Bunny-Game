@@ -12,6 +12,7 @@ var moveCount       = 0;
 var undoStack       = [];
 var completedLevels = [];      // [{levelIdx, color}] — grows as levels finish
 var totalMoves      = 0;
+var revealsLeft     = 3;       // resets to 3 each level (including on Reset)
 var levelCompleting = false;   // blocks interaction during transition
 
 // ── Boot ───────────────────────────────────────────────────────────────────
@@ -36,6 +37,7 @@ function initLevel(levelIdx) {
   selectedId      = null;
   moveCount       = 0;
   undoStack       = [];
+  revealsLeft     = 3;
   levelCompleting = false;
 
   board = [];
@@ -46,10 +48,11 @@ function initLevel(levelIdx) {
   var levelData = PUZZLES[levelIdx];
   pieces = levelData.pieces.map(function (p) {
     return {
-      id:     p.id,
-      color:  p.color,
-      cells:  normalizeCells(p.cells.map(function (c) { return [c[0], c[1]]; })),
-      placed: false,
+      id:          p.id,
+      color:       p.color,
+      cells:       normalizeCells(p.cells.map(function (c) { return [c[0], c[1]]; })),
+      solvedCells: p.cells.map(function (c) { return [c[0], c[1]]; }), // absolute solved position
+      placed:      false,
     };
   });
 
@@ -346,6 +349,35 @@ document.getElementById('cub-reset-btn').addEventListener('click', function () {
   initLevel(currentLevel);
 });
 
+// ── Reveal button ──────────────────────────────────────────────────────────
+document.getElementById('cub-reveal-btn').addEventListener('click', doReveal);
+
+function doReveal() {
+  if (revealsLeft <= 0 || levelCompleting) return;
+  var unplaced = pieces.filter(function (p) { return !p.placed; });
+  if (unplaced.length === 0) return;
+
+  // Pick a random unplaced piece
+  var p = unplaced[Math.floor(Math.random() * unplaced.length)];
+
+  // Place at the original solved absolute position from the puzzle JSON
+  p.solvedCells.forEach(function (c) { board[c[0]][c[1]] = p.id; });
+  p.placed = true;
+  p.cells  = p.solvedCells;  // update for tray thumbnail
+
+  moveCount++;
+  revealsLeft--;
+  // Do NOT push to undoStack — revealed pieces cannot be undone
+
+  if (selectedId === p.id) selectedId = null;
+
+  document.getElementById('cub-moves').textContent = moveCount;
+  renderBoard();
+  refreshTrayItem(p.id);
+  updateHudButtons();
+  checkLevelComplete();
+}
+
 document.getElementById('cub-next-btn').addEventListener('click', function () {
   document.getElementById('cub-level-complete').classList.add('hidden');
   initLevel(currentLevel + 1);
@@ -375,6 +407,11 @@ document.getElementById('cub-share-btn').addEventListener('click', function () {
 function updateHudButtons() {
   document.getElementById('cub-rotate-btn').disabled = !selectedId;
   document.getElementById('cub-undo-btn').disabled   = undoStack.length === 0;
+
+  var revealBtn  = document.getElementById('cub-reveal-btn');
+  var hasUnplaced = pieces.some(function (p) { return !p.placed; });
+  revealBtn.disabled   = revealsLeft <= 0 || !hasUnplaced;
+  revealBtn.textContent = 'Reveal (' + revealsLeft + ')';
 }
 
 // ── Progress cube widget ────────────────────────────────────────────────────
