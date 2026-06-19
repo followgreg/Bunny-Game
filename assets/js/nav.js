@@ -81,6 +81,19 @@
   root.innerHTML = html;
   root.id = 'mode-tabs';
 
+  // Make the header logo a link to the lobby on every page
+  var h1 = document.querySelector('#header h1');
+  if (h1 && !h1.querySelector('a')) {
+    var logoImg = h1.querySelector('img');
+    if (logoImg) {
+      var logoLink = document.createElement('a');
+      logoLink.href = 'index.html';
+      logoLink.style.cssText = 'display:block;line-height:0;';
+      h1.insertBefore(logoLink, logoImg);
+      logoLink.appendChild(logoImg);
+    }
+  }
+
   // Scroll the active tab into center view (only fires for internal pages)
   var activeEl = root.querySelector('.mode-tab.active');
   if (activeEl) {
