@@ -47,10 +47,16 @@ function initLevel(levelIdx) {
 
   var levelData = PUZZLES[levelIdx];
   pieces = levelData.pieces.map(function (p) {
+    // Apply a random starting rotation (0–3 × 90°) so pieces don't always load solved
+    var startCells = normalizeCells(p.cells.map(function (c) { return [c[0], c[1]]; }));
+    var rotCount   = Math.floor(Math.random() * 4);
+    for (var ri = 0; ri < rotCount; ri++) {
+      startCells = normalizeCells(rotateCells(startCells));
+    }
     return {
       id:          p.id,
       color:       p.color,
-      cells:       normalizeCells(p.cells.map(function (c) { return [c[0], c[1]]; })),
+      cells:       startCells,
       solvedCells: p.cells.map(function (c) { return [c[0], c[1]]; }), // absolute solved position
       placed:      false,
     };
