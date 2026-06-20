@@ -12,6 +12,7 @@
   var cells    = [];   // {filled:bool, color:'blue'|'red'} × TOTAL
   var cellEls  = [];   // DOM element references
   var bunnyCount      = 0;
+  var lowestBunnyCount = TOTAL;
   var spawnMs         = 1000;
   var factorMax       = 5;
   var currentA        = 0;
@@ -105,6 +106,7 @@
 
   function updateCount() {
     if (countEl) countEl.textContent = bunnyCount;
+    if (bunnyCount < lowestBunnyCount) lowestBunnyCount = bunnyCount;
   }
 
   // ── Screen management ─────────────────────────────────────────────────────
@@ -125,9 +127,9 @@
   }
 
   function showLoseScreen() {
-    setOverlay('Overrun', 'The bunnies won this time.', '', 'New Game', function () {
+    setOverlay('Overrun', 'The bunnies won this time.', 'Lowest you got the board to: ' + lowestBunnyCount + ' bunnies', 'New Game', function () {
       shareText(
-        'Hare Brain — got overrun by multiplying bunnies. Can you do better? https://www.thebunnygame.com/hare-brain',
+        'Hare Brain — got the board down to ' + lowestBunnyCount + ' bunnies before getting overrun. Can you clear it? https://www.thebunnygame.com/hare-brain',
         'Hare Brain'
       );
     });
@@ -162,8 +164,9 @@
     }
     updateCount();
 
-    spawnMs   = 500;
-    factorMax = 5;
+    spawnMs          = 500;
+    factorMax        = 5;
+    lowestBunnyCount = TOTAL;
     resizeBoard();
 
     // Seed 20 bunnies instantly before the first spawn tick
@@ -177,8 +180,9 @@
 
   function resetGame() {
     clearTimers();
-    gameRunning = false;
-    bunnyCount  = 0;
+    gameRunning      = false;
+    bunnyCount       = 0;
+    lowestBunnyCount = TOTAL;
     for (var i = 0; i < TOTAL; i++) {
       cells[i].filled = false;
       renderCell(i);
