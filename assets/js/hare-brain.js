@@ -50,7 +50,14 @@
     });
     inputEl.addEventListener('input', function () {
       if (debounceTimer !== null) { clearTimeout(debounceTimer); debounceTimer = null; }
-      debounceTimer = setTimeout(checkAnswer, 500);
+      var typed = inputEl.value.trim();
+      if (typed.length === 0) return;
+      var correct = currentA * currentB;
+      if (typed.length >= String(correct).length) {
+        checkAnswer();
+      } else {
+        debounceTimer = setTimeout(checkAnswer, 200);
+      }
     });
 
     var newBtn = document.getElementById('new-btn');
@@ -272,7 +279,7 @@
     if (isNaN(val) || val < 0) { flashBad(); return; }
 
     var correct = currentA * currentB;
-    if (val !== correct) { flashBad(); inputEl.value = ''; return; }
+    if (val !== correct) { flashBad(); inputEl.value = ''; inputEl.focus(); return; }
 
     // Correct — remove up to 5 bunnies, then check for win
     removeBunnies(Math.min(5, bunnyCount));
