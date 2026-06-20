@@ -1,8 +1,9 @@
-const CACHE = 'bunnygame-v49';
+const CACHE = 'bunnygame-v50';
 const ASSETS = [
   '/',
   '/index.html',
   '/classic.html',
+  '/hare-trigger.html',
   '/bomb-mode.html',
   '/86-bunnies.html',
   '/hare-line.html',
@@ -21,6 +22,7 @@ const ASSETS = [
   '/assets/css/shroom-mode.css',
   '/assets/css/bunny-hop.css',
   '/assets/css/cabbage-drop.css',
+  '/assets/css/hare-trigger.css',
   '/assets/css/cubrick.css',
   '/assets/logos/cubrick_logo.svg',
   '/assets/css/hexflip.css',
@@ -33,6 +35,7 @@ const ASSETS = [
   '/assets/js/shroom-mode.js',
   '/assets/js/bunny-hop.js',
   '/assets/js/cabbage-drop.js',
+  '/assets/js/hare-trigger.js',
   '/assets/js/cubrick.js',
   '/assets/js/hexflip.js',
   '/assets/icons/hexflip-logo.svg',

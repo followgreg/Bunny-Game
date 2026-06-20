@@ -1,0 +1,16 @@
+/* Hare Trigger — Dark amber/burnt-orange background */
+body[data-tab="hare-trigger"] #canvas-wrap {
+  background:
+    radial-gradient(circle 3px at 18% 22%, #fbbf24 0%, transparent 100%),
+    radial-gradient(circle 4px at 42% 68%, #f97316 0%, transparent 100%),
+    radial-gradient(circle 3px at 65% 14%, #fde68a 0%, transparent 100%),
+    radial-gradient(circle 4px at 80% 55%, #fb923c 0%, transparent 100%),
+    radial-gradient(circle 3px at 28% 84%, #fbbf24 0%, transparent 100%),
+    radial-gradient(circle 4px at 55% 40%, #f97316 0%, transparent 100%),
+    radial-gradient(circle 3px at 10% 48%, #fde68a 0%, transparent 100%),
+    radial-gradient(circle 4px at 90% 28%, #fb923c 0%, transparent 100%),
+    linear-gradient(180deg, #1c0700 0%, #2d0e00 50%, #1a0500 100%);
+}
+body[data-tab="hare-trigger"] #game-canvas {
+  box-shadow: 0 8px 32px rgba(200,80,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+}
