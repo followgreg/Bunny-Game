@@ -196,14 +196,25 @@
 
     mapWrapEl.innerHTML = buildMapSvg(currentRound.countries, winner);
 
-    var c1       = currentRound.countries[winner.i];
-    var c2       = currentRound.countries[winner.j];
-    var mi       = Math.round(winner.dist).toLocaleString();
-    var km       = Math.round(winner.dist * 1.60934).toLocaleString();
+    var c1 = currentRound.countries[winner.i];
+    var c2 = currentRound.countries[winner.j];
+    var mi = Math.round(winner.dist).toLocaleString();
+    var km = Math.round(winner.dist * 1.60934).toLocaleString();
     distanceEl.innerHTML =
-      '<strong>' + esc(c1.capital) + '</strong> (' + esc(c1.name) + ')' +
-      ' &rarr; <strong>' + esc(c2.capital) + '</strong> (' + esc(c2.name) + ')' +
-      '<br>' + mi + ' mi &nbsp;·&nbsp; ' + km + ' km';
+      '<div class="fl-result-pair">' +
+        '<div class="fl-result-country">' +
+          '<img class="fl-result-flag" src="https://flagcdn.com/w320/' + esc(c1.iso2) + '.png" alt="' + esc(c1.name) + ' flag">' +
+          '<div class="fl-result-capital">' + esc(c1.capital) + '</div>' +
+          '<div class="fl-result-name">' + esc(c1.name) + '</div>' +
+        '</div>' +
+        '<div class="fl-result-arrow">&rarr;</div>' +
+        '<div class="fl-result-country">' +
+          '<img class="fl-result-flag" src="https://flagcdn.com/w320/' + esc(c2.iso2) + '.png" alt="' + esc(c2.name) + ' flag">' +
+          '<div class="fl-result-capital">' + esc(c2.capital) + '</div>' +
+          '<div class="fl-result-name">' + esc(c2.name) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="fl-result-dist">' + mi + ' mi &nbsp;·&nbsp; ' + km + ' km</div>';
 
     if (isCorrect) {
       nextBtnEl.textContent = 'Next Round';

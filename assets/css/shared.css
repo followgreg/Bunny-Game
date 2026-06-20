@@ -273,22 +273,23 @@ a[data-mode="cubrick"] .tab-logo {
   height: 15px;
 }
 
-/* ── Flagged tab — deep navy, white text ── */
+/* ── Flagged tab — primary blue ── */
 a.mode-tab[data-mode="flagged"] {
-  background: #1b3a5c;
-  color: #e2e8f0;
-  border-color: rgba(255,255,255,0.15);
+  background: #3b82f6;
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 a.mode-tab[data-mode="flagged"]:hover {
-  background: #234b76;
+  background: #60a5fa;
   color: #fff;
-  border-color: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.25);
 }
 a.mode-tab[data-mode="flagged"].active {
-  background: #1b3a5c;
+  background: #3b82f6;
   color: #fff;
   border-color: rgba(255,255,255,0.2);
-  border-bottom: 3px solid #f5c518;
+  border-bottom: 3px solid #fff;
 }
 
 /* ── "Other Games →" separator ── */
