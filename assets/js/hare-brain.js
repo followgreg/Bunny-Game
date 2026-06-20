@@ -11,14 +11,15 @@
   // ── Game state ────────────────────────────────────────────────────────────
   var cells    = [];   // {filled:bool, color:'blue'|'red'} × TOTAL
   var cellEls  = [];   // DOM element references
-  var bunnyCount  = 0;
-  var spawnMs     = 1000;
-  var factorMax   = 5;
-  var currentA    = 0;
-  var currentB    = 0;
-  var spawnTimer  = null;
-  var diffTimer   = null;
-  var gameRunning = false;
+  var bunnyCount      = 0;
+  var spawnMs         = 1000;
+  var factorMax       = 5;
+  var currentA        = 0;
+  var currentB        = 0;
+  var spawnTimer      = null;
+  var diffTimer       = null;
+  var gameRunning     = false;
+  var problemsAnswered = 0;   // counts correct non-win answers; gates single-digit phase
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var boardEl, inputEl, problemEl, countEl, inputWrapEl;
@@ -150,9 +151,14 @@
     }
     updateCount();
 
-    spawnMs   = 1000;
-    factorMax = 5;
+    spawnMs          = 1000;
+    factorMax        = 5;
+    problemsAnswered = 0;
     resizeBoard();
+
+    // Seed 20 bunnies instantly before the first spawn tick
+    seedBunnies(20);
+
     generateProblem();
 
     spawnTimer = setInterval(spawnBatch, spawnMs);
@@ -180,6 +186,26 @@
 
   // ── Spawning ──────────────────────────────────────────────────────────────
   var BATCH_OPTS = [3, 5, 7];
+
+  // Place exactly n bunnies into random empty cells (used for initial seed)
+  function seedBunnies(n) {
+    var empty = [];
+    for (var i = 0; i < TOTAL; i++) {
+      if (!cells[i].filled) empty.push(i);
+    }
+    n = Math.min(n, empty.length);
+    for (var j = empty.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var t = empty[j]; empty[j] = empty[k]; empty[k] = t;
+    }
+    for (var m = 0; m < n; m++) {
+      cells[empty[m]].filled = true;
+      cells[empty[m]].color  = Math.random() < 0.5 ? 'blue' : 'red';
+      renderCell(empty[m]);
+    }
+    bunnyCount += n;
+    updateCount();
+  }
 
   function spawnBatch() {
     if (!gameRunning) return;
@@ -226,8 +252,21 @@
 
   // ── Problem generation ────────────────────────────────────────────────────
   function generateProblem() {
-    currentA = 1 + Math.floor(Math.random() * factorMax);
-    currentB = 1 + Math.floor(Math.random() * factorMax);
+    if (problemsAnswered < 25) {
+      // Single-digit phase: pick answer 1-9 first, then a random valid factor pair
+      var product = 1 + Math.floor(Math.random() * 9);
+      var pairs = [];
+      for (var f = 1; f <= product; f++) {
+        if (product % f === 0) pairs.push([f, product / f]);
+      }
+      var pair = pairs[Math.floor(Math.random() * pairs.length)];
+      currentA = pair[0];
+      currentB = pair[1];
+    } else {
+      // Normal phase: use live factorMax (which has been escalating in background)
+      currentA = 1 + Math.floor(Math.random() * factorMax);
+      currentB = 1 + Math.floor(Math.random() * factorMax);
+    }
     if (problemEl) problemEl.textContent = currentA + ' × ' + currentB;
     if (inputEl) { inputEl.value = ''; inputEl.focus(); }
   }
@@ -251,6 +290,7 @@
 
     // Remove `val` bunnies and continue
     removeBunnies(val);
+    problemsAnswered++;
     flashGood();
     generateProblem();
   }
