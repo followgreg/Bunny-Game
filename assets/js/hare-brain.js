@@ -19,7 +19,6 @@
   var spawnTimer      = null;
   var diffTimer       = null;
   var gameRunning     = false;
-  var problemsAnswered = 0;   // counts correct non-win answers; gates single-digit phase
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var boardEl, inputEl, problemEl, countEl, inputWrapEl;
@@ -151,9 +150,8 @@
     }
     updateCount();
 
-    spawnMs          = 1000;
-    factorMax        = 5;
-    problemsAnswered = 0;
+    spawnMs   = 500;
+    factorMax = 5;
     resizeBoard();
 
     // Seed 20 bunnies instantly before the first spawn tick
@@ -252,21 +250,8 @@
 
   // ── Problem generation ────────────────────────────────────────────────────
   function generateProblem() {
-    if (problemsAnswered < 25) {
-      // Single-digit phase: pick answer 1-9 first, then a random valid factor pair
-      var product = 1 + Math.floor(Math.random() * 9);
-      var pairs = [];
-      for (var f = 1; f <= product; f++) {
-        if (product % f === 0) pairs.push([f, product / f]);
-      }
-      var pair = pairs[Math.floor(Math.random() * pairs.length)];
-      currentA = pair[0];
-      currentB = pair[1];
-    } else {
-      // Normal phase: use live factorMax (which has been escalating in background)
-      currentA = 1 + Math.floor(Math.random() * factorMax);
-      currentB = 1 + Math.floor(Math.random() * factorMax);
-    }
+    currentA = 1 + Math.floor(Math.random() * factorMax);
+    currentB = 1 + Math.floor(Math.random() * factorMax);
     if (problemEl) problemEl.textContent = currentA + ' × ' + currentB;
     if (inputEl) { inputEl.value = ''; inputEl.focus(); }
   }
@@ -281,17 +266,10 @@
     var correct = currentA * currentB;
     if (val !== correct) { flashBad(); inputEl.value = ''; return; }
 
-    // Correct — check for instant win first
-    if (bunnyCount > 0 && val >= bunnyCount) {
-      clearBoard();
-      triggerWin();
-      return;
-    }
-
-    // Remove `val` bunnies and continue
-    removeBunnies(val);
-    problemsAnswered++;
+    // Correct — remove up to 5 bunnies, then check for win
+    removeBunnies(Math.min(5, bunnyCount));
     flashGood();
+    if (bunnyCount === 0) { triggerWin(); return; }
     generateProblem();
   }
 
