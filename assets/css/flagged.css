@@ -1,0 +1,232 @@
+/* ── Flagged — game-specific styles ── */
+
+/* Override canvas-wrap: scrollable, dark bg, top-aligned */
+#canvas-wrap {
+  background: #111827;
+  align-items: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+}
+
+/* ── Visibility helpers ── */
+.fl-hide { display: none !important; }
+
+/* ── Loading state ── */
+.fl-center {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.fl-loading-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+/* ── Game layout ── */
+#fl-game,
+#fl-reveal,
+#fl-end {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+/* ── Info bar ── */
+.fl-info {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+/* ── Prompt ── */
+.fl-prompt {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-align: center;
+  padding: 8px 0 16px;
+}
+
+/* ── Flag grid: 4 columns ── */
+.fl-flags-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 360px) {
+  .fl-flags-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ── Flag tile ── */
+.fl-flag-tile {
+  cursor: pointer;
+  border-radius: 8px;
+  border: 2px solid #1e293b;
+  background: #1a2540;
+  overflow: hidden;
+  transition: border-color 0.12s, transform 0.1s, box-shadow 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.fl-flag-tile:hover {
+  border-color: #3b5280;
+  transform: translateY(-1px);
+}
+
+.fl-flag-tile:active {
+  transform: translateY(0);
+}
+
+.fl-flag-tile.fl-selected {
+  border-color: #f5c518;
+  box-shadow: 0 0 0 1px #f5c518;
+}
+
+.fl-flag-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  background: #1e293b;
+}
+
+
+/* ── Submit button ── */
+.fl-submit-wrap {
+  margin-top: 16px;
+}
+
+.fl-submit-btn {
+  display: block;
+  width: 100%;
+  background: #2563eb;
+  border: none;
+  color: #fff;
+  padding: 13px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.12s;
+  letter-spacing: 0.03em;
+  -webkit-tap-highlight-color: transparent;
+}
+.fl-submit-btn:hover:not(:disabled) { background: #3b82f6; }
+.fl-submit-btn:active:not(:disabled) { background: #1d4ed8; }
+.fl-submit-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Reveal screen ── */
+.fl-reveal-outcome {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 12px 0 8px;
+  letter-spacing: 0.01em;
+}
+.fl-outcome-correct { color: #10b981; }
+.fl-outcome-wrong   { color: #ef4444; }
+
+.fl-map-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+  background: #0d2137;
+}
+
+.fl-distance {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.6;
+  padding: 4px 0 8px;
+}
+
+.fl-distance strong {
+  color: #e2e8f0;
+}
+
+/* ── Run-end screen ── */
+.fl-end-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.fl-end-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+.fl-streak-display {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+.fl-streak-display strong {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #f5c518;
+  display: block;
+  line-height: 1.2;
+}
+
+.fl-best {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.fl-end-btns {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fl-play-again-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #2d4060;
+  color: #94a3b8;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  letter-spacing: 0.03em;
+  -webkit-tap-highlight-color: transparent;
+}
+.fl-play-again-btn:hover  { border-color: #94a3b8; color: #f1f5f9; }
+.fl-play-again-btn:active { background: #1e293b; }
