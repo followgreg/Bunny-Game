@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Hare Brain — Bunny Game</title>
+  <meta name="description" content="Bunnies are multiplying. Solve the math before the board fills up.">
+  <meta property="og:title" content="Hare Brain — Bunny Game">
+  <meta property="og:description" content="Bunnies are multiplying. Solve the math before the board fills up.">
+  <meta property="og:url" content="https://www.thebunnygame.com/hare-brain">
+  <link rel="canonical" href="https://www.thebunnygame.com/hare-brain">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/hare-brain.css">
+</head>
+<body data-tab="hare-brain">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+  <!-- Problem area -->
+  <div id="hb-problem-area">
+    <div id="hb-count-row">
+      <span>Bunnies on board:</span>
+      <span id="hb-count">0</span>
+    </div>
+    <div id="hb-problem-text">—</div>
+    <div id="hb-input-wrap">
+      <input
+        type="number"
+        id="hb-input"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        min="0"
+        max="9999"
+        placeholder=""
+        autocomplete="off"
+      >
+      <button id="hb-submit">✓</button>
+    </div>
+  </div>
+
+  <!-- Board -->
+  <div id="hb-board-wrap">
+    <div id="hb-board"></div>
+  </div>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<!-- Start / Win / Lose overlay (reuses shared .modal styles) -->
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <h2 id="modal-title">Hare Brain</h2>
+    <p class="modal-score" id="modal-score">Bunnies multiply. Solve the math to clear them.</p>
+    <p class="modal-sub"   id="modal-sub"></p>
+    <div class="breakdown" id="modal-breakdown"></div>
+    <button class="play-again-btn" id="play-again-btn">Start</button>
+    <button class="share-btn"      id="share-btn" style="display:none">Share</button>
+  </div>
+</div>
+
+<!-- Directions overlay (shared) -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/hare-brain.js"></script>
+</body>
+</html>

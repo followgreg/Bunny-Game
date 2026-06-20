@@ -134,6 +134,15 @@ a.mode-tab[data-mode="hare-trigger"].active {
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
+a.mode-tab[data-mode="hare-brain"],
+a.mode-tab[data-mode="hare-brain"]:hover,
+a.mode-tab[data-mode="hare-brain"].active {
+  background: #7c3aed;
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
 a.mode-tab[data-mode="bomb"],
 a.mode-tab[data-mode="bomb"]:hover,
 a.mode-tab[data-mode="bomb"].active {

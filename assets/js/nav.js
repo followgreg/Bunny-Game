@@ -4,6 +4,7 @@
   var PAGES = [
     { label: 'Classic',      href: 'classic.html',        mode: 'classic' },
     { label: 'Hare Trigger', href: 'hare-trigger.html',  mode: 'hare-trigger' },
+    { label: 'Hare Brain',   href: 'hare-brain.html',    mode: 'hare-brain' },
     { label: 'Bomb Mode',    href: 'bomb-mode.html',      mode: 'bomb' },
     { label: '86 Bunnies',   href: '86-bunnies.html',   mode: '86bunnies' },
     { label: 'Hare Line',    href: 'hare-line.html',    mode: 'hareline' },
@@ -32,7 +33,7 @@
   var html = '';
 
   // Text tabs: Classic through Cabbage Drop (first 8 pages, indices 0–7)
-  for (var j = 0; j < 8; j++) {
+  for (var j = 0; j < 9; j++) {
     var pg = PAGES[j];
     var cls = 'mode-tab' + (pg.mode === activeMode ? ' active' : '');
     html += '<a class="' + cls + '" data-mode="' + pg.mode + '" href="' + pg.href + '">' + pg.label + '</a>';
@@ -42,14 +43,14 @@
   html += '<span class="tab-separator">Other Games →</span>';
 
   // Cubrick tab — logo image instead of text label
-  var cubrickPage = PAGES[8];
+  var cubrickPage = PAGES[9];
   var cubrickCls = 'mode-tab' + (cubrickPage.mode === activeMode ? ' active' : '');
   html += '<a class="' + cubrickCls + '" data-mode="' + cubrickPage.mode + '" href="' + cubrickPage.href + '">'
         + '<img class="tab-logo" src="/assets/logos/cubrick_logo.svg" alt="Cubrick">'
         + '</a>';
 
   // HexFlip tab — logo image instead of text label
-  var hfPage = PAGES[9];
+  var hfPage = PAGES[10];
   var hfCls = 'mode-tab' + (hfPage.mode === activeMode ? ' active' : '');
   html += '<a class="' + hfCls + '" data-mode="' + hfPage.mode + '" href="' + hfPage.href + '">'
         + '<img class="tab-logo" src="/assets/logos/Hexflip_Logo.svg" alt="HexFlip">'
