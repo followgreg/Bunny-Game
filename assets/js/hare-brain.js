@@ -23,7 +23,8 @@
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var boardEl, inputEl, problemEl, countEl, inputWrapEl;
   var overlayEl, modalTitleEl, modalScoreEl, modalSubEl, playAgainBtn, shareBtn;
-  var flashTimeout = null;
+  var flashTimeout   = null;
+  var debounceTimer  = null;
 
   // ── DOMContentLoaded ──────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
@@ -46,6 +47,10 @@
     document.getElementById('hb-submit').addEventListener('click', checkAnswer);
     inputEl.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') checkAnswer();
+    });
+    inputEl.addEventListener('input', function () {
+      if (debounceTimer !== null) { clearTimeout(debounceTimer); debounceTimer = null; }
+      debounceTimer = setTimeout(checkAnswer, 500);
     });
 
     var newBtn = document.getElementById('new-btn');
@@ -250,6 +255,7 @@
 
   // ── Problem generation ────────────────────────────────────────────────────
   function generateProblem() {
+    if (debounceTimer !== null) { clearTimeout(debounceTimer); debounceTimer = null; }
     currentA = 1 + Math.floor(Math.random() * factorMax);
     currentB = 1 + Math.floor(Math.random() * factorMax);
     if (problemEl) problemEl.textContent = currentA + ' × ' + currentB;
@@ -259,7 +265,9 @@
   // ── Answer checking ───────────────────────────────────────────────────────
   function checkAnswer() {
     if (!gameRunning) return;
+    if (debounceTimer !== null) { clearTimeout(debounceTimer); debounceTimer = null; }
     var raw = inputEl.value.trim();
+    if (raw === '') return;  // debounce fired on empty field — ignore silently
     var val = parseInt(raw, 10);
     if (isNaN(val) || val < 0) { flashBad(); return; }
 
