@@ -243,6 +243,24 @@ a.mode-tab[data-mode="hexflip"].active {
   border-bottom: 3px solid #231f20;
 }
 
+/* ── Cropped tab — linen background, dark logo ── */
+a.mode-tab[data-mode="cropped"] {
+  background: #F5F0E8;
+  color: #1A1A1A;
+  border-color: rgba(26,26,26,0.15);
+}
+a.mode-tab[data-mode="cropped"]:hover {
+  background: #EDE6D8;
+  color: #1A1A1A;
+  border-color: rgba(26,26,26,0.15);
+}
+a.mode-tab[data-mode="cropped"].active {
+  background: #F5F0E8;
+  color: #1A1A1A;
+  border-color: rgba(26,26,26,0.15);
+  border-bottom: 3px solid #1A1A1A;
+}
+
 /* ── Tab logo image (HexFlip) ── */
 .tab-logo {
   height: 20px;

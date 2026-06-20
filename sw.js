@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v53';
+const CACHE = 'bunnygame-v54';
 const ASSETS = [
   '/',
   '/index.html',
@@ -14,6 +14,7 @@ const ASSETS = [
   '/cubrick.html',
   '/cubrick-puzzles.json',
   '/hexflip.html',
+  '/cropped.html',
   '/manifest.json',
   '/assets/css/shared.css',
   '/assets/css/classic.css',
@@ -25,8 +26,10 @@ const ASSETS = [
   '/assets/css/cabbage-drop.css',
   '/assets/css/hare-trigger.css',
   '/assets/css/hare-brain.css',
+  '/assets/css/cropped.css',
   '/assets/css/cubrick.css',
   '/assets/logos/cubrick_logo.svg',
+  '/assets/logos/cropped_logo.svg',
   '/assets/css/hexflip.css',
   '/assets/js/nav.js',
   '/assets/js/shared.js',
@@ -39,6 +42,7 @@ const ASSETS = [
   '/assets/js/cabbage-drop.js',
   '/assets/js/hare-trigger.js',
   '/assets/js/hare-brain.js',
+  '/assets/js/cropped.js',
   '/assets/js/cubrick.js',
   '/assets/js/hexflip.js',
   '/assets/icons/hexflip-logo.svg',

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Cropped — a daily art guessing game — Bunny Game</title>
+  <meta name="description" content="One painting. One crop. One guess. A new piece of art every day.">
+  <meta property="og:title" content="Cropped — a daily art guessing game — Bunny Game">
+  <meta property="og:description" content="One painting. One crop. One guess. A new piece of art every day.">
+  <meta property="og:url" content="https://www.thebunnygame.com/cropped">
+  <link rel="canonical" href="https://www.thebunnygame.com/cropped">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#1A1A1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/cropped.css">
+</head>
+<body data-tab="cropped">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+  <div id="cr-content">
+
+    <!-- Loading -->
+    <div id="cr-loading">Finding today's painting…</div>
+
+    <!-- Error -->
+    <div id="cr-error" class="cr-hide">
+      Couldn't load today's painting. Check your connection and try again later.
+    </div>
+
+    <!-- Game -->
+    <div id="cr-game" class="cr-hide">
+      <div class="cr-frame-wrap">
+        <div class="cr-frame">
+          <span class="cr-corner cr-tl"></span>
+          <span class="cr-corner cr-tr"></span>
+          <span class="cr-corner cr-bl"></span>
+          <span class="cr-corner cr-br"></span>
+          <img id="cr-crop-img" src="" alt="A cropped portion of today's painting">
+        </div>
+      </div>
+      <button id="cr-reveal-btn">Reveal More</button>
+      <div id="cr-options" class="cr-options"></div>
+    </div>
+
+    <!-- Result -->
+    <div id="cr-result" class="cr-hide">
+      <p id="cr-outcome" class="cr-outcome"></p>
+      <div class="cr-frame-wrap">
+        <div class="cr-frame">
+          <span class="cr-corner cr-tl"></span>
+          <span class="cr-corner cr-tr"></span>
+          <span class="cr-corner cr-bl"></span>
+          <span class="cr-corner cr-br"></span>
+          <img id="cr-result-img" src="" alt="The full painting">
+        </div>
+      </div>
+      <p id="cr-result-title"  class="cr-artwork-title"></p>
+      <p id="cr-result-artist" class="cr-artwork-artist"></p>
+      <p id="cr-flavor"        class="cr-flavor"></p>
+      <p id="cr-time"          class="cr-time"></p>
+      <p id="cr-comeback"      class="cr-comeback"></p>
+    </div>
+
+  </div>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<!-- Directions overlay -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/cropped.js"></script>
+</body>
+</html>

@@ -13,6 +13,7 @@
     { label: 'Cabbage Drop', href: 'cabbage-drop.html', mode: 'cabbagdrop' },
     { label: 'Cubrick',      href: 'cubrick.html',      mode: 'cubrick'  },
     { label: 'HexFlip',      href: 'hexflip.html',      mode: 'hexflip' },
+    { label: 'Cropped',      href: 'cropped.html',      mode: 'cropped'  },
   ];
 
   // Determine active page from the URL pathname
@@ -54,6 +55,13 @@
   var hfCls = 'mode-tab' + (hfPage.mode === activeMode ? ' active' : '');
   html += '<a class="' + hfCls + '" data-mode="' + hfPage.mode + '" href="' + hfPage.href + '">'
         + '<img class="tab-logo" src="/assets/logos/Hexflip_Logo.svg" alt="HexFlip">'
+        + '</a>';
+
+  // Cropped tab — logo image, internal link
+  var crPage = PAGES[11];
+  var crCls = 'mode-tab' + (crPage.mode === activeMode ? ' active' : '');
+  html += '<a class="' + crCls + '" data-mode="' + crPage.mode + '" href="' + crPage.href + '">'
+        + '<img class="tab-logo" src="/assets/logos/cropped_logo.svg" alt="Cropped">'
         + '</a>';
 
   // NOON external tab — inlined SVG so CSS can override fill
