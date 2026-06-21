@@ -2,9 +2,8 @@
 
 #canvas-wrap {
   background: #3a1c00;
-  align-items: flex-start;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  align-items: stretch;
+  overflow: hidden;
   padding: 0;
 }
 
@@ -18,6 +17,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 /* ── Round transition overlay ── */
@@ -65,7 +65,8 @@
 #pk-play-area {
   position: relative;
   width: 100%;
-  height: 360px;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   /* Wood grain — horizontal planks, same palette as Bunny Hop fence */
   background: repeating-linear-gradient(
