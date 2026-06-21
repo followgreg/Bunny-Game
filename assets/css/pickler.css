@@ -1,0 +1,220 @@
+/* ── Pickler — game-specific styles ── */
+
+#canvas-wrap {
+  background: #3a1c00;
+  align-items: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+}
+
+.pk-hide { display: none !important; }
+
+/* ── Game wrapper ── */
+#pk-game {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HUD ── */
+#pk-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f5d5a0;
+  letter-spacing: 0.03em;
+}
+
+/* ── Play area ── */
+#pk-play-area {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  overflow: hidden;
+  /* Wood grain — horizontal planks, same palette as Bunny Hop fence */
+  background: repeating-linear-gradient(
+    180deg,
+    #8B5E3C 0px,
+    #A0522D 8px,
+    #C68642 14px,
+    #6B3A2A 18px,
+    #8B5E3C 24px
+  );
+  /* subtle inset shadow to frame the play area */
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.45);
+}
+
+/* ── Nose ── */
+#pk-nose {
+  position: absolute;
+  display: block;
+  /* width and position set by JS */
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+  transition: filter 0.05s;
+}
+
+@keyframes pk-nose-bounce {
+  0%   { transform: translateY(0) scale(1); }
+  20%  { transform: translateY(-14px) scale(1.06); }
+  45%  { transform: translateY(0) scale(1); }
+  65%  { transform: translateY(-7px) scale(1.03); }
+  80%  { transform: translateY(0) scale(1); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+#pk-nose.pk-bounce {
+  animation: pk-nose-bounce 0.55s ease-in-out;
+}
+
+/* ── Pickle ── */
+#pk-pickle {
+  position: absolute;
+  display: block;
+  /* width, left, top set by JS */
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+}
+
+/* ── Hit flash ── */
+#pk-hit-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 230, 60, 0.55);
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes pk-flash-anim {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+#pk-hit-flash.pk-flashing {
+  animation: pk-flash-anim 0.5s ease-out forwards;
+}
+
+/* ── Controls ── */
+#pk-controls {
+  padding: 18px 16px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+#pk-launch-btn {
+  background: #dc2626;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 16px 64px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #991b1b, 0 6px 16px rgba(0,0,0,0.45);
+  transition: transform 0.07s, box-shadow 0.07s, background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+#pk-launch-btn:hover:not(:disabled) {
+  background: #ef4444;
+}
+
+#pk-launch-btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #991b1b, 0 2px 8px rgba(0,0,0,0.4);
+}
+
+#pk-launch-btn:disabled {
+  background: #7f1d1d;
+  box-shadow: 0 2px 0 #450a0a, 0 4px 10px rgba(0,0,0,0.3);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ── End screen ── */
+#pk-end {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 20px 40px;
+}
+
+.pk-end-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.pk-end-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #f5d5a0;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+
+.pk-end-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.05rem;
+  color: #c4956a;
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+.pk-end-btns {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pk-btn-primary {
+  display: block;
+  width: 100%;
+  background: #dc2626;
+  border: none;
+  color: #fff;
+  padding: 13px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pk-btn-primary:hover  { background: #ef4444; }
+.pk-btn-primary:active { background: #b91c1c; }
+
+.pk-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #7c4a1e;
+  color: #c4956a;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pk-btn-ghost:hover  { border-color: #c4956a; color: #f5d5a0; }
+.pk-btn-ghost:active { background: rgba(255,255,255,0.05); }

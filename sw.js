@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v59';
+const CACHE = 'bunnygame-v60';
 const ASSETS = [
   '/',
   '/index.html',
@@ -18,6 +18,7 @@ const ASSETS = [
   '/flagged.html',
   '/wave.html',
   '/mascot-wave.html',
+  '/pickler.html',
   '/manifest.json',
   '/assets/css/shared.css',
   '/assets/css/classic.css',
@@ -33,6 +34,7 @@ const ASSETS = [
   '/assets/css/flagged.css',
   '/assets/css/wave.css',
   '/assets/css/mascot-wave.css',
+  '/assets/css/pickler.css',
   '/assets/css/cubrick.css',
   '/assets/logos/cubrick_logo.svg',
   '/assets/logos/cropped_logo.svg',
@@ -55,6 +57,9 @@ const ASSETS = [
   '/assets/js/flagged.js',
   '/assets/js/wave.js',
   '/assets/js/mascot-wave.js',
+  '/assets/js/pickler.js',
+  '/pickler/nose.svg',
+  '/pickler/pickle.svg',
   '/assets/data/schools.json',
   '/assets/data/capitals.json',
   '/assets/js/cubrick.js',

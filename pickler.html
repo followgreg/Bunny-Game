@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="pickler">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pickler — a timing precision game — Bunny Game</title>
+  <meta name="description" content="Time the launch. Stick the nostril. How many rounds can you clear?">
+  <meta property="og:title" content="Pickler — Bunny Game">
+  <meta property="og:description" content="Time the launch. Stick the nostril. How many rounds can you clear?">
+  <meta property="og:url" content="https://www.thebunnygame.com/pickler">
+  <link rel="canonical" href="https://www.thebunnygame.com/pickler">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#3a1c00">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/pickler.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- ── Game ── -->
+  <div id="pk-game">
+    <div id="pk-hud">
+      <span id="pk-round-display">Round 1 · Best: 0</span>
+      <span id="pk-lives-display">♥ ♥ ♥</span>
+    </div>
+
+    <div id="pk-play-area">
+      <img id="pk-nose"   src="pickler/nose.svg"   alt="">
+      <img id="pk-pickle" src="pickler/pickle.svg" alt="">
+      <div id="pk-hit-flash"></div>
+    </div>
+
+    <div id="pk-controls">
+      <button id="pk-launch-btn">Launch</button>
+    </div>
+  </div>
+
+  <!-- ── End screen ── -->
+  <div id="pk-end" class="pk-hide pk-end-screen">
+    <h2 class="pk-end-headline">Pickler</h2>
+    <p id="pk-end-sub" class="pk-end-sub"></p>
+    <div class="pk-end-btns">
+      <button id="pk-share"      class="pk-btn-primary">Share</button>
+      <button id="pk-play-again" class="pk-btn-ghost">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2 id="modal-title"></h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub" id="modal-sub"></p>
+    <div class="breakdown" id="breakdown" style="display:none"></div>
+    <button class="play-again-btn" id="play-again-btn"></button>
+    <button class="share-btn" id="share-btn" style="display:none"></button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/pickler.js"></script>
+</body>
+</html>
