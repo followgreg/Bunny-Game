@@ -103,6 +103,21 @@
   background: #1e293b;
 }
 
+.fl-flag-tile.fl-flag-error {
+  background: #1e293b;
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fl-flag-tile.fl-flag-error::after {
+  content: '?';
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #334155;
+}
+
 
 /* ── Submit button ── */
 .fl-submit-wrap {

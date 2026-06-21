@@ -140,9 +140,16 @@
       var div       = document.createElement('div');
       div.className = 'fl-flag-tile';
       div.dataset.idx = String(idx);
-      div.innerHTML =
-        '<img class="fl-flag-img" src="https://flagcdn.com/w320/' + esc(country.iso2) + '.png" ' +
-        'alt="Flag" loading="lazy">';
+
+      var img = document.createElement('img');
+      img.className = 'fl-flag-img';
+      img.src       = 'https://flagcdn.com/w320/' + country.iso2 + '.png';
+      img.alt       = 'Flag';
+      img.addEventListener('error', function () {
+        div.classList.add('fl-flag-error');
+      });
+      div.appendChild(img);
+
       div.addEventListener('click', function () { handleFlagClick(idx); });
       flagsEl.appendChild(div);
     });
