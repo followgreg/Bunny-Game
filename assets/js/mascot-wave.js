@@ -205,8 +205,8 @@
     streakDisplayEl.innerHTML = '<strong>' + streak + '</strong>Streak';
     revealTextEl.textContent  = 'That one was ' + correct.name + '.';
 
-    var msg = 'Mascot Wave — streak of ' + streak + '. Think you know college mascots better? https://www.thebunnygame.com/mascot-wave';
-    shareEl.onclick = function () { shareText(msg, 'Mascot Wave'); };
+    var msg = 'Mascot — streak of ' + streak + '. Think you know college mascots better? https://www.thebunnygame.com/mascot-wave';
+    shareEl.onclick = function () { shareText(msg, 'Mascot'); };
 
     setState('end');
   }
@@ -217,8 +217,8 @@
 
     winSubEl.textContent = 'Every school. Zero misses. Streak: ' + streak;
 
-    var msg = 'Mascot Wave — named every school’s mascot. Zero misses. https://www.thebunnygame.com/mascot-wave';
-    winShareEl.onclick = function () { shareText(msg, 'Mascot Wave'); };
+    var msg = 'Mascot — named every school’s mascot. Zero misses. https://www.thebunnygame.com/mascot-wave';
+    winShareEl.onclick = function () { shareText(msg, 'Mascot'); };
 
     setState('win');
   }
