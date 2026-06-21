@@ -132,9 +132,11 @@
   }
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
+  var STAGE_PCT = [10, 25, 50, 100]; // crop stage → revealed area %
+
   var loadingEl, errorEl, gameEl, resultEl;
   var cropImgEl, revealBtnEl, optionsEl;
-  var outcomeEl, resultImgEl, resultTitleEl, resultArtistEl, flavorEl, timeEl, comebackEl;
+  var outcomeEl, resultImgEl, resultTitleEl, resultArtistEl, flavorEl, timeEl, comebackEl, shareBtnEl;
 
   // ── Game state ────────────────────────────────────────────────────────────
   var currentStage   = 0;
@@ -158,6 +160,7 @@
     flavorEl       = document.getElementById('cr-flavor');
     timeEl         = document.getElementById('cr-time');
     comebackEl     = document.getElementById('cr-comeback');
+    shareBtnEl     = document.getElementById('cr-share-btn');
 
     var helpBtn = document.getElementById('help-btn');
     if (helpBtn) {
@@ -357,6 +360,12 @@
     flavorEl.textContent       = pickRandom(flavorList);
     timeEl.textContent         = 'You took ' + result.elapsedSec + ' seconds to decide.';
     comebackEl.textContent     = 'Come back tomorrow for a new piece.';
+
+    var pct = STAGE_PCT[(result.stage || 1) - 1];
+    var shareMsg = isCorrect
+      ? 'Cropped — guessed today\'s painting correctly at the ' + pct + '% reveal in ' + result.elapsedSec + ' seconds. https://www.thebunnygame.com/cropped'
+      : 'Cropped — missed today\'s painting at the ' + pct + '% reveal after ' + result.elapsedSec + ' seconds. https://www.thebunnygame.com/cropped';
+    shareBtnEl.onclick = function () { shareText(shareMsg, 'Cropped'); };
   }
 
   // ── Image helper with fade-in ─────────────────────────────────────────────
