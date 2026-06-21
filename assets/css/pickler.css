@@ -12,11 +12,40 @@
 
 /* ── Game wrapper ── */
 #pk-game {
+  position: relative;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+}
+
+/* ── Round transition overlay ── */
+#pk-round-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 12, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.pk-round-screen-inner { text-align: center; }
+.pk-round-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #c4956a;
+  margin: 0 0 6px;
+}
+.pk-round-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 6rem;
+  line-height: 1;
+  color: #f5d5a0;
+  margin: 0;
 }
 
 /* ── HUD ── */
