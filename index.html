@@ -229,8 +229,9 @@
     .lc-flagged { background: #3b82f6; border-color: rgba(255,255,255,0.2); }
     .lc-flagged .lobby-card-desc { color: rgba(255,255,255,0.75); }
 
-    /* Wave: ocean teal */
-    .lc-wave { background: #0891b2; border-color: rgba(255,255,255,0.2); }
+    /* Wave: primary red, white logo */
+    .lc-wave { background: #dc2626; border-color: rgba(255,255,255,0.2); }
+    .lc-wave .lobby-card-logo img { filter: brightness(0) invert(1); }
     .lc-wave .lobby-card-desc { color: rgba(255,255,255,0.8); }
 
     /* NOON: near-black, yellow logo fill */
@@ -309,7 +310,9 @@
       </a>
 
       <a class="lobby-card lc-wave" href="wave.html">
-        <p class="lobby-card-name">Wave</p>
+        <div class="lobby-card-logo">
+          <img src="assets/logos/wave_logo.svg" alt="Wave">
+        </div>
         <p class="lobby-card-desc">One flag. One sweep. Four guesses. How far can you get?</p>
       </a>
 
