@@ -116,13 +116,25 @@ body {
 }
 
 /* ── Per-tab colour identities (all tabs appear in shared nav on every page) ── */
-a.mode-tab[data-mode="classic"],
-a.mode-tab[data-mode="classic"]:hover,
+/* ── Bunny Game tab — dark bg, white logo ── */
+a.mode-tab[data-mode="classic"] {
+  background: #1e293b;
+  border-color: #2d4060;
+}
+a.mode-tab[data-mode="classic"]:hover {
+  background: #273549;
+  border-color: #2d4060;
+}
 a.mode-tab[data-mode="classic"].active {
-  background: #ffffff;
-  color: #111111;
-  border-color: rgba(0,0,0,0.18);
-  text-shadow: none;
+  background: #1e293b;
+  border-color: #2d4060;
+  border-bottom: 3px solid #f1f5f9;
+}
+.tab-logo--bunnygame {
+  height: 16px;
+  width: auto;
+  display: block;
+  filter: brightness(0) invert(1);
 }
 
 a.mode-tab[data-mode="hare-trigger"],
