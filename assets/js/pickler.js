@@ -9,8 +9,8 @@
   var SPEED_INCREMENT       = 22;   // px/sec added per round (rounds 2-10)
   var VERT_SPEED_BASE       = 75;   // px/sec vertical speed introduced at round 11
   var FLIGHT_DURATION_MS    = 900;  // ms total pickle flight (up + down)
-  var NOSTRIL_HIT_TOLERANCE = 36;   // px radius for horizontal hit (~= display pickle width)
-  var VERT_HIT_TOLERANCE    = 28;   // px radius for vertical hit (round 11+)
+  var NOSTRIL_HIT_TOLERANCE = 18;   // px radius for horizontal hit (~= display pickle width)
+  var VERT_HIT_TOLERANCE    = 14;   // px radius for vertical hit (round 11+)
   var HIT_PAUSE_MS          = 700;  // ms nose pauses after a successful hit
   var PEAK_Y_FRAC           = 0.28; // pickle tip reaches this fraction from play-area top at peak
 
@@ -99,7 +99,7 @@
     PLAY_W = playAreaEl.offsetWidth;
     PLAY_H = playAreaEl.offsetHeight;
 
-    NOSE_W   = Math.min(100, PLAY_W * 0.26);
+    NOSE_W   = Math.min(150, PLAY_W * 0.39);
     NOSE_H   = NOSE_W * NOSE_ASPECT;
     PICKLE_W = NOSE_W * PICKLE_W_FRAC;
     PICKLE_H = PICKLE_W * PICKLE_ASPECT; // equals NOSE_H (same SVG height)
