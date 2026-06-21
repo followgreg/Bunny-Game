@@ -1,0 +1,251 @@
+/* ── Wave — game-specific styles ── */
+
+#canvas-wrap {
+  background: #111827;
+  align-items: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+}
+
+.wv-hide { display: none !important; }
+
+/* ── Loading ── */
+.wv-center {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.wv-loading-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+/* ── Game layout ── */
+#wv-game {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* ── Info bar ── */
+.wv-info {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 8px 0 14px;
+}
+
+/* ── Flag container + sweep animation ── */
+.wv-flag-wrap {
+  width: 100%;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  aspect-ratio: 3 / 2;
+  position: relative;
+}
+
+@keyframes wv-sweep {
+  0%   { clip-path: inset(0 90% 0 0); }
+  100% { clip-path: inset(0 0 0 90%); }
+}
+
+.wv-flag-reveal {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.wv-flag-reveal.wv-sweeping {
+  animation: wv-sweep 2s linear infinite;
+}
+
+.wv-flag-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Option buttons ── */
+.wv-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wv-option {
+  width: 100%;
+  background: #1a2540;
+  border: 1.5px solid #2d4060;
+  border-radius: 10px;
+  color: #e2e8f0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 13px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wv-option:hover:not(:disabled) {
+  background: #1e3055;
+  border-color: #3b5280;
+}
+
+.wv-option:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.wv-option:disabled {
+  cursor: not-allowed;
+}
+
+.wv-option.wv-opt-correct {
+  background: #064e3b;
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+.wv-option.wv-opt-wrong {
+  background: #450a0a;
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.wv-option.wv-opt-dim {
+  opacity: 0.35;
+}
+
+/* ── End / Win screens ── */
+#wv-end,
+#wv-win {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+.wv-end-screen,
+.wv-win-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.wv-end-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+.wv-win-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #f5c518;
+  letter-spacing: 0.01em;
+  margin-bottom: 16px;
+  line-height: 1.25;
+}
+
+.wv-win-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #cbd5e1;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.wv-streak-display {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.wv-streak-display strong {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #f5c518;
+  display: block;
+  line-height: 1.2;
+}
+
+.wv-reveal-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.wv-end-btns {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Buttons ── */
+.wv-btn-primary {
+  display: block;
+  width: 100%;
+  background: #0891b2;
+  border: none;
+  color: #fff;
+  padding: 13px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+  letter-spacing: 0.03em;
+  -webkit-tap-highlight-color: transparent;
+}
+.wv-btn-primary:hover  { background: #06b6d4; }
+.wv-btn-primary:active { background: #0e7490; }
+
+.wv-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #2d4060;
+  color: #94a3b8;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  letter-spacing: 0.03em;
+  -webkit-tap-highlight-color: transparent;
+}
+.wv-btn-ghost:hover  { border-color: #94a3b8; color: #f1f5f9; }
+.wv-btn-ghost:active { background: #1e293b; }
