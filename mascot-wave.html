@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="mascot-wave">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mascot Wave — a college mascot trivia streak game — Bunny Game</title>
+  <meta name="description" content="One logo. One sweep. Four guesses. How many schools can you name?">
+  <meta property="og:title" content="Mascot Wave — Bunny Game">
+  <meta property="og:description" content="One logo. One sweep. Four guesses. How many schools can you name?">
+  <meta property="og:url" content="https://www.thebunnygame.com/mascot-wave">
+  <link rel="canonical" href="https://www.thebunnygame.com/mascot-wave">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/mascot-wave.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Loading -->
+  <div id="mw-loading" class="mw-center">
+    <p class="mw-loading-text">Loading schools…</p>
+  </div>
+
+  <!-- Game -->
+  <div id="mw-game" class="mw-hide">
+    <div class="mw-info" id="mw-info">Streak: 0 · Best: 0</div>
+    <div class="mw-logo-wrap">
+      <div class="mw-logo-reveal" id="mw-logo-reveal">
+        <img class="mw-logo-img" id="mw-logo-img" src="" alt="School logo">
+      </div>
+    </div>
+    <div class="mw-options" id="mw-options"></div>
+  </div>
+
+  <!-- End screen (wrong answer) -->
+  <div id="mw-end" class="mw-hide mw-end-screen">
+    <h2 class="mw-end-headline">Mascot Wave</h2>
+    <div id="mw-streak-display" class="mw-streak-display"></div>
+    <p id="mw-reveal-text" class="mw-reveal-text"></p>
+    <div class="mw-end-btns">
+      <button id="mw-share" class="mw-btn-primary">Share</button>
+      <button id="mw-play-again" class="mw-btn-ghost">Play Again</button>
+    </div>
+  </div>
+
+  <!-- Win screen (named every school) -->
+  <div id="mw-win" class="mw-hide mw-win-screen">
+    <h2 class="mw-win-headline">You've Named Every Mascot</h2>
+    <p class="mw-win-sub" id="mw-win-sub"></p>
+    <div class="mw-end-btns">
+      <button id="mw-win-share" class="mw-btn-primary">Share</button>
+      <button id="mw-win-play-again" class="mw-btn-ghost">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2 id="modal-title"></h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub" id="modal-sub"></p>
+    <div class="breakdown" id="breakdown" style="display:none"></div>
+    <button class="play-again-btn" id="play-again-btn"></button>
+    <button class="share-btn" id="share-btn" style="display:none"></button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/mascot-wave.js"></script>
+</body>
+</html>
