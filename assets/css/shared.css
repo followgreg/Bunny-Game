@@ -116,18 +116,32 @@ body {
 }
 
 /* ── Per-tab colour identities (all tabs appear in shared nav on every page) ── */
-/* ── Bunny Game tab — dark bg, white logo ── */
-a.mode-tab[data-mode="classic"] {
+/* ── Home / All Games tabs — dark slate, white text ── */
+a.mode-tab[data-mode="home"],
+a.mode-tab[data-mode="allgames"] {
   background: #1e293b;
   border-color: #2d4060;
+  color: #f1f5f9;
 }
-a.mode-tab[data-mode="classic"]:hover {
+a.mode-tab[data-mode="home"]:hover,
+a.mode-tab[data-mode="allgames"]:hover {
   background: #273549;
   border-color: #2d4060;
+  color: #fff;
+}
+
+/* ── Bunny Game tab — solid black, white logo ── */
+a.mode-tab[data-mode="classic"] {
+  background: #000;
+  border-color: rgba(255,255,255,0.12);
+}
+a.mode-tab[data-mode="classic"]:hover {
+  background: #111;
+  border-color: rgba(255,255,255,0.18);
 }
 a.mode-tab[data-mode="classic"].active {
-  background: #1e293b;
-  border-color: #2d4060;
+  background: #000;
+  border-color: rgba(255,255,255,0.12);
   border-bottom: 3px solid #f1f5f9;
 }
 .tab-logo--bunnygame {
