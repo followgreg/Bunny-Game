@@ -56,7 +56,6 @@
 
   var isFlying      = false;
   var flightElapsed = 0;
-  var hitChecked    = false;
 
   var stickPhase        = false;
   var stickElapsed      = 0;
@@ -159,7 +158,6 @@
 
     isFlying      = false;
     flightElapsed = 0;
-    hitChecked    = false;
     nosePaused    = false;
     stickPhase    = false;
     launchBtn.disabled = false;
@@ -254,7 +252,6 @@
   function launch() {
     isFlying      = true;
     flightElapsed = 0;
-    hitChecked    = false;
     launchBtn.disabled = true;
   }
 
@@ -273,9 +270,12 @@
     var offset = PEAK_HEIGHT_PX * 4 * p * (1 - p);
     setPicklePos(offset);
 
-    if (p >= 0.5 && !hitChecked) {
-      hitChecked = true;
-      checkHit();
+    // Check every frame during the upward phase (launch → apex inclusive).
+    // Pass the actual current pickle tip Y so the check works regardless of
+    // where the nose's vertical position happens to be at this exact frame.
+    if (p <= 0.5) {
+      checkHit(PICKLE_REST_TOP - offset);
+      if (!isFlying) return;  // hit was registered mid-rise — stop processing
     }
   }
 
@@ -285,10 +285,9 @@
 
   // ── Hit detection — 2D per-nostril check, applied in all rounds ─────────────
 
-  function checkHit() {
-    // Pickle tip position at peak: horizontally centred, vertically at PEAK_Y
+  function checkHit(pickleY) {
+    // pickleY: actual current pickle tip Y in the play area (top of pickle element)
     var pickleX = PICKLE_CENTER_X;
-    var pickleY = PEAK_Y;
 
     // Absolute nostril centres based on nose's current on-screen position
     var lnX = noseX + NOSTRIL_LEFT_X_REL  * NOSE_W;
@@ -369,7 +368,6 @@
     if (lives <= 0) {
       showEnd();
     } else {
-      hitChecked    = false;
       flightElapsed = 0;
       launchBtn.disabled = false;
     }
