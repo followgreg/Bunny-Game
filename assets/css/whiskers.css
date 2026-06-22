@@ -231,6 +231,15 @@
   pointer-events: none;
 }
 
+/* ── Dead cell (3×3 odd slot — static, never flips, never clickable) ── */
+.wh-dead {
+  background: #334155;
+  border-radius: 10px;
+  border: 1.5px dashed #475569;
+  cursor: default;
+  pointer-events: none;
+}
+
 /* ── Wrong match ── */
 @keyframes wh-wrong-flash-anim {
   0%   { box-shadow: 0 0 0 0px rgba(239,68,68,0); }

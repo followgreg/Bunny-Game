@@ -5,26 +5,33 @@ var BG_COLORS  = ['#3b82f6', '#ef4444', '#a855f7', '#22c55e', '#f97316'];
 var BOARD_GAP  = 8;
 var LS_KEY     = 'whiskers_bestRound';
 
-// 18 entries: six 2×2, six 4×4, six 6×6
+// 24 entries: six 2×2, six 3×3, six 4×4, six 6×6
+// Round 25+ clamps to index 23 ({ gridSize: 6, reveal: 500 }) indefinitely
 var PROGRESSION = [
-  { grid: 2, pairs: 2,  revealMs: 5000 },  // round 1
-  { grid: 2, pairs: 2,  revealMs: 4000 },  // round 2
-  { grid: 2, pairs: 2,  revealMs: 3000 },  // round 3
-  { grid: 2, pairs: 2,  revealMs: 2000 },  // round 4
-  { grid: 2, pairs: 2,  revealMs: 1500 },  // round 5
-  { grid: 2, pairs: 2,  revealMs: 1000 },  // round 6
-  { grid: 4, pairs: 8,  revealMs: 3000 },  // round 7
-  { grid: 4, pairs: 8,  revealMs: 2500 },  // round 8
-  { grid: 4, pairs: 8,  revealMs: 2000 },  // round 9
-  { grid: 4, pairs: 8,  revealMs: 1500 },  // round 10
-  { grid: 4, pairs: 8,  revealMs: 1000 },  // round 11
-  { grid: 4, pairs: 8,  revealMs: 800  },  // round 12
-  { grid: 6, pairs: 18, revealMs: 2000 },  // round 13
-  { grid: 6, pairs: 18, revealMs: 1600 },  // round 14
-  { grid: 6, pairs: 18, revealMs: 1200 },  // round 15
-  { grid: 6, pairs: 18, revealMs: 900  },  // round 16
-  { grid: 6, pairs: 18, revealMs: 700  },  // round 17
-  { grid: 6, pairs: 18, revealMs: 500  },  // round 18
+  { gridSize: 2, reveal: 5000 },  // round 1
+  { gridSize: 2, reveal: 4000 },  // round 2
+  { gridSize: 2, reveal: 3000 },  // round 3
+  { gridSize: 2, reveal: 2000 },  // round 4
+  { gridSize: 2, reveal: 1000 },  // round 5
+  { gridSize: 2, reveal: 500  },  // round 6
+  { gridSize: 3, reveal: 5000 },  // round 7
+  { gridSize: 3, reveal: 4000 },  // round 8
+  { gridSize: 3, reveal: 3000 },  // round 9
+  { gridSize: 3, reveal: 2000 },  // round 10
+  { gridSize: 3, reveal: 1000 },  // round 11
+  { gridSize: 3, reveal: 500  },  // round 12
+  { gridSize: 4, reveal: 5000 },  // round 13
+  { gridSize: 4, reveal: 4000 },  // round 14
+  { gridSize: 4, reveal: 3000 },  // round 15
+  { gridSize: 4, reveal: 2000 },  // round 16
+  { gridSize: 4, reveal: 1000 },  // round 17
+  { gridSize: 4, reveal: 500  },  // round 18
+  { gridSize: 6, reveal: 5000 },  // round 19
+  { gridSize: 6, reveal: 4000 },  // round 20
+  { gridSize: 6, reveal: 3000 },  // round 21
+  { gridSize: 6, reveal: 2000 },  // round 22
+  { gridSize: 6, reveal: 1000 },  // round 23
+  { gridSize: 6, reveal: 500  },  // round 24 — holds here for round 25+
 ];
 
 // DOM refs
@@ -37,7 +44,7 @@ var overlayClearEl, overlayRoundEl, overlayRoundNumEl;
 var currentRound  = 1;
 var bestRound     = 0;
 var gameState     = 'idle';
-var cards         = [];
+var cards         = [];      // real cards only — dead cells excluded
 var firstSelected = null;
 var pairsFound    = 0;
 var totalPairs    = 0;
@@ -75,26 +82,48 @@ function generateCardIds(pairs) {
   return shuffle(selected.concat(selected.slice()));
 }
 
-function getCardSize(grid) {
+function getCardSize(gridSize) {
   var avail = Math.min(window.innerWidth, 480) - 24;
-  var size  = (avail - BOARD_GAP * (grid - 1)) / grid;
-  if (grid === 2) size = Math.min(size, 140);
-  if (grid === 4) size = Math.min(size, 100);
-  if (grid === 6) size = Math.min(size, 64);
+  var size  = (avail - BOARD_GAP * (gridSize - 1)) / gridSize;
+  if (gridSize === 2) size = Math.min(size, 140);
+  if (gridSize === 3) size = Math.min(size, 110);
+  if (gridSize === 4) size = Math.min(size, 100);
+  if (gridSize === 6) size = Math.min(size, 64);
   return Math.floor(size);
 }
 
 // ── Board ──────────────────────────────────────────────────────────────────
 
-function buildBoard(comboIds, grid) {
-  var size = getCardSize(grid);
+function buildBoard(comboIds, gridSize) {
+  var size       = getCardSize(gridSize);
+  var totalCells = gridSize * gridSize;
+
+  // Odd-total grids get one randomly positioned dead cell
+  var deadPos = -1;
+  if (totalCells > comboIds.length) {
+    deadPos = Math.floor(Math.random() * totalCells);
+  }
+
   boardEl.innerHTML = '';
-  boardEl.style.gridTemplateColumns = 'repeat(' + grid + ', ' + size + 'px)';
+  boardEl.style.gridTemplateColumns = 'repeat(' + gridSize + ', ' + size + 'px)';
   boardEl.style.gap = BOARD_GAP + 'px';
   cards = [];
 
-  for (var i = 0; i < comboIds.length; i++) {
-    var combo  = comboFromId(comboIds[i]);
+  var comboPointer = 0;
+
+  for (var i = 0; i < totalCells; i++) {
+    if (i === deadPos) {
+      // Dead cell — static gray placeholder, not in cards[], no click handler
+      var deadEl = document.createElement('div');
+      deadEl.className = 'wh-dead';
+      deadEl.style.width  = size + 'px';
+      deadEl.style.height = size + 'px';
+      boardEl.appendChild(deadEl);
+      continue;
+    }
+
+    // Real card
+    var combo  = comboFromId(comboIds[comboPointer]);
     var cardEl = document.createElement('div');
     cardEl.className = 'wh-card';
     cardEl.style.width  = size + 'px';
@@ -123,16 +152,19 @@ function buildBoard(comboIds, grid) {
     cardEl.appendChild(inner);
     boardEl.appendChild(cardEl);
 
+    var cardIdx = cards.length; // capture index before push
     (function(el, idx) {
       el.addEventListener('click', function() { onCardClick(idx); });
-    })(cardEl, i);
+    })(cardEl, cardIdx);
 
-    cards.push({ el: cardEl, comboId: comboIds[i], matched: false, flipped: false });
+    cards.push({ el: cardEl, comboId: comboIds[comboPointer], matched: false, flipped: false });
+    comboPointer++;
   }
 }
 
 // ── Card helpers ───────────────────────────────────────────────────────────
 
+// Only iterates real cards (dead cells not in cards[])
 function setAllFaceUp(faceUp) {
   for (var i = 0; i < cards.length; i++) {
     if (!cards[i].matched) {
@@ -151,7 +183,7 @@ function showCountdown(n, onDone) {
     return;
   }
   countdownEl.classList.remove('wh-hide');
-  // clone to re-trigger CSS animation each tick
+  // clone to re-trigger CSS pop animation each tick
   var old   = countdownNumEl;
   var fresh = old.cloneNode(false);
   fresh.textContent = n;
@@ -207,27 +239,26 @@ function onCardClick(idx) {
   card.el.classList.add('wh-face-up');
 
   if (firstSelected === null) {
-    // First pick — highlight as selected
+    // First pick — highlight
     card.el.classList.add('wh-selected');
     firstSelected = idx;
     return;
   }
 
-  // Second pick — remove selected highlight from first card
+  // Second pick
   gameState = 'checking';
   var first = cards[firstSelected];
   first.el.classList.remove('wh-selected');
 
   if (first.comboId === card.comboId && firstSelected !== idx) {
     // ── Correct match ──
-    // Mark immediately so no further clicks land on these cards
     first.matched = true;
     card.matched  = true;
     first.flipped = false;
     card.flipped  = false;
     firstSelected = null;
 
-    // Brief green flash, then disappear (keeping grid gap)
+    // Green flash, then hide (keeping grid gap via visibility:hidden)
     first.el.classList.add('wh-match-flash');
     card.el.classList.add('wh-match-flash');
 
@@ -245,22 +276,19 @@ function onCardClick(idx) {
     });
 
   } else {
-    // ── Wrong match ──
-    // Both are face-up; show red feedback, then flip both back down, then end run
+    // ── Wrong match — flip both back down, then end run ──
     first.el.classList.add('wh-wrong');
     card.el.classList.add('wh-wrong');
     wrongFlashEl.classList.add('wh-flashing');
 
     after(600, function() {
-      // Flip both face-down
       first.el.classList.remove('wh-face-up', 'wh-wrong');
       card.el.classList.remove('wh-face-up', 'wh-wrong');
       first.flipped = false;
       card.flipped  = false;
-      // Wait for flip animation to complete, then show end
       after(360, function() {
         wrongFlashEl.classList.remove('wh-flashing');
-        showEnd(false);
+        showEnd();
       });
     });
   }
@@ -278,13 +306,7 @@ function onRoundComplete() {
   after(1500, function() {
     overlayClearEl.classList.add('wh-hide');
 
-    // Last round completed — go straight to win screen
-    if (currentRound >= PROGRESSION.length) {
-      showEnd(true);
-      return;
-    }
-
-    // Advance round counter
+    // Advance — clamps naturally since startRound uses Math.min on progIdx
     currentRound++;
     updateHud();
 
@@ -301,12 +323,20 @@ function onRoundComplete() {
 
 function startRound() {
   clearTimers();
-  var prog = PROGRESSION[currentRound - 1];
-  console.log('WHISKers round', currentRound, '— grid:', prog.grid + 'x' + prog.grid, '— reveal:', prog.revealMs + 'ms');
+
+  // Clamp at last progression entry for round 25+
+  var progIdx = Math.min(currentRound - 1, PROGRESSION.length - 1);
+  var prog    = PROGRESSION[progIdx];
+  var pairs   = Math.floor(prog.gridSize * prog.gridSize / 2);
+
+  console.log('WHISKers round', currentRound,
+    '— grid:', prog.gridSize + 'x' + prog.gridSize,
+    '— pairs:', pairs,
+    '— reveal:', prog.reveal + 'ms');
 
   firstSelected = null;
   pairsFound    = 0;
-  totalPairs    = prog.pairs;
+  totalPairs    = pairs;
   statusEl.textContent = '';
   revealLabelEl.classList.add('wh-hide');
   revealBarFillEl.style.transition = 'none';
@@ -314,11 +344,11 @@ function startRound() {
 
   updateHud();
 
-  var comboIds = generateCardIds(prog.pairs);
-  buildBoard(comboIds, prog.grid);
+  var comboIds = generateCardIds(pairs);
+  buildBoard(comboIds, prog.gridSize);
 
   gameState = 'countdown';
-  showCountdown(3, function() { startReveal(prog.revealMs); });
+  showCountdown(3, function() { startReveal(prog.reveal); });
 }
 
 function updateHud() {
@@ -328,11 +358,11 @@ function updateHud() {
 
 // ── End screen ─────────────────────────────────────────────────────────────
 
-function showEnd(won) {
+function showEnd() {
   clearTimers();
   gameState = 'gameover';
 
-  var roundsCleared = won ? PROGRESSION.length : currentRound - 1;
+  var roundsCleared = currentRound - 1;
   if (roundsCleared > bestRound) {
     bestRound = roundsCleared;
     try { localStorage.setItem(LS_KEY, bestRound); } catch(e) {}
@@ -341,10 +371,7 @@ function showEnd(won) {
   gameEl.classList.add('wh-hide');
   endEl.classList.remove('wh-hide');
 
-  if (won) {
-    endHeadlineEl.textContent = 'Perfect Run!';
-    endSubEl.innerHTML = 'You cleared all 18 rounds.<br>Unreal memory.';
-  } else if (roundsCleared === 0) {
+  if (roundsCleared === 0) {
     endHeadlineEl.textContent = 'Round 1';
     endSubEl.innerHTML = "Wrong match on the first try.<br>You'll get it!";
   } else if (roundsCleared === 1) {
@@ -369,22 +396,22 @@ function startGame() {
 // ── Init ──────────────────────────────────────────────────────────────────
 
 function init() {
-  boardEl          = document.getElementById('wh-board');
-  hudRoundEl       = document.getElementById('wh-round');
-  hudBestEl        = document.getElementById('wh-best');
-  revealLabelEl    = document.getElementById('wh-reveal-label');
-  revealBarFillEl  = document.getElementById('wh-reveal-bar-fill');
-  statusEl         = document.getElementById('wh-status');
-  gameEl           = document.getElementById('wh-game');
-  startEl          = document.getElementById('wh-start');
-  endEl            = document.getElementById('wh-end');
-  endHeadlineEl    = document.getElementById('wh-end-headline');
-  endSubEl         = document.getElementById('wh-end-sub');
-  wrongFlashEl     = document.getElementById('wh-wrong-flash');
-  countdownEl      = document.getElementById('wh-countdown');
-  countdownNumEl   = document.getElementById('wh-countdown-num');
-  overlayClearEl   = document.getElementById('wh-overlay-clear');
-  overlayRoundEl   = document.getElementById('wh-overlay-round');
+  boardEl           = document.getElementById('wh-board');
+  hudRoundEl        = document.getElementById('wh-round');
+  hudBestEl         = document.getElementById('wh-best');
+  revealLabelEl     = document.getElementById('wh-reveal-label');
+  revealBarFillEl   = document.getElementById('wh-reveal-bar-fill');
+  statusEl          = document.getElementById('wh-status');
+  gameEl            = document.getElementById('wh-game');
+  startEl           = document.getElementById('wh-start');
+  endEl             = document.getElementById('wh-end');
+  endHeadlineEl     = document.getElementById('wh-end-headline');
+  endSubEl          = document.getElementById('wh-end-sub');
+  wrongFlashEl      = document.getElementById('wh-wrong-flash');
+  countdownEl       = document.getElementById('wh-countdown');
+  countdownNumEl    = document.getElementById('wh-countdown-num');
+  overlayClearEl    = document.getElementById('wh-overlay-clear');
+  overlayRoundEl    = document.getElementById('wh-overlay-round');
   overlayRoundNumEl = document.getElementById('wh-overlay-round-num');
 
   try { bestRound = parseInt(localStorage.getItem(LS_KEY)) || 0; } catch(e) {}
@@ -393,11 +420,9 @@ function init() {
   document.getElementById('wh-play-again-btn').addEventListener('click', startGame);
 
   document.getElementById('wh-share-btn').addEventListener('click', function() {
-    var text = bestRound >= PROGRESSION.length
-      ? 'I got a perfect run on WHISKers — all 18 rounds! 🐰🧠 thebunnygame.com/whiskers'
-      : bestRound === 0
-        ? 'I just tried WHISKers — a speed memory game! 🐰🧠 thebunnygame.com/whiskers'
-        : 'I cleared ' + bestRound + ' round' + (bestRound === 1 ? '' : 's') + ' on WHISKers! Can you beat me? 🐰🧠 thebunnygame.com/whiskers';
+    var text = bestRound === 0
+      ? 'I just tried WHISKers — a speed memory game! 🐰🧠 thebunnygame.com/whiskers'
+      : 'I cleared ' + bestRound + ' round' + (bestRound === 1 ? '' : 's') + ' on WHISKers! Can you beat me? 🐰🧠 thebunnygame.com/whiskers';
     shareText(text, 'WHISKers — Bunny Game');
   });
 
