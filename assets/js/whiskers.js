@@ -5,33 +5,51 @@ var BG_COLORS  = ['#3b82f6', '#ef4444', '#a855f7', '#22c55e', '#f97316'];
 var BOARD_GAP  = 8;
 var LS_KEY     = 'whiskers_bestRound';
 
-// 24 entries: six 2×2, six 3×3, six 4×4, six 6×6
-// Round 25+ clamps to index 23 ({ gridSize: 6, reveal: 500 }) indefinitely
+// 36 entries: 2×2, 2×3, 3×3, 3×4, 4×4, 6×6 — six rounds each
+// Round 37+ clamps to index 35 ({ cols:6, rows:6, reveal:500 }) indefinitely
 var PROGRESSION = [
-  { gridSize: 2, reveal: 5000 },  // round 1
-  { gridSize: 2, reveal: 4000 },  // round 2
-  { gridSize: 2, reveal: 3000 },  // round 3
-  { gridSize: 2, reveal: 2000 },  // round 4
-  { gridSize: 2, reveal: 1000 },  // round 5
-  { gridSize: 2, reveal: 500  },  // round 6
-  { gridSize: 3, reveal: 5000 },  // round 7
-  { gridSize: 3, reveal: 4000 },  // round 8
-  { gridSize: 3, reveal: 3000 },  // round 9
-  { gridSize: 3, reveal: 2000 },  // round 10
-  { gridSize: 3, reveal: 1000 },  // round 11
-  { gridSize: 3, reveal: 500  },  // round 12
-  { gridSize: 4, reveal: 5000 },  // round 13
-  { gridSize: 4, reveal: 4000 },  // round 14
-  { gridSize: 4, reveal: 3000 },  // round 15
-  { gridSize: 4, reveal: 2000 },  // round 16
-  { gridSize: 4, reveal: 1000 },  // round 17
-  { gridSize: 4, reveal: 500  },  // round 18
-  { gridSize: 6, reveal: 5000 },  // round 19
-  { gridSize: 6, reveal: 4000 },  // round 20
-  { gridSize: 6, reveal: 3000 },  // round 21
-  { gridSize: 6, reveal: 2000 },  // round 22
-  { gridSize: 6, reveal: 1000 },  // round 23
-  { gridSize: 6, reveal: 500  },  // round 24 — holds here for round 25+
+  // 2×2 — rounds 1-6
+  { cols: 2, rows: 2, reveal: 5000 },
+  { cols: 2, rows: 2, reveal: 4000 },
+  { cols: 2, rows: 2, reveal: 3000 },
+  { cols: 2, rows: 2, reveal: 2000 },
+  { cols: 2, rows: 2, reveal: 1000 },
+  { cols: 2, rows: 2, reveal: 500  },
+  // 2×3 — rounds 7-12
+  { cols: 2, rows: 3, reveal: 5000 },
+  { cols: 2, rows: 3, reveal: 4000 },
+  { cols: 2, rows: 3, reveal: 3000 },
+  { cols: 2, rows: 3, reveal: 2000 },
+  { cols: 2, rows: 3, reveal: 1000 },
+  { cols: 2, rows: 3, reveal: 500  },
+  // 3×3 — rounds 13-18
+  { cols: 3, rows: 3, reveal: 5000 },
+  { cols: 3, rows: 3, reveal: 4000 },
+  { cols: 3, rows: 3, reveal: 3000 },
+  { cols: 3, rows: 3, reveal: 2000 },
+  { cols: 3, rows: 3, reveal: 1000 },
+  { cols: 3, rows: 3, reveal: 500  },
+  // 3×4 — rounds 19-24
+  { cols: 3, rows: 4, reveal: 5000 },
+  { cols: 3, rows: 4, reveal: 4000 },
+  { cols: 3, rows: 4, reveal: 3000 },
+  { cols: 3, rows: 4, reveal: 2000 },
+  { cols: 3, rows: 4, reveal: 1000 },
+  { cols: 3, rows: 4, reveal: 500  },
+  // 4×4 — rounds 25-30
+  { cols: 4, rows: 4, reveal: 5000 },
+  { cols: 4, rows: 4, reveal: 4000 },
+  { cols: 4, rows: 4, reveal: 3000 },
+  { cols: 4, rows: 4, reveal: 2000 },
+  { cols: 4, rows: 4, reveal: 1000 },
+  { cols: 4, rows: 4, reveal: 500  },
+  // 6×6 — rounds 31-36, then holds
+  { cols: 6, rows: 6, reveal: 5000 },
+  { cols: 6, rows: 6, reveal: 4000 },
+  { cols: 6, rows: 6, reveal: 3000 },
+  { cols: 6, rows: 6, reveal: 2000 },
+  { cols: 6, rows: 6, reveal: 1000 },
+  { cols: 6, rows: 6, reveal: 500  },
 ];
 
 // DOM refs
@@ -82,30 +100,34 @@ function generateCardIds(pairs) {
   return shuffle(selected.concat(selected.slice()));
 }
 
-function getCardSize(gridSize) {
+// Card size based on column count, with per-tier height caps so boards
+// stay reasonably compact on mobile regardless of row count.
+function getCardSize(cols, rows) {
   var avail = Math.min(window.innerWidth, 480) - 24;
-  var size  = (avail - BOARD_GAP * (gridSize - 1)) / gridSize;
-  if (gridSize === 2) size = Math.min(size, 140);
-  if (gridSize === 3) size = Math.min(size, 110);
-  if (gridSize === 4) size = Math.min(size, 100);
-  if (gridSize === 6) size = Math.min(size, 64);
+  var size  = (avail - BOARD_GAP * (cols - 1)) / cols;
+  if (cols === 2 && rows === 2) size = Math.min(size, 140); // 2×2: board ≤ 296px tall
+  else if (cols === 2)          size = Math.min(size, 130); // 2×3: board ≤ 406px tall
+  else if (cols === 3 && rows === 3) size = Math.min(size, 110); // 3×3: board ≤ 346px tall
+  else if (cols === 3)          size = Math.min(size, 100); // 3×4: board ≤ 424px tall
+  else if (cols === 4)          size = Math.min(size, 100); // 4×4: board ≤ 424px tall
+  else if (cols === 6)          size = Math.min(size, 64);  // 6×6: board ≤ 424px tall
   return Math.floor(size);
 }
 
 // ── Board ──────────────────────────────────────────────────────────────────
 
-function buildBoard(comboIds, gridSize) {
-  var size       = getCardSize(gridSize);
-  var totalCells = gridSize * gridSize;
+function buildBoard(comboIds, cols, rows) {
+  var size       = getCardSize(cols, rows);
+  var totalCells = cols * rows;
 
-  // Odd-total grids get one randomly positioned dead cell
+  // Odd-total grids get one randomly positioned dead cell (only 3×3 currently)
   var deadPos = -1;
   if (totalCells > comboIds.length) {
     deadPos = Math.floor(Math.random() * totalCells);
   }
 
   boardEl.innerHTML = '';
-  boardEl.style.gridTemplateColumns = 'repeat(' + gridSize + ', ' + size + 'px)';
+  boardEl.style.gridTemplateColumns = 'repeat(' + cols + ', ' + size + 'px)';
   boardEl.style.gap = BOARD_GAP + 'px';
   cards = [];
 
@@ -324,13 +346,15 @@ function onRoundComplete() {
 function startRound() {
   clearTimers();
 
-  // Clamp at last progression entry for round 25+
+  // Clamp at last progression entry for round 37+
   var progIdx = Math.min(currentRound - 1, PROGRESSION.length - 1);
   var prog    = PROGRESSION[progIdx];
-  var pairs   = Math.floor(prog.gridSize * prog.gridSize / 2);
+  var cols    = prog.cols;
+  var rows    = prog.rows;
+  var pairs   = Math.floor(cols * rows / 2);
 
   console.log('WHISKers round', currentRound,
-    '— grid:', prog.gridSize + 'x' + prog.gridSize,
+    '— grid:', cols + 'x' + rows,
     '— pairs:', pairs,
     '— reveal:', prog.reveal + 'ms');
 
@@ -345,7 +369,7 @@ function startRound() {
   updateHud();
 
   var comboIds = generateCardIds(pairs);
-  buildBoard(comboIds, prog.gridSize);
+  buildBoard(comboIds, cols, rows);
 
   gameState = 'countdown';
   showCountdown(3, function() { startReveal(prog.reveal); });
