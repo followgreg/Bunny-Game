@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="snek">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SNEK — a path puzzle game — Bunny Game</title>
+  <meta name="description" content="Trace every cell. Don't box yourself in. 25 levels of pure logic.">
+  <meta property="og:title" content="SNEK — Bunny Game">
+  <meta property="og:description" content="Trace every cell. Don't box yourself in. 25 levels of pure logic.">
+  <meta property="og:url" content="https://www.thebunnygame.com/snek">
+  <link rel="canonical" href="https://www.thebunnygame.com/snek">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/snek.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Start screen -->
+  <div id="sn-start" class="sn-screen">
+    <div class="sn-start-inner">
+      <h2 class="sn-title">SNEK</h2>
+      <p class="sn-sub">Trace every cell. Don't box yourself in.</p>
+      <div class="sn-start-btns" id="sn-start-btns">
+        <!-- Populated by JS: Continue / Start from 1 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="sn-game" class="sn-screen sn-hide">
+    <div class="sn-hud" id="sn-hud">
+      <span id="sn-level-label">Level 1</span>
+      <span id="sn-furthest-label">Furthest: 1</span>
+    </div>
+
+    <div class="sn-board-wrap" id="sn-board-wrap">
+      <div class="sn-board" id="sn-board"></div>
+    </div>
+
+    <div class="sn-dpad" id="sn-dpad">
+      <button class="sn-dir sn-up"   id="sn-up">▲</button>
+      <button class="sn-dir sn-left" id="sn-left">◀</button>
+      <button class="sn-dir sn-down" id="sn-down">▼</button>
+      <button class="sn-dir sn-right" id="sn-right">▶</button>
+    </div>
+  </div>
+
+  <!-- Stuck overlay (rendered inside sn-board-wrap) -->
+  <div id="sn-stuck" class="sn-overlay sn-hide">
+    <p class="sn-overlay-label">Stuck</p>
+    <p class="sn-overlay-count" id="sn-stuck-count"></p>
+    <button class="sn-btn-primary" id="sn-retry">Retry Level</button>
+  </div>
+
+  <!-- Level-complete overlay -->
+  <div id="sn-complete" class="sn-overlay sn-hide">
+    <p class="sn-overlay-big" id="sn-complete-label"></p>
+    <button class="sn-btn-primary" id="sn-next">Next Level</button>
+  </div>
+
+  <!-- Full-complete (all 25) screen -->
+  <div id="sn-win" class="sn-screen sn-hide">
+    <div class="sn-win-inner">
+      <h2 class="sn-win-headline">SNEK Complete</h2>
+      <p class="sn-win-sub">All 25 levels traced.</p>
+      <div class="sn-end-btns">
+        <button class="sn-btn-primary" id="sn-share">Share</button>
+        <button class="sn-btn-ghost"   id="sn-play-again">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/snek.js"></script>
+</body>
+</html>
