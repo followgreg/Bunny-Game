@@ -5,31 +5,33 @@ var BG_COLORS  = ['#3b82f6', '#ef4444', '#a855f7', '#22c55e', '#f97316'];
 var BOARD_GAP  = 8;
 var LS_KEY     = 'whiskers_bestRound';
 
+// 18 entries: six 2×2, six 4×4, six 6×6
 var PROGRESSION = [
-  { grid: 2, pairs: 2,  revealMs: 5000 },
-  { grid: 2, pairs: 2,  revealMs: 4000 },
-  { grid: 2, pairs: 2,  revealMs: 3000 },
-  { grid: 2, pairs: 2,  revealMs: 2000 },
-  { grid: 2, pairs: 2,  revealMs: 1500 },
-  { grid: 2, pairs: 2,  revealMs: 1000 },
-  { grid: 4, pairs: 8,  revealMs: 3000 },
-  { grid: 4, pairs: 8,  revealMs: 2500 },
-  { grid: 4, pairs: 8,  revealMs: 2000 },
-  { grid: 4, pairs: 8,  revealMs: 1500 },
-  { grid: 4, pairs: 8,  revealMs: 1000 },
-  { grid: 4, pairs: 8,  revealMs: 800  },
-  { grid: 6, pairs: 18, revealMs: 2000 },
-  { grid: 6, pairs: 18, revealMs: 1600 },
-  { grid: 6, pairs: 18, revealMs: 1200 },
-  { grid: 6, pairs: 18, revealMs: 900  },
-  { grid: 6, pairs: 18, revealMs: 700  },
-  { grid: 6, pairs: 18, revealMs: 500  },
+  { grid: 2, pairs: 2,  revealMs: 5000 },  // round 1
+  { grid: 2, pairs: 2,  revealMs: 4000 },  // round 2
+  { grid: 2, pairs: 2,  revealMs: 3000 },  // round 3
+  { grid: 2, pairs: 2,  revealMs: 2000 },  // round 4
+  { grid: 2, pairs: 2,  revealMs: 1500 },  // round 5
+  { grid: 2, pairs: 2,  revealMs: 1000 },  // round 6
+  { grid: 4, pairs: 8,  revealMs: 3000 },  // round 7
+  { grid: 4, pairs: 8,  revealMs: 2500 },  // round 8
+  { grid: 4, pairs: 8,  revealMs: 2000 },  // round 9
+  { grid: 4, pairs: 8,  revealMs: 1500 },  // round 10
+  { grid: 4, pairs: 8,  revealMs: 1000 },  // round 11
+  { grid: 4, pairs: 8,  revealMs: 800  },  // round 12
+  { grid: 6, pairs: 18, revealMs: 2000 },  // round 13
+  { grid: 6, pairs: 18, revealMs: 1600 },  // round 14
+  { grid: 6, pairs: 18, revealMs: 1200 },  // round 15
+  { grid: 6, pairs: 18, revealMs: 900  },  // round 16
+  { grid: 6, pairs: 18, revealMs: 700  },  // round 17
+  { grid: 6, pairs: 18, revealMs: 500  },  // round 18
 ];
 
 // DOM refs
 var boardEl, hudRoundEl, hudBestEl, revealLabelEl, revealBarFillEl, statusEl;
 var gameEl, startEl, endEl, endHeadlineEl, endSubEl, wrongFlashEl;
 var countdownEl, countdownNumEl;
+var overlayClearEl, overlayRoundEl, overlayRoundNumEl;
 
 // State
 var currentRound  = 1;
@@ -121,15 +123,15 @@ function buildBoard(comboIds, grid) {
     cardEl.appendChild(inner);
     boardEl.appendChild(cardEl);
 
-    (function(el, idx, comboId) {
+    (function(el, idx) {
       el.addEventListener('click', function() { onCardClick(idx); });
-    })(cardEl, i, comboIds[i]);
+    })(cardEl, i);
 
     cards.push({ el: cardEl, comboId: comboIds[i], matched: false, flipped: false });
   }
 }
 
-// ── Card state helpers ─────────────────────────────────────────────────────
+// ── Card helpers ───────────────────────────────────────────────────────────
 
 function setAllFaceUp(faceUp) {
   for (var i = 0; i < cards.length; i++) {
@@ -149,13 +151,12 @@ function showCountdown(n, onDone) {
     return;
   }
   countdownEl.classList.remove('wh-hide');
-  // re-trigger animation by cloning the number element
-  var old = countdownNumEl;
+  // clone to re-trigger CSS animation each tick
+  var old   = countdownNumEl;
   var fresh = old.cloneNode(false);
   fresh.textContent = n;
   old.parentNode.replaceChild(fresh, old);
   countdownNumEl = fresh;
-
   after(1000, function() { showCountdown(n - 1, onDone); });
 }
 
@@ -167,7 +168,6 @@ function startReveal(revealMs) {
   revealLabelEl.classList.remove('wh-hide');
   setAllFaceUp(true);
 
-  // Kick off depleting bar via CSS transition
   revealBarFillEl.style.transition = 'none';
   revealBarFillEl.style.width = '100%';
   revealBarFillEl.getBoundingClientRect(); // force reflow
@@ -179,7 +179,7 @@ function startReveal(revealMs) {
     revealBarFillEl.style.transition = 'none';
     revealBarFillEl.style.width = '0%';
     setAllFaceUp(false);
-    after(360, startSelection); // wait for flip animation
+    after(360, startSelection);
   });
 }
 
@@ -207,39 +207,61 @@ function onCardClick(idx) {
   card.el.classList.add('wh-face-up');
 
   if (firstSelected === null) {
+    // First pick — highlight as selected
+    card.el.classList.add('wh-selected');
     firstSelected = idx;
     return;
   }
 
-  // Second card selected
+  // Second pick — remove selected highlight from first card
   gameState = 'checking';
   var first = cards[firstSelected];
+  first.el.classList.remove('wh-selected');
 
   if (first.comboId === card.comboId && firstSelected !== idx) {
-    // Correct match
+    // ── Correct match ──
+    // Mark immediately so no further clicks land on these cards
     first.matched = true;
     card.matched  = true;
     first.flipped = false;
     card.flipped  = false;
-    first.el.classList.add('wh-matched');
-    card.el.classList.add('wh-matched');
     firstSelected = null;
-    pairsFound++;
 
-    if (pairsFound >= totalPairs) {
-      after(450, onRoundComplete);
-    } else {
-      updateStatus();
-      gameState = 'selecting';
-    }
+    // Brief green flash, then disappear (keeping grid gap)
+    first.el.classList.add('wh-match-flash');
+    card.el.classList.add('wh-match-flash');
+
+    after(450, function() {
+      first.el.classList.add('wh-matched');
+      card.el.classList.add('wh-matched');
+      pairsFound++;
+
+      if (pairsFound >= totalPairs) {
+        after(150, onRoundComplete);
+      } else {
+        updateStatus();
+        gameState = 'selecting';
+      }
+    });
+
   } else {
-    // Wrong match
+    // ── Wrong match ──
+    // Both are face-up; show red feedback, then flip both back down, then end run
     first.el.classList.add('wh-wrong');
     card.el.classList.add('wh-wrong');
     wrongFlashEl.classList.add('wh-flashing');
-    after(700, function() {
-      wrongFlashEl.classList.remove('wh-flashing');
-      showEnd(false);
+
+    after(600, function() {
+      // Flip both face-down
+      first.el.classList.remove('wh-face-up', 'wh-wrong');
+      card.el.classList.remove('wh-face-up', 'wh-wrong');
+      first.flipped = false;
+      card.flipped  = false;
+      // Wait for flip animation to complete, then show end
+      after(360, function() {
+        wrongFlashEl.classList.remove('wh-flashing');
+        showEnd(false);
+      });
     });
   }
 }
@@ -247,17 +269,41 @@ function onCardClick(idx) {
 // ── Round flow ─────────────────────────────────────────────────────────────
 
 function onRoundComplete() {
-  if (currentRound >= PROGRESSION.length) {
-    showEnd(true);
-    return;
-  }
-  currentRound++;
-  startRound();
+  clearTimers();
+  gameState = 'transition';
+
+  // Screen 1 — Board Cleared! (1.5s)
+  overlayClearEl.classList.remove('wh-hide');
+
+  after(1500, function() {
+    overlayClearEl.classList.add('wh-hide');
+
+    // Last round completed — go straight to win screen
+    if (currentRound >= PROGRESSION.length) {
+      showEnd(true);
+      return;
+    }
+
+    // Advance round counter
+    currentRound++;
+    updateHud();
+
+    // Screen 2 — Round X title card (1.75s)
+    overlayRoundNumEl.textContent = currentRound;
+    overlayRoundEl.classList.remove('wh-hide');
+
+    after(1750, function() {
+      overlayRoundEl.classList.add('wh-hide');
+      startRound();
+    });
+  });
 }
 
 function startRound() {
   clearTimers();
   var prog = PROGRESSION[currentRound - 1];
+  console.log('WHISKers round', currentRound, '— grid:', prog.grid + 'x' + prog.grid, '— reveal:', prog.revealMs + 'ms');
+
   firstSelected = null;
   pairsFound    = 0;
   totalPairs    = prog.pairs;
@@ -296,16 +342,16 @@ function showEnd(won) {
   endEl.classList.remove('wh-hide');
 
   if (won) {
-    endHeadlineEl.textContent  = 'Perfect Run!';
+    endHeadlineEl.textContent = 'Perfect Run!';
     endSubEl.innerHTML = 'You cleared all 18 rounds.<br>Unreal memory.';
   } else if (roundsCleared === 0) {
-    endHeadlineEl.textContent  = 'Round 1';
+    endHeadlineEl.textContent = 'Round 1';
     endSubEl.innerHTML = "Wrong match on the first try.<br>You'll get it!";
   } else if (roundsCleared === 1) {
-    endHeadlineEl.textContent  = '1 Round';
+    endHeadlineEl.textContent = '1 Round';
     endSubEl.innerHTML = 'One round cleared.<br>Can you beat that?';
   } else {
-    endHeadlineEl.textContent  = roundsCleared + ' Rounds';
+    endHeadlineEl.textContent = roundsCleared + ' Rounds';
     endSubEl.innerHTML = 'You cleared ' + roundsCleared + ' rounds in a row.<br>Can you beat that?';
   }
 }
@@ -323,20 +369,23 @@ function startGame() {
 // ── Init ──────────────────────────────────────────────────────────────────
 
 function init() {
-  boardEl         = document.getElementById('wh-board');
-  hudRoundEl      = document.getElementById('wh-round');
-  hudBestEl       = document.getElementById('wh-best');
-  revealLabelEl   = document.getElementById('wh-reveal-label');
-  revealBarFillEl = document.getElementById('wh-reveal-bar-fill');
-  statusEl        = document.getElementById('wh-status');
-  gameEl          = document.getElementById('wh-game');
-  startEl         = document.getElementById('wh-start');
-  endEl           = document.getElementById('wh-end');
-  endHeadlineEl   = document.getElementById('wh-end-headline');
-  endSubEl        = document.getElementById('wh-end-sub');
-  wrongFlashEl    = document.getElementById('wh-wrong-flash');
-  countdownEl     = document.getElementById('wh-countdown');
-  countdownNumEl  = document.getElementById('wh-countdown-num');
+  boardEl          = document.getElementById('wh-board');
+  hudRoundEl       = document.getElementById('wh-round');
+  hudBestEl        = document.getElementById('wh-best');
+  revealLabelEl    = document.getElementById('wh-reveal-label');
+  revealBarFillEl  = document.getElementById('wh-reveal-bar-fill');
+  statusEl         = document.getElementById('wh-status');
+  gameEl           = document.getElementById('wh-game');
+  startEl          = document.getElementById('wh-start');
+  endEl            = document.getElementById('wh-end');
+  endHeadlineEl    = document.getElementById('wh-end-headline');
+  endSubEl         = document.getElementById('wh-end-sub');
+  wrongFlashEl     = document.getElementById('wh-wrong-flash');
+  countdownEl      = document.getElementById('wh-countdown');
+  countdownNumEl   = document.getElementById('wh-countdown-num');
+  overlayClearEl   = document.getElementById('wh-overlay-clear');
+  overlayRoundEl   = document.getElementById('wh-overlay-round');
+  overlayRoundNumEl = document.getElementById('wh-overlay-round-num');
 
   try { bestRound = parseInt(localStorage.getItem(LS_KEY)) || 0; } catch(e) {}
 
@@ -347,7 +396,7 @@ function init() {
     var text = bestRound >= PROGRESSION.length
       ? 'I got a perfect run on WHISKers — all 18 rounds! 🐰🧠 thebunnygame.com/whiskers'
       : bestRound === 0
-        ? "I just tried WHISKers — a speed memory game! 🐰🧠 thebunnygame.com/whiskers"
+        ? 'I just tried WHISKers — a speed memory game! 🐰🧠 thebunnygame.com/whiskers'
         : 'I cleared ' + bestRound + ' round' + (bestRound === 1 ? '' : 's') + ' on WHISKers! Can you beat me? 🐰🧠 thebunnygame.com/whiskers';
     shareText(text, 'WHISKers — Bunny Game');
   });

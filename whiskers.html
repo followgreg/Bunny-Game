@@ -84,11 +84,22 @@
       <div id="wh-board"></div>
     </div>
 
-    <!-- Wrong flash -->
+    <!-- Wrong flash (screen-level red flash, not an overlay) -->
     <div id="wh-wrong-flash"></div>
 
+    <!-- Board-cleared overlay -->
+    <div id="wh-overlay-clear" class="wh-hide wh-overlay">
+      <p class="wh-overlay-clear-text">Board Cleared!</p>
+    </div>
+
+    <!-- Next-round overlay -->
+    <div id="wh-overlay-round" class="wh-hide wh-overlay">
+      <p class="wh-overlay-small-label">Round</p>
+      <p class="wh-overlay-big-num" id="wh-overlay-round-num">2</p>
+    </div>
+
     <!-- Countdown overlay -->
-    <div id="wh-countdown" class="wh-hide">
+    <div id="wh-countdown" class="wh-hide wh-overlay">
       <div id="wh-countdown-num">3</div>
     </div>
 
