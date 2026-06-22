@@ -28,6 +28,11 @@
     flagRevealEl    = document.getElementById('wv-flag-reveal');
     flagImgEl       = document.getElementById('wv-flag-img');
     optionsEl       = document.getElementById('wv-options');
+
+    // Graceful fallback when a flag image fails to load
+    flagImgEl.addEventListener('error', function () {
+      flagImgEl.closest('.wv-flag-wrap').classList.add('wv-flag-error');
+    });
     streakDisplayEl = document.getElementById('wv-streak-display');
     revealTextEl    = document.getElementById('wv-reveal-text');
     shareEl         = document.getElementById('wv-share');
@@ -109,6 +114,7 @@
     infoEl.textContent = 'Streak: ' + streak + ' · Best: ' + bestStreak;
 
     // Set flag image and restart sweep from left edge
+    flagImgEl.closest('.wv-flag-wrap').classList.remove('wv-flag-error');
     flagImgEl.src = FLAG_URL + correct.iso2 + '.png';
     restartSweep();
 
