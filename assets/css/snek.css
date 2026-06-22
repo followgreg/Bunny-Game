@@ -32,12 +32,27 @@
   text-align: center;
 }
 
-.sn-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 4rem;
-  color: #4ade80;
-  margin: 0 0 12px;
-  letter-spacing: 0.05em;
+.sn-logo {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 16px;
+}
+
+.sn-logo svg {
+  height: 52px;
+  width: auto;
+}
+
+.sn-logo svg path {
+  fill: #c084fc;
+}
+
+.sn-logo-win {
+  margin: 0 0 8px;
+}
+
+.sn-logo-win svg {
+  height: 44px;
 }
 
 .sn-sub {
