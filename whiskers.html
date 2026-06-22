@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="whiskers">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>WHISKers — a speed memory game — Bunny Game</title>
+  <meta name="description" content="Memorize the pairs. Match them all. One wrong flip ends your run.">
+  <meta property="og:title" content="WHISKers — Bunny Game">
+  <meta property="og:description" content="Memorize the pairs. Match them all. One wrong flip ends your run.">
+  <meta property="og:url" content="https://www.thebunnygame.com/whiskers">
+  <link rel="canonical" href="https://www.thebunnygame.com/whiskers">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/whiskers.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Start screen -->
+  <div id="wh-start">
+    <div class="wh-start-inner">
+      <p class="wh-start-title">WHISKers</p>
+      <p class="wh-start-sub">Memorize the pairs.<br>Match them all.<br>One wrong flip ends your run.</p>
+      <div class="wh-start-preview">
+        <div class="wh-preview-card" style="background:#3b82f6"><img src="assets/icons/blue-bunny.svg" alt=""></div>
+        <div class="wh-preview-card" style="background:#ef4444"><img src="assets/icons/mushroom.svg" alt=""></div>
+        <div class="wh-preview-card" style="background:#22c55e"><img src="assets/icons/cabbage.svg" alt=""></div>
+        <div class="wh-preview-card" style="background:#a855f7"><img src="assets/icons/carrot.svg" alt=""></div>
+      </div>
+      <button id="wh-start-btn" class="wh-btn-primary">Play</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="wh-game" class="wh-hide">
+
+    <!-- HUD -->
+    <div id="wh-hud">
+      <span id="wh-round">Round 1</span>
+      <span id="wh-reveal-label" class="wh-hide">Memorize!</span>
+      <span id="wh-best">Best: 0</span>
+    </div>
+
+    <!-- Reveal bar -->
+    <div id="wh-reveal-bar">
+      <div id="wh-reveal-bar-fill"></div>
+    </div>
+
+    <!-- Status text -->
+    <p id="wh-status"></p>
+
+    <!-- Board -->
+    <div id="wh-board-wrap">
+      <div id="wh-board"></div>
+    </div>
+
+    <!-- Wrong flash -->
+    <div id="wh-wrong-flash"></div>
+
+    <!-- Countdown overlay -->
+    <div id="wh-countdown" class="wh-hide">
+      <div id="wh-countdown-num">3</div>
+    </div>
+
+  </div>
+
+  <!-- End screen -->
+  <div id="wh-end" class="wh-hide">
+    <div class="wh-end-inner">
+      <p class="wh-end-label">WHISKers</p>
+      <h2 id="wh-end-headline" class="wh-end-headline"></h2>
+      <p id="wh-end-sub" class="wh-end-sub"></p>
+      <div class="wh-end-btns">
+        <button id="wh-play-again-btn" class="wh-btn-primary">Play Again</button>
+        <button id="wh-share-btn" class="wh-btn-ghost">Share</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2 id="modal-title"></h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub" id="modal-sub"></p>
+    <div class="breakdown" id="breakdown" style="display:none"></div>
+    <button class="play-again-btn" id="play-again-btn"></button>
+    <button class="share-btn" id="share-btn" style="display:none"></button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/whiskers.js"></script>
+</body>
+</html>

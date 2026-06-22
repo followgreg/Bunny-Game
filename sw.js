@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v65';
+const CACHE = 'bunnygame-v66';
 const ASSETS = [
   '/',
   '/index.html',
@@ -61,6 +61,9 @@ const ASSETS = [
   '/assets/js/pickler.js',
   '/pickler/nose.svg',
   '/pickler/pickle.svg',
+  '/whiskers.html',
+  '/assets/css/whiskers.css',
+  '/assets/js/whiskers.js',
   '/assets/data/schools.json',
   '/assets/data/capitals.json',
   '/assets/js/cubrick.js',
