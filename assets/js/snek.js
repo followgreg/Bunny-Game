@@ -22,8 +22,9 @@
 
   // DOM
   var startEl, gameEl, stuckEl, completeEl, winEl;
-  var startBtnsEl, hudLevelEl, hudFurthestEl;
+  var startBtnsEl, hudLevelEl, hudFurthestEl, revealBtnEl;
   var boardEl, stuckCountEl, completeLabelEl;
+  var revealing = false;
 
   function key(r, c) { return r + ',' + c; }
 
@@ -36,6 +37,7 @@
     startBtnsEl   = document.getElementById('sn-start-btns');
     hudLevelEl    = document.getElementById('sn-level-label');
     hudFurthestEl = document.getElementById('sn-furthest-label');
+    revealBtnEl   = document.getElementById('sn-reveal');
     boardEl       = document.getElementById('sn-board');
     stuckCountEl  = document.getElementById('sn-stuck-count');
     completeLabelEl = document.getElementById('sn-complete-label');
@@ -55,6 +57,7 @@
       if (e.key === 'ArrowRight') { e.preventDefault(); move( 0,  1); }
     });
 
+    revealBtnEl.addEventListener('click', revealAnswer);
     document.getElementById('sn-retry').addEventListener('click', retryLevel);
     document.getElementById('sn-next').addEventListener('click',  nextLevel);
     document.getElementById('sn-play-again').addEventListener('click', function () { currentLvl = 1; showStart(); });
@@ -140,6 +143,8 @@
     visited[key(headR, headC)] = true;
     visitCount = 1;
 
+    revealing = false;
+    revealBtnEl.disabled = false;
     hudLevelEl.textContent    = 'Level ' + n;
     hudFurthestEl.textContent = 'Furthest: ' + highestLvl;
 
@@ -160,10 +165,50 @@
     }
   }
 
+  // ── Reveal answer ─────────────────────────────────────────────────────────────
+
+  function revealAnswer() {
+    if (revealing) return;
+    var solution = levels[currentLvl - 1].solution;
+    if (!solution) return;
+
+    // Reset to fresh state first, then auto-play
+    hide(stuckEl); hide(completeEl);
+    headR      = startCell.r;
+    headC      = startCell.c;
+    visited    = {};
+    visited[key(headR, headC)] = true;
+    visitCount = 1;
+    renderBoard();
+
+    revealing = true;
+    revealBtnEl.disabled = true;
+
+    var step = 1;
+
+    function playStep() {
+      if (step >= solution.length) {
+        revealing = false;
+        onLevelComplete();
+        return;
+      }
+      headR = solution[step][0];
+      headC = solution[step][1];
+      visited[key(headR, headC)] = true;
+      visitCount++;
+      renderBoard();
+      step++;
+      setTimeout(playStep, 180);
+    }
+
+    setTimeout(playStep, 180);
+  }
+
   // ── Movement ─────────────────────────────────────────────────────────────────
 
   function move(dr, dc) {
-    // Ignore input while overlays are showing
+    // Ignore input while overlays are showing or reveal is running
+    if (revealing) return;
     if (!stuckEl.classList.contains('sn-hide') ||
         !completeEl.classList.contains('sn-hide')) return;
 

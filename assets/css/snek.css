@@ -166,6 +166,27 @@
   animation: sn-complete-flash 0.5s ease-out forwards;
 }
 
+/* ── Reveal button (inline in HUD) ── */
+.sn-reveal-btn {
+  background: transparent;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #475569;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.sn-reveal-btn:hover  { border-color: #c084fc; color: #c084fc; }
+.sn-reveal-btn:active { background: rgba(192,132,252,0.08); }
+.sn-reveal-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
 /* ── D-pad ── */
 .sn-dpad {
   display: grid;

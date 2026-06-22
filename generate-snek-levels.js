@@ -201,38 +201,41 @@ function normalise(cells) {
   return cells.map(([r, c]) => [r - minR, c - minC]);
 }
 
-// ── Hamiltonian-path solver ───────────────────────────────────────────────────
+// ── Hamiltonian-path solver — returns full path or null ───────────────────────
 
 function solve(cells, startR, startC) {
-  const key   = (r, c) => `${r},${c}`;
+  const key     = (r, c) => `${r},${c}`;
   const cellSet = new Set(cells.map(([r, c]) => key(r, c)));
-  const total = cells.length;
+  const total   = cells.length;
+  const path    = [[startR, startC]];
   const visited = new Set([key(startR, startC)]);
-  const DIRS  = [[-1,0],[1,0],[0,-1],[0,1]];
-  let found   = false;
+  const DIRS    = [[-1,0],[1,0],[0,-1],[0,1]];
+  let found     = false;
 
-  function bt(r, c, count) {
+  function bt(r, c) {
     if (found) return;
-    if (count === total) { found = true; return; }
+    if (path.length === total) { found = true; return; }
     for (const [dr, dc] of DIRS) {
       const nr = r + dr, nc = c + dc;
-      const k = key(nr, nc);
+      const k  = key(nr, nc);
       if (!found && cellSet.has(k) && !visited.has(k)) {
         visited.add(k);
-        bt(nr, nc, count + 1);
-        if (!found) visited.delete(k);
+        path.push([nr, nc]);
+        bt(nr, nc);
+        if (!found) { path.pop(); visited.delete(k); }
       }
     }
   }
 
-  if (!cellSet.has(key(startR, startC))) return false;
-  bt(startR, startC, 1);
-  return found;
+  if (!cellSet.has(key(startR, startC))) return null;
+  bt(startR, startC);
+  return found ? path : null;
 }
 
 function findSolvableStart(cells) {
   for (const [r, c] of cells) {
-    if (solve(cells, r, c)) return [r, c];
+    const path = solve(cells, r, c);
+    if (path) return { start: [r, c], solution: path };
   }
   return null;
 }
@@ -246,10 +249,10 @@ for (let i = 0; i < LEVELS_CANDIDATES.length; i++) {
   let result = null;
 
   for (const rawCells of candidates) {
-    const cells = normalise(rawCells);
-    const start = findSolvableStart(cells);
-    if (start) {
-      result = { level: i + 1, cells, start };
+    const cells  = normalise(rawCells);
+    const found  = findSolvableStart(cells);
+    if (found) {
+      result = { level: i + 1, cells, start: found.start, solution: found.solution };
       break;
     }
   }
