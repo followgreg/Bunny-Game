@@ -226,6 +226,7 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  touch-action: manipulation;
   transition: background 0.08s, transform 0.06s;
 }
 
