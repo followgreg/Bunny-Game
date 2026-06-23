@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS_TEXT = 'SNEK gives you a shape and a starting point. Move up, down, left, or right to trace a path through every cell — visit each one exactly once. You can’t double back over where you’ve already been, and walking into a wall just does nothing, no harm done. The only way to lose is to corner yourself with nowhere left to go. Twenty-five levels, each one trickier than the last.';
+  var DIRECTIONS_TEXT = ‘SNEK gives you a shape and a starting point. Move up, down, left, or right to trace a path through every cell — visit each one exactly once. You can’t double back over where you’ve already been, and walking into a wall just does nothing, no harm done. The only way to lose is to corner yourself with nowhere left to go. One hundred levels, each one trickier than the last.’;
 
   var LS_KEY     = 'snek_highestLevel';
   var SHARE_URL  = 'https://www.thebunnygame.com/snek';
@@ -62,7 +62,7 @@
     document.getElementById('sn-next').addEventListener('click',  nextLevel);
     document.getElementById('sn-play-again').addEventListener('click', function () { currentLvl = 1; showStart(); });
     document.getElementById('sn-share').addEventListener('click', function () {
-      shareText('SNEK — traced all 25 levels without a single restart… or maybe a few. Either way, done. ' + SHARE_URL, 'SNEK');
+      shareText('SNEK — traced all 100 levels without a single restart… or maybe a few. Either way, done. ' + SHARE_URL, 'SNEK');
     });
 
     highestLvl = parseInt(localStorage.getItem(LS_KEY) || '1', 10);
@@ -86,7 +86,7 @@
     hide(gameEl); hide(winEl);
     startBtnsEl.innerHTML = '';
 
-    if (highestLvl > 1 && highestLvl < 25) {
+    if (highestLvl > 1 && highestLvl < 100) {
       var cont = btn('sn-btn-primary', 'Continue from Level ' + (highestLvl + 1), function () {
         currentLvl = highestLvl + 1;
         startGame();
@@ -98,7 +98,7 @@
         startGame();
       });
       startBtnsEl.appendChild(fresh);
-    } else if (highestLvl >= 25) {
+    } else if (highestLvl >= 100) {
       var again = btn('sn-btn-primary', 'Play Again', function () {
         currentLvl = 1;
         startGame();
@@ -156,7 +156,7 @@
   }
 
   function nextLevel() {
-    if (currentLvl >= 25) {
+    if (currentLvl >= 100) {
       showWin();
     } else {
       currentLvl++;
@@ -262,10 +262,10 @@
     completeLabelEl.textContent = 'Level ' + currentLvl + ' Complete';
 
     setTimeout(function () {
-      if (currentLvl >= 25) {
+      if (currentLvl >= 100) {
         if (currentLvl > highestLvl) {
-          highestLvl = 25;
-          try { localStorage.setItem(LS_KEY, '25'); } catch (e) {}
+          highestLvl = 100;
+          try { localStorage.setItem(LS_KEY, '100'); } catch (e) {}
         }
         showWin();
       } else {
