@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v78';
+const CACHE = 'bunnygame-v79';
 const ASSETS = [
   '/',
   '/index.html',
@@ -76,6 +76,11 @@ const ASSETS = [
   '/assets/css/snek.css',
   '/assets/js/snek.js',
   '/assets/data/snek-levels.json',
+  '/mobi.html',
+  '/assets/css/mobi.css',
+  '/assets/js/mobi.js',
+  '/assets/data/mobi-levels.json',
+  '/assets/logos/mobi_logo.svg',
   '/assets/logos/POISE_LOGO.svg',
   '/assets/icons/blue-bunny.svg',
   '/assets/icons/red-bunny.svg',
