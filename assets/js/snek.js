@@ -74,9 +74,15 @@
         showStart();
       })
       .catch(function () {
-        // Fallback: just start level 1 with empty data
         levels = [];
-        showStart();
+        startBtnsEl.innerHTML = '';
+        var errP = document.createElement('p');
+        errP.className = 'sn-sub';
+        errP.style.color = '#f87171';
+        errP.textContent = 'Levels failed to load. Try reloading the page.';
+        startBtnsEl.appendChild(errP);
+        startBtnsEl.appendChild(btn('sn-btn-primary', 'Reload', function () { location.reload(); }));
+        show(startEl);
       });
   });
 
@@ -131,7 +137,8 @@
   function loadLevel(n) {
     hide(stuckEl); hide(completeEl);
 
-    var data   = levels[n - 1];
+    var data = levels[n - 1];
+    if (!data) { hide(gameEl); show(startEl); return; }
     shape      = data.cells.map(function (c) { return { r: c[0], c: c[1] }; });
     cellSet    = {};
     shape.forEach(function (cell) { cellSet[key(cell.r, cell.c)] = true; });
