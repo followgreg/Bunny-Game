@@ -268,6 +268,10 @@
     .lc-snek .lobby-card-logo svg path { fill: #c084fc; }
     .lc-snek .lobby-card-desc { color: rgba(148,163,184,0.8); }
 
+    /* Race to Zero: black, white logo */
+    .lc-race-to-zero { background: #000000; border-color: rgba(255,255,255,0.15); }
+    .lc-race-to-zero .lobby-card-desc { color: rgba(255,255,255,0.6); }
+
     /* MOBI: black, neon green logo */
     .lc-mobi { background: #000000; border-color: rgba(57,255,20,0.2); }
     .lc-mobi .lobby-card-logo svg path { fill: #39FF14; }
@@ -351,7 +355,9 @@
     <div class="lobby-grid">
 
       <a class="lobby-card lc-race-to-zero" href="race-to-zero.html">
-        <p class="lobby-card-name">Race to Zero</p>
+        <div class="lobby-card-logo">
+          <img src="assets/logos/racetozero_logo.svg" alt="Race to Zero">
+        </div>
         <p class="lobby-card-desc">Clear matching digits. Hit exactly zero. Don't overshoot.</p>
       </a>
 

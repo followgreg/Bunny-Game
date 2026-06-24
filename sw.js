@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v83';
+const CACHE = 'bunnygame-v84';
 const ASSETS = [
   '/',
   '/index.html',
@@ -94,6 +94,7 @@ const ASSETS = [
   '/race-to-zero.html',
   '/assets/css/race-to-zero.css',
   '/assets/js/race-to-zero.js',
+  '/assets/logos/racetozero_logo.svg',
   '/assets/logos/POISE_LOGO.svg',
   '/assets/icons/blue-bunny.svg',
   '/assets/icons/red-bunny.svg',
