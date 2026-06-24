@@ -1,0 +1,32 @@
+/* Race to Zero */
+
+body[data-tab="race-to-zero"] #canvas-wrap {
+  background:
+    radial-gradient(circle 1px at 15% 20%, rgba(99,102,241,0.4) 0%, transparent 100%),
+    radial-gradient(circle 1px at 35% 55%, rgba(168,85,247,0.35) 0%, transparent 100%),
+    radial-gradient(circle 1px at 58% 15%, rgba(59,130,246,0.4) 0%, transparent 100%),
+    radial-gradient(circle 1px at 72% 68%, rgba(20,184,166,0.35) 0%, transparent 100%),
+    radial-gradient(circle 1px at 88% 30%, rgba(99,102,241,0.4) 0%, transparent 100%),
+    radial-gradient(circle 1px at 10% 80%, rgba(168,85,247,0.3) 0%, transparent 100%),
+    radial-gradient(circle 1px at 48% 88%, rgba(59,130,246,0.35) 0%, transparent 100%),
+    radial-gradient(circle 1px at 25% 40%, rgba(34,197,94,0.3) 0%, transparent 100%),
+    radial-gradient(circle 1px at 65% 45%, rgba(239,68,68,0.3) 0%, transparent 100%),
+    radial-gradient(circle 1px at 82% 90%, rgba(20,184,166,0.3) 0%, transparent 100%),
+    linear-gradient(180deg, #0f1629 0%, #0a1020 100%);
+}
+
+body[data-tab="race-to-zero"] #game-canvas {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Total stat — make it prominent */
+.rtz-total-item {
+  min-width: 80px;
+}
+
+.rtz-total {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em;
+  transition: color 0.2s;
+}
