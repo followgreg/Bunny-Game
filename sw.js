@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v80';
+const CACHE = 'bunnygame-v81';
 const ASSETS = [
   '/',
   '/index.html',
@@ -81,6 +81,16 @@ const ASSETS = [
   '/assets/js/mobi.js',
   '/assets/data/mobi-levels.json',
   '/assets/logos/mobi_logo.svg',
+  '/mobi-source/shape-01.svg',
+  '/mobi-source/shape-02.svg',
+  '/mobi-source/shape-03.svg',
+  '/mobi-source/shape-04.svg',
+  '/mobi-source/shape-05.svg',
+  '/mobi-source/shape-06.svg',
+  '/mobi-source/shape-07.svg',
+  '/mobi-source/shape-08.svg',
+  '/mobi-source/shape-09.svg',
+  '/mobi-source/shape-10.svg',
   '/assets/logos/POISE_LOGO.svg',
   '/assets/icons/blue-bunny.svg',
   '/assets/icons/red-bunny.svg',
