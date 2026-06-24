@@ -1,7 +1,7 @@
 (function () {
 'use strict';
 
-var DIRECTIONS_TEXT = 'Digits fill the board. Click 2 or more matching digits that touch side-by-side to clear them — tiles fall, columns collapse. When a cleared group touches the bottom row, its total is subtracted from 100. Reach exactly zero to win. Go below zero or run out of moves and you lose.';
+var DIRECTIONS_TEXT = 'Digits fill the board. Click 2 or more matching digits that touch side-by-side to clear them — tiles fall, columns collapse. When a cleared group touches the bottom row (marked by the green line), its total is subtracted from 100. Reach exactly zero to win. Go below zero or run out of moves and you lose. You get 2 shuffles per game — use them wisely.';
 
 var GRID_COLS  = 12;
 var GRID_ROWS  = 20;
@@ -33,6 +33,7 @@ function RaceGame(cols, rows) {
   this.rows     = rows;
   this.total    = 100;
   this.moves    = 0;
+  this.shuffles = 2;
   this.gameOver = false;
   this.result   = null; // 'win', 'overshoot', 'stuck'
   this.grid     = this._randomGrid();
@@ -93,6 +94,42 @@ RaceGame.prototype.click = function (row, col) {
   }
 
   return group;
+};
+
+RaceGame.prototype.shuffle = function () {
+  if (this.shuffles <= 0 || this.gameOver) return false;
+
+  // Collect all live positions and values
+  var positions = [];
+  var values    = [];
+  for (var r = 0; r < this.rows; r++) {
+    for (var c = 0; c < this.cols; c++) {
+      if (this.grid[r][c] !== null) {
+        positions.push([r, c]);
+        values.push(this.grid[r][c]);
+      }
+    }
+  }
+
+  // Fisher-Yates shuffle the values
+  for (var i = values.length - 1; i > 0; i--) {
+    var j   = (Math.random() * (i + 1)) | 0;
+    var tmp = values[i];
+    values[i] = values[j];
+    values[j] = tmp;
+  }
+
+  // Redistribute shuffled values to same positions
+  for (var k = 0; k < positions.length; k++) {
+    this.grid[positions[k][0]][positions[k][1]] = values[k];
+  }
+
+  // Re-apply gravity so tiles stay physically consistent
+  this._applyGravity();
+  this._compactColumns();
+
+  this.shuffles--;
+  return true;
 };
 
 RaceGame.prototype._applyGravity = function () {
@@ -249,6 +286,15 @@ function render() {
     for (var gc = 1; gc < game.cols; gc++) { ctx.moveTo(gc * cellSize, 0); ctx.lineTo(gc * cellSize, canvas.height); }
     ctx.stroke();
   }
+
+  // Thick green line above the bottom row
+  var lineY = (game.rows - 1) * cellSize;
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth   = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, lineY);
+  ctx.lineTo(canvas.width, lineY);
+  ctx.stroke();
 }
 
 // ── Stats ──────────────────────────────────────────────────────────────────────
@@ -266,9 +312,17 @@ function updateStats() {
   if (movesEl) movesEl.textContent = game.moves;
 }
 
+function updateShuffleBtn() {
+  var btn = document.getElementById('shuffle-btn');
+  if (!btn) return;
+  btn.textContent = 'Shuffle ×' + (game ? game.shuffles : 2);
+  btn.disabled    = !game || game.shuffles <= 0 || game.gameOver;
+}
+
 // ── Result modal ───────────────────────────────────────────────────────────────
 
 function showGameOver() {
+  updateShuffleBtn();
   var perfEl = document.getElementById('perf-banner');
 
   if (game.result === 'win') {
@@ -358,6 +412,15 @@ document.getElementById('play-again-btn').addEventListener('click', function () 
   startGame();
 });
 
+document.getElementById('shuffle-btn').addEventListener('click', function () {
+  if (!game || game.shuffles <= 0 || game.gameOver) return;
+  game.shuffle();
+  hoveredGroup = null;
+  lastHoverKey = null;
+  render();
+  updateShuffleBtn();
+});
+
 document.getElementById('share-btn').addEventListener('click', function () {
   var text;
   if (game.result === 'win') {
@@ -383,6 +446,7 @@ function startGame() {
   document.getElementById('overlay').classList.add('hidden');
   resizeCanvas();
   updateStats();
+  updateShuffleBtn();
   if (!dirsSeen) { dirsSeen = true; openDirections(DIRECTIONS_TEXT); }
 }
 

@@ -19,14 +19,55 @@ body[data-tab="race-to-zero"] #game-canvas {
   box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
 }
 
-/* Total stat — make it prominent */
-.rtz-total-item {
-  min-width: 80px;
+/* ── HUD above board ── */
+#rtz-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 16px 8px;
+  gap: 6px;
+  flex-shrink: 0;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
 }
 
-.rtz-total {
-  font-size: 1.5rem !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.02em;
+#rtz-total-display {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.rtz-hud-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+#val-total {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #f1f5f9;
+  line-height: 1;
   transition: color 0.2s;
+}
+
+#rtz-hud-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#rtz-moves-text {
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+#rtz-moves-text strong {
+  color: #94a3b8;
+  font-weight: 700;
 }
