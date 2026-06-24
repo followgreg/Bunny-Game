@@ -85,7 +85,7 @@
     animating = false;
 
     tileStates = data.tiles.map(function (t) {
-      return { row: t.row, col: t.col, rotation: t.initialRotation };
+      return { row: t.row, col: t.col, rotation: t.initialRotation, isEmpty: !!t.isEmpty };
     });
 
     hudLevelEl.textContent    = 'Level ' + n;
@@ -111,17 +111,17 @@
 
     var srcPath = '/mobi-source/' + levelData.sourceFile;
 
-    // Build a rotation lookup for glow checks
-    var rotMap = {};
-    tileStates.forEach(function (t) { rotMap[t.row + ',' + t.col] = t.rotation; });
+    // Build lookup for glow checks: tracks rotation and isEmpty per tile
+    var tileMap = {};
+    tileStates.forEach(function (t) { tileMap[t.row + ',' + t.col] = t; });
 
     // Render 64 tiles in row-major order (CSS grid handles placement)
     tileStates.forEach(function (tile) {
-      boardEl.appendChild(makeTileEl(tile, BOARD, TILE, srcPath, rotMap));
+      boardEl.appendChild(makeTileEl(tile, BOARD, TILE, srcPath, tileMap));
     });
   }
 
-  function makeTileEl(tile, BOARD, TILE, srcPath, rotMap) {
+  function makeTileEl(tile, BOARD, TILE, srcPath, tileMap) {
     var div = document.createElement('div');
     div.className       = 'mobi-tile';
     div.style.width     = TILE + 'px';
@@ -132,14 +132,15 @@
     div.style.boxSizing = 'border-box';
     div.style.transform = 'rotate(' + (tile.rotation * 90) + 'deg)';
 
-    // Glow: tile is solved AND at least one neighbor is also solved
-    if (tile.rotation === 0) {
+    // Glow: tile has artwork, is solved, AND at least one artwork neighbor is also solved.
+    // Empty tiles never glow regardless of rotation state.
+    if (!tile.isEmpty && tile.rotation === 0) {
       var adjSolved = [
-        rotMap[(tile.row - 1) + ',' + tile.col],
-        rotMap[(tile.row + 1) + ',' + tile.col],
-        rotMap[tile.row + ',' + (tile.col - 1)],
-        rotMap[tile.row + ',' + (tile.col + 1)],
-      ].some(function (r) { return r === 0; });
+        tileMap[(tile.row - 1) + ',' + tile.col],
+        tileMap[(tile.row + 1) + ',' + tile.col],
+        tileMap[tile.row + ',' + (tile.col - 1)],
+        tileMap[tile.row + ',' + (tile.col + 1)],
+      ].some(function (n) { return n && !n.isEmpty && n.rotation === 0; });
 
       if (adjSolved) {
         div.style.boxShadow = 'inset 0 0 0 1px rgba(57,255,20,0.45)';
