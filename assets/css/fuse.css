@@ -1,0 +1,380 @@
+/* ── FUSE — precision-landing path puzzle styles ── */
+
+#canvas-wrap {
+  background: #0f172a;
+  align-items: stretch;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.fz-hide { display: none !important; }
+
+/* ── Shared screen wrapper ── */
+.fz-screen {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+}
+
+/* ── Start screen ── */
+#fz-start {
+  justify-content: center;
+  padding: 40px 24px 48px;
+}
+
+.fz-start-inner {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.fz-logo-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 3.6rem;
+  color: #fbbf24;
+  margin: 0 0 4px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 24px rgba(251,191,36,0.5);
+}
+
+.fz-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(148, 163, 184, 0.9);
+  line-height: 1.6;
+  margin: 0 0 36px;
+}
+
+.fz-start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Game screen ── */
+#fz-game {
+  justify-content: flex-start;
+  padding: 0 0 24px;
+  position: relative;
+}
+
+/* ── HUD ── */
+.fz-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 18px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Board wrap ── */
+.fz-board-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  position: relative;
+  width: 100%;
+}
+
+/* ── Grid ── */
+.fz-board {
+  display: grid;
+  /* columns + gap set by JS */
+}
+
+/* ── Cells ── */
+.fz-cell {
+  border-radius: 6px;
+  /* width/height set by JS */
+  position: relative;
+}
+
+/* Empty shape cell (unvisited) */
+.fz-cell-empty {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+}
+
+/* Start cell marker (before any move) */
+.fz-cell-start {
+  background: #1e293b;
+  border: 2px solid #22c55e;
+}
+
+.fz-cell-start::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 38%;
+  height: 38%;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+/* ── Water trail shimmer ── */
+@keyframes fz-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.fz-cell-trail {
+  background: linear-gradient(90deg, #1e3a5f 0%, #1e3a5f 35%, #3b82f6 50%, #1e3a5f 65%, #1e3a5f 100%);
+  background-size: 300% 100%;
+  animation: fz-shimmer 2.8s linear infinite;
+  border: 1.5px solid #2563eb;
+}
+
+/* ── Head cell ── */
+.fz-cell-head {
+  background: #60a5fa;
+  border: 2px solid #bfdbfe;
+  box-shadow: 0 0 10px rgba(96,165,250,0.7);
+}
+
+.fz-cell-head::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 38%;
+  height: 38%;
+  background: #eff6ff;
+  border-radius: 50%;
+}
+
+/* ── Spark cell (flame flicker) ── */
+@keyframes fz-flicker {
+  0%   { background-color: #f97316; box-shadow: inset 0 0 0 2px #fbbf24, 0 0 8px rgba(249,115,22,0.8); }
+  18%  { background-color: #fbbf24; box-shadow: inset 0 0 0 2px #fff,    0 0 14px rgba(251,191,36,1);  }
+  30%  { background-color: #fff;    box-shadow: inset 0 0 0 2px #fde68a, 0 0 20px rgba(255,255,200,1); }
+  45%  { background-color: #ef4444; box-shadow: inset 0 0 0 2px #fbbf24, 0 0 6px  rgba(239,68,68,0.9);  }
+  60%  { background-color: #fbbf24; box-shadow: inset 0 0 0 2px #fff,    0 0 16px rgba(251,191,36,1);  }
+  78%  { background-color: #f97316; box-shadow: inset 0 0 0 2px #fde68a, 0 0 10px rgba(249,115,22,0.8);}
+  100% { background-color: #f97316; box-shadow: inset 0 0 0 2px #fbbf24, 0 0 8px  rgba(249,115,22,0.8);}
+}
+
+.fz-cell-spark {
+  animation: fz-flicker 1.4s ease-in-out infinite;
+}
+
+/* ── Extinguish animation (on win) ── */
+@keyframes fz-extinguish {
+  0%   { background-color: #fbbf24; box-shadow: 0 0 24px rgba(251,191,36,1); }
+  35%  { background-color: #93c5fd; box-shadow: 0 0 12px rgba(147,197,253,0.7); }
+  100% { background-color: #1e3a5f; box-shadow: none; }
+}
+
+.fz-cell-extinguish {
+  animation: fz-extinguish 0.65s ease-out forwards;
+}
+
+/* ── Non-shape cell ── */
+.fz-cell-void {
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
+
+/* ── Board explosion flash (on loss) ── */
+@keyframes fz-board-flash {
+  0%   { opacity: 0;   background: rgba(239,68,68,0.15); }
+  20%  { opacity: 1;   background: rgba(239,68,68,0.55); }
+  65%  { opacity: 0.5; background: rgba(251,191,36,0.25);}
+  100% { opacity: 0;   background: transparent; }
+}
+
+.fz-board-wrap.fz-exploding::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 10;
+  animation: fz-board-flash 0.5s ease-out forwards;
+}
+
+/* ── Overlays (fail + level-complete) — inside board-wrap ── */
+.fz-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 20;
+  border-radius: 4px;
+}
+
+.fz-overlay-label {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  color: #ef4444;
+  margin: 0;
+  animation: fz-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.fz-overlay-big {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.4rem;
+  color: #60a5fa;
+  margin: 0;
+  text-align: center;
+  animation: fz-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.fz-overlay-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+@keyframes fz-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ── D-pad ── */
+.fz-dpad {
+  display: grid;
+  grid-template-areas:
+    ".    up   ."
+    "left down right";
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 56px 56px;
+  gap: 6px;
+  margin: 12px auto 4px;
+}
+
+.fz-dir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background 0.08s, transform 0.06s;
+}
+
+.fz-dir:active {
+  background: #2d3a5e;
+  transform: scale(0.92);
+}
+
+.fz-up    { grid-area: up; }
+.fz-left  { grid-area: left; }
+.fz-down  { grid-area: down; }
+.fz-right { grid-area: right; }
+
+/* ── Win screen ── */
+#fz-win {
+  justify-content: center;
+  padding: 40px 24px 48px;
+}
+
+.fz-win-inner {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.fz-win-logo-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.8rem;
+  color: #fbbf24;
+  margin: 0 0 4px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 20px rgba(251,191,36,0.4);
+}
+
+.fz-win-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  color: #60a5fa;
+  margin: 0 0 12px;
+}
+
+.fz-win-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(148,163,184,0.9);
+  margin: 0 0 36px;
+  line-height: 1.6;
+}
+
+.fz-end-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* ── Buttons ── */
+.fz-btn-primary {
+  display: block;
+  width: 100%;
+  background: #1d4ed8;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #1e3a8a, 0 6px 16px rgba(0,0,0,0.45);
+  transition: transform 0.07s, box-shadow 0.07s, background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.fz-btn-primary:hover  { background: #2563eb; }
+.fz-btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #1e3a8a, 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.fz-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #64748b;
+  padding: 14px 0;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fz-btn-ghost:hover  { border-color: #64748b; color: #94a3b8; }
+.fz-btn-ghost:active { background: rgba(255,255,255,0.04); }
