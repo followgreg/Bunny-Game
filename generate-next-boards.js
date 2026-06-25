@@ -31,25 +31,53 @@ const MASTER_COLORS = [
   { name: 'rose',       hex: '#FF3366' },  // [19] board 75  hue 342°
 ];
 
-// ── Color introduction (by OLD 1-100 board numbers — unchanged) ──────────────
+// ── Color introduction (by OLD 1-100 board numbers) ──────────────────────────
+// Used only for boards 21+ (boards 1-20 use explicit palette schedules).
 const COLOR_INTRO = [
    1,  1,  5, 10, 14, 18, 22, 26, 30, 34,
   38, 42, 46, 50, 54, 58, 62, 66, 70, 75
 ];
 
-// ── Board mapping ─────────────────────────────────────────────────────────────
-// The game has 86 boards: old boards 1 and 2, then old boards 17-100.
-// Palette for new board N is looked up by OLD board number (color schedule).
-// Rule and length are determined by NEW board position (difficulty schedule).
-// These two schedules are fully independent.
+// ── Board mapping for boards 21+ ──────────────────────────────────────────────
+// Placeholder; will be replaced in Part 3 with the explicit 21+ palette schedule.
 const OLD_BOARD = [1, 2, ...Array.from({ length: 84 }, (_, i) => i + 17)];
 const TOTAL_BOARDS = OLD_BOARD.length; // 86
 
+// ── Hardcoded palette schedules for boards 1-20 ───────────────────────────────
+// Boards 1-2:  2 colors only (period-2 requires exactly 2)
+// Boards 3-10: grows +1 color per board, reaching exactly 10 by board 10
+// Boards 11-20: +1 color per board (teal through rose), reaching 20 by board 20
+const EARLY_PALETTES = [
+  null, // index 0 unused (boards are 1-indexed)
+  // Boards 1-2
+  ['red', 'blue'],
+  ['red', 'blue'],
+  // Boards 3-10: one new color per board
+  ['red', 'blue', 'lime'],
+  ['red', 'blue', 'lime', 'purple'],
+  ['red', 'blue', 'lime', 'purple', 'cyan'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky'],
+  // Boards 11-20: +1 color per board (teal→rose), fully specified in Part 2
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo', 'sage'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo', 'sage', 'magenta'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo', 'sage', 'magenta', 'coral'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo', 'sage', 'magenta', 'coral', 'periwinkle'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo', 'sage', 'magenta', 'coral', 'periwinkle', 'chartreuse'],
+  ['red', 'blue', 'lime', 'purple', 'cyan', 'green', 'orange', 'pink', 'yellow', 'sky', 'teal', 'violet', 'amber', 'indigo', 'sage', 'magenta', 'coral', 'periwinkle', 'chartreuse', 'rose'],
+];
+
 function getPalette(newBoardNum) {
-  const oldNum = OLD_BOARD[newBoardNum - 1];
-  return MASTER_COLORS
-    .filter((_, i) => COLOR_INTRO[i] <= oldNum)
-    .map(c => c.name);
+  if (newBoardNum <= 20) return EARLY_PALETTES[newBoardNum].slice();
+  // Boards 21+: full 20-color palette (board 20 already introduced all 20)
+  return MASTER_COLORS.map(c => c.name);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -77,28 +105,48 @@ function parseRuns(seq) {
 }
 
 // ── Target sequence length ────────────────────────────────────────────────────
-// Linear ramp from 5 (board 1) to 16 (board 86). Strictly non-decreasing.
-// Never resets at color-introduction or rule-tier boundaries.
+// Boards 1-2:   exactly 5
+// Boards 3-10:  exactly 7
+// Boards 11-20: explicit 8→20 climb
+// Boards 21-86: smooth ramp 21→30
+
+const BOARD_11_20_LENS = [8, 9, 10, 11, 12, 13, 15, 16, 18, 20]; // index 0 = board 11
 
 function targetLength(boardNum) {
-  return 5 + Math.floor((boardNum - 1) * 11 / (TOTAL_BOARDS - 1));
+  if (boardNum <= 2)  return 5;
+  if (boardNum <= 10) return 7;
+  if (boardNum <= 20) return BOARD_11_20_LENS[boardNum - 11];
+  // Boards 21-86: smooth ramp from 21 to 30 over 65 steps
+  return 21 + Math.round((boardNum - 21) * 9 / 65);
 }
 
 // ── Rule selection ────────────────────────────────────────────────────────────
-// Five tiers mapped monotonically to new board position — fully independent of
-// the color-introduction schedule. Complexity index 0-4 never decreases.
-//
-//   period2     boards  1-17   simple alternation         (complexity 0)
-//   period3     boards 18-34   3-color cycle              (complexity 1)
-//   growingRuns boards 35-51   growing run lengths        (complexity 2)
-//   runPair     boards 52-68   fixed alternating runs     (complexity 3)
-//   interleaved boards 69-86   two interleaved 2-cycles   (complexity 4)
+// Boards 1-2:   period2 (exactly 2 colors; never again after board 2)
+// Boards 3-10:  period3 (ABCABC pattern)
+// Boards 11-45: runPair (color blocks of N, N increasing 2→10 via getRunLen)
+// Boards 46-86: interleaved (4-color dual-stream pattern, complexity 4)
 
-const RULE_TIERS = ['period2', 'period3', 'growingRuns', 'runPair', 'interleaved'];
+const RULE_TIERS_HARD = ['period3', 'growingRuns', 'runPair', 'interleaved']; // kept for reference
 
 function pickRule(boardNum) {
-  const t = (boardNum - 1) / (TOTAL_BOARDS - 1); // 0 → 1
-  return RULE_TIERS[Math.min(4, Math.floor(t * 5))];
+  if (boardNum <= 2)  return 'period2';
+  if (boardNum <= 10) return 'period3';
+  if (boardNum <= 45) return 'runPair';     // boards 11-45: escalating block-runs
+  return 'interleaved';                      // boards 46-86: interleaved streams
+}
+
+// ── Run length for runPair boards 11-45 ──────────────────────────────────────
+// N increases steadily — color changes every Nth position, N growing with difficulty
+function getRunLen(boardNum) {
+  if (boardNum <= 14) return 2;  // AABB…
+  if (boardNum <= 16) return 3;  // AAABBB…
+  if (boardNum <= 18) return 4;  // AAAABBBB…
+  if (boardNum <= 20) return 5;  // AAAAABBBBB…
+  if (boardNum <= 25) return 6;
+  if (boardNum <= 30) return 7;
+  if (boardNum <= 35) return 8;
+  if (boardNum <= 40) return 9;
+  return 10;                     // boards 41-45
 }
 
 // ── Rule implementations ──────────────────────────────────────────────────────
@@ -155,7 +203,13 @@ function generateRunPair(colors, runLen, length) {
 function isValidRunPair(seq, params) {
   const { runLen } = params;
   const runs = parseRuns(seq);
-  if (!runs.every(r => r.len === runLen)) return false;
+  if (runs.length === 0) return false;
+  // All runs except the last must be exactly runLen.
+  // The last run may be partial (1..runLen) to support non-multiple lengths.
+  for (let k = 0; k < runs.length - 1; k++) {
+    if (runs[k].len !== runLen) return false;
+  }
+  if (runs[runs.length - 1].len > runLen) return false;
   const colorSet = new Set(runs.map(r => r.color));
   if (colorSet.size !== 2) return false;
   const colorArr = runs.map(r => r.color);
@@ -227,7 +281,7 @@ function tryGenerateBoard(boardNum, palette, len) {
     if (rule === 'runPair') {
       if (palette.length < 2) return null;
       const colors = pickN(palette, 2);
-      const runLen = pick([2, 3, 4]);
+      const runLen = boardNum <= 45 ? getRunLen(boardNum) : pick([2, 3, 4]);
       const full   = generateRunPair(colors, runLen, len);
       const seq    = full.slice(0, -1);
       return { seqWithoutLast: seq, answer: full[full.length - 1], isValidFn: isValidRunPair, params: { colors, runLen } };
