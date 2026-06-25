@@ -46,6 +46,7 @@
   var startBtnsEl, boardLabelEl, furthestLabelEl;
   var seqWrapEl, seqGridEl, threadSvgEl;
   var paletteEl, feedbackEl;
+  var completeEl, completeLabelEl;
 
   document.addEventListener('DOMContentLoaded', function () {
     startEl         = document.getElementById('nx-start');
@@ -59,6 +60,14 @@
     threadSvgEl     = document.getElementById('nx-thread');
     paletteEl       = document.getElementById('nx-palette');
     feedbackEl      = document.getElementById('nx-feedback');
+    completeEl      = document.getElementById('nx-complete');
+    completeLabelEl = document.getElementById('nx-complete-label');
+
+    document.getElementById('nx-next-board').addEventListener('click', function () {
+      hide(completeEl);
+      currentBoard++;
+      loadBoard(currentBoard);
+    });
 
     document.getElementById('help-btn').addEventListener('click', showDirections);
 
@@ -131,6 +140,7 @@
   // ── Board loading ──────────────────────────────────────────────────────────
 
   function loadBoard(n) {
+    hide(completeEl);
     feedbackEl.textContent = '';
 
     var data = boards[n - 1];
@@ -261,8 +271,8 @@
           }
           showWin();
         } else {
-          currentBoard++;
-          loadBoard(currentBoard);
+          completeLabelEl.textContent = 'Board ' + currentBoard + ' Complete';
+          show(completeEl);
         }
       }, 600);
 
