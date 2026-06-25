@@ -1,9 +1,8 @@
 (function () {
   'use strict';
 
-  var LS_KEY       = 'next_highestLevel';
-  var SHARE_URL    = 'https://www.thebunnygame.com/next';
-  var TOTAL_BOARDS = 100;
+  var LS_KEY    = 'next_highestLevel';
+  var SHARE_URL = 'https://www.thebunnygame.com/next';
 
   // Layout constants
   var CIRCLE_SIZE = 52;   // px diameter
@@ -42,7 +41,7 @@
   var highestBoard = 1;
 
   // DOM refs
-  var startEl, gameEl, winEl;
+  var startEl, gameEl, winEl, winSubEl;
   var startBtnsEl, boardLabelEl, furthestLabelEl;
   var seqWrapEl, seqGridEl, threadSvgEl;
   var paletteEl, feedbackEl;
@@ -52,6 +51,7 @@
     startEl         = document.getElementById('nx-start');
     gameEl          = document.getElementById('nx-game');
     winEl           = document.getElementById('nx-win');
+    winSubEl        = document.getElementById('nx-win-sub');
     startBtnsEl     = document.getElementById('nx-start-btns');
     boardLabelEl    = document.getElementById('nx-board-label');
     furthestLabelEl = document.getElementById('nx-furthest-label');
@@ -82,7 +82,7 @@
     document.getElementById('help-btn').addEventListener('click', showDirections);
 
     document.getElementById('nx-share').addEventListener('click', function () {
-      shareText('Next — solved all 100 sequences. ' + SHARE_URL, 'Next');
+      shareText('Next — solved all ' + boards.length + ' sequences. ' + SHARE_URL, 'Next');
     });
 
     document.getElementById('nx-play-again').addEventListener('click', function () {
@@ -100,6 +100,9 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         boards = data;
+        // Clamp stale progress: if saved value exceeds the current board count,
+        // treat as completed rather than pointing off the end of the list.
+        if (highestBoard > boards.length) highestBoard = boards.length;
         showStart();
       });
   });
@@ -111,7 +114,7 @@
     hide(winEl);
     startBtnsEl.innerHTML = '';
 
-    if (highestBoard >= TOTAL_BOARDS) {
+    if (highestBoard >= boards.length) {
       startBtnsEl.appendChild(mkBtn('nx-btn-primary', 'Play Again', function () {
         currentBoard = 1;
         startGame();
@@ -144,6 +147,7 @@
 
   function showWin() {
     hide(gameEl);
+    if (winSubEl) winSubEl.textContent = 'All ' + boards.length + ' sequences solved.';
     show(winEl);
   }
 
@@ -158,7 +162,7 @@
     if (!data) { showWin(); return; }
 
     boardLabelEl.textContent    = 'Board ' + n;
-    furthestLabelEl.textContent = highestBoard >= TOTAL_BOARDS ? 'Completed!' :
+    furthestLabelEl.textContent = highestBoard >= boards.length ? 'Completed!' :
       (highestBoard > 1 ? 'Best: ' + highestBoard : '');
 
     renderSequence(data);
@@ -275,10 +279,10 @@
       }
 
       setTimeout(function () {
-        if (currentBoard >= TOTAL_BOARDS) {
-          if (highestBoard < TOTAL_BOARDS) {
-            highestBoard = TOTAL_BOARDS;
-            try { localStorage.setItem(LS_KEY, String(TOTAL_BOARDS)); } catch (e) {}
+        if (currentBoard >= boards.length) {
+          if (highestBoard < boards.length) {
+            highestBoard = boards.length;
+            try { localStorage.setItem(LS_KEY, String(boards.length)); } catch (e) {}
           }
           showWin();
         } else {
@@ -311,7 +315,7 @@
       'Get it right and the next sequence appears — get it wrong and you simply try again, no penalty. ' +
       'As sequences grow, they wrap into new rows, but it\'s still one single sequence start to finish — ' +
       'follow the connecting thread and the numbers to read it in order. ' +
-      'One hundred sequences, each trickier than the last.' +
+      boards.length + ' sequences, each trickier than the last.' +
       '</p>';
   }
 

@@ -30,319 +30,68 @@
   {
     "board": 3,
     "sequence": [
-      "red",
-      "blue",
-      "red",
-      "blue"
+      "purple",
+      "lime",
+      "purple",
+      "lime",
+      "purple",
+      "lime",
+      "purple"
     ],
-    "answer": "red",
+    "answer": "lime",
     "paletteAtThisBoard": [
       "red",
-      "blue"
+      "blue",
+      "lime",
+      "purple",
+      "cyan"
     ]
   },
   {
     "board": 4,
     "sequence": [
-      "blue",
       "red",
       "blue",
+      "cyan",
       "red",
-      "blue"
+      "blue",
+      "cyan",
+      "red"
     ],
-    "answer": "red",
+    "answer": "blue",
     "paletteAtThisBoard": [
       "red",
-      "blue"
+      "blue",
+      "lime",
+      "purple",
+      "cyan",
+      "green"
     ]
   },
   {
     "board": 5,
     "sequence": [
-      "red",
+      "purple",
       "blue",
       "red",
+      "purple",
       "blue",
-      "red"
+      "red",
+      "purple",
+      "blue"
     ],
-    "answer": "blue",
+    "answer": "red",
     "paletteAtThisBoard": [
       "red",
       "blue",
-      "lime"
+      "lime",
+      "purple",
+      "cyan",
+      "green"
     ]
   },
   {
     "board": 6,
-    "sequence": [
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime"
-    ]
-  },
-  {
-    "board": 7,
-    "sequence": [
-      "red",
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime"
-    ]
-  },
-  {
-    "board": 8,
-    "sequence": [
-      "red",
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime"
-    ]
-  },
-  {
-    "board": 9,
-    "sequence": [
-      "lime",
-      "blue",
-      "lime",
-      "blue",
-      "lime",
-      "blue"
-    ],
-    "answer": "lime",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime"
-    ]
-  },
-  {
-    "board": 10,
-    "sequence": [
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple"
-    ]
-  },
-  {
-    "board": 11,
-    "sequence": [
-      "lime",
-      "blue",
-      "lime",
-      "blue",
-      "lime",
-      "blue",
-      "lime"
-    ],
-    "answer": "blue",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple"
-    ]
-  },
-  {
-    "board": 12,
-    "sequence": [
-      "purple",
-      "lime",
-      "purple",
-      "lime",
-      "purple",
-      "lime",
-      "purple"
-    ],
-    "answer": "lime",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple"
-    ]
-  },
-  {
-    "board": 13,
-    "sequence": [
-      "red",
-      "purple",
-      "red",
-      "purple",
-      "red",
-      "purple",
-      "red",
-      "purple"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple"
-    ]
-  },
-  {
-    "board": 14,
-    "sequence": [
-      "blue",
-      "lime",
-      "blue",
-      "lime",
-      "blue",
-      "lime",
-      "blue",
-      "lime"
-    ],
-    "answer": "blue",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple",
-      "cyan"
-    ]
-  },
-  {
-    "board": 15,
-    "sequence": [
-      "red",
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue",
-      "red",
-      "blue"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple",
-      "cyan"
-    ]
-  },
-  {
-    "board": 16,
-    "sequence": [
-      "purple",
-      "red",
-      "purple",
-      "red",
-      "purple",
-      "red",
-      "purple"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple",
-      "cyan"
-    ]
-  },
-  {
-    "board": 17,
-    "sequence": [
-      "purple",
-      "lime",
-      "purple",
-      "lime",
-      "purple",
-      "lime",
-      "purple"
-    ],
-    "answer": "lime",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple",
-      "cyan"
-    ]
-  },
-  {
-    "board": 18,
-    "sequence": [
-      "red",
-      "blue",
-      "cyan",
-      "red",
-      "blue",
-      "cyan",
-      "red"
-    ],
-    "answer": "blue",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple",
-      "cyan",
-      "green"
-    ]
-  },
-  {
-    "board": 19,
-    "sequence": [
-      "purple",
-      "blue",
-      "red",
-      "purple",
-      "blue",
-      "red",
-      "purple",
-      "blue"
-    ],
-    "answer": "red",
-    "paletteAtThisBoard": [
-      "red",
-      "blue",
-      "lime",
-      "purple",
-      "cyan",
-      "green"
-    ]
-  },
-  {
-    "board": 20,
     "sequence": [
       "cyan",
       "purple",
@@ -364,7 +113,7 @@
     ]
   },
   {
-    "board": 21,
+    "board": 7,
     "sequence": [
       "cyan",
       "lime",
@@ -386,7 +135,7 @@
     ]
   },
   {
-    "board": 22,
+    "board": 8,
     "sequence": [
       "green",
       "red",
@@ -410,7 +159,7 @@
     ]
   },
   {
-    "board": 23,
+    "board": 9,
     "sequence": [
       "green",
       "blue",
@@ -434,7 +183,7 @@
     ]
   },
   {
-    "board": 24,
+    "board": 10,
     "sequence": [
       "orange",
       "green",
@@ -458,7 +207,7 @@
     ]
   },
   {
-    "board": 25,
+    "board": 11,
     "sequence": [
       "lime",
       "blue",
@@ -483,7 +232,7 @@
     ]
   },
   {
-    "board": 26,
+    "board": 12,
     "sequence": [
       "blue",
       "pink",
@@ -509,7 +258,7 @@
     ]
   },
   {
-    "board": 27,
+    "board": 13,
     "sequence": [
       "green",
       "cyan",
@@ -535,7 +284,7 @@
     ]
   },
   {
-    "board": 28,
+    "board": 14,
     "sequence": [
       "blue",
       "lime",
@@ -562,7 +311,7 @@
     ]
   },
   {
-    "board": 29,
+    "board": 15,
     "sequence": [
       "red",
       "blue",
@@ -589,7 +338,7 @@
     ]
   },
   {
-    "board": 30,
+    "board": 16,
     "sequence": [
       "yellow",
       "orange",
@@ -617,7 +366,7 @@
     ]
   },
   {
-    "board": 31,
+    "board": 17,
     "sequence": [
       "lime",
       "pink",
@@ -643,7 +392,7 @@
     ]
   },
   {
-    "board": 32,
+    "board": 18,
     "sequence": [
       "green",
       "purple",
@@ -669,7 +418,7 @@
     ]
   },
   {
-    "board": 33,
+    "board": 19,
     "sequence": [
       "yellow",
       "purple",
@@ -695,7 +444,7 @@
     ]
   },
   {
-    "board": 34,
+    "board": 20,
     "sequence": [
       "blue",
       "blue",
@@ -722,7 +471,7 @@
     ]
   },
   {
-    "board": 35,
+    "board": 21,
     "sequence": [
       "orange",
       "purple",
@@ -750,7 +499,7 @@
     ]
   },
   {
-    "board": 36,
+    "board": 22,
     "sequence": [
       "orange",
       "blue",
@@ -778,7 +527,7 @@
     ]
   },
   {
-    "board": 37,
+    "board": 23,
     "sequence": [
       "lime",
       "blue",
@@ -806,7 +555,7 @@
     ]
   },
   {
-    "board": 38,
+    "board": 24,
     "sequence": [
       "lime",
       "purple",
@@ -835,7 +584,7 @@
     ]
   },
   {
-    "board": 39,
+    "board": 25,
     "sequence": [
       "orange",
       "pink",
@@ -868,7 +617,7 @@
     ]
   },
   {
-    "board": 40,
+    "board": 26,
     "sequence": [
       "teal",
       "orange",
@@ -901,7 +650,7 @@
     ]
   },
   {
-    "board": 41,
+    "board": 27,
     "sequence": [
       "purple",
       "purple",
@@ -931,7 +680,7 @@
     ]
   },
   {
-    "board": 42,
+    "board": 28,
     "sequence": [
       "green",
       "blue",
@@ -962,7 +711,7 @@
     ]
   },
   {
-    "board": 43,
+    "board": 29,
     "sequence": [
       "red",
       "blue",
@@ -994,7 +743,7 @@
     ]
   },
   {
-    "board": 44,
+    "board": 30,
     "sequence": [
       "cyan",
       "purple",
@@ -1026,7 +775,7 @@
     ]
   },
   {
-    "board": 45,
+    "board": 31,
     "sequence": [
       "green",
       "violet",
@@ -1058,7 +807,7 @@
     ]
   },
   {
-    "board": 46,
+    "board": 32,
     "sequence": [
       "pink",
       "sky",
@@ -1093,7 +842,7 @@
     ]
   },
   {
-    "board": 47,
+    "board": 33,
     "sequence": [
       "red",
       "pink",
@@ -1128,7 +877,7 @@
     ]
   },
   {
-    "board": 48,
+    "board": 34,
     "sequence": [
       "yellow",
       "yellow",
@@ -1162,7 +911,7 @@
     ]
   },
   {
-    "board": 49,
+    "board": 35,
     "sequence": [
       "pink",
       "lime",
@@ -1196,7 +945,7 @@
     ]
   },
   {
-    "board": 50,
+    "board": 36,
     "sequence": [
       "orange",
       "red",
@@ -1231,7 +980,7 @@
     ]
   },
   {
-    "board": 51,
+    "board": 37,
     "sequence": [
       "indigo",
       "violet",
@@ -1267,7 +1016,7 @@
     ]
   },
   {
-    "board": 52,
+    "board": 38,
     "sequence": [
       "red",
       "teal",
@@ -1303,7 +1052,7 @@
     ]
   },
   {
-    "board": 53,
+    "board": 39,
     "sequence": [
       "pink",
       "pink",
@@ -1336,7 +1085,7 @@
     ]
   },
   {
-    "board": 54,
+    "board": 40,
     "sequence": [
       "green",
       "cyan",
@@ -1370,7 +1119,7 @@
     ]
   },
   {
-    "board": 55,
+    "board": 41,
     "sequence": [
       "blue",
       "green",
@@ -1404,7 +1153,7 @@
     ]
   },
   {
-    "board": 56,
+    "board": 42,
     "sequence": [
       "lime",
       "sky",
@@ -1439,7 +1188,7 @@
     ]
   },
   {
-    "board": 57,
+    "board": 43,
     "sequence": [
       "blue",
       "purple",
@@ -1474,7 +1223,7 @@
     ]
   },
   {
-    "board": 58,
+    "board": 44,
     "sequence": [
       "pink",
       "amber",
@@ -1512,7 +1261,7 @@
     ]
   },
   {
-    "board": 59,
+    "board": 45,
     "sequence": [
       "magenta",
       "sage",
@@ -1550,7 +1299,7 @@
     ]
   },
   {
-    "board": 60,
+    "board": 46,
     "sequence": [
       "green",
       "green",
@@ -1587,7 +1336,7 @@
     ]
   },
   {
-    "board": 61,
+    "board": 47,
     "sequence": [
       "green",
       "pink",
@@ -1624,7 +1373,7 @@
     ]
   },
   {
-    "board": 62,
+    "board": 48,
     "sequence": [
       "blue",
       "coral",
@@ -1662,7 +1411,7 @@
     ]
   },
   {
-    "board": 63,
+    "board": 49,
     "sequence": [
       "green",
       "indigo",
@@ -1700,7 +1449,7 @@
     ]
   },
   {
-    "board": 64,
+    "board": 50,
     "sequence": [
       "magenta",
       "pink",
@@ -1738,7 +1487,7 @@
     ]
   },
   {
-    "board": 65,
+    "board": 51,
     "sequence": [
       "lime",
       "magenta",
@@ -1777,7 +1526,7 @@
     ]
   },
   {
-    "board": 66,
+    "board": 52,
     "sequence": [
       "teal",
       "lime",
@@ -1817,7 +1566,7 @@
     ]
   },
   {
-    "board": 67,
+    "board": 53,
     "sequence": [
       "red",
       "red",
@@ -1857,7 +1606,7 @@
     ]
   },
   {
-    "board": 68,
+    "board": 54,
     "sequence": [
       "sky",
       "indigo",
@@ -1897,7 +1646,7 @@
     ]
   },
   {
-    "board": 69,
+    "board": 55,
     "sequence": [
       "red",
       "teal",
@@ -1937,7 +1686,7 @@
     ]
   },
   {
-    "board": 70,
+    "board": 56,
     "sequence": [
       "red",
       "blue",
@@ -1978,7 +1727,7 @@
     ]
   },
   {
-    "board": 71,
+    "board": 57,
     "sequence": [
       "teal",
       "chartreuse",
@@ -2020,7 +1769,7 @@
     ]
   },
   {
-    "board": 72,
+    "board": 58,
     "sequence": [
       "cyan",
       "green",
@@ -2067,7 +1816,7 @@
     ]
   },
   {
-    "board": 73,
+    "board": 59,
     "sequence": [
       "sky",
       "purple",
@@ -2114,7 +1863,7 @@
     ]
   },
   {
-    "board": 74,
+    "board": 60,
     "sequence": [
       "lime",
       "lime",
@@ -2156,7 +1905,7 @@
     ]
   },
   {
-    "board": 75,
+    "board": 61,
     "sequence": [
       "green",
       "red",
@@ -2199,7 +1948,7 @@
     ]
   },
   {
-    "board": 76,
+    "board": 62,
     "sequence": [
       "orange",
       "purple",
@@ -2240,7 +1989,7 @@
     ]
   },
   {
-    "board": 77,
+    "board": 63,
     "sequence": [
       "sky",
       "coral",
@@ -2282,7 +2031,7 @@
     ]
   },
   {
-    "board": 78,
+    "board": 64,
     "sequence": [
       "amber",
       "purple",
@@ -2324,7 +2073,7 @@
     ]
   },
   {
-    "board": 79,
+    "board": 65,
     "sequence": [
       "orange",
       "orange",
@@ -2365,7 +2114,7 @@
     ]
   },
   {
-    "board": 80,
+    "board": 66,
     "sequence": [
       "lime",
       "lime",
@@ -2406,7 +2155,7 @@
     ]
   },
   {
-    "board": 81,
+    "board": 67,
     "sequence": [
       "indigo",
       "sage",
@@ -2448,7 +2197,7 @@
     ]
   },
   {
-    "board": 82,
+    "board": 68,
     "sequence": [
       "chartreuse",
       "teal",
@@ -2490,7 +2239,7 @@
     ]
   },
   {
-    "board": 83,
+    "board": 69,
     "sequence": [
       "periwinkle",
       "pink",
@@ -2532,7 +2281,7 @@
     ]
   },
   {
-    "board": 84,
+    "board": 70,
     "sequence": [
       "rose",
       "yellow",
@@ -2574,7 +2323,7 @@
     ]
   },
   {
-    "board": 85,
+    "board": 71,
     "sequence": [
       "sky",
       "magenta",
@@ -2616,7 +2365,7 @@
     ]
   },
   {
-    "board": 86,
+    "board": 72,
     "sequence": [
       "sky",
       "sky",
@@ -2659,7 +2408,7 @@
     ]
   },
   {
-    "board": 87,
+    "board": 73,
     "sequence": [
       "purple",
       "purple",
@@ -2702,7 +2451,7 @@
     ]
   },
   {
-    "board": 88,
+    "board": 74,
     "sequence": [
       "violet",
       "magenta",
@@ -2745,7 +2494,7 @@
     ]
   },
   {
-    "board": 89,
+    "board": 75,
     "sequence": [
       "amber",
       "red",
@@ -2788,7 +2537,7 @@
     ]
   },
   {
-    "board": 90,
+    "board": 76,
     "sequence": [
       "cyan",
       "yellow",
@@ -2831,7 +2580,7 @@
     ]
   },
   {
-    "board": 91,
+    "board": 77,
     "sequence": [
       "magenta",
       "red",
@@ -2879,7 +2628,7 @@
     ]
   },
   {
-    "board": 92,
+    "board": 78,
     "sequence": [
       "sage",
       "purple",
@@ -2927,7 +2676,7 @@
     ]
   },
   {
-    "board": 93,
+    "board": 79,
     "sequence": [
       "rose",
       "rose",
@@ -2972,7 +2721,7 @@
     ]
   },
   {
-    "board": 94,
+    "board": 80,
     "sequence": [
       "violet",
       "violet",
@@ -3017,7 +2766,7 @@
     ]
   },
   {
-    "board": 95,
+    "board": 81,
     "sequence": [
       "purple",
       "green",
@@ -3061,7 +2810,7 @@
     ]
   },
   {
-    "board": 96,
+    "board": 82,
     "sequence": [
       "orange",
       "chartreuse",
@@ -3106,7 +2855,7 @@
     ]
   },
   {
-    "board": 97,
+    "board": 83,
     "sequence": [
       "purple",
       "pink",
@@ -3151,7 +2900,7 @@
     ]
   },
   {
-    "board": 98,
+    "board": 84,
     "sequence": [
       "periwinkle",
       "lime",
@@ -3199,7 +2948,7 @@
     ]
   },
   {
-    "board": 99,
+    "board": 85,
     "sequence": [
       "indigo",
       "cyan",
@@ -3247,7 +2996,7 @@
     ]
   },
   {
-    "board": 100,
+    "board": 86,
     "sequence": [
       "magenta",
       "magenta",
