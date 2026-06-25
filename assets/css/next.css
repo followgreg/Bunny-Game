@@ -1,0 +1,308 @@
+/* ── Next — color sequence pattern puzzle ──────────────────────────────────── */
+
+#canvas-wrap {
+  background: #2B2B2E;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: auto;
+}
+
+.nx-hide { display: none !important; }
+
+/* Screens */
+.nx-screen {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+}
+
+/* ── Start screen ─────────────────────────────────────────────────────────── */
+
+#nx-start { justify-content: center; padding: 40px 24px 48px; }
+
+.nx-start-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.nx-logo-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 3.6rem;
+  color: #f1f5f9;
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.nx-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(148,163,184,0.9);
+  line-height: 1.6;
+  margin: 0 0 36px;
+  text-align: center;
+}
+
+/* ── HUD ──────────────────────────────────────────────────────────────────── */
+
+.nx-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 18px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Sequence area ────────────────────────────────────────────────────────── */
+
+.nx-seq-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 8px;
+}
+
+.nx-thread-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.nx-seq-grid {
+  display: grid;
+  /* columns set by JS */
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Circles ──────────────────────────────────────────────────────────────── */
+
+.nx-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nx-circle-filled {
+  /* background set inline by JS */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+.nx-circle-blank {
+  background: transparent;
+  border: 2.5px solid #9A9A9E;
+  box-shadow: none;
+}
+
+/* Shake on wrong answer */
+@keyframes nx-shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-5px); }
+  40%      { transform: translateX(5px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+.nx-circle-blank.nx-shake {
+  animation: nx-shake 0.35s ease-out;
+}
+
+/* Fill animation on correct */
+@keyframes nx-fill-in {
+  from { transform: scale(0.4); opacity: 0.6; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.nx-circle-blank.nx-filled {
+  border: none;
+  /* background set inline */
+  animation: nx-fill-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* Position number on each circle */
+.nx-pos-num {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  line-height: 1;
+}
+
+.nx-circle-blank .nx-pos-num {
+  color: rgba(154,154,158,0.8);
+}
+
+/* ── Palette ──────────────────────────────────────────────────────────────── */
+
+.nx-palette-wrap {
+  width: 100%;
+  padding: 16px 12px 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.nx-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 360px;
+}
+
+.nx-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* background set inline */
+}
+
+.nx-swatch:hover  { transform: scale(1.12); border-color: rgba(255,255,255,0.4); }
+.nx-swatch:active { transform: scale(0.93); }
+
+/* ── Feedback ─────────────────────────────────────────────────────────────── */
+
+.nx-feedback {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: #ef4444;
+  height: 24px;
+  text-align: center;
+  padding: 0 16px;
+  transition: opacity 0.3s;
+}
+
+/* ── Thread ───────────────────────────────────────────────────────────────── */
+
+.nx-thread-line {
+  stroke: #9A9A9E;
+  stroke-width: 2;
+  fill: none;
+  opacity: 0.55;
+}
+
+/* ── Win screen ───────────────────────────────────────────────────────────── */
+
+#nx-win { justify-content: center; padding: 40px 24px 48px; }
+
+.nx-win-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.nx-win-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.8rem;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+}
+
+.nx-win-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  color: #60a5fa;
+  margin: 0 0 12px;
+}
+
+.nx-win-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(148,163,184,0.9);
+  margin: 0 0 36px;
+}
+
+.nx-win-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.nx-btn-primary {
+  display: block;
+  width: 100%;
+  background: #1d4ed8;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #1e3a8a, 0 6px 16px rgba(0,0,0,0.45);
+  transition: transform 0.07s, box-shadow 0.07s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.nx-btn-primary:hover  { background: #2563eb; }
+.nx-btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #1e3a8a; }
+
+.nx-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #64748b;
+  padding: 14px 0;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nx-btn-ghost:hover  { border-color: #64748b; color: #94a3b8; }
+.nx-btn-ghost:active { background: rgba(255,255,255,0.04); }
+
+/* ── Start buttons ────────────────────────────────────────────────────────── */
+
+.nx-start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+}

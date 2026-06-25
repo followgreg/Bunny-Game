@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="next">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Next — a pattern puzzle game — Bunny Game</title>
+  <meta name="description" content="Read the sequence. Find the rule. Pick the next color.">
+  <meta property="og:title" content="Next — Bunny Game">
+  <meta property="og:description" content="Read the sequence. Find the rule. Pick the next color.">
+  <meta property="og:url" content="https://www.thebunnygame.com/next">
+  <link rel="canonical" href="https://www.thebunnygame.com/next">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#2B2B2E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/next.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Start screen -->
+  <div id="nx-start" class="nx-screen">
+    <div class="nx-start-inner">
+      <p class="nx-logo-text">Next</p>
+      <p class="nx-sub">Read the sequence. Find the rule. Pick the next color.</p>
+      <div id="nx-start-btns" class="nx-start-btns"></div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="nx-game" class="nx-screen nx-hide">
+    <div class="nx-hud" id="nx-hud">
+      <span id="nx-board-label">Board 1</span>
+      <span id="nx-furthest-label"></span>
+    </div>
+
+    <!-- Sequence area: SVG thread + circle grid -->
+    <div class="nx-seq-wrap" id="nx-seq-wrap">
+      <svg id="nx-thread" class="nx-thread-svg" aria-hidden="true"></svg>
+      <div class="nx-seq-grid" id="nx-seq-grid"></div>
+    </div>
+
+    <!-- Palette -->
+    <div class="nx-palette-wrap">
+      <div class="nx-palette" id="nx-palette"></div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="nx-feedback" id="nx-feedback"></div>
+  </div>
+
+  <!-- Win screen -->
+  <div id="nx-win" class="nx-screen nx-hide">
+    <div class="nx-win-inner">
+      <p class="nx-win-logo">Next</p>
+      <h2 class="nx-win-headline">Complete</h2>
+      <p class="nx-win-sub">All 100 sequences solved.</p>
+      <div class="nx-win-btns">
+        <button class="nx-btn-primary" id="nx-share">Share</button>
+        <button class="nx-btn-ghost" id="nx-play-again">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/next.js"></script>
+</body>
+</html>
