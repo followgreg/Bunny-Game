@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v97';
+const CACHE = 'bunnygame-v98';
 const ASSETS = [
   '/',
   '/index.html',
@@ -134,6 +134,14 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Network-first for HTML navigation — always serve fresh pages
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // Cache-first for all other assets (JS, CSS, images)
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request))
   );
