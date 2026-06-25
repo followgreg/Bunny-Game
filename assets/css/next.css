@@ -32,12 +32,11 @@
   width: 100%;
 }
 
-.nx-logo-text {
-  font-family: 'DM Serif Display', serif;
-  font-size: 3.6rem;
-  color: #f1f5f9;
-  margin: 0 0 8px;
-  letter-spacing: 0.04em;
+.nx-start-logo {
+  display: block;
+  height: 48px;
+  width: auto;
+  margin: 0 auto 16px;
 }
 
 .nx-sub {

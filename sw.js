@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v88';
+const CACHE = 'bunnygame-v89';
 const ASSETS = [
   '/',
   '/index.html',
@@ -95,6 +95,7 @@ const ASSETS = [
   '/assets/css/next.css',
   '/assets/js/next.js',
   '/assets/data/next-boards.json',
+  '/assets/logos/next_logo.svg',
   '/fuse.html',
   '/assets/css/fuse.css',
   '/assets/js/fuse.js',
