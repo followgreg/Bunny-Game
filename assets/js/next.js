@@ -63,11 +63,13 @@
     completeEl      = document.getElementById('nx-complete');
     completeLabelEl = document.getElementById('nx-complete-label');
 
-    document.getElementById('nx-next-board').addEventListener('click', function () {
-      hide(completeEl);
-      currentBoard++;
-      loadBoard(currentBoard);
-    });
+    if (completeEl) {
+      document.getElementById('nx-next-board').addEventListener('click', function () {
+        hide(completeEl);
+        currentBoard++;
+        loadBoard(currentBoard);
+      });
+    }
 
     document.getElementById('help-btn').addEventListener('click', showDirections);
 
