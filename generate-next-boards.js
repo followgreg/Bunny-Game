@@ -9,27 +9,35 @@ const path = require('path');
 
 // ── Master color list ────────────────────────────────────────────────────────
 
+// Colors ordered by INTRODUCTION SEQUENCE (index = order introduced).
+// Hues alternate warm/cool so the first 6 span the full color wheel —
+// no two consecutive warm-range (red/orange/yellow) colors appear early.
+//
+// Hue reference:  red≈0°  lime≈92°  green≈133°  cyan≈184°  blue≈222°  purple≈278°
+//                 orange≈24°  yellow≈54°  sky≈211°  teal≈174°  violet≈271°
+//                 amber≈40°(dark)  indigo≈240°  sage≈80°(dark)  magenta≈312°
+//                 coral≈12°  periwinkle≈233°  chartreuse≈62°  rose≈342°
 const MASTER_COLORS = [
-  { name: 'red',        hex: '#FF4455' },
-  { name: 'orange',     hex: '#FF8833' },
-  { name: 'yellow',     hex: '#FFCC22' },
-  { name: 'lime',       hex: '#88DD22' },
-  { name: 'green',      hex: '#22BB66' },
-  { name: 'teal',       hex: '#22CCAA' },
-  { name: 'cyan',       hex: '#22BBDD' },
-  { name: 'sky',        hex: '#3399FF' },
-  { name: 'blue',       hex: '#3355EE' },
-  { name: 'indigo',     hex: '#6633EE' },
-  { name: 'violet',     hex: '#9933DD' },
-  { name: 'pink',       hex: '#EE33AA' },
-  { name: 'rose',       hex: '#FF4488' },
-  { name: 'coral',      hex: '#FF6644' },
-  { name: 'amber',      hex: '#FFAA22' },
-  { name: 'sage',       hex: '#88BB44' },
-  { name: 'mint',       hex: '#44DDBB' },
-  { name: 'periwinkle', hex: '#6688FF' },
-  { name: 'lavender',   hex: '#AA77EE' },
-  { name: 'magenta',    hex: '#DD3399' },
+  { name: 'red',        hex: '#FF2233' },  // [0]  board 1   hue   0° — vivid red
+  { name: 'blue',       hex: '#1155DD' },  // [1]  board 1   hue 222° — primary blue
+  { name: 'lime',       hex: '#77DD00' },  // [2]  board 5   hue  92° — bright lime-green
+  { name: 'purple',     hex: '#9922CC' },  // [3]  board 10  hue 278° — deep purple
+  { name: 'cyan',       hex: '#00BBCC' },  // [4]  board 14  hue 184° — clear cyan
+  { name: 'green',      hex: '#22BB44' },  // [5]  board 18  hue 133° — vivid green
+  { name: 'orange',     hex: '#FF6600' },  // [6]  board 22  hue  24° — clear orange (first warm after red)
+  { name: 'pink',       hex: '#EE2299' },  // [7]  board 26  hue 316° — hot pink
+  { name: 'yellow',     hex: '#FFEE00' },  // [8]  board 30  hue  54° — bright yellow (after orange is known)
+  { name: 'sky',        hex: '#3399FF' },  // [9]  board 34  hue 211° — sky blue (lighter than blue)
+  { name: 'teal',       hex: '#11BBAA' },  // [10] board 38  hue 174° — teal
+  { name: 'violet',     hex: '#8833EE' },  // [11] board 42  hue 271° — blue-violet (lighter than purple)
+  { name: 'amber',      hex: '#CC8800' },  // [12] board 46  hue  40° — deep golden amber (darker than orange/yellow)
+  { name: 'indigo',     hex: '#4444DD' },  // [13] board 50  hue 240° — medium indigo
+  { name: 'sage',       hex: '#668833' },  // [14] board 54  hue  80° — dark sage (darker than lime)
+  { name: 'magenta',    hex: '#DD22AA' },  // [15] board 58  hue 312° — vivid magenta
+  { name: 'coral',      hex: '#FF7755' },  // [16] board 62  hue  12° — coral (lighter/warmer than red)
+  { name: 'periwinkle', hex: '#7788FF' },  // [17] board 66  hue 233° — periwinkle
+  { name: 'chartreuse', hex: '#CCEE00' },  // [18] board 70  hue  62° — chartreuse (yellower than lime)
+  { name: 'rose',       hex: '#FF3366' },  // [19] board 75  hue 342° — rose/hot pink-red
 ];
 
 // Board number when each color first becomes available (index matches MASTER_COLORS)
