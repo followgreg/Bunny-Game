@@ -46,7 +46,7 @@
   var startBtnsEl, boardLabelEl, furthestLabelEl;
   var seqWrapEl, seqGridEl, threadSvgEl;
   var paletteEl, feedbackEl;
-  var completeEl, completeLabelEl;
+  var completeEl, completeLabelEl, wrongEl;
 
   document.addEventListener('DOMContentLoaded', function () {
     startEl         = document.getElementById('nx-start');
@@ -62,11 +62,19 @@
     feedbackEl      = document.getElementById('nx-feedback');
     completeEl      = document.getElementById('nx-complete');
     completeLabelEl = document.getElementById('nx-complete-label');
+    wrongEl         = document.getElementById('nx-wrong');
 
     if (completeEl) {
       document.getElementById('nx-next-board').addEventListener('click', function () {
         hide(completeEl);
         currentBoard++;
+        loadBoard(currentBoard);
+      });
+    }
+
+    if (wrongEl) {
+      document.getElementById('nx-try-again').addEventListener('click', function () {
+        hide(wrongEl);
         loadBoard(currentBoard);
       });
     }
@@ -143,6 +151,7 @@
 
   function loadBoard(n) {
     hide(completeEl);
+    hide(wrongEl);
     feedbackEl.textContent = '';
 
     var data = boards[n - 1];
@@ -280,14 +289,7 @@
 
     } else {
       // Wrong
-      feedbackEl.textContent = 'Try again';
-      blank.classList.remove('nx-shake');
-      void blank.offsetWidth; // force reflow
-      blank.classList.add('nx-shake');
-      setTimeout(function () {
-        blank.classList.remove('nx-shake');
-        feedbackEl.textContent = '';
-      }, 400);
+      show(wrongEl);
     }
   }
 
