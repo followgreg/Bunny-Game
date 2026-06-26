@@ -8,8 +8,7 @@
     'each click turns it one step. Your goal is to connect every cell in ' +
     'the hive into one single network, with no closed loops anywhere. As ' +
     'pieces line up, honey flows through them. Loops don\'t count, no ' +
-    'matter how good they look — the honey needs somewhere to go. ' +
-    'Twenty-five hives to solve, starting with one to show you how it\'s done.';
+    'matter how good they look — the honey needs somewhere to go.';
 
   var LS_KEY       = 'honey_highestLevel';
   var TOTAL_LEVELS = 25;
@@ -145,7 +144,7 @@
   }
 
   function renderBoard(level, rots, connectedArms) {
-    var sz  = level.demo ? 52 : SIZE;
+    var sz  = SIZE;
     var svg = document.getElementById('hn-svg');
     svg.innerHTML = '';
     svg.setAttribute('viewBox', computeViewBox(level.cells, sz));
@@ -264,16 +263,6 @@
     });
   }
 
-  function showDemoHint() {
-    var el = document.getElementById('hn-demo-hint');
-    if (el) el.classList.remove('hn-hint-hidden');
-  }
-
-  function hideDemoHint() {
-    var el = document.getElementById('hn-demo-hint');
-    if (el) el.classList.add('hn-hint-hidden');
-  }
-
   function buildStartBtns() {
     var btns = document.getElementById('hn-start-btns');
     btns.innerHTML = '';
@@ -293,7 +282,7 @@
         function () { startLevel(highestLvl + 1); });
       mkBtn('hn-btn-ghost', 'Start from Level 1', function () { startLevel(1); });
     } else {
-      mkBtn('hn-btn-primary', 'Start', function () { startLevel(0); });
+      mkBtn('hn-btn-primary', 'Start', function () { startLevel(1); });
     }
   }
 
@@ -308,17 +297,10 @@
     game.cells.forEach(function (c, i) { game.cellMap[ck(c.q, c.r)] = i; });
     game.solved  = false;
 
-    document.getElementById('hn-level-label').textContent =
-      idx === 0 ? 'Tutorial' : 'Level ' + idx;
+    document.getElementById('hn-level-label').textContent = 'Level ' + idx;
     document.getElementById('hn-furthest-label').textContent =
       highestLvl > 0 ? 'Best: ' + highestLvl : '';
     document.getElementById('hn-board-wrap').classList.remove('hn-solved');
-
-    if (idx === 0) {
-      showDemoHint();
-    } else {
-      hideDemoHint();
-    }
 
     show('hn-game');
 
@@ -330,9 +312,6 @@
     if (game.solved) return;
     var i = game.cellMap[ck(q, r)];
     if (i === undefined) return;
-
-    // First click on demo dismisses the hint
-    if (game.idx === 0) hideDemoHint();
 
     game.rots[i] = (game.rots[i] + 1) % 6;
 
@@ -346,16 +325,12 @@
     game.solved = true;
     document.getElementById('hn-board-wrap').classList.add('hn-solved');
 
-    // Save progress for real levels only (not demo)
-    if (game.idx > 0 && game.idx > highestLvl) {
+    if (game.idx > highestLvl) {
       highestLvl = game.idx;
       try { localStorage.setItem(LS_KEY, highestLvl); } catch (e) {}
     }
 
-    if (game.idx === 0) {
-      document.getElementById('hn-level-label').textContent = 'Tutorial — Complete!';
-      setTimeout(function () { startLevel(1); }, 1300);
-    } else if (game.idx < TOTAL_LEVELS) {
+    if (game.idx < TOTAL_LEVELS) {
       document.getElementById('hn-level-label').textContent =
         'Level ' + game.idx + ' — Complete!';
       setTimeout(function () { startLevel(game.idx + 1); }, 1400);
