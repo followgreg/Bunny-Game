@@ -123,11 +123,11 @@
 
 /* ── Shape tints (five distinguishable dark hues) ─────────────────────────── */
 
-.sl-shape-1 { background: #0f2040; } /* blue     */
-.sl-shape-2 { background: #1c1040; } /* violet   */
-.sl-shape-3 { background: #0a2218; } /* emerald  */
-.sl-shape-4 { background: #221400; } /* amber    */
-.sl-shape-5 { background: #220a14; } /* crimson  */
+.sl-shape-1 { background: #1a0202; }
+.sl-shape-2 { background: #200404; }
+.sl-shape-3 { background: #260505; }
+.sl-shape-4 { background: #2c0606; }
+.sl-shape-5 { background: #320808; }
 
 /* ── Star icon ────────────────────────────────────────────────────────────── */
 

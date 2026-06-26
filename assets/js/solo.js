@@ -199,7 +199,7 @@
       var r = parseInt(cell.dataset.row, 10);
       var c = parseInt(cell.dataset.col, 10);
       game.stars[r][c] = !game.stars[r][c];
-      renderGrid(game.levels[game.idx]);
+      renderGrid(game.levels[game.idx - 1]);
     });
 
     document.getElementById('sl-submit').addEventListener('click', onSubmit);
