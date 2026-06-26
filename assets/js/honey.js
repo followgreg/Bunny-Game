@@ -13,9 +13,8 @@
   var LS_KEY       = 'honey_highestLevel';
   var TOTAL_LEVELS = 25;
 
-  var RADIUS = 3;
-  var SIZE   = 34;
-  var SQRT3  = Math.sqrt(3);
+  var SIZE  = 34;
+  var SQRT3 = Math.sqrt(3);
 
   var HEX_DIRS = [
     [+1,  0],  // 0: E
@@ -30,21 +29,20 @@
 
   // ── Hex grid math ────────────────────────────────────────────────────────────
 
-  function hexToPixel(q, r, sz) {
-    sz = sz || SIZE;
+  function hexToPixel(q, r) {
     return {
-      x: sz * (SQRT3 * q + SQRT3 / 2 * r),
-      y: sz * (1.5 * r)
+      x: SIZE * (SQRT3 * q + SQRT3 / 2 * r),
+      y: SIZE * (1.5 * r)
     };
   }
 
-  function hexPoints(sz) {
+  function hexPoints() {
     var pts = [];
     for (var i = 0; i < 6; i++) {
       var angle = Math.PI * (30 + 60 * i) / 180;
       pts.push(
-        (sz * Math.cos(angle)).toFixed(2) + ',' +
-        (sz * Math.sin(angle)).toFixed(2)
+        (SIZE * Math.cos(angle)).toFixed(2) + ',' +
+        (SIZE * Math.sin(angle)).toFixed(2)
       );
     }
     return pts.join(' ');
@@ -52,17 +50,15 @@
 
   // ── Pipe piece rendering ──────────────────────────────────────────────────────
 
-  function edgeMidpoint(e, apo) {
+  function edgeMidpoint(e) {
+    var apo   = SIZE * SQRT3 / 2;
     var angle = Math.PI * 60 * (e + 1) / 180;
     return { x: apo * Math.cos(angle), y: apo * Math.sin(angle) };
   }
 
-  function drawTile(parent, cx, cy, edges, sz, q, r, connectedDirs) {
-    sz = sz || SIZE;
-    var apo = sz * SQRT3 / 2;
-    var pw  = Math.max(4, Math.round(sz * 0.22));
-    var hr  = Math.max(3, Math.round(sz * 0.15));
-    var cd  = connectedDirs || [];
+  function drawTile(parent, cx, cy, edges, q, r) {
+    var pw = Math.max(4, Math.round(SIZE * 0.22));
+    var hr = Math.max(3, Math.round(SIZE * 0.15));
 
     var g = document.createElementNS(NS, 'g');
     g.setAttribute('transform', 'translate(' + cx.toFixed(2) + ',' + cy.toFixed(2) + ')');
@@ -70,14 +66,14 @@
     if (q !== undefined) { g.dataset.q = q; g.dataset.r = r; }
 
     var poly = document.createElementNS(NS, 'polygon');
-    poly.setAttribute('points', hexPoints(sz));
+    poly.setAttribute('points', hexPoints());
     poly.classList.add('hn-hex');
     g.appendChild(poly);
 
     if (edges.length === 0) { parent.appendChild(g); return g; }
 
     edges.forEach(function (e) {
-      var m = edgeMidpoint(e, apo);
+      var m = edgeMidpoint(e);
       var l = document.createElementNS(NS, 'line');
       l.setAttribute('x1', '0'); l.setAttribute('y1', '0');
       l.setAttribute('x2', m.x.toFixed(2)); l.setAttribute('y2', m.y.toFixed(2));
@@ -88,25 +84,13 @@
     });
 
     edges.forEach(function (e) {
-      var m = edgeMidpoint(e, apo);
+      var m = edgeMidpoint(e);
       var l = document.createElementNS(NS, 'line');
       l.setAttribute('x1', '0'); l.setAttribute('y1', '0');
       l.setAttribute('x2', m.x.toFixed(2)); l.setAttribute('y2', m.y.toFixed(2));
       l.setAttribute('stroke', '#C88500');
       l.setAttribute('stroke-width', pw);
       l.setAttribute('stroke-linecap', 'round');
-      g.appendChild(l);
-    });
-
-    edges.forEach(function (e) {
-      if (cd.indexOf(e) === -1) return;
-      var m = edgeMidpoint(e, apo);
-      var l = document.createElementNS(NS, 'line');
-      l.setAttribute('x1', '0'); l.setAttribute('y1', '0');
-      l.setAttribute('x2', m.x.toFixed(2)); l.setAttribute('y2', m.y.toFixed(2));
-      l.setAttribute('stroke-width', Math.max(2, pw - 2));
-      l.setAttribute('stroke-linecap', 'round');
-      l.classList.add('hn-arm-flow');
       g.appendChild(l);
     });
 
@@ -118,7 +102,6 @@
     var h = document.createElementNS(NS, 'circle');
     h.setAttribute('cx', '0'); h.setAttribute('cy', '0');
     h.setAttribute('r', hr); h.setAttribute('fill', '#C88500');
-    if (cd.length > 0) h.classList.add('hn-hub-glow');
     g.appendChild(h);
 
     parent.appendChild(g);
@@ -127,36 +110,37 @@
 
   // ── Board rendering ───────────────────────────────────────────────────────────
 
-  function computeViewBox(cells, sz) {
-    sz = sz || SIZE;
-    var apo  = sz * SQRT3 / 2;
+  function computeViewBox(cells) {
+    var apo  = SIZE * SQRT3 / 2;
     var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     cells.forEach(function (c) {
-      var px = hexToPixel(c.q, c.r, sz);
+      var px = hexToPixel(c.q, c.r);
       if (px.x - apo < minX) minX = px.x - apo;
       if (px.x + apo > maxX) maxX = px.x + apo;
-      if (px.y - sz  < minY) minY = px.y - sz;
-      if (px.y + sz  > maxY) maxY = px.y + sz;
+      if (px.y - SIZE < minY) minY = px.y - SIZE;
+      if (px.y + SIZE > maxY) maxY = px.y + SIZE;
     });
     var pad = 10;
     return (minX - pad).toFixed(1) + ' ' + (minY - pad).toFixed(1) + ' ' +
            (maxX - minX + 2 * pad).toFixed(1) + ' ' + (maxY - minY + 2 * pad).toFixed(1);
   }
 
-  function renderBoard(level, rots, connectedArms) {
-    var sz  = SIZE;
+  function renderBoard(level, rots) {
     var svg = document.getElementById('hn-svg');
     svg.innerHTML = '';
-    svg.setAttribute('viewBox', computeViewBox(level.cells, sz));
+    svg.setAttribute('viewBox', computeViewBox(level.cells));
     level.cells.forEach(function (cell, i) {
       var displayEdges = cell.edges.map(function (e) { return (e + rots[i]) % 6; });
-      var px = hexToPixel(cell.q, cell.r, sz);
-      drawTile(svg, px.x, px.y, displayEdges, sz, cell.q, cell.r,
-               connectedArms ? connectedArms[i] : []);
+      var px = hexToPixel(cell.q, cell.r);
+      drawTile(svg, px.x, px.y, displayEdges, cell.q, cell.r);
     });
   }
 
-  // ── Connectivity (union-find + live arm tracking) ─────────────────────────────
+  // ── Connectivity check ────────────────────────────────────────────────────────
+  //
+  // Win = all cells in one component AND edge count equals N−1 (no loops).
+  // Evaluated fresh from current rotation state after every click —
+  // accepts any valid spanning tree, not just the level's original solution.
 
   function computeConnectivity(cells, rots) {
     var N = cells.length;
@@ -179,8 +163,6 @@
     }
 
     var edgeCount = 0;
-
-    // Pass 1: union-find only (j > i avoids double-counting)
     cells.forEach(function (c, i) {
       var displayEdges = c.edges.map(function (e) { return (e + rots[i]) % 6; });
       displayEdges.forEach(function (d) {
@@ -195,49 +177,10 @@
       });
     });
 
-    // Pass 2: each cell checks its own arms for mutual connections
-    var connectedArms = cells.map(function () { return []; });
-    cells.forEach(function (c, i) {
-      var displayEdges = c.edges.map(function (e) { return (e + rots[i]) % 6; });
-      displayEdges.forEach(function (d) {
-        var nq = c.q + HEX_DIRS[d][0];
-        var nr = c.r + HEX_DIRS[d][1];
-        var j  = cellMap[nq + ',' + nr];
-        if (j === undefined) return;
-        var nEdges = cells[j].edges.map(function (e) { return (e + rots[j]) % 6; });
-        if (nEdges.indexOf((d + 3) % 6) !== -1) connectedArms[i].push(d);
-      });
-    });
-
     var root = find(0);
     var allConnected = cells.every(function (_, i) { return find(i) === root; });
 
-    return {
-      solved:        allConnected && edgeCount === N - 1,
-      edgeCount:     edgeCount,
-      allConnected:  allConnected,
-      connectedArms: connectedArms,
-    };
-  }
-
-  // ── Flow animation (shared RAF clock → no per-element restart on re-render) ───
-
-  var flowSvg    = null;
-  var flowPhase  = 0;
-  var lastTs     = 0;
-  var FLOW_PERIOD = 11;
-  var FLOW_SPEED  = 20;
-
-  function flowTick(ts) {
-    if (lastTs) {
-      var dt = Math.min(ts - lastTs, 100);
-      flowPhase = (flowPhase + FLOW_SPEED * dt / 1000) % FLOW_PERIOD;
-    }
-    lastTs = ts;
-    if (flowSvg) {
-      flowSvg.style.setProperty('--hn-offset', (FLOW_PERIOD - flowPhase).toFixed(2));
-    }
-    requestAnimationFrame(flowTick);
+    return { solved: allConnected && edgeCount === N - 1 };
   }
 
   // ── Game state ────────────────────────────────────────────────────────────────
@@ -261,6 +204,7 @@
     ['hn-start', 'hn-game', 'hn-win'].forEach(function (s) {
       document.getElementById(s).classList.toggle('hn-hide', s !== id);
     });
+    document.getElementById('hn-congrats').classList.add('hn-hide');
   }
 
   function buildStartBtns() {
@@ -300,12 +244,10 @@
     document.getElementById('hn-level-label').textContent = 'Level ' + idx;
     document.getElementById('hn-furthest-label').textContent =
       highestLvl > 0 ? 'Best: ' + highestLvl : '';
-    document.getElementById('hn-board-wrap').classList.remove('hn-solved');
+    document.getElementById('hn-board-wrap').classList.remove('hn-flash');
 
     show('hn-game');
-
-    var result = computeConnectivity(game.cells, game.rots);
-    renderBoard(level, game.rots, result.connectedArms);
+    renderBoard(level, game.rots);
   }
 
   function handleTileClick(q, r) {
@@ -316,36 +258,29 @@
     game.rots[i] = (game.rots[i] + 1) % 6;
 
     var result = computeConnectivity(game.cells, game.rots);
-    renderBoard(game.levels[game.idx], game.rots, result.connectedArms);
+    renderBoard(game.levels[game.idx], game.rots);
 
     if (result.solved) onLevelSolved();
   }
 
   function onLevelSolved() {
     game.solved = true;
-    document.getElementById('hn-board-wrap').classList.add('hn-solved');
 
     if (game.idx > highestLvl) {
       highestLvl = game.idx;
       try { localStorage.setItem(LS_KEY, highestLvl); } catch (e) {}
     }
 
-    if (game.idx < TOTAL_LEVELS) {
-      document.getElementById('hn-level-label').textContent =
-        'Level ' + game.idx + ' — Complete!';
-      setTimeout(function () { startLevel(game.idx + 1); }, 1400);
-    } else {
-      document.getElementById('hn-level-label').textContent = 'Level 25 — Complete!';
-      setTimeout(function () { show('hn-win'); }, 1400);
-    }
+    // One-time full-board flash, then show congratulations overlay
+    document.getElementById('hn-board-wrap').classList.add('hn-flash');
+    setTimeout(function () {
+      document.getElementById('hn-congrats').classList.remove('hn-hide');
+    }, 750);
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
-    flowSvg = document.getElementById('hn-svg');
-    requestAnimationFrame(flowTick);
-
     highestLvl = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
 
     document.getElementById('help-btn').addEventListener('click', function () {
@@ -356,6 +291,14 @@
       var tile = e.target.closest && e.target.closest('.hn-tile');
       if (!tile || tile.dataset.q === undefined) return;
       handleTileClick(parseInt(tile.dataset.q, 10), parseInt(tile.dataset.r, 10));
+    });
+
+    document.getElementById('hn-next-level').addEventListener('click', function () {
+      if (game.idx < TOTAL_LEVELS) {
+        startLevel(game.idx + 1);
+      } else {
+        show('hn-win');
+      }
     });
 
     document.getElementById('hn-share').addEventListener('click', function () {

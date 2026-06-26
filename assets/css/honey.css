@@ -205,47 +205,51 @@
 
 .hn-btn-ghost:hover { border-color: rgba(200, 133, 0, 0.6); color: rgba(245, 200, 66, 0.8); }
 
-/* ── Honey flow animation ─────────────────────────────────────────────────── */
+/* ── Win flash (one-time, triggers once on solve) ────────────────────────── */
 
-/* --hn-offset is driven by a requestAnimationFrame loop in honey.js.
-   All .hn-arm-flow lines share the same offset so re-renders don't
-   restart the animation mid-flow. */
-
-.hn-arm-flow {
-  stroke: rgba(255, 210, 55, 0.92);
-  stroke-dasharray: 6 5;
-  stroke-dashoffset: var(--hn-offset, 0);
-  stroke-linecap: round;
+.hn-board-wrap.hn-flash .hn-svg {
+  animation: hn-board-flash 0.75s ease-out forwards;
 }
 
-.hn-hub-glow {
-  fill: #FFD030;
-}
-
-/* ── Level-complete intensification ──────────────────────────────────────── */
-
-.hn-board-wrap.hn-solved .hn-svg {
-  animation: hn-glow-pulse 0.55s ease-in-out 2;
-}
-
-.hn-board-wrap.hn-solved .hn-hex {
+.hn-board-wrap.hn-flash .hn-hex {
   fill: #2D1800;
   stroke: #F5C842;
-  stroke-opacity: 0.85;
-  transition: fill 0.25s, stroke 0.25s, stroke-opacity 0.25s;
+  stroke-opacity: 0.9;
 }
 
-.hn-board-wrap.hn-solved .hn-arm-flow {
-  stroke: rgba(255, 235, 100, 1);
-  stroke-dasharray: 8 3;
-}
-
-.hn-board-wrap.hn-solved .hn-hub-glow {
-  fill: #FFE85A;
-}
-
-@keyframes hn-glow-pulse {
+@keyframes hn-board-flash {
   0%   { filter: none; }
-  50%  { filter: drop-shadow(0 0 22px rgba(255, 210, 55, 0.75)); }
-  100% { filter: none; }
+  20%  { filter: brightness(1.9) drop-shadow(0 0 40px rgba(255, 215, 60, 0.95)); }
+  55%  { filter: brightness(1.5) drop-shadow(0 0 22px rgba(255, 200, 55, 0.7)); }
+  100% { filter: brightness(1.0) drop-shadow(0 0 8px rgba(255, 200, 55, 0.3)); }
+}
+
+/* ── Congratulations overlay ─────────────────────────────────────────────── */
+
+.hn-congrats {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: rgba(28, 18, 0, 0.90);
+  z-index: 20;
+  padding: 40px 32px;
+  box-sizing: border-box;
+}
+
+.hn-congrats-head {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  color: #F5C842;
+  margin: 0;
+  text-align: center;
+  text-shadow: 0 0 32px rgba(245, 200, 66, 0.5);
+}
+
+#hn-next-level {
+  max-width: 240px;
+  width: 100%;
 }
