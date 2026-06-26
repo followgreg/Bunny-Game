@@ -38,15 +38,11 @@
   max-width: 320px;
 }
 
-.sl-logo-text {
-  font-family: 'DM Serif Display', serif;
-  font-size: 4rem;
-  color: #fbbf24;
-  margin: 0 0 2px;
-  letter-spacing: 0.04em;
-  text-shadow:
-    0 0 28px rgba(251, 191, 36, 0.5),
-    0 0 56px rgba(251, 191, 36, 0.2);
+.sl-logo-img {
+  display: block;
+  height: 40px;
+  width: auto;
+  margin: 0 auto 2px;
 }
 
 .sl-sub {
@@ -167,7 +163,7 @@
 .sl-btn-primary {
   display: block;
   width: 100%;
-  background: #4338ca;
+  background: #dc2626;
   color: #fff;
   font-family: 'DM Sans', sans-serif;
   font-size: 1rem;
@@ -177,16 +173,16 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 4px 0 #1e1a7a, 0 6px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 0 #7f1d1d, 0 6px 16px rgba(0, 0, 0, 0.5);
   transition: transform 0.07s, box-shadow 0.07s, background 0.1s;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
-.sl-btn-primary:hover  { background: #4f46e5; }
+.sl-btn-primary:hover  { background: #ef4444; }
 .sl-btn-primary:active {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 #1e1a7a;
+  box-shadow: 0 1px 0 #7f1d1d;
 }
 
 .sl-btn-ghost {
