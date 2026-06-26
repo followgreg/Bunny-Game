@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Honey — a hex-pipe puzzle — Bunny Game</title>
-  <meta name="description" content="Rotate hex tiles to connect the entire hive.">
+  <meta name="description" content="Rotate the hive. Connect every cell. Watch the honey flow.">
   <meta property="og:title" content="Honey — Bunny Game">
-  <meta property="og:description" content="Rotate hex tiles to connect the entire hive.">
+  <meta property="og:description" content="Rotate the hive. Connect every cell. Watch the honey flow.">
   <meta property="og:url" content="https://www.thebunnygame.com/honey">
   <link rel="canonical" href="https://www.thebunnygame.com/honey">
   <!-- PWA -->
@@ -64,6 +64,9 @@
     <div class="hn-board-wrap" id="hn-board-wrap">
       <svg id="hn-svg" class="hn-svg" xmlns="http://www.w3.org/2000/svg"
            role="img" aria-label="Honey hex grid"></svg>
+      <div id="hn-demo-hint" class="hn-demo-hint hn-hint-hidden">
+        <p>Click any tile to rotate it.<br>Connect the whole hive — no loops — and watch the honey flow.</p>
+      </div>
     </div>
   </div>
 
