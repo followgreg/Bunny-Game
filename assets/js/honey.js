@@ -179,9 +179,25 @@
       if (ufRank[ra] === ufRank[rb]) ufRank[ra]++;
     }
 
-    var connectedArms = cells.map(function () { return []; });
     var edgeCount = 0;
 
+    // Pass 1: union-find only (j > i avoids double-counting)
+    cells.forEach(function (c, i) {
+      var displayEdges = c.edges.map(function (e) { return (e + rots[i]) % 6; });
+      displayEdges.forEach(function (d) {
+        var nq = c.q + HEX_DIRS[d][0];
+        var nr = c.r + HEX_DIRS[d][1];
+        var j  = cellMap[nq + ',' + nr];
+        if (j === undefined || j <= i) return;
+        var nEdges = cells[j].edges.map(function (e) { return (e + rots[j]) % 6; });
+        if (nEdges.indexOf((d + 3) % 6) === -1) return;
+        unite(i, j);
+        edgeCount++;
+      });
+    });
+
+    // Pass 2: each cell checks its own arms for mutual connections
+    var connectedArms = cells.map(function () { return []; });
     cells.forEach(function (c, i) {
       var displayEdges = c.edges.map(function (e) { return (e + rots[i]) % 6; });
       displayEdges.forEach(function (d) {
@@ -190,10 +206,7 @@
         var j  = cellMap[nq + ',' + nr];
         if (j === undefined) return;
         var nEdges = cells[j].edges.map(function (e) { return (e + rots[j]) % 6; });
-        if (nEdges.indexOf((d + 3) % 6) === -1) return;
-        connectedArms[i].push(d);
-        connectedArms[j].push((d + 3) % 6);
-        if (j > i) { unite(i, j); edgeCount++; }
+        if (nEdges.indexOf((d + 3) % 6) !== -1) connectedArms[i].push(d);
       });
     });
 
