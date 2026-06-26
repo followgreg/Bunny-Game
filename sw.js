@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v103';
+const CACHE = 'bunnygame-v105';
 const ASSETS = [
   '/',
   '/index.html',
@@ -101,6 +101,11 @@ const ASSETS = [
   '/assets/js/honey.js',
   '/assets/data/honey-levels.json',
   '/assets/logos/honey_logo.svg',
+  '/solo.html',
+  '/assets/css/solo.css',
+  '/assets/js/solo.js',
+  '/assets/data/solo-levels.json',
+  '/assets/logos/solo_logo.svg',
   '/fuse.html',
   '/assets/css/fuse.css',
   '/assets/js/fuse.js',

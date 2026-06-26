@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="solo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Solo — a star placement puzzle — Bunny Game</title>
+  <meta name="description" content="Five shapes. Five stars. None of them touching. Twenty-five levels of logic.">
+  <meta property="og:title" content="Solo — Bunny Game">
+  <meta property="og:description" content="Five shapes. Five stars. None of them touching. Twenty-five levels of logic.">
+  <meta property="og:url" content="https://www.thebunnygame.com/solo">
+  <link rel="canonical" href="https://www.thebunnygame.com/solo">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#060a12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/solo.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Start screen -->
+  <div id="sl-start" class="sl-screen sl-hide">
+    <div class="sl-start-inner">
+      <p class="sl-logo-text">Solo</p>
+      <p class="sl-sub">Five shapes. Five stars. None of them touching.</p>
+      <div class="sl-start-btns" id="sl-start-btns"></div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="sl-game" class="sl-screen">
+    <div class="sl-hud">
+      <span id="sl-level-label">Level 1</span>
+      <span id="sl-furthest-label"></span>
+    </div>
+
+    <div class="sl-board-wrap">
+      <div id="sl-grid" class="sl-grid"></div>
+    </div>
+
+    <div class="sl-actions">
+      <button class="sl-btn-primary" id="sl-submit">Submit</button>
+    </div>
+  </div>
+
+  <!-- Win screen -->
+  <div id="sl-win" class="sl-screen sl-hide">
+    <div class="sl-win-inner">
+      <p class="sl-win-logo">Solo</p>
+      <h2 class="sl-win-headline">Solo Complete</h2>
+      <p class="sl-win-sub">All 25 boards solved.</p>
+      <div class="sl-win-btns">
+        <button class="sl-btn-primary" id="sl-share">Share</button>
+        <button class="sl-btn-ghost"   id="sl-play-again">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Correct overlay -->
+  <div id="sl-correct" class="sl-overlay sl-hide">
+    <p class="sl-overlay-head sl-overlay-head--correct">Correct!</p>
+    <button class="sl-btn-primary sl-overlay-btn" id="sl-next-level">Next Level</button>
+  </div>
+
+  <!-- Fail overlay -->
+  <div id="sl-fail" class="sl-overlay sl-hide">
+    <p class="sl-overlay-head">Not quite.</p>
+    <p class="sl-overlay-sub">Take another look.</p>
+    <button class="sl-btn-primary sl-overlay-btn" id="sl-try-again">Try Again</button>
+  </div>
+
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/solo.js"></script>
+</body>
+</html>
