@@ -52,7 +52,7 @@
 
   function edgeMidpoint(e) {
     var apo   = SIZE * SQRT3 / 2;
-    var angle = Math.PI * 60 * (e + 1) / 180;
+    var angle = Math.PI * 60 * e / 180;
     return { x: apo * Math.cos(angle), y: apo * Math.sin(angle) };
   }
 
