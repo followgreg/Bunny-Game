@@ -62,6 +62,21 @@ body[data-tab="cropped"] #canvas-wrap {
 .cr-corner.cr-bl { bottom: -5px; left: -5px;    border-bottom: 2px solid #1A1A1A; border-left:  2px solid #1A1A1A; }
 .cr-corner.cr-br { bottom: -5px; right: -5px;   border-bottom: 2px solid #1A1A1A; border-right: 2px solid #1A1A1A; }
 
+/* ── Crop display (div with background-image) ────────────────────────────── */
+#cr-crop-img {
+  display: block;
+  width: min(280px, calc(100vw - 80px));
+  aspect-ratio: 1 / 1;
+  background-color: #E8E0D0;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 333%;
+  opacity: 0;
+  transition: opacity 0.35s ease, background-size 0.5s ease;
+}
+#cr-crop-img.cr-img-loaded { opacity: 1; }
+
+/* ── Result full image (img element) ─────────────────────────────────────── */
 .cr-frame img {
   display: block;
   max-width: min(340px, calc(100vw - 64px));
@@ -75,7 +90,6 @@ body[data-tab="cropped"] #canvas-wrap {
 }
 .cr-frame img.cr-img-loaded { opacity: 1; }
 
-/* Larger result image */
 #cr-result .cr-frame img {
   max-width: min(420px, calc(100vw - 64px));
   max-height: 400px;
