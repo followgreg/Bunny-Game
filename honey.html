@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-tab="honey">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Honey — a hex-pipe puzzle — Bunny Game</title>
+  <meta name="description" content="Rotate hex tiles to connect the entire hive.">
+  <meta property="og:title" content="Honey — Bunny Game">
+  <meta property="og:description" content="Rotate hex tiles to connect the entire hive.">
+  <meta property="og:url" content="https://www.thebunnygame.com/honey">
+  <link rel="canonical" href="https://www.thebunnygame.com/honey">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#1C1200">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/honey.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Start screen (populated by JS) -->
+  <div id="hn-start" class="hn-screen hn-hide">
+    <div class="hn-start-inner">
+      <p class="hn-logo-text">Honey</p>
+      <p class="hn-sub">Rotate tiles to connect the entire hive.</p>
+      <div class="hn-start-btns" id="hn-start-btns"></div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="hn-game" class="hn-screen">
+    <div class="hn-hud" id="hn-hud">
+      <span id="hn-level-label">Level 1</span>
+      <span id="hn-furthest-label"></span>
+    </div>
+    <div class="hn-board-wrap" id="hn-board-wrap">
+      <svg id="hn-svg" class="hn-svg" xmlns="http://www.w3.org/2000/svg"
+           role="img" aria-label="Honey hex grid"></svg>
+    </div>
+  </div>
+
+  <!-- Win screen -->
+  <div id="hn-win" class="hn-screen hn-hide">
+    <div class="hn-win-inner">
+      <p class="hn-win-logo">Honey</p>
+      <h2 class="hn-win-headline">Complete</h2>
+      <p class="hn-win-sub" id="hn-win-sub">All 25 hives connected.</p>
+      <div class="hn-win-btns">
+        <button class="hn-btn-primary" id="hn-share">Share</button>
+        <button class="hn-btn-ghost"   id="hn-play-again">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/honey.js"></script>
+</body>
+</html>
