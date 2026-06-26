@@ -8,7 +8,6 @@
 
   var SQRT3 = Math.sqrt(3);
 
-  // Axial direction vectors for pointy-top hexagons, 0–5 clockwise from E.
   var HEX_DIRS = [
     [+1,  0],  // 0: E
     [ 0, +1],  // 1: SE
@@ -42,19 +41,21 @@
     return pts.join(' ');
   }
 
-  // ── Pipe piece definitions ────────────────────────────────────────────────────
+  // ── Pipe piece rendering ──────────────────────────────────────────────────────
 
   function edgeMidpoint(e, apo) {
     var angle = Math.PI * 60 * (e + 1) / 180;
     return { x: apo * Math.cos(angle), y: apo * Math.sin(angle) };
   }
 
-  // Draw a hex tile + pipe arms into a <g> translated to (cx, cy).
-  function drawTile(parent, cx, cy, edges, sz, q, r) {
+  // connectedDirs: array of display-edge directions on this tile that have a
+  // live mutual connection to their neighbour. These arms get a flow overlay.
+  function drawTile(parent, cx, cy, edges, sz, q, r, connectedDirs) {
     sz = sz || SIZE;
     var apo = sz * SQRT3 / 2;
     var pw  = Math.max(4, Math.round(sz * 0.22));
     var hr  = Math.max(3, Math.round(sz * 0.15));
+    var cd  = connectedDirs || [];
 
     var g = document.createElementNS(NS, 'g');
     g.setAttribute('transform', 'translate(' + cx.toFixed(2) + ',' + cy.toFixed(2) + ')');
@@ -69,7 +70,7 @@
 
     if (edges.length === 0) { parent.appendChild(g); return g; }
 
-    // 2. Shadow arms
+    // 2. Shadow arms (all)
     edges.forEach(function (e) {
       var m = edgeMidpoint(e, apo);
       var l = document.createElementNS(NS, 'line');
@@ -81,7 +82,7 @@
       g.appendChild(l);
     });
 
-    // 3. Bright amber arms
+    // 3. Base amber arms (all)
     edges.forEach(function (e) {
       var m = edgeMidpoint(e, apo);
       var l = document.createElementNS(NS, 'line');
@@ -93,15 +94,30 @@
       g.appendChild(l);
     });
 
-    // 4. Hub circle
+    // 4. Honey-flow overlay (connected arms only) — animated dashes via CSS
+    edges.forEach(function (e) {
+      if (cd.indexOf(e) === -1) return;
+      var m = edgeMidpoint(e, apo);
+      var l = document.createElementNS(NS, 'line');
+      l.setAttribute('x1', '0'); l.setAttribute('y1', '0');
+      l.setAttribute('x2', m.x.toFixed(2)); l.setAttribute('y2', m.y.toFixed(2));
+      l.setAttribute('stroke-width', Math.max(2, pw - 2));
+      l.setAttribute('stroke-linecap', 'round');
+      l.classList.add('hn-arm-flow');
+      g.appendChild(l);
+    });
+
+    // 5. Hub shadow
     var hs = document.createElementNS(NS, 'circle');
     hs.setAttribute('cx', '0'); hs.setAttribute('cy', '0');
     hs.setAttribute('r', hr + 1.5); hs.setAttribute('fill', '#5C3A00');
     g.appendChild(hs);
 
+    // 6. Hub — brighter fill when any arm is live
     var h = document.createElementNS(NS, 'circle');
     h.setAttribute('cx', '0'); h.setAttribute('cy', '0');
     h.setAttribute('r', hr); h.setAttribute('fill', '#C88500');
+    if (cd.length > 0) h.classList.add('hn-hub-glow');
     g.appendChild(h);
 
     parent.appendChild(g);
@@ -110,7 +126,6 @@
 
   // ── Board rendering ───────────────────────────────────────────────────────────
 
-  // Compute SVG viewBox from actual cell positions — works for any grid radius.
   function computeViewBox(cells, sz) {
     sz = sz || SIZE;
     var apo  = sz * SQRT3 / 2;
@@ -127,9 +142,9 @@
            (maxX - minX + 2 * pad).toFixed(1) + ' ' + (maxY - minY + 2 * pad).toFixed(1);
   }
 
-  // Render entire board using the given rotation offsets.
-  // rots[i] = current rotation for cells[i]; display edges = edges.map(e=>(e+rots[i])%6).
-  function renderBoard(level, rots) {
+  // connectedArms: array of arrays — connectedArms[i] lists the display-edge
+  // directions of cell i that have a live mutual connection.
+  function renderBoard(level, rots, connectedArms) {
     var sz  = level.demo ? 52 : SIZE;
     var svg = document.getElementById('hn-svg');
     svg.innerHTML = '';
@@ -138,22 +153,20 @@
     level.cells.forEach(function (cell, i) {
       var displayEdges = cell.edges.map(function (e) { return (e + rots[i]) % 6; });
       var px = hexToPixel(cell.q, cell.r, sz);
-      drawTile(svg, px.x, px.y, displayEdges, sz, cell.q, cell.r);
+      drawTile(svg, px.x, px.y, displayEdges, sz, cell.q, cell.r,
+               connectedArms ? connectedArms[i] : []);
     });
   }
 
-  // ── Connectivity check (union-find) ──────────────────────────────────────────
+  // ── Connectivity (union-find + live arm tracking) ─────────────────────────────
 
-  // Returns {solved, edgeCount, allConnected} for the current board state.
-  // A board is solved when: all N cells are in one connected component AND
-  // there are exactly N-1 mutual connections (spanning tree = no loops).
   function computeConnectivity(cells, rots) {
     var N = cells.length;
 
     var cellMap = {};
     cells.forEach(function (c, i) { cellMap[c.q + ',' + c.r] = i; });
 
-    // Union-Find with path compression + union by rank
+    // Union-Find
     var parent = cells.map(function (_, i) { return i; });
     var ufRank = cells.map(function () { return 0; });
 
@@ -163,12 +176,14 @@
     }
     function unite(a, b) {
       var ra = find(a), rb = find(b);
-      if (ra === rb) return false;  // already connected (cycle)
+      if (ra === rb) return;
       if (ufRank[ra] < ufRank[rb]) { var t = ra; ra = rb; rb = t; }
       parent[rb] = ra;
       if (ufRank[ra] === ufRank[rb]) ufRank[ra]++;
-      return true;
     }
+
+    // Track which display-edge directions are live per cell (for flow rendering)
+    var connectedArms = cells.map(function () { return []; });
 
     var edgeCount = 0;
     cells.forEach(function (c, i) {
@@ -177,13 +192,13 @@
         var nq = c.q + HEX_DIRS[d][0];
         var nr = c.r + HEX_DIRS[d][1];
         var j  = cellMap[nq + ',' + nr];
-        // Skip: exits grid, or already checked this pair (i>j would duplicate)
-        if (j === undefined || j <= i) return;
+        if (j === undefined) return;            // exits grid
         var nEdges = cells[j].edges.map(function (e) { return (e + rots[j]) % 6; });
-        // Both sides must agree (reciprocal arms)
-        if (nEdges.indexOf((d + 3) % 6) === -1) return;
-        unite(i, j);
-        edgeCount++;
+        if (nEdges.indexOf((d + 3) % 6) === -1) return;  // no reciprocal
+        // Live mutual connection
+        connectedArms[i].push(d);
+        connectedArms[j].push((d + 3) % 6);
+        if (j > i) { unite(i, j); edgeCount++; }  // union-find: count each pair once
       });
     });
 
@@ -191,19 +206,42 @@
     var allConnected = cells.every(function (_, i) { return find(i) === root; });
 
     return {
-      solved:       allConnected && edgeCount === N - 1,
-      edgeCount:    edgeCount,
-      allConnected: allConnected,
+      solved:        allConnected && edgeCount === N - 1,
+      edgeCount:     edgeCount,
+      allConnected:  allConnected,
+      connectedArms: connectedArms,
     };
+  }
+
+  // ── Flow animation (RAF — global clock so re-renders don't reset dashes) ──────
+
+  var flowSvg   = null;
+  var flowPhase = 0;        // 0 → FLOW_PERIOD, wraps
+  var FLOW_PERIOD = 11;     // dasharray period: 6 dash + 5 gap
+  var FLOW_SPEED  = 20;     // pixels per second (outward from hub)
+  var lastTs      = 0;
+
+  function flowTick(ts) {
+    if (lastTs) {
+      var dt = Math.min(ts - lastTs, 100);   // cap: ignore huge gaps (tab hidden)
+      flowPhase = (flowPhase + FLOW_SPEED * dt / 1000) % FLOW_PERIOD;
+    }
+    lastTs = ts;
+    // Decreasing dashoffset → dashes move forward (hub → edge)
+    if (flowSvg) {
+      flowSvg.style.setProperty('--hn-offset',
+        (FLOW_PERIOD - flowPhase).toFixed(2));
+    }
+    requestAnimationFrame(flowTick);
   }
 
   // ── Game state ────────────────────────────────────────────────────────────────
 
   var game = {
     levels:  [],
-    idx:     0,      // index into levels[] (0=demo, 1–25=real)
+    idx:     0,
     cells:   [],
-    rots:    [],     // current rotation offset per cell (mutable)
+    rots:    [],
     cellMap: {},
     solved:  false,
   };
@@ -225,24 +263,26 @@
     game.cells.forEach(function (c, i) { game.cellMap[ck(c.q, c.r)] = i; });
     game.solved  = false;
 
-    var levelNum = idx;  // 0 = demo, 1–25 = real
     document.getElementById('hn-level-label').textContent =
-      idx === 0 ? 'Tutorial' : 'Level ' + levelNum;
+      idx === 0 ? 'Tutorial' : 'Level ' + idx;
     document.getElementById('hn-furthest-label').textContent = '';
-
     document.getElementById('hn-board-wrap').classList.remove('hn-solved');
     show('hn-game');
-    renderBoard(level, game.rots);
+
+    var result = computeConnectivity(game.cells, game.rots);
+    renderBoard(level, game.rots, result.connectedArms);
   }
 
   function handleTileClick(q, r) {
     if (game.solved) return;
     var i = game.cellMap[ck(q, r)];
     if (i === undefined) return;
+
     game.rots[i] = (game.rots[i] + 1) % 6;
-    renderBoard(game.levels[game.idx], game.rots);
 
     var result = computeConnectivity(game.cells, game.rots);
+    renderBoard(game.levels[game.idx], game.rots, result.connectedArms);
+
     if (result.solved) onLevelSolved();
   }
 
@@ -251,7 +291,6 @@
     document.getElementById('hn-board-wrap').classList.add('hn-solved');
 
     if (game.idx === 0) {
-      // Demo complete → advance to level 1
       document.getElementById('hn-level-label').textContent = 'Tutorial — Complete!';
       setTimeout(function () { startLevel(1); }, 1300);
     } else if (game.idx < 25) {
@@ -259,7 +298,6 @@
         'Level ' + game.idx + ' — Complete!';
       setTimeout(function () { startLevel(game.idx + 1); }, 1400);
     } else {
-      // All 25 real levels done
       document.getElementById('hn-level-label').textContent = 'Level 25 — Complete!';
       setTimeout(function () { show('hn-win'); }, 1400);
     }
@@ -268,6 +306,9 @@
   // ── Init ─────────────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
+    flowSvg = document.getElementById('hn-svg');
+    requestAnimationFrame(flowTick);
+
     document.getElementById('help-btn').addEventListener('click', function () {
       document.getElementById('directions-overlay').classList.remove('hidden');
     });
@@ -275,21 +316,18 @@
       document.getElementById('directions-overlay').classList.add('hidden');
     });
 
-    // Event delegation: all tile clicks flow through the SVG parent
     document.getElementById('hn-svg').addEventListener('click', function (e) {
       var tile = e.target.closest && e.target.closest('.hn-tile');
       if (!tile || tile.dataset.q === undefined) return;
       handleTileClick(parseInt(tile.dataset.q, 10), parseInt(tile.dataset.r, 10));
     });
 
-    // Start screen — build Play button
     var playBtn = document.createElement('button');
     playBtn.className = 'hn-btn-primary';
     playBtn.textContent = 'Play';
     playBtn.addEventListener('click', function () { startLevel(0); });
     document.getElementById('hn-start-btns').appendChild(playBtn);
 
-    // Win screen buttons
     document.getElementById('hn-share').addEventListener('click', function () {
       var text = 'I connected all 25 hives in Honey! 🍯 thebunnygame.com/honey';
       if (navigator.share) {

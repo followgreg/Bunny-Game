@@ -205,7 +205,24 @@
 
 .hn-btn-ghost:hover { border-color: rgba(200, 133, 0, 0.6); color: rgba(245, 200, 66, 0.8); }
 
-/* ── Level-complete animation ─────────────────────────────────────────────── */
+/* ── Honey flow animation ─────────────────────────────────────────────────── */
+
+/* --hn-offset is driven by a requestAnimationFrame loop in honey.js.
+   All .hn-arm-flow lines share the same offset so re-renders don't
+   restart the animation mid-flow. */
+
+.hn-arm-flow {
+  stroke: rgba(255, 210, 55, 0.92);
+  stroke-dasharray: 6 5;
+  stroke-dashoffset: var(--hn-offset, 0);
+  stroke-linecap: round;
+}
+
+.hn-hub-glow {
+  fill: #FFD030;
+}
+
+/* ── Level-complete intensification ──────────────────────────────────────── */
 
 .hn-board-wrap.hn-solved .hn-svg {
   animation: hn-glow-pulse 0.55s ease-in-out 2;
@@ -218,8 +235,17 @@
   transition: fill 0.25s, stroke 0.25s, stroke-opacity 0.25s;
 }
 
+.hn-board-wrap.hn-solved .hn-arm-flow {
+  stroke: rgba(255, 235, 100, 1);
+  stroke-dasharray: 8 3;
+}
+
+.hn-board-wrap.hn-solved .hn-hub-glow {
+  fill: #FFE85A;
+}
+
 @keyframes hn-glow-pulse {
   0%   { filter: none; }
-  50%  { filter: drop-shadow(0 0 18px rgba(245, 200, 66, 0.65)); }
+  50%  { filter: drop-shadow(0 0 22px rgba(255, 210, 55, 0.75)); }
   100% { filter: none; }
 }
