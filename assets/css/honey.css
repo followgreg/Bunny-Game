@@ -37,13 +37,12 @@
   max-width: 320px;
 }
 
-.hn-logo-text {
-  font-family: 'DM Serif Display', serif;
-  font-size: 3.8rem;
-  color: #F5C842;
-  margin: 0 0 6px;
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 32px rgba(245, 200, 66, 0.45);
+.hn-start-logo {
+  display: block;
+  width: 180px;
+  max-width: 80%;
+  margin: 0 auto 18px;
+  filter: drop-shadow(0 0 20px rgba(245, 200, 66, 0.35));
 }
 
 .hn-sub {
