@@ -204,3 +204,22 @@
 }
 
 .hn-btn-ghost:hover { border-color: rgba(200, 133, 0, 0.6); color: rgba(245, 200, 66, 0.8); }
+
+/* ── Level-complete animation ─────────────────────────────────────────────── */
+
+.hn-board-wrap.hn-solved .hn-svg {
+  animation: hn-glow-pulse 0.55s ease-in-out 2;
+}
+
+.hn-board-wrap.hn-solved .hn-hex {
+  fill: #2D1800;
+  stroke: #F5C842;
+  stroke-opacity: 0.85;
+  transition: fill 0.25s, stroke 0.25s, stroke-opacity 0.25s;
+}
+
+@keyframes hn-glow-pulse {
+  0%   { filter: none; }
+  50%  { filter: drop-shadow(0 0 18px rgba(245, 200, 66, 0.65)); }
+  100% { filter: none; }
+}

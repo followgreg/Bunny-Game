@@ -9,8 +9,6 @@
   var SQRT3 = Math.sqrt(3);
 
   // Axial direction vectors for pointy-top hexagons, 0–5 clockwise from E.
-  // Edge e (between corner e and corner (e+1)%6) faces direction (e+1)%6.
-  // Edge e midpoint: angle = 60*(e+1)°, distance = SIZE*√3/2 from center.
   var HEX_DIRS = [
     [+1,  0],  // 0: E
     [ 0, +1],  // 1: SE
@@ -24,14 +22,6 @@
 
   // ── Hex grid math ────────────────────────────────────────────────────────────
 
-  function getGridCells(radius) {
-    var cells = [];
-    for (var q = -radius; q <= radius; q++)
-      for (var r = -radius; r <= radius; r++)
-        if (Math.abs(q + r) <= radius) cells.push({ q: q, r: r });
-    return cells;
-  }
-
   function hexToPixel(q, r, sz) {
     sz = sz || SIZE;
     return {
@@ -40,21 +30,6 @@
     };
   }
 
-  function inGrid(q, r) {
-    return Math.abs(q) <= RADIUS && Math.abs(r) <= RADIUS && Math.abs(q + r) <= RADIUS;
-  }
-
-  function getNeighbors(q, r) {
-    var result = [];
-    for (var d = 0; d < 6; d++) {
-      var nq = q + HEX_DIRS[d][0];
-      var nr = r + HEX_DIRS[d][1];
-      if (inGrid(nq, nr)) result.push({ q: nq, r: nr, dir: d });
-    }
-    return result;
-  }
-
-  // SVG polygon points for a pointy-top hex at local origin (inside a translate group).
   function hexPoints(sz) {
     var pts = [];
     for (var i = 0; i < 6; i++) {
@@ -69,24 +44,17 @@
 
   // ── Pipe piece definitions ────────────────────────────────────────────────────
 
-  // Edge e midpoint at local origin: angle = 60*(e+1)°, distance = apothem.
   function edgeMidpoint(e, apo) {
     var angle = Math.PI * 60 * (e + 1) / 180;
     return { x: apo * Math.cos(angle), y: apo * Math.sin(angle) };
   }
 
-  // Rotate an edge set clockwise by r steps (1 step = 60°).
-  function rotateEdges(edges, r) {
-    return edges.map(function (e) { return (e + r) % 6; });
-  }
-
   // Draw a hex tile + pipe arms into a <g> translated to (cx, cy).
-  // q, r are stored as data attributes for future click handling.
   function drawTile(parent, cx, cy, edges, sz, q, r) {
     sz = sz || SIZE;
     var apo = sz * SQRT3 / 2;
-    var pw  = Math.max(4, Math.round(sz * 0.22));  // pipe stroke width
-    var hr  = Math.max(3, Math.round(sz * 0.15));  // hub radius
+    var pw  = Math.max(4, Math.round(sz * 0.22));
+    var hr  = Math.max(3, Math.round(sz * 0.15));
 
     var g = document.createElementNS(NS, 'g');
     g.setAttribute('transform', 'translate(' + cx.toFixed(2) + ',' + cy.toFixed(2) + ')');
@@ -140,10 +108,9 @@
     return g;
   }
 
-  // ── Board grid rendering ──────────────────────────────────────────────────────
+  // ── Board rendering ───────────────────────────────────────────────────────────
 
-  // Compute SVG viewBox from actual cell positions — works for any radius.
-  // sz: hex circumradius (SIZE for radius-3, larger for demo radius-1).
+  // Compute SVG viewBox from actual cell positions — works for any grid radius.
   function computeViewBox(cells, sz) {
     sz = sz || SIZE;
     var apo  = sz * SQRT3 / 2;
@@ -160,74 +127,142 @@
            (maxX - minX + 2 * pad).toFixed(1) + ' ' + (maxY - minY + 2 * pad).toFixed(1);
   }
 
-  // Render a level in scrambled or solved state.
-  //   level  — {demo, cells:[{q,r,edges,startRot}]}
-  //   solved — true → show edges as-is; false → apply startRot scramble
-  function renderBoard(level, solved) {
+  // Render entire board using the given rotation offsets.
+  // rots[i] = current rotation for cells[i]; display edges = edges.map(e=>(e+rots[i])%6).
+  function renderBoard(level, rots) {
     var sz  = level.demo ? 52 : SIZE;
     var svg = document.getElementById('hn-svg');
     svg.innerHTML = '';
     svg.setAttribute('viewBox', computeViewBox(level.cells, sz));
 
-    level.cells.forEach(function (cell) {
-      var displayEdges = solved
-        ? cell.edges.slice()
-        : cell.edges.map(function (e) { return (e + cell.startRot) % 6; });
+    level.cells.forEach(function (cell, i) {
+      var displayEdges = cell.edges.map(function (e) { return (e + rots[i]) % 6; });
       var px = hexToPixel(cell.q, cell.r, sz);
       drawTile(svg, px.x, px.y, displayEdges, sz, cell.q, cell.r);
     });
   }
 
-  // ── Test harness (Part 2 — kept for reference) ────────────────────────────────
+  // ── Connectivity check (union-find) ──────────────────────────────────────────
 
-  var TEST_CASES = [
-    { edges: [0, 3], r: 0 }, { edges: [0, 3], r: 1 },
-    { edges: [0, 2], r: 0 }, { edges: [0, 2], r: 1 },
-    { edges: [0, 1], r: 0 },
-    { edges: [0, 2, 4], r: 0 }, { edges: [0, 2, 4], r: 1 },
-    { edges: [0, 1, 3], r: 0 }, { edges: [0, 1, 3], r: 1 },
-    { edges: [0, 1, 2], r: 0 },
-    { edges: [0, 1, 2, 3], r: 0 }, { edges: [0, 1, 2, 3], r: 2 },
-    { edges: [0, 1, 3, 4], r: 0 }, { edges: [0, 2, 3, 5], r: 0 },
-    { edges: [0, 1, 2, 4], r: 0 },
-    { edges: [0, 1, 2, 3, 4], r: 0 }, { edges: [0, 1, 2, 3, 4], r: 1 },
-    { edges: [0, 1, 2, 3, 4, 5], r: 0 }, { edges: [0, 1, 2, 3, 4, 5], r: 1 },
-    { edges: [1, 2, 3, 4, 5], r: 0 },
-  ];
+  // Returns {solved, edgeCount, allConnected} for the current board state.
+  // A board is solved when: all N cells are in one connected component AND
+  // there are exactly N-1 mutual connections (spanning tree = no loops).
+  function computeConnectivity(cells, rots) {
+    var N = cells.length;
 
-  var COLS = 5, TEST_SZ = 28, COL_STEP = TEST_SZ * 2 + 14, ROW_STEP = TEST_SZ * 2 + 26;
-  var ROW_LABELS = ['2-edge', '3-edge', '4-edge', '5/6-edge'];
+    var cellMap = {};
+    cells.forEach(function (c, i) { cellMap[c.q + ',' + c.r] = i; });
 
-  function renderTestHarness() {
-    var svg = document.getElementById('hn-svg');
-    svg.innerHTML = '';
-    var rows = Math.ceil(TEST_CASES.length / COLS);
-    svg.setAttribute('viewBox', '-2 -2 ' + (COLS * COL_STEP + 8) + ' ' + (rows * ROW_STEP + 8));
+    // Union-Find with path compression + union by rank
+    var parent = cells.map(function (_, i) { return i; });
+    var ufRank = cells.map(function () { return 0; });
 
-    TEST_CASES.forEach(function (tc, idx) {
-      var col = idx % COLS, row = Math.floor(idx / COLS);
-      var cx = col * COL_STEP + TEST_SZ, cy = row * ROW_STEP + TEST_SZ;
+    function find(x) {
+      while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; }
+      return x;
+    }
+    function unite(a, b) {
+      var ra = find(a), rb = find(b);
+      if (ra === rb) return false;  // already connected (cycle)
+      if (ufRank[ra] < ufRank[rb]) { var t = ra; ra = rb; rb = t; }
+      parent[rb] = ra;
+      if (ufRank[ra] === ufRank[rb]) ufRank[ra]++;
+      return true;
+    }
 
-      if (col === 0 && ROW_LABELS[row]) {
-        var h = document.createElementNS(NS, 'text');
-        h.setAttribute('x', cx); h.setAttribute('y', cy - TEST_SZ - 4);
-        h.setAttribute('text-anchor', 'middle');
-        h.setAttribute('font-family', 'DM Sans, sans-serif');
-        h.setAttribute('font-size', '8'); h.setAttribute('fill', 'rgba(245,200,66,0.35)');
-        h.textContent = ROW_LABELS[row];
-        svg.appendChild(h);
-      }
-
-      drawTile(svg, cx, cy, rotateEdges(tc.edges, tc.r), TEST_SZ);
-
-      var lbl = document.createElementNS(NS, 'text');
-      lbl.setAttribute('x', cx); lbl.setAttribute('y', cy + TEST_SZ + 13);
-      lbl.setAttribute('text-anchor', 'middle');
-      lbl.setAttribute('font-family', 'DM Sans, sans-serif');
-      lbl.setAttribute('font-size', '8'); lbl.setAttribute('fill', 'rgba(245,200,66,0.4)');
-      lbl.textContent = '[' + tc.edges.join(',') + ']' + (tc.r ? '+' + tc.r : '');
-      svg.appendChild(lbl);
+    var edgeCount = 0;
+    cells.forEach(function (c, i) {
+      var displayEdges = c.edges.map(function (e) { return (e + rots[i]) % 6; });
+      displayEdges.forEach(function (d) {
+        var nq = c.q + HEX_DIRS[d][0];
+        var nr = c.r + HEX_DIRS[d][1];
+        var j  = cellMap[nq + ',' + nr];
+        // Skip: exits grid, or already checked this pair (i>j would duplicate)
+        if (j === undefined || j <= i) return;
+        var nEdges = cells[j].edges.map(function (e) { return (e + rots[j]) % 6; });
+        // Both sides must agree (reciprocal arms)
+        if (nEdges.indexOf((d + 3) % 6) === -1) return;
+        unite(i, j);
+        edgeCount++;
+      });
     });
+
+    var root = find(0);
+    var allConnected = cells.every(function (_, i) { return find(i) === root; });
+
+    return {
+      solved:       allConnected && edgeCount === N - 1,
+      edgeCount:    edgeCount,
+      allConnected: allConnected,
+    };
+  }
+
+  // ── Game state ────────────────────────────────────────────────────────────────
+
+  var game = {
+    levels:  [],
+    idx:     0,      // index into levels[] (0=demo, 1–25=real)
+    cells:   [],
+    rots:    [],     // current rotation offset per cell (mutable)
+    cellMap: {},
+    solved:  false,
+  };
+
+  function ck(q, r) { return q + ',' + r; }
+
+  function show(id) {
+    ['hn-start', 'hn-game', 'hn-win'].forEach(function (s) {
+      document.getElementById(s).classList.toggle('hn-hide', s !== id);
+    });
+  }
+
+  function startLevel(idx) {
+    var level    = game.levels[idx];
+    game.idx     = idx;
+    game.cells   = level.cells;
+    game.rots    = level.cells.map(function (c) { return c.startRot; });
+    game.cellMap = {};
+    game.cells.forEach(function (c, i) { game.cellMap[ck(c.q, c.r)] = i; });
+    game.solved  = false;
+
+    var levelNum = idx;  // 0 = demo, 1–25 = real
+    document.getElementById('hn-level-label').textContent =
+      idx === 0 ? 'Tutorial' : 'Level ' + levelNum;
+    document.getElementById('hn-furthest-label').textContent = '';
+
+    document.getElementById('hn-board-wrap').classList.remove('hn-solved');
+    show('hn-game');
+    renderBoard(level, game.rots);
+  }
+
+  function handleTileClick(q, r) {
+    if (game.solved) return;
+    var i = game.cellMap[ck(q, r)];
+    if (i === undefined) return;
+    game.rots[i] = (game.rots[i] + 1) % 6;
+    renderBoard(game.levels[game.idx], game.rots);
+
+    var result = computeConnectivity(game.cells, game.rots);
+    if (result.solved) onLevelSolved();
+  }
+
+  function onLevelSolved() {
+    game.solved = true;
+    document.getElementById('hn-board-wrap').classList.add('hn-solved');
+
+    if (game.idx === 0) {
+      // Demo complete → advance to level 1
+      document.getElementById('hn-level-label').textContent = 'Tutorial — Complete!';
+      setTimeout(function () { startLevel(1); }, 1300);
+    } else if (game.idx < 25) {
+      document.getElementById('hn-level-label').textContent =
+        'Level ' + game.idx + ' — Complete!';
+      setTimeout(function () { startLevel(game.idx + 1); }, 1400);
+    } else {
+      // All 25 real levels done
+      document.getElementById('hn-level-label').textContent = 'Level 25 — Complete!';
+      setTimeout(function () { show('hn-win'); }, 1400);
+    }
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
@@ -240,27 +275,38 @@
       document.getElementById('directions-overlay').classList.add('hidden');
     });
 
-    // Part 4 spot-check: show scrambled starting state of level 1.
-    // Click the board to toggle solved/scrambled for visual verification.
-    var showSolved = false;
-    var currentLevel = null;
+    // Event delegation: all tile clicks flow through the SVG parent
+    document.getElementById('hn-svg').addEventListener('click', function (e) {
+      var tile = e.target.closest && e.target.closest('.hn-tile');
+      if (!tile || tile.dataset.q === undefined) return;
+      handleTileClick(parseInt(tile.dataset.q, 10), parseInt(tile.dataset.r, 10));
+    });
 
-    document.getElementById('hn-furthest-label').textContent = 'tap to verify';
+    // Start screen — build Play button
+    var playBtn = document.createElement('button');
+    playBtn.className = 'hn-btn-primary';
+    playBtn.textContent = 'Play';
+    playBtn.addEventListener('click', function () { startLevel(0); });
+    document.getElementById('hn-start-btns').appendChild(playBtn);
 
-    document.getElementById('hn-board-wrap').addEventListener('click', function () {
-      if (!currentLevel) return;
-      showSolved = !showSolved;
-      document.getElementById('hn-level-label').textContent =
-        showSolved ? 'Level 1 — solved ✓' : 'Level 1 — scrambled';
-      renderBoard(currentLevel, showSolved);
+    // Win screen buttons
+    document.getElementById('hn-share').addEventListener('click', function () {
+      var text = 'I connected all 25 hives in Honey! 🍯 thebunnygame.com/honey';
+      if (navigator.share) {
+        navigator.share({ text: text }).catch(function () {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      }
+    });
+    document.getElementById('hn-play-again').addEventListener('click', function () {
+      show('hn-start');
     });
 
     fetch('/assets/data/honey-levels.json')
       .then(function (r) { return r.json(); })
       .then(function (levels) {
-        currentLevel = levels[1];  // index 0 = demo, index 1 = level 1
-        document.getElementById('hn-level-label').textContent = 'Level 1 — scrambled';
-        renderBoard(currentLevel, false);
+        game.levels = levels;
+        show('hn-start');
       });
   });
 
