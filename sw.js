@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v105';
+const CACHE = 'bunnygame-v106';
 const ASSETS = [
   '/',
   '/index.html',
@@ -36,6 +36,7 @@ const ASSETS = [
   '/assets/css/mascot-wave.css',
   '/assets/css/pickler.css',
   '/assets/css/cubrick.css',
+  '/assets/logos/classic_logo.svg',
   '/assets/logos/cubrick_logo.svg',
   '/assets/logos/cropped_logo.svg',
   '/assets/logos/flagged_logo.svg',
