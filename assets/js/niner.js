@@ -94,10 +94,11 @@
 
   // ── Part 3 — Game state ────────────────────────────────────────────────────
   var DIRECTIONS_TEXT =
-    'A 9-letter word is shown at the top. Find it hiding in the grid and tap ' +
-    'the letters in order to trace the path. Each step must connect to an ' +
-    'adjacent cell — including diagonals. Every cell is used exactly once. ' +
-    'If your path hits a dead end, tap Try Again to start over with the same word.';
+    'Niner hides a nine-letter word in a 3×3 grid. Click the letters in order, ' +
+    'tracing through cells that touch — including diagonally. Get it right and ' +
+    'you\'ll fill all nine slots below with the answer. Wander into a dead end, ' +
+    'and the letters will let you know — just hit Try Again and trace it ' +
+    'differently. Every word gets a brand new layout, so the path is never the same twice.';
 
   var currentGame = null;  // { word, grid, path }
   var trace       = [];    // cell indices in trace order
