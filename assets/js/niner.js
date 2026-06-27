@@ -105,7 +105,7 @@
   var gameActive  = false;
 
   // DOM refs (set in DOMContentLoaded)
-  var gridEl, slotsEl, svgEl, targetEl, tryBtn, newBtn, solveEl, solveWordEl;
+  var gridEl, slotsEl, svgEl, tryBtn, newBtn, solveEl, solveWordEl;
 
   // ── Cell helpers ───────────────────────────────────────────────────────────
   function getCellEl(idx) {
@@ -257,7 +257,6 @@
     gameActive = false;
     markAllSolved();
     setSlotsState('correct');
-    targetEl.classList.add('solved');
     tryBtn.classList.add('n-hide');
 
     setTimeout(function () {
@@ -313,7 +312,6 @@
     svgEl.innerHTML = '';
     clearSlots();
     refreshCellStates();
-    targetEl.classList.remove('solved');
     tryBtn.classList.add('n-hide');
   }
 
@@ -324,8 +322,6 @@
     gameActive  = true;
 
     solveEl.classList.add('n-hide');
-    targetEl.textContent = currentGame.word;
-    targetEl.classList.remove('solved');
     svgEl.innerHTML = '';
     renderGrid(currentGame);
     renderSlots();
@@ -337,7 +333,6 @@
     gridEl      = document.getElementById('niner-grid');
     slotsEl     = document.getElementById('niner-slots');
     svgEl       = document.getElementById('niner-svg');
-    targetEl    = document.getElementById('niner-target');
     tryBtn      = document.getElementById('niner-try');
     newBtn      = document.getElementById('niner-new');
     solveEl     = document.getElementById('niner-solve');

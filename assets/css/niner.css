@@ -12,22 +12,6 @@
   overflow: hidden;
 }
 
-/* ── Target word ──────────────────────────────────────────────────────────── */
-.niner-target {
-  font-family: 'DM Sans', sans-serif;
-  font-size: clamp(1.2rem, 5vw, 1.6rem);
-  font-weight: 900;
-  letter-spacing: 0.22em;
-  color: #f1f5f9;
-  margin: 0;
-  text-align: center;
-  transition: color 0.3s;
-}
-
-.niner-target.solved {
-  color: #4ade80;
-}
-
 /* ── Board wrap (grid + SVG share this layer) ─────────────────────────────── */
 .niner-board-wrap {
   position: relative;
