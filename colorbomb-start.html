@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Color Bomb — Bunny Game</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <style>
+    #canvas-wrap {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 0 32px calc(32px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .cbstart-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .cbstart-logo {
+      width: min(280px, 80vw);
+      filter: brightness(0) invert(1);
+    }
+
+    .cbstart-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.62);
+      text-align: center;
+      margin: 0;
+    }
+
+    .cbstart-btn {
+      display: block;
+      width: 100%;
+      background: #fff;
+      color: #000;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 12px;
+      padding: 15px 0;
+      letter-spacing: 0.01em;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.1s;
+    }
+
+    .cbstart-btn:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+  <div class="cbstart-inner">
+    <img src="assets/logos/colorbomb_logo.svg" alt="Color Bomb" class="cbstart-logo">
+    <p class="cbstart-desc">
+      Minesweeper, but the numbers are gone. Each color stands for a count of nearby mines —
+      you just don't know which color means what yet. The mapping changes every game.
+      Look for a color with only one possible neighbor left uncovered — that's your way in.
+      From there, it's deduction, same as always. Clear the board without hitting a mine.
+    </p>
+    <a href="colorbomb.html" class="cbstart-btn">Start Game</a>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+</body>
+</html>

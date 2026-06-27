@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v112';
+const CACHE = 'bunnygame-v113';
 const ASSETS = [
   '/',
   '/index.html',
@@ -112,6 +112,7 @@ const ASSETS = [
   '/assets/js/colorblind.js',
   '/assets/data/colorblind-levels.json',
   '/assets/logos/colorblind_logo.svg',
+  '/colorbomb-start.html',
   '/colorbomb.html',
   '/assets/css/colorbomb.css',
   '/assets/js/colorbomb.js',
