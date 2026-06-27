@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Color Blind — a color perception game — Bunny Game</title>
+  <meta name="description" content="One square is different. Can you find it? One hundred levels, each harder to see.">
+  <meta property="og:title" content="Color Blind — a color perception game — Bunny Game">
+  <meta property="og:description" content="One square is different. Can you find it? One hundred levels, each harder to see.">
+  <meta property="og:url" content="https://www.thebunnygame.com/color-blind">
+  <link rel="canonical" href="https://www.thebunnygame.com/color-blind">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0c0c0c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/colorblind.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Loading -->
+  <div id="cb-loading" class="cb-screen">
+    <p class="cb-loading-text">Loading…</p>
+  </div>
+
+  <!-- Error -->
+  <div id="cb-error" class="cb-screen cb-hide">
+    <p class="cb-error-text">Couldn't load levels. Please refresh.</p>
+  </div>
+
+  <!-- Game screen -->
+  <div id="cb-game" class="cb-screen cb-hide">
+
+    <div class="cb-hud">
+      <span class="cb-level-label" id="cb-level-label"></span>
+    </div>
+
+    <div class="cb-board-wrap">
+      <div class="cb-board" id="cb-board"></div>
+    </div>
+
+    <div class="cb-controls">
+      <button class="cb-submit-btn" id="cb-submit" disabled>Submit</button>
+    </div>
+
+  </div>
+
+  <!-- Correct overlay -->
+  <div id="cb-correct" class="cb-overlay cb-hide">
+    <div class="cb-overlay-inner">
+      <p class="cb-overlay-head cb-overlay-head--correct">Correct!</p>
+      <p class="cb-overlay-sub" id="cb-correct-sub"></p>
+      <button class="cb-btn-primary" id="cb-next-level">Next Level</button>
+    </div>
+  </div>
+
+  <!-- Incorrect overlay -->
+  <div id="cb-incorrect" class="cb-overlay cb-hide">
+    <div class="cb-overlay-inner">
+      <p class="cb-overlay-head cb-overlay-head--wrong">Not quite.</p>
+      <p class="cb-overlay-sub">Take another look.</p>
+      <button class="cb-btn-primary" id="cb-try-again">Try Again</button>
+    </div>
+  </div>
+
+  <!-- Win screen -->
+  <div id="cb-win" class="cb-screen cb-hide">
+    <div class="cb-win-inner">
+      <p class="cb-win-headline">Color Blind</p>
+      <h2 class="cb-win-sub-headline">Complete</h2>
+      <p class="cb-win-body">All 100 levels cleared.</p>
+      <button class="cb-btn-primary" id="cb-play-again">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Directions overlay -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/colorblind.js"></script>
+</body>
+</html>

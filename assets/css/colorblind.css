@@ -1,0 +1,241 @@
+/* ── Color Blind ─────────────────────────────────────────────────────────── */
+
+#canvas-wrap {
+  background: #0c0c0c;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+}
+
+.cb-hide { display: none !important; }
+
+/* ── Screen wrapper ──────────────────────────────────────────────────────── */
+
+.cb-screen {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-height: 100%;
+}
+
+/* ── Loading / Error ─────────────────────────────────────────────────────── */
+
+.cb-loading-text,
+.cb-error-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(148, 163, 184, 0.5);
+  text-align: center;
+  margin: auto;
+}
+
+.cb-error-text { color: rgba(185, 28, 28, 0.75); }
+
+/* ── Game screen ─────────────────────────────────────────────────────────── */
+
+#cb-game {
+  justify-content: center;
+  padding: 16px 20px 36px;
+  gap: 20px;
+}
+
+/* ── HUD ─────────────────────────────────────────────────────────────────── */
+
+.cb-hud {
+  width: 100%;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.cb-level-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.4);
+}
+
+/* ── Board ───────────────────────────────────────────────────────────────── */
+
+.cb-board-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cb-board {
+  display: grid;
+  /* columns set via JS: style.gridTemplateColumns = 'repeat(N, 1fr)' */
+  gap: 3px;
+  width: min(320px, calc(100vw - 40px));
+  /* No explicit height — aspect-ratio on cells makes each row square */
+}
+
+/* ── Cell ────────────────────────────────────────────────────────────────── */
+
+.cb-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 0.08s ease;
+  /* background-color set inline by JS */
+}
+
+.cb-cell:active {
+  opacity: 0.82;
+}
+
+/* Selection highlight: white inset ring — completely neutral, no colour hint.
+   Works on any mid-tone saturated cell (L 38–62%) without implying a hue. */
+.cb-cell.cb-selected {
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.9),
+              inset 0 0 0 5px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+
+.cb-controls {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cb-submit-btn {
+  width: min(320px, calc(100vw - 40px));
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  padding: 14px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cb-submit-btn:not(:disabled):hover  { background: #253045; border-color: #4a5568; }
+.cb-submit-btn:not(:disabled):active { background: #1a2535; }
+.cb-submit-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Overlays (correct / incorrect) ─────────────────────────────────────── */
+
+.cb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 12, 12, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 10;
+  padding: 24px;
+}
+
+.cb-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+}
+
+.cb-overlay-head {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.cb-overlay-head--correct { color: #4ade80; }
+.cb-overlay-head--wrong   { color: #f87171; }
+
+.cb-overlay-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: rgba(148, 163, 184, 0.7);
+  margin-bottom: 8px;
+}
+
+/* ── Shared button ───────────────────────────────────────────────────────── */
+
+.cb-btn-primary {
+  width: 100%;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  padding: 13px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cb-btn-primary:hover  { background: #253045; }
+.cb-btn-primary:active { background: #1a2535; }
+
+/* ── Win screen ──────────────────────────────────────────────────────────── */
+
+#cb-win {
+  justify-content: center;
+  padding: 48px 24px;
+  gap: 8px;
+  text-align: center;
+}
+
+.cb-win-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.cb-win-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.01em;
+}
+
+.cb-win-sub-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.6);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.cb-win-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: rgba(148, 163, 184, 0.5);
+  margin-bottom: 16px;
+}
