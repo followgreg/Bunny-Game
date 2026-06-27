@@ -2,701 +2,701 @@
   {
     "level": 1,
     "boardSize": 2,
-    "baseColor": "#D4A263",
-    "oddColor": "#8D6226",
-    "oddCellIndex": 1
+    "baseColor": "#E945C4",
+    "oddColor": "#9F0081",
+    "oddCellIndex": 2
   },
   {
     "level": 2,
     "boardSize": 2,
-    "baseColor": "#8449DE",
-    "oddColor": "#CC89FF",
-    "oddCellIndex": 3
+    "baseColor": "#9A2ACE",
+    "oddColor": "#BB4CEE",
+    "oddCellIndex": 0
   },
   {
     "level": 3,
     "boardSize": 2,
-    "baseColor": "#DCB84A",
-    "oddColor": "#977A00",
-    "oddCellIndex": 2
+    "baseColor": "#B44BD1",
+    "oddColor": "#982FB6",
+    "oddCellIndex": 3
   },
   {
     "level": 4,
     "boardSize": 2,
-    "baseColor": "#871FD6",
-    "oddColor": "#CC65FF",
-    "oddCellIndex": 2
+    "baseColor": "#8615AE",
+    "oddColor": "#9F34C6",
+    "oddCellIndex": 0
   },
   {
     "level": 5,
     "boardSize": 2,
-    "baseColor": "#5252D4",
-    "oddColor": "#978AFF",
+    "baseColor": "#C24181",
+    "oddColor": "#DA5896",
     "oddCellIndex": 2
   },
   {
     "level": 6,
     "boardSize": 2,
-    "baseColor": "#29669F",
-    "oddColor": "#6C9EDC",
-    "oddCellIndex": 0
+    "baseColor": "#4B15C4",
+    "oddColor": "#642CDA",
+    "oddCellIndex": 2
   },
   {
     "level": 7,
     "boardSize": 2,
-    "baseColor": "#256DDE",
-    "oddColor": "#77A4FF",
+    "baseColor": "#1B26A8",
+    "oddColor": "#3A36BC",
     "oddCellIndex": 2
   },
   {
     "level": 8,
     "boardSize": 2,
-    "baseColor": "#577DCF",
-    "oddColor": "#044B96",
-    "oddCellIndex": 2
+    "baseColor": "#70E15A",
+    "oddColor": "#5BCE48",
+    "oddCellIndex": 0
   },
   {
     "level": 9,
     "boardSize": 2,
-    "baseColor": "#B0197E",
-    "oddColor": "#ED5CB4",
-    "oddCellIndex": 1
+    "baseColor": "#D531B4",
+    "oddColor": "#C212A2",
+    "oddCellIndex": 0
   },
   {
     "level": 10,
     "boardSize": 2,
-    "baseColor": "#B26D3A",
-    "oddColor": "#793D0A",
-    "oddCellIndex": 1
+    "baseColor": "#9321A1",
+    "oddColor": "#A535B2",
+    "oddCellIndex": 2
   },
   {
     "level": 11,
     "boardSize": 2,
-    "baseColor": "#12C422",
-    "oddColor": "#008E00",
+    "baseColor": "#D17265",
+    "oddColor": "#BF6256",
     "oddCellIndex": 0
   },
   {
     "level": 12,
     "boardSize": 3,
-    "baseColor": "#58BA39",
-    "oddColor": "#168700",
-    "oddCellIndex": 3
+    "baseColor": "#DBD93A",
+    "oddColor": "#CAC926",
+    "oddCellIndex": 5
   },
   {
     "level": 13,
     "boardSize": 3,
-    "baseColor": "#9F1CB4",
-    "oddColor": "#D558E8",
-    "oddCellIndex": 1
+    "baseColor": "#E925BF",
+    "oddColor": "#D800B0",
+    "oddCellIndex": 0
   },
   {
     "level": 14,
     "boardSize": 3,
-    "baseColor": "#D33D14",
-    "oddColor": "#FF7041",
-    "oddCellIndex": 1
+    "baseColor": "#40C61E",
+    "oddColor": "#29B700",
+    "oddCellIndex": 7
   },
   {
     "level": 15,
     "boardSize": 3,
-    "baseColor": "#6E39ED",
-    "oddColor": "#A567FF",
-    "oddCellIndex": 5
+    "baseColor": "#C9484D",
+    "oddColor": "#D9575A",
+    "oddCellIndex": 6
   },
   {
     "level": 16,
     "boardSize": 3,
-    "baseColor": "#1923C5",
-    "oddColor": "#624DF6",
-    "oddCellIndex": 5
+    "baseColor": "#AD17CF",
+    "oddColor": "#BC2EDE",
+    "oddCellIndex": 3
   },
   {
     "level": 17,
     "boardSize": 3,
-    "baseColor": "#227ED9",
-    "oddColor": "#0056AB",
-    "oddCellIndex": 7
+    "baseColor": "#1DE84B",
+    "oddColor": "#00D93D",
+    "oddCellIndex": 5
   },
   {
     "level": 18,
     "boardSize": 3,
-    "baseColor": "#CA4ADF",
-    "oddColor": "#9B0EB1",
-    "oddCellIndex": 8
+    "baseColor": "#36A123",
+    "oddColor": "#249412",
+    "oddCellIndex": 7
   },
   {
     "level": 19,
     "boardSize": 3,
-    "baseColor": "#A7482D",
-    "oddColor": "#D67052",
-    "oddCellIndex": 7
+    "baseColor": "#CFBE22",
+    "oddColor": "#C1B10A",
+    "oddCellIndex": 8
   },
   {
     "level": 20,
     "boardSize": 3,
-    "baseColor": "#A43D35",
-    "oddColor": "#D26559",
-    "oddCellIndex": 0
+    "baseColor": "#46C2A6",
+    "oddColor": "#36B59A",
+    "oddCellIndex": 8
   },
   {
     "level": 21,
     "boardSize": 3,
-    "baseColor": "#C76B41",
-    "oddColor": "#9A451E",
-    "oddCellIndex": 2
+    "baseColor": "#27B0B7",
+    "oddColor": "#05A4AB",
+    "oddCellIndex": 0
   },
   {
     "level": 22,
     "boardSize": 3,
-    "baseColor": "#6960CB",
-    "oddColor": "#9285F5",
-    "oddCellIndex": 3
+    "baseColor": "#31CC5F",
+    "oddColor": "#19BF53",
+    "oddCellIndex": 8
   },
   {
     "level": 23,
     "boardSize": 4,
-    "baseColor": "#8A56C8",
-    "oddColor": "#B27BF1",
-    "oddCellIndex": 12
+    "baseColor": "#3ED29D",
+    "oddColor": "#2CC591",
+    "oddCellIndex": 9
   },
   {
     "level": 24,
     "boardSize": 4,
-    "baseColor": "#3BEE7C",
-    "oddColor": "#00C658",
-    "oddCellIndex": 15
+    "baseColor": "#DB8F3C",
+    "oddColor": "#CE8431",
+    "oddCellIndex": 0
   },
   {
     "level": 25,
     "boardSize": 4,
-    "baseColor": "#C41FAC",
-    "oddColor": "#ED50D2",
-    "oddCellIndex": 11
+    "baseColor": "#1E32D6",
+    "oddColor": "#363CE2",
+    "oddCellIndex": 9
   },
   {
     "level": 26,
     "boardSize": 4,
-    "baseColor": "#6AD195",
-    "oddColor": "#44AC73",
-    "oddCellIndex": 12
+    "baseColor": "#3D95D7",
+    "oddColor": "#2C8ACB",
+    "oddCellIndex": 1
   },
   {
     "level": 27,
     "boardSize": 4,
-    "baseColor": "#C5A113",
-    "oddColor": "#9F8000",
-    "oddCellIndex": 12
+    "baseColor": "#CC4D5A",
+    "oddColor": "#C04250",
+    "oddCellIndex": 1
   },
   {
     "level": 28,
     "boardSize": 4,
-    "baseColor": "#CAA230",
-    "oddColor": "#A58101",
-    "oddCellIndex": 2
+    "baseColor": "#DF7A33",
+    "oddColor": "#D37029",
+    "oddCellIndex": 1
   },
   {
     "level": 29,
     "boardSize": 4,
-    "baseColor": "#74B62B",
-    "oddColor": "#529500",
-    "oddCellIndex": 1
+    "baseColor": "#C939E0",
+    "oddColor": "#BD2BD5",
+    "oddCellIndex": 11
   },
   {
     "level": 30,
     "boardSize": 4,
-    "baseColor": "#9B2757",
-    "oddColor": "#BE4974",
-    "oddCellIndex": 8
+    "baseColor": "#DA5198",
+    "oddColor": "#CE468E",
+    "oddCellIndex": 15
   },
   {
     "level": 31,
     "boardSize": 4,
-    "baseColor": "#D39C4C",
-    "oddColor": "#B17E2F",
-    "oddCellIndex": 7
+    "baseColor": "#E84063",
+    "oddColor": "#DC335A",
+    "oddCellIndex": 2
   },
   {
     "level": 32,
     "boardSize": 4,
-    "baseColor": "#D54A6B",
-    "oddColor": "#B32850",
-    "oddCellIndex": 6
+    "baseColor": "#2BC3A0",
+    "oddColor": "#15B896",
+    "oddCellIndex": 14
   },
   {
     "level": 33,
     "boardSize": 4,
-    "baseColor": "#59CCB1",
-    "oddColor": "#35AD94",
-    "oddCellIndex": 4
+    "baseColor": "#1CB380",
+    "oddColor": "#00A977",
+    "oddCellIndex": 9
   },
   {
     "level": 34,
     "boardSize": 5,
-    "baseColor": "#29E443",
-    "oddColor": "#00C521",
-    "oddCellIndex": 15
+    "baseColor": "#14E26E",
+    "oddColor": "#00D764",
+    "oddCellIndex": 6
   },
   {
     "level": 35,
     "boardSize": 5,
-    "baseColor": "#329D68",
-    "oddColor": "#01814E",
-    "oddCellIndex": 8
+    "baseColor": "#B432A7",
+    "oddColor": "#BE3DB1",
+    "oddCellIndex": 7
   },
   {
     "level": 36,
     "boardSize": 5,
-    "baseColor": "#E0276A",
-    "oddColor": "#FF4C84",
-    "oddCellIndex": 12
+    "baseColor": "#91C013",
+    "oddColor": "#87B600",
+    "oddCellIndex": 4
   },
   {
     "level": 37,
     "boardSize": 5,
-    "baseColor": "#9330EE",
-    "oddColor": "#B14EFF",
+    "baseColor": "#A02947",
+    "oddColor": "#AA334F",
     "oddCellIndex": 17
   },
   {
     "level": 38,
     "boardSize": 5,
-    "baseColor": "#55C950",
-    "oddColor": "#35AE36",
-    "oddCellIndex": 10
+    "baseColor": "#308A96",
+    "oddColor": "#24818D",
+    "oddCellIndex": 6
   },
   {
     "level": 39,
     "boardSize": 5,
-    "baseColor": "#6C31DD",
-    "oddColor": "#894AF9",
-    "oddCellIndex": 11
+    "baseColor": "#21CBC9",
+    "oddColor": "#00C1C0",
+    "oddCellIndex": 10
   },
   {
     "level": 40,
     "boardSize": 5,
-    "baseColor": "#10C261",
-    "oddColor": "#00A84A",
-    "oddCellIndex": 9
+    "baseColor": "#9048CE",
+    "oddColor": "#9A51D8",
+    "oddCellIndex": 10
   },
   {
     "level": 41,
     "boardSize": 5,
-    "baseColor": "#6A89D1",
-    "oddColor": "#5172B8",
+    "baseColor": "#3584D2",
+    "oddColor": "#267CC9",
     "oddCellIndex": 4
   },
   {
     "level": 42,
     "boardSize": 5,
-    "baseColor": "#5D65D2",
-    "oddColor": "#777BEB",
-    "oddCellIndex": 14
+    "baseColor": "#23DB75",
+    "oddColor": "#03D26C",
+    "oddCellIndex": 0
   },
   {
     "level": 43,
     "boardSize": 5,
-    "baseColor": "#94CF67",
-    "oddColor": "#7DB751",
-    "oddCellIndex": 17
+    "baseColor": "#D947EC",
+    "oddColor": "#CF3CE3",
+    "oddCellIndex": 4
   },
   {
     "level": 44,
     "boardSize": 5,
-    "baseColor": "#B7C535",
-    "oddColor": "#9FAE18",
-    "oddCellIndex": 16
+    "baseColor": "#69E63B",
+    "oddColor": "#5FDD31",
+    "oddCellIndex": 21
   },
   {
     "level": 45,
     "boardSize": 6,
-    "baseColor": "#6D16C7",
-    "oddColor": "#8531DE",
-    "oddCellIndex": 23
+    "baseColor": "#C745D5",
+    "oddColor": "#BE3BCC",
+    "oddCellIndex": 6
   },
   {
     "level": 46,
     "boardSize": 6,
-    "baseColor": "#3C49B9",
-    "oddColor": "#565CCF",
-    "oddCellIndex": 31
+    "baseColor": "#12C998",
+    "oddColor": "#00C090",
+    "oddCellIndex": 13
   },
   {
     "level": 47,
     "boardSize": 6,
-    "baseColor": "#50B0EA",
-    "oddColor": "#339BD4",
-    "oddCellIndex": 8
+    "baseColor": "#30AFA6",
+    "oddColor": "#22A79E",
+    "oddCellIndex": 19
   },
   {
     "level": 48,
     "boardSize": 6,
-    "baseColor": "#C9952A",
-    "oddColor": "#B38211",
-    "oddCellIndex": 33
+    "baseColor": "#C81C8F",
+    "oddColor": "#D12A97",
+    "oddCellIndex": 35
   },
   {
     "level": 49,
     "boardSize": 6,
-    "baseColor": "#7AE22C",
-    "oddColor": "#64CD07",
-    "oddCellIndex": 10
+    "baseColor": "#24CF17",
+    "oddColor": "#09C603",
+    "oddCellIndex": 5
   },
   {
     "level": 50,
     "boardSize": 6,
-    "baseColor": "#31EC8E",
-    "oddColor": "#00D77B",
-    "oddCellIndex": 21
+    "baseColor": "#AF2A95",
+    "oddColor": "#B8349D",
+    "oddCellIndex": 32
   },
   {
     "level": 51,
     "boardSize": 6,
-    "baseColor": "#ECB247",
-    "oddColor": "#D79F34",
-    "oddCellIndex": 17
+    "baseColor": "#35E735",
+    "oddColor": "#24DE2B",
+    "oddCellIndex": 30
   },
   {
     "level": 52,
     "boardSize": 6,
-    "baseColor": "#A12442",
-    "oddColor": "#B53852",
-    "oddCellIndex": 33
+    "baseColor": "#C66E16",
+    "oddColor": "#BD670B",
+    "oddCellIndex": 23
   },
   {
     "level": 53,
     "boardSize": 6,
-    "baseColor": "#E055C5",
-    "oddColor": "#CC41B3",
-    "oddCellIndex": 13
+    "baseColor": "#1A59CA",
+    "oddColor": "#2B60D2",
+    "oddCellIndex": 22
   },
   {
     "level": 54,
     "boardSize": 6,
-    "baseColor": "#59AAE1",
-    "oddColor": "#4499CF",
-    "oddCellIndex": 17
+    "baseColor": "#B81F40",
+    "oddColor": "#C12A47",
+    "oddCellIndex": 29
   },
   {
     "level": 55,
     "boardSize": 6,
-    "baseColor": "#BA653D",
-    "oddColor": "#A7552E",
-    "oddCellIndex": 29
+    "baseColor": "#B92425",
+    "oddColor": "#C22E2B",
+    "oddCellIndex": 32
   },
   {
     "level": 56,
     "boardSize": 7,
-    "baseColor": "#983093",
-    "oddColor": "#A941A3",
-    "oddCellIndex": 34
+    "baseColor": "#E1E953",
+    "oddColor": "#D9E14B",
+    "oddCellIndex": 26
   },
   {
     "level": 57,
     "boardSize": 7,
-    "baseColor": "#2A5CA1",
-    "oddColor": "#3E6AB1",
+    "baseColor": "#553EE3",
+    "oddColor": "#5F45EB",
     "oddCellIndex": 47
   },
   {
     "level": 58,
     "boardSize": 7,
-    "baseColor": "#37CBE4",
-    "oddColor": "#13BBD4",
-    "oddCellIndex": 3
+    "baseColor": "#2BE057",
+    "oddColor": "#18D850",
+    "oddCellIndex": 36
   },
   {
     "level": 59,
     "boardSize": 7,
-    "baseColor": "#2989D2",
-    "oddColor": "#007BC2",
-    "oddCellIndex": 40
+    "baseColor": "#B23B1E",
+    "oddColor": "#BA4224",
+    "oddCellIndex": 38
   },
   {
     "level": 60,
     "boardSize": 7,
-    "baseColor": "#232FBD",
-    "oddColor": "#3C3CCD",
-    "oddCellIndex": 42
+    "baseColor": "#673BD4",
+    "oddColor": "#6F42DC",
+    "oddCellIndex": 34
   },
   {
     "level": 61,
     "boardSize": 7,
-    "baseColor": "#D25B15",
-    "oddColor": "#C14D02",
-    "oddCellIndex": 30
+    "baseColor": "#4CCBC1",
+    "oddColor": "#43C3BA",
+    "oddCellIndex": 38
   },
   {
     "level": 62,
     "boardSize": 7,
-    "baseColor": "#1BAE3F",
-    "oddColor": "#009F31",
-    "oddCellIndex": 5
+    "baseColor": "#3122C1",
+    "oddColor": "#3C29C9",
+    "oddCellIndex": 15
   },
   {
     "level": 63,
     "boardSize": 7,
-    "baseColor": "#C13F1D",
-    "oddColor": "#D14D29",
-    "oddCellIndex": 29
+    "baseColor": "#4A49EC",
+    "oddColor": "#544FF4",
+    "oddCellIndex": 20
   },
   {
     "level": 64,
     "boardSize": 7,
-    "baseColor": "#36AF17",
-    "oddColor": "#21A100",
-    "oddCellIndex": 12
+    "baseColor": "#1EB1AE",
+    "oddColor": "#09AAA7",
+    "oddCellIndex": 11
   },
   {
     "level": 65,
     "boardSize": 7,
-    "baseColor": "#20C61B",
-    "oddColor": "#00B800",
-    "oddCellIndex": 17
+    "baseColor": "#DAC448",
+    "oddColor": "#D2BD41",
+    "oddCellIndex": 24
   },
   {
     "level": 66,
     "boardSize": 7,
-    "baseColor": "#E34E56",
-    "oddColor": "#D4404B",
-    "oddCellIndex": 20
+    "baseColor": "#E43767",
+    "oddColor": "#DC2E61",
+    "oddCellIndex": 9
   },
   {
     "level": 67,
     "boardSize": 8,
-    "baseColor": "#661CD0",
-    "oddColor": "#742BDD",
-    "oddCellIndex": 40
+    "baseColor": "#98D362",
+    "oddColor": "#91CC5B",
+    "oddCellIndex": 36
   },
   {
     "level": 68,
     "boardSize": 8,
-    "baseColor": "#6B30A0",
-    "oddColor": "#773BAC",
-    "oddCellIndex": 53
+    "baseColor": "#31AD29",
+    "oddColor": "#27A621",
+    "oddCellIndex": 46
   },
   {
     "level": 69,
     "boardSize": 8,
-    "baseColor": "#E43615",
-    "oddColor": "#D62607",
-    "oddCellIndex": 19
+    "baseColor": "#6835BF",
+    "oddColor": "#6F3BC6",
+    "oddCellIndex": 58
   },
   {
     "level": 70,
     "boardSize": 8,
-    "baseColor": "#BFD415",
-    "oddColor": "#B2C800",
-    "oddCellIndex": 1
+    "baseColor": "#5EADD3",
+    "oddColor": "#57A6CC",
+    "oddCellIndex": 0
   },
   {
     "level": 71,
     "boardSize": 8,
-    "baseColor": "#A5313B",
-    "oddColor": "#B13D44",
-    "oddCellIndex": 16
+    "baseColor": "#AB7B38",
+    "oddColor": "#A47532",
+    "oddCellIndex": 15
   },
   {
     "level": 72,
     "boardSize": 8,
-    "baseColor": "#2163DC",
-    "oddColor": "#366DE8",
-    "oddCellIndex": 31
+    "baseColor": "#5DCDD0",
+    "oddColor": "#55C6C9",
+    "oddCellIndex": 53
   },
   {
     "level": 73,
     "boardSize": 8,
-    "baseColor": "#E66115",
-    "oddColor": "#D95605",
-    "oddCellIndex": 51
+    "baseColor": "#33BC97",
+    "oddColor": "#29B591",
+    "oddCellIndex": 9
   },
   {
     "level": 74,
     "boardSize": 8,
-    "baseColor": "#25C3CC",
-    "oddColor": "#01B8C1",
-    "oddCellIndex": 26
+    "baseColor": "#43CD40",
+    "oddColor": "#3AC639",
+    "oddCellIndex": 29
   },
   {
     "level": 75,
     "boardSize": 8,
-    "baseColor": "#24E8CE",
-    "oddColor": "#00DDC4",
-    "oddCellIndex": 59
+    "baseColor": "#AAD55C",
+    "oddColor": "#A3CE56",
+    "oddCellIndex": 38
   },
   {
     "level": 76,
     "boardSize": 8,
-    "baseColor": "#A03058",
-    "oddColor": "#AB3A61",
-    "oddCellIndex": 36
+    "baseColor": "#B2E43F",
+    "oddColor": "#ABDD38",
+    "oddCellIndex": 5
   },
   {
     "level": 77,
     "boardSize": 8,
-    "baseColor": "#A52A80",
-    "oddColor": "#AF3589",
-    "oddCellIndex": 63
+    "baseColor": "#D91D99",
+    "oddColor": "#E0289F",
+    "oddCellIndex": 35
   },
   {
     "level": 78,
     "boardSize": 9,
-    "baseColor": "#5221AF",
-    "oddColor": "#5C2AB9",
-    "oddCellIndex": 49
+    "baseColor": "#CA4F75",
+    "oddColor": "#C3496F",
+    "oddCellIndex": 12
   },
   {
     "level": 79,
     "boardSize": 9,
-    "baseColor": "#B317B8",
-    "oddColor": "#BD27C2",
-    "oddCellIndex": 54
+    "baseColor": "#1CE059",
+    "oddColor": "#00D953",
+    "oddCellIndex": 5
   },
   {
     "level": 80,
     "boardSize": 9,
-    "baseColor": "#7AC536",
-    "oddColor": "#71BC2C",
-    "oddCellIndex": 30
+    "baseColor": "#C9B52D",
+    "oddColor": "#C2AF26",
+    "oddCellIndex": 45
   },
   {
     "level": 81,
     "boardSize": 9,
-    "baseColor": "#BF8833",
-    "oddColor": "#B5802B",
-    "oddCellIndex": 33
+    "baseColor": "#1FDC5E",
+    "oddColor": "#08D558",
+    "oddCellIndex": 28
   },
   {
     "level": 82,
     "boardSize": 9,
-    "baseColor": "#50D3DC",
-    "oddColor": "#45CAD3",
-    "oddCellIndex": 62
+    "baseColor": "#E843E7",
+    "oddColor": "#E13BE0",
+    "oddCellIndex": 30
   },
   {
     "level": 83,
     "boardSize": 9,
-    "baseColor": "#B02F84",
-    "oddColor": "#B9398C",
-    "oddCellIndex": 34
+    "baseColor": "#294EDE",
+    "oddColor": "#3453E5",
+    "oddCellIndex": 54
   },
   {
     "level": 84,
     "boardSize": 9,
-    "baseColor": "#CAD631",
-    "oddColor": "#C1CE26",
-    "oddCellIndex": 9
+    "baseColor": "#DE4A36",
+    "oddColor": "#D74431",
+    "oddCellIndex": 59
   },
   {
     "level": 85,
     "boardSize": 9,
-    "baseColor": "#DB7126",
-    "oddColor": "#D2691E",
-    "oddCellIndex": 60
+    "baseColor": "#5EE624",
+    "oddColor": "#56E01A",
+    "oddCellIndex": 19
   },
   {
     "level": 86,
     "boardSize": 9,
-    "baseColor": "#13D233",
-    "oddColor": "#00CA2A",
-    "oddCellIndex": 26
+    "baseColor": "#3B88BD",
+    "oddColor": "#3382B7",
+    "oddCellIndex": 6
   },
   {
     "level": 87,
     "boardSize": 9,
-    "baseColor": "#4CD46E",
-    "oddColor": "#42CC67",
-    "oddCellIndex": 61
+    "baseColor": "#C1D463",
+    "oddColor": "#BBCE5D",
+    "oddCellIndex": 10
   },
   {
     "level": 88,
     "boardSize": 9,
-    "baseColor": "#3B26C2",
-    "oddColor": "#452DCA",
-    "oddCellIndex": 25
+    "baseColor": "#D93F6F",
+    "oddColor": "#D2386A",
+    "oddCellIndex": 65
   },
   {
     "level": 89,
     "boardSize": 10,
-    "baseColor": "#6B38D2",
-    "oddColor": "#733FDA",
-    "oddCellIndex": 96
+    "baseColor": "#24CA65",
+    "oddColor": "#16C460",
+    "oddCellIndex": 84
   },
   {
     "level": 90,
     "boardSize": 10,
-    "baseColor": "#6129A1",
-    "oddColor": "#6830A8",
-    "oddCellIndex": 11
+    "baseColor": "#E03A59",
+    "oddColor": "#D93354",
+    "oddCellIndex": 7
   },
   {
     "level": 91,
     "boardSize": 10,
-    "baseColor": "#73D163",
-    "oddColor": "#6CCA5C",
-    "oddCellIndex": 27
+    "baseColor": "#A115E8",
+    "oddColor": "#A720EE",
+    "oddCellIndex": 1
   },
   {
     "level": 92,
     "boardSize": 10,
-    "baseColor": "#4027C4",
-    "oddColor": "#492DCB",
-    "oddCellIndex": 79
+    "baseColor": "#BF17CE",
+    "oddColor": "#C522D4",
+    "oddCellIndex": 67
   },
   {
     "level": 93,
     "boardSize": 10,
-    "baseColor": "#CF3FC5",
-    "oddColor": "#C837BE",
-    "oddCellIndex": 44
+    "baseColor": "#2AD15D",
+    "oddColor": "#1ECB58",
+    "oddCellIndex": 37
   },
   {
     "level": 94,
     "boardSize": 10,
-    "baseColor": "#DCCE5B",
-    "oddColor": "#D5C855",
-    "oddCellIndex": 28
+    "baseColor": "#5F77D8",
+    "oddColor": "#5972D2",
+    "oddCellIndex": 76
   },
   {
     "level": 95,
     "boardSize": 10,
-    "baseColor": "#701FBC",
-    "oddColor": "#7726C2",
-    "oddCellIndex": 77
+    "baseColor": "#B5DF1A",
+    "oddColor": "#AFD90D",
+    "oddCellIndex": 99
   },
   {
     "level": 96,
     "boardSize": 10,
-    "baseColor": "#39B443",
-    "oddColor": "#31AE3D",
-    "oddCellIndex": 52
+    "baseColor": "#4866D2",
+    "oddColor": "#4F6BD8",
+    "oddCellIndex": 9
   },
   {
     "level": 97,
     "boardSize": 10,
-    "baseColor": "#991AE8",
-    "oddColor": "#9F24EE",
-    "oddCellIndex": 11
+    "baseColor": "#2BAF72",
+    "oddColor": "#22A96D",
+    "oddCellIndex": 2
   },
   {
     "level": 98,
     "boardSize": 10,
-    "baseColor": "#77D33F",
-    "oddColor": "#71CD39",
-    "oddCellIndex": 17
+    "baseColor": "#5BA2DC",
+    "oddColor": "#559DD6",
+    "oddCellIndex": 26
   },
   {
     "level": 99,
     "boardSize": 10,
-    "baseColor": "#59CC56",
-    "oddColor": "#53C651",
-    "oddCellIndex": 11
+    "baseColor": "#4B2EA4",
+    "oddColor": "#5133AA",
+    "oddCellIndex": 22
   },
   {
     "level": 100,
     "boardSize": 10,
-    "baseColor": "#B939D3",
-    "oddColor": "#BF3FD9",
-    "oddCellIndex": 42
+    "baseColor": "#88D022",
+    "oddColor": "#82CA19",
+    "oddCellIndex": 92
   }
 ]

@@ -33,7 +33,10 @@ const DELTA_MIN =  2.0;  // Level 100 — hard floor, always distinguishable
 
 function colorDistance(level) {
   const t = (level - 1) / 99;
-  return DELTA_MAX * Math.pow(DELTA_MIN / DELTA_MAX, t);
+  // 4th-root transform: same endpoints (25→2) but steeply compressed early on.
+  // By level 2 the distance is already ~55% smaller than the old linear formula.
+  const tCurved = Math.pow(t, 0.25);
+  return DELTA_MAX * Math.pow(DELTA_MIN / DELTA_MAX, tCurved);
 }
 
 // ── CIELAB utilities ──────────────────────────────────────────────────────────
