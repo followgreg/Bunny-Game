@@ -22,6 +22,7 @@ const BASE_URL  = 'https://www.thebunnygame.com';
 
 const GAMES = [
   { slug: 'classic',      html: 'classic.html',      bg: '#ffffff',  logo: 'classic_logo.svg',     desc: 'Click matching tiles to clear the board.',                          textColor: '#111111', descColor: 'rgba(0,0,0,0.55)' },
+  { slug: 'colorbomb',    html: 'colorbomb.html',    bg: '#100000',  logo: 'colorbomb_logo.svg',   logoFill: 'white', desc: 'Minesweeper, but the numbers are colors — and you don’t know which is which.', textColor: '#fca5a5', descColor: 'rgba(255,255,255,0.65)' },
   { slug: 'colorblind',   html: 'colorblind.html',   bg: '#f0ece4',  logo: 'colorblind_logo.svg',  desc: 'One square is different. Can you find it?',                         textColor: '#111111', descColor: 'rgba(0,0,0,0.52)' },
   { slug: 'solo',         html: 'solo.html',          bg: '#0d0101',  logo: 'solo_logo.svg',        desc: 'Five shapes. Five stars. None of them touching.',                   textColor: '#f1f5f9', descColor: 'rgba(255,255,255,0.6)' },
   { slug: 'honey',        html: 'honey.html',         bg: '#1C1200',  logo: 'honey_logo.svg',       desc: 'Rotate the hive. Connect every cell. Watch the honey flow.',        textColor: '#f1f5f9', descColor: 'rgba(245,200,66,0.72)' },

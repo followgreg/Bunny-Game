@@ -302,7 +302,7 @@
 
     /* Color Bomb: dark with red-ember glow */
     .lc-colorbomb { background: #100000; border-color: rgba(239,68,68,0.4); }
-    .lc-colorbomb .lobby-card-name { color: #fca5a5; }
+    .lc-colorbomb .lobby-card-logo img { filter: brightness(0) invert(1); }
     .lc-colorbomb .lobby-card-desc { color: rgba(255,255,255,0.55); }
   </style>
 </head>
@@ -332,8 +332,10 @@
       </a>
 
       <a class="lobby-card lc-colorbomb" href="colorbomb.html">
-        <p class="lobby-card-name">Color Bomb</p>
-        <p class="lobby-card-desc">Minesweeper. But you don't know which color means what.</p>
+        <div class="lobby-card-logo">
+          <img src="assets/logos/colorbomb_logo.svg" alt="Color Bomb">
+        </div>
+        <p class="lobby-card-desc">Minesweeper, but the numbers are colors — and you don't know which is which.</p>
       </a>
 
       <a class="lobby-card lc-colorblind" href="colorblind.html">

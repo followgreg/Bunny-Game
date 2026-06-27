@@ -208,5 +208,126 @@
 
 .cb-btn-ghost:hover { border-color: #475569; color: #94a3b8; }
 
+/* ── Key panel ────────────────────────────────────────────────────────────── */
+.cbomb-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 15, 26, 0.97);
+  border-top: 1px solid #334155;
+  padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  transform: translateY(100%);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cbomb-panel.cbomb-panel-open {
+  transform: translateY(0);
+}
+
+.cbomb-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cbomb-panel-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.cbomb-panel-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cbomb-panel-close:hover { color: #94a3b8; }
+
+.cbomb-key-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+
+.cbomb-key-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cbomb-key-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.cbomb-key-input {
+  flex: 1;
+  background: #1e293b;
+  border: 1px solid #2d3f55;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  min-width: 0;
+  -webkit-appearance: none;
+}
+
+.cbomb-key-input:focus {
+  outline: none;
+  border-color: #475569;
+  background: #243449;
+}
+
+.cbomb-key-input::placeholder {
+  color: #334155;
+  font-weight: 400;
+}
+
+/* ── Mapping reveal (end overlay) ─────────────────────────────────────────── */
+.cbomb-mapping {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+  width: 100%;
+  margin: 4px 0 8px;
+}
+
+.cbomb-map-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cbomb-map-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.cbomb-map-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  font-family: 'DM Sans', sans-serif;
+}
+
 /* ── Utilities ────────────────────────────────────────────────────────────── */
 .cbomb-hide { display: none !important; }

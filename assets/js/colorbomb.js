@@ -17,12 +17,14 @@
     '#f472b6',  // magenta
   ];
 
+  var COLOR_NAMES = ['Red', 'Blue', 'Yellow', 'Orange', 'Green', 'Purple', 'Brown', 'Magenta'];
+
   var DIRECTIONS_TEXT =
-    'Click to reveal a cell. Right-click — or long-press on mobile — to flag a ' +
-    'suspected mine. Click a revealed color cell when the right number of flags surround ' +
-    'it to chord-reveal its neighbors. Your first click is always safe. ' +
-    'Each game, the 8 colors are secretly assigned to counts 1–8. ' +
-    'Clear all 216 safe cells to win.';
+    'Color Bomb plays like Minesweeper, but the numbers are gone. Each color stands for a ' +
+    'count of nearby mines — you just don’t know which color means what yet. ' +
+    'The mapping changes every game. Look for a color with only one possible neighbor left ' +
+    'uncovered — that’s your way in. From there, it’s deduction, same as always. ' +
+    'Clear the board without hitting a mine.';
 
   // ── State ──────────────────────────────────────────────────────────────────
   var cells       = [];
@@ -129,7 +131,7 @@
 
       for (var j = 0; j < ns.length; j++) {
         var ni = idx(ns[j].r, ns[j].c);
-        if (flaggedSet.has(ni))   { flaggedCnt++; }
+        if (flaggedSet.has(ni))        { flaggedCnt++; }
         else if (!revealedSet.has(ni)) { unrev++; }
       }
 
@@ -231,7 +233,7 @@
       // Compute adjacency counts
       for (var ai = 0; ai < cells.length; ai++) {
         if (cells[ai].mine) continue;
-        var adjNs = neighbors(cells[ai].r, cells[ai].c);
+        var adjNs  = neighbors(cells[ai].r, cells[ai].c);
         var adjCnt = 0;
         for (var an = 0; an < adjNs.length; an++) {
           if (adjNs[an].mine) adjCnt++;
@@ -296,7 +298,7 @@
   function chordReveal(r, c) {
     var cell = cells[idx(r, c)];
     if (!cell.revealed || cell.adj === 0) return;
-    var ns = neighbors(r, c);
+    var ns      = neighbors(r, c);
     var flagged = 0;
     for (var i = 0; i < ns.length; i++) {
       if (ns[i].flagged) flagged++;
@@ -344,15 +346,17 @@
       }
     }
 
+    var delay = won ? 350 : 600;
     setTimeout(function () {
       endHeadlineEl.textContent = won ? 'Board cleared!' : 'Boom.';
-      endSubEl.textContent = won
-        ? 'Cleared in ' + elapsed + 's.'
-        : 'A mine was triggered. Give it another shot.';
+      endSubEl.textContent      = won ? 'You cracked the code.' : 'Here’s what the colors meant:';
+      buildMappingReveal();
+      replayBtn.textContent = won ? 'Play Again' : 'Try Again';
       if (won) { shareBtn.classList.remove('cbomb-hide'); }
       else     { shareBtn.classList.add('cbomb-hide'); }
+      closeKeyPanel();
       endEl.classList.remove('cbomb-hide');
-    }, won ? 350 : 600);
+    }, delay);
   }
 
   // ── Timer ──────────────────────────────────────────────────────────────────
@@ -378,9 +382,9 @@
   // ── Render ─────────────────────────────────────────────────────────────────
   function renderCell(cell) {
     var el = cell.el;
-    el.className          = 'cbomb-cell';
-    el.textContent        = '';
-    el.style.color        = '';
+    el.className             = 'cbomb-cell';
+    el.textContent           = '';
+    el.style.color           = '';
     el.style.backgroundColor = '';
 
     if (!cell.revealed) {
@@ -419,12 +423,70 @@
   function renderBoard() {
     boardEl.innerHTML = '';
     for (var i = 0; i < cells.length; i++) {
-      var el = document.createElement('div');
-      el.className  = 'cbomb-cell cbomb-hidden';
-      el.dataset.r  = String(cells[i].r);
-      el.dataset.c  = String(cells[i].c);
-      cells[i].el   = el;
+      var el       = document.createElement('div');
+      el.className = 'cbomb-cell cbomb-hidden';
+      el.dataset.r = String(cells[i].r);
+      el.dataset.c = String(cells[i].c);
+      cells[i].el  = el;
       boardEl.appendChild(el);
+    }
+  }
+
+  // ── Color key panel ────────────────────────────────────────────────────────
+  function buildKeyPanel() {
+    var grid = document.getElementById('cbomb-key-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (var i = 0; i < BASE_COLORS.length; i++) {
+      var row    = document.createElement('div');
+      row.className = 'cbomb-key-row';
+
+      var swatch = document.createElement('div');
+      swatch.className = 'cbomb-key-swatch';
+      swatch.style.backgroundColor = BASE_COLORS[i];
+
+      var input  = document.createElement('input');
+      input.type        = 'text';
+      input.className   = 'cbomb-key-input';
+      input.placeholder = '?';
+      input.maxLength   = 6;
+      input.setAttribute('aria-label', COLOR_NAMES[i]);
+
+      row.appendChild(swatch);
+      row.appendChild(input);
+      grid.appendChild(row);
+    }
+  }
+
+  function clearKeyPanel() {
+    var inputs = document.querySelectorAll('.cbomb-key-input');
+    for (var i = 0; i < inputs.length; i++) inputs[i].value = '';
+  }
+
+  function openKeyPanel()   { var p = document.getElementById('cbomb-key-panel'); if (p) p.classList.add('cbomb-panel-open'); }
+  function closeKeyPanel()  { var p = document.getElementById('cbomb-key-panel'); if (p) p.classList.remove('cbomb-panel-open'); }
+  function toggleKeyPanel() { var p = document.getElementById('cbomb-key-panel'); if (p) p.classList.toggle('cbomb-panel-open'); }
+
+  // ── Mapping reveal (shown in end overlay) ─────────────────────────────────
+  function buildMappingReveal() {
+    var container = document.getElementById('cbomb-mapping');
+    if (!container || !gameMapping) return;
+    container.innerHTML = '';
+    for (var count = 1; count <= 8; count++) {
+      var entry  = document.createElement('div');
+      entry.className = 'cbomb-map-entry';
+
+      var swatch = document.createElement('div');
+      swatch.className = 'cbomb-map-swatch';
+      swatch.style.backgroundColor = gameMapping[count];
+
+      var label = document.createElement('span');
+      label.className  = 'cbomb-map-label';
+      label.textContent = '= ' + count;
+
+      entry.appendChild(swatch);
+      entry.appendChild(label);
+      container.appendChild(entry);
     }
   }
 
@@ -497,6 +559,8 @@
     gameMapping = null;
     gameState   = 'idle';
 
+    closeKeyPanel();
+    clearKeyPanel();
     endEl.classList.add('cbomb-hide');
     resetBtn.textContent = '🙂';
     timerEl.textContent  = '000';
@@ -522,7 +586,7 @@
 
     shareBtn.addEventListener('click', function () {
       shareText(
-        'Color Bomb — cleared the minefield in ' + elapsed + 's. https://www.thebunnygame.com/colorbomb',
+        'Color Bomb — cleared the board and cracked the color code. https://www.thebunnygame.com/color-bomb',
         'Color Bomb'
       );
     });
@@ -532,6 +596,13 @@
       openDirections(DIRECTIONS_TEXT);
     });
 
+    var keyBtn = document.getElementById('key-btn');
+    if (keyBtn) keyBtn.addEventListener('click', toggleKeyPanel);
+
+    var keyClose = document.getElementById('cbomb-key-close');
+    if (keyClose) keyClose.addEventListener('click', closeKeyPanel);
+
+    buildKeyPanel();
     setupBoardEvents();
     resetGame();
   });

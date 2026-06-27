@@ -4,11 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Color Bomb — Minesweeper with a color twist — Bunny Game</title>
-  <meta name="description" content="Minesweeper, but you don't know which color means what. Clear the board to find out.">
+  <meta name="description" content="Minesweeper, but the numbers are colors — and you don't know which is which.">
   <meta property="og:title" content="Color Bomb — Minesweeper with a color twist — Bunny Game">
-  <meta property="og:description" content="Minesweeper, but you don't know which color means what. Clear the board to find out.">
-  <meta property="og:url" content="https://www.thebunnygame.com/colorbomb">
-  <link rel="canonical" href="https://www.thebunnygame.com/colorbomb">
+  <meta property="og:description" content="Minesweeper, but the numbers are colors — and you don't know which is which.">
+  <meta property="og:url" content="https://www.thebunnygame.com/color-bomb">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/colorbomb-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/colorbomb-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/color-bomb">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
@@ -38,6 +43,7 @@
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
+    <button class="icon-btn" id="key-btn" aria-label="Color key">Key</button>
     <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
   </div>
 </div>
@@ -63,11 +69,23 @@
     <div class="cbomb-end-inner">
       <p class="cbomb-end-headline" id="cbomb-end-headline"></p>
       <p class="cbomb-end-sub" id="cbomb-end-sub"></p>
+      <div class="cbomb-mapping" id="cbomb-mapping"></div>
       <button class="cb-btn-primary cbomb-hide" id="cbomb-share">Share</button>
       <button class="cb-btn-ghost" id="cbomb-replay">Play Again</button>
     </div>
   </div>
 
+</div>
+
+<!-- Color key panel (slides up from bottom) -->
+<div id="cbomb-key-panel" class="cbomb-panel">
+  <div class="cbomb-panel-header">
+    <span class="cbomb-panel-title">Color Key</span>
+    <button class="cbomb-panel-close" id="cbomb-key-close" aria-label="Close">✕</button>
+  </div>
+  <div class="cbomb-key-grid" id="cbomb-key-grid">
+    <!-- populated by JS -->
+  </div>
 </div>
 
 <!-- Directions overlay -->
