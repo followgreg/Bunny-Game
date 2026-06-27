@@ -121,6 +121,12 @@
   background: #dc2626 !important;
 }
 
+/* Color swatch — background set via inline style by JS */
+.cbomb-cell.cbomb-swatch {
+  cursor: default;
+  border-radius: 2px;
+}
+
 .cbomb-cell.cbomb-wrong-flag {
   background: #431407;
   color: #f97316;

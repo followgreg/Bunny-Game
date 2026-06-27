@@ -3,33 +3,35 @@
 
   // ── Constants ──────────────────────────────────────────────────────────────
   var ROWS = 16, COLS = 16, TOTAL_MINES = 40;
+  var MAX_GEN_ATTEMPTS = 300;
 
-  // Standard Minesweeper number colors, adjusted for dark background
-  var NUM_COLORS = [
-    null,        // 0 – never shown
-    '#60a5fa',   // 1 – blue
-    '#34d399',   // 2 – green
-    '#f87171',   // 3 – red
-    '#818cf8',   // 4 – indigo
-    '#fb7185',   // 5 – rose
-    '#22d3ee',   // 6 – cyan
-    '#f1f5f9',   // 7 – near-white
-    '#94a3b8',   // 8 – slate
+  // 8 colors assigned to counts 1-8; order shuffled each game
+  var BASE_COLORS = [
+    '#ef4444',  // red
+    '#60a5fa',  // blue
+    '#fde047',  // yellow
+    '#fb923c',  // orange
+    '#4ade80',  // green
+    '#c084fc',  // purple
+    '#cd853f',  // brown
+    '#f472b6',  // magenta
   ];
 
   var DIRECTIONS_TEXT =
     'Click to reveal a cell. Right-click — or long-press on mobile — to flag a ' +
-    'suspected mine. Click a revealed number when the right number of flags surround ' +
-    'it to chord-reveal its remaining neighbors. Your first click is always safe. ' +
+    'suspected mine. Click a revealed color cell when the right number of flags surround ' +
+    'it to chord-reveal its neighbors. Your first click is always safe. ' +
+    'Each game, the 8 colors are secretly assigned to counts 1–8. ' +
     'Clear all 216 safe cells to win.';
 
   // ── State ──────────────────────────────────────────────────────────────────
-  var cells      = [];
-  var gameState  = 'idle';  // 'idle' | 'playing' | 'won' | 'lost'
-  var flagCount  = 0;
+  var cells       = [];
+  var gameMapping = null;   // gameMapping[count 1-8] = CSS color string
+  var gameState   = 'idle'; // 'idle' | 'playing' | 'won' | 'lost'
+  var flagCount   = 0;
   var revealCount = 0;
-  var timerID    = null;
-  var elapsed    = 0;
+  var timerID     = null;
+  var elapsed     = 0;
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
   var boardEl, mineCountEl, timerEl, resetBtn;
@@ -56,12 +58,147 @@
     cells = [];
     for (var r = 0; r < ROWS; r++) {
       for (var c = 0; c < COLS; c++) {
-        cells.push({ r: r, c: c, mine: false, adj: 0, revealed: false, flagged: false, triggered: false, el: null });
+        cells.push({
+          r: r, c: c, mine: false, adj: 0,
+          revealed: false, flagged: false, triggered: false, el: null
+        });
       }
     }
   }
 
-  // ── Mine placement: first click is always safe (cell + all 8 neighbors) ───
+  // ── Color mapping (fresh shuffle each game) ────────────────────────────────
+  function generateColorMapping() {
+    var colors = BASE_COLORS.slice();
+    for (var i = colors.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = colors[i]; colors[i] = colors[j]; colors[j] = tmp;
+    }
+    gameMapping = {};
+    for (var c = 1; c <= 8; c++) {
+      gameMapping[c] = colors[c - 1];
+    }
+  }
+
+  // ── Solver — anchor-guarantee verification ─────────────────────────────────
+  //
+  // After placing mines, we simulate a safe-deduction playthrough:
+  //   - BFS flood-fill from the first click (exactly as the real game does)
+  //   - Repeat: flag all cells that must be mines; reveal all cells that must be safe
+  //   - At each step, check for an ANCHOR: a revealed adj=1 cell with 0 adjacent flags
+  //     and exactly 1 unrevealed unflagged neighbor (that 1 neighbor must be the mine,
+  //     and the cell's color must therefore represent the count "1")
+  //
+  // If no anchor ever appears, the layout is rejected and regenerated.
+
+  function bfsRevealSim(startR, startC, revealedSet) {
+    var si = idx(startR, startC);
+    if (cells[si].mine || revealedSet.has(si)) return;
+
+    var queue = [si];
+    var seen  = new Set(queue);
+
+    while (queue.length > 0) {
+      var i = queue.shift();
+      revealedSet.add(i);
+      var cell = cells[i];
+      if (cell.adj === 0) {
+        var ns = neighbors(cell.r, cell.c);
+        for (var j = 0; j < ns.length; j++) {
+          var n  = ns[j];
+          var ni = idx(n.r, n.c);
+          if (!n.mine && !seen.has(ni)) {
+            seen.add(ni);
+            queue.push(ni);
+          }
+        }
+      }
+    }
+  }
+
+  // Anchor: revealed adj=1 cell, 0 adjacent flags, exactly 1 unrevealed unflagged neighbor.
+  // That neighbor is unambiguously the mine, and the cell's color unambiguously means "1".
+  function hasAnchorCell(revealedSet, flaggedSet) {
+    var revArr = Array.from(revealedSet);
+    for (var ri = 0; ri < revArr.length; ri++) {
+      var cell = cells[revArr[ri]];
+      if (cell.adj !== 1) continue;
+
+      var ns         = neighbors(cell.r, cell.c);
+      var flaggedCnt = 0;
+      var unrev      = 0;
+
+      for (var j = 0; j < ns.length; j++) {
+        var ni = idx(ns[j].r, ns[j].c);
+        if (flaggedSet.has(ni))   { flaggedCnt++; }
+        else if (!revealedSet.has(ni)) { unrev++; }
+      }
+
+      // Exactly: adj=1, no flags yet, 1 unrevealed unflagged → that cell is the mine
+      if (flaggedCnt === 0 && unrev === 1) return true;
+    }
+    return false;
+  }
+
+  function verifyAnchorGuarantee(firstR, firstC) {
+    var revealedSet = new Set();
+    var flaggedSet  = new Set();
+
+    bfsRevealSim(firstR, firstC, revealedSet);
+    if (hasAnchorCell(revealedSet, flaggedSet)) return true;
+
+    var changed = true;
+    while (changed) {
+      changed = false;
+      var revArr = Array.from(revealedSet);
+
+      for (var ri = 0; ri < revArr.length; ri++) {
+        var cell = cells[revArr[ri]];
+        var ns   = neighbors(cell.r, cell.c);
+
+        var flaggedCnt  = 0;
+        var unrevUnflag = [];
+
+        for (var j = 0; j < ns.length; j++) {
+          var ni = idx(ns[j].r, ns[j].c);
+          if (flaggedSet.has(ni)) {
+            flaggedCnt++;
+          } else if (!revealedSet.has(ni)) {
+            unrevUnflag.push(ns[j]);
+          }
+        }
+
+        var remaining = cell.adj - flaggedCnt;
+
+        // Deduction 1 — all unrevealed unflagged neighbors must be mines
+        if (remaining > 0 && remaining === unrevUnflag.length) {
+          for (var fi = 0; fi < unrevUnflag.length; fi++) {
+            var fni = idx(unrevUnflag[fi].r, unrevUnflag[fi].c);
+            if (!flaggedSet.has(fni)) {
+              flaggedSet.add(fni);
+              changed = true;
+            }
+          }
+          if (hasAnchorCell(revealedSet, flaggedSet)) return true;
+        }
+
+        // Deduction 2 — no remaining mines: reveal all unrevealed unflagged neighbors
+        if (remaining === 0 && unrevUnflag.length > 0) {
+          for (var si = 0; si < unrevUnflag.length; si++) {
+            var sni = idx(unrevUnflag[si].r, unrevUnflag[si].c);
+            if (!revealedSet.has(sni)) {
+              bfsRevealSim(unrevUnflag[si].r, unrevUnflag[si].c, revealedSet);
+              changed = true;
+            }
+          }
+          if (hasAnchorCell(revealedSet, flaggedSet)) return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  // ── Mine placement with anchor guarantee ───────────────────────────────────
   function placeMines(safeR, safeC) {
     var excluded = new Set();
     for (var dr = -1; dr <= 1; dr++) {
@@ -71,33 +208,56 @@
       }
     }
 
-    // Fisher-Yates sample from eligible positions
     var pool = [];
     for (var i = 0; i < ROWS * COLS; i++) {
       if (!excluded.has(i)) pool.push(i);
     }
-    for (var j = pool.length - 1; j > 0; j--) {
-      var k = Math.floor(Math.random() * (j + 1));
-      var tmp = pool[j]; pool[j] = pool[k]; pool[k] = tmp;
-    }
-    for (var m = 0; m < TOTAL_MINES; m++) cells[pool[m]].mine = true;
 
-    // Compute adjacency counts
-    for (var ci = 0; ci < cells.length; ci++) {
-      var cell = cells[ci];
-      if (!cell.mine) {
-        cell.adj = neighbors(cell.r, cell.c).filter(function (n) { return n.mine; }).length;
+    for (var attempt = 0; attempt < MAX_GEN_ATTEMPTS; attempt++) {
+      // Clear previous placement
+      for (var ci = 0; ci < cells.length; ci++) {
+        cells[ci].mine = false;
+        cells[ci].adj  = 0;
+      }
+
+      // Shuffle pool → take first TOTAL_MINES as mine positions
+      var poolCopy = pool.slice();
+      for (var j = poolCopy.length - 1; j > 0; j--) {
+        var k = Math.floor(Math.random() * (j + 1));
+        var tmp = poolCopy[j]; poolCopy[j] = poolCopy[k]; poolCopy[k] = tmp;
+      }
+      for (var m = 0; m < TOTAL_MINES; m++) cells[poolCopy[m]].mine = true;
+
+      // Compute adjacency counts
+      for (var ai = 0; ai < cells.length; ai++) {
+        if (cells[ai].mine) continue;
+        var adjNs = neighbors(cells[ai].r, cells[ai].c);
+        var adjCnt = 0;
+        for (var an = 0; an < adjNs.length; an++) {
+          if (adjNs[an].mine) adjCnt++;
+        }
+        cells[ai].adj = adjCnt;
+      }
+
+      // Accept this layout if an anchor can be reached by safe deduction
+      if (verifyAnchorGuarantee(safeR, safeC)) {
+        if (attempt > 0) {
+          console.debug('[Color Bomb] Anchor guarantee satisfied — attempts needed:', attempt + 1);
+        }
+        return;
       }
     }
+
+    console.warn('[Color Bomb] Could not satisfy anchor guarantee in', MAX_GEN_ATTEMPTS, 'attempts — using current layout');
   }
 
-  // ── Reveal (iterative BFS) ─────────────────────────────────────────────────
+  // ── Reveal (iterative BFS, game-state) ────────────────────────────────────
   function revealCell(startR, startC) {
     var start = cells[idx(startR, startC)];
     if (start.revealed || start.flagged) return;
 
     if (start.mine) {
-      start.revealed = true;
+      start.revealed  = true;
       start.triggered = true;
       revealCount++;
       renderCell(start);
@@ -105,10 +265,8 @@
       return;
     }
 
-    // BFS flood fill for zero-adjacent cells
     var queue = [start];
-    var seen = new Set();
-    seen.add(idx(startR, startC));
+    var seen  = new Set([idx(startR, startC)]);
 
     while (queue.length > 0) {
       var cell = queue.shift();
@@ -121,7 +279,7 @@
       if (cell.adj === 0) {
         var ns = neighbors(cell.r, cell.c);
         for (var i = 0; i < ns.length; i++) {
-          var n = ns[i];
+          var n  = ns[i];
           var ni = idx(n.r, n.c);
           if (!n.mine && !n.revealed && !n.flagged && !seen.has(ni)) {
             seen.add(ni);
@@ -134,19 +292,22 @@
     checkWin();
   }
 
-  // ── Chord reveal (click numbered cell when flag count matches) ─────────────
+  // ── Chord reveal ───────────────────────────────────────────────────────────
   function chordReveal(r, c) {
     var cell = cells[idx(r, c)];
     if (!cell.revealed || cell.adj === 0) return;
     var ns = neighbors(r, c);
-    var flagged = ns.filter(function (n) { return n.flagged; }).length;
-    if (flagged !== cell.adj) return;
+    var flagged = 0;
     for (var i = 0; i < ns.length; i++) {
-      if (!ns[i].revealed && !ns[i].flagged) revealCell(ns[i].r, ns[i].c);
+      if (ns[i].flagged) flagged++;
+    }
+    if (flagged !== cell.adj) return;
+    for (var j = 0; j < ns.length; j++) {
+      if (!ns[j].revealed && !ns[j].flagged) revealCell(ns[j].r, ns[j].c);
     }
   }
 
-  // ── Flag toggle ────────────────────────────────────────────────────────────
+  // ── Flag ───────────────────────────────────────────────────────────────────
   function toggleFlag(r, c) {
     var cell = cells[idx(r, c)];
     if (cell.revealed) return;
@@ -167,7 +328,6 @@
     resetBtn.textContent = won ? '😎' : '😵';
 
     if (won) {
-      // Auto-flag remaining unflagged mines
       for (var i = 0; i < cells.length; i++) {
         if (cells[i].mine && !cells[i].flagged) {
           cells[i].flagged = true;
@@ -177,27 +337,22 @@
       flagCount = TOTAL_MINES;
       updateHud();
     } else {
-      // Reveal all mines and mark wrong flags
       for (var j = 0; j < cells.length; j++) {
         var cell = cells[j];
         if (cell.mine && !cell.flagged) { cell.revealed = true; renderCell(cell); }
-        if (!cell.mine && cell.flagged)  { renderCell(cell); }
+        if (!cell.mine && cell.flagged) { renderCell(cell); }
       }
     }
 
-    var delay = won ? 350 : 600;
     setTimeout(function () {
       endHeadlineEl.textContent = won ? 'Board cleared!' : 'Boom.';
       endSubEl.textContent = won
         ? 'Cleared in ' + elapsed + 's.'
         : 'A mine was triggered. Give it another shot.';
-      if (won) {
-        shareBtn.classList.remove('cbomb-hide');
-      } else {
-        shareBtn.classList.add('cbomb-hide');
-      }
+      if (won) { shareBtn.classList.remove('cbomb-hide'); }
+      else     { shareBtn.classList.add('cbomb-hide'); }
       endEl.classList.remove('cbomb-hide');
-    }, delay);
+    }, won ? 350 : 600);
   }
 
   // ── Timer ──────────────────────────────────────────────────────────────────
@@ -217,20 +372,19 @@
 
   // ── HUD ────────────────────────────────────────────────────────────────────
   function updateHud() {
-    var remaining = TOTAL_MINES - flagCount;
-    mineCountEl.textContent = String(remaining).padStart(3, '0');
+    mineCountEl.textContent = String(TOTAL_MINES - flagCount).padStart(3, '0');
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
   function renderCell(cell) {
     var el = cell.el;
-    el.className = 'cbomb-cell';
-    el.textContent = '';
-    el.style.color = '';
+    el.className          = 'cbomb-cell';
+    el.textContent        = '';
+    el.style.color        = '';
+    el.style.backgroundColor = '';
 
     if (!cell.revealed) {
       if (cell.flagged) {
-        // Show wrong flag indicator after loss
         if (gameState === 'lost' && !cell.mine) {
           el.classList.add('cbomb-wrong-flag');
           el.textContent = '✕';
@@ -253,10 +407,12 @@
       return;
     }
 
+    // adj 1-8: fill cell with the mapped color (the twist — no numbers shown)
     if (cell.adj > 0) {
-      el.textContent = cell.adj;
-      el.style.color = NUM_COLORS[cell.adj];
+      el.classList.add('cbomb-swatch');
+      el.style.backgroundColor = gameMapping[cell.adj];
     }
+    // adj 0: empty dark revealed cell — no content, no color
   }
 
   // ── Board rendering ────────────────────────────────────────────────────────
@@ -264,37 +420,35 @@
     boardEl.innerHTML = '';
     for (var i = 0; i < cells.length; i++) {
       var el = document.createElement('div');
-      el.className = 'cbomb-cell cbomb-hidden';
-      el.dataset.r = String(cells[i].r);
-      el.dataset.c = String(cells[i].c);
-      cells[i].el = el;
+      el.className  = 'cbomb-cell cbomb-hidden';
+      el.dataset.r  = String(cells[i].r);
+      el.dataset.c  = String(cells[i].c);
+      cells[i].el   = el;
       boardEl.appendChild(el);
     }
   }
 
-  // ── Event handling (delegated) ─────────────────────────────────────────────
+  // ── Events (delegated) ─────────────────────────────────────────────────────
   function setupBoardEvents() {
 
     boardEl.addEventListener('click', function (e) {
       if (gameState === 'won' || gameState === 'lost') return;
       var el = e.target.closest('.cbomb-cell');
       if (!el) return;
-      var r = parseInt(el.dataset.r, 10);
-      var c = parseInt(el.dataset.c, 10);
+      var r    = parseInt(el.dataset.r, 10);
+      var c    = parseInt(el.dataset.c, 10);
       var cell = cells[idx(r, c)];
       if (cell.flagged) return;
 
       if (gameState === 'idle') {
+        generateColorMapping();
         placeMines(r, c);
         gameState = 'playing';
         startTimer();
       }
 
-      if (cell.revealed) {
-        chordReveal(r, c);
-      } else {
-        revealCell(r, c);
-      }
+      if (cell.revealed) { chordReveal(r, c); }
+      else               { revealCell(r, c);  }
     });
 
     boardEl.addEventListener('contextmenu', function (e) {
@@ -302,27 +456,22 @@
       if (gameState !== 'playing') return;
       var el = e.target.closest('.cbomb-cell');
       if (!el) return;
-      var r = parseInt(el.dataset.r, 10);
-      var c = parseInt(el.dataset.c, 10);
-      toggleFlag(r, c);
+      toggleFlag(parseInt(el.dataset.r, 10), parseInt(el.dataset.c, 10));
     });
 
-    // Long-press flagging for mobile
+    // Long-press flag for mobile
     var lpTimer = null;
     var lpMoved = false;
 
     boardEl.addEventListener('touchstart', function (e) {
       lpMoved = false;
-      var touch = e.touches[0];
+      var touch  = e.touches[0];
       var target = document.elementFromPoint(touch.clientX, touch.clientY);
       lpTimer = setTimeout(function () {
         if (lpMoved || gameState !== 'playing') return;
         var el = target && target.closest('.cbomb-cell');
         if (!el) return;
-        var r = parseInt(el.dataset.r, 10);
-        var c = parseInt(el.dataset.c, 10);
-        toggleFlag(r, c);
-        // Suppress the subsequent click
+        toggleFlag(parseInt(el.dataset.r, 10), parseInt(el.dataset.c, 10));
         lpTimer = -1;
       }, 450);
     }, { passive: true });
@@ -333,12 +482,7 @@
     }, { passive: true });
 
     boardEl.addEventListener('touchend', function (e) {
-      if (lpTimer === -1) {
-        // Long-press fired: eat the click
-        e.preventDefault();
-        lpTimer = null;
-        return;
-      }
+      if (lpTimer === -1) { e.preventDefault(); lpTimer = null; return; }
       clearTimeout(lpTimer);
       lpTimer = null;
     });
@@ -350,6 +494,7 @@
     flagCount   = 0;
     revealCount = 0;
     elapsed     = 0;
+    gameMapping = null;
     gameState   = 'idle';
 
     endEl.classList.add('cbomb-hide');
@@ -362,15 +507,15 @@
 
   // ── Init ───────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
-    boardEl      = document.getElementById('cbomb-board');
-    mineCountEl  = document.getElementById('cbomb-mine-count');
-    timerEl      = document.getElementById('cbomb-timer');
-    resetBtn     = document.getElementById('cbomb-reset');
-    endEl        = document.getElementById('cbomb-end');
+    boardEl       = document.getElementById('cbomb-board');
+    mineCountEl   = document.getElementById('cbomb-mine-count');
+    timerEl       = document.getElementById('cbomb-timer');
+    resetBtn      = document.getElementById('cbomb-reset');
+    endEl         = document.getElementById('cbomb-end');
     endHeadlineEl = document.getElementById('cbomb-end-headline');
-    endSubEl     = document.getElementById('cbomb-end-sub');
-    shareBtn     = document.getElementById('cbomb-share');
-    replayBtn    = document.getElementById('cbomb-replay');
+    endSubEl      = document.getElementById('cbomb-end-sub');
+    shareBtn      = document.getElementById('cbomb-share');
+    replayBtn     = document.getElementById('cbomb-replay');
 
     resetBtn.addEventListener('click', resetGame);
     replayBtn.addEventListener('click', resetGame);
