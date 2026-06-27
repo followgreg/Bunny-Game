@@ -4,11 +4,10 @@
   var LS_KEY = 'colorblind_highestLevel';
 
   var DIRECTIONS_TEXT =
-    'One square in the grid is a slightly different shade from all the others. ' +
-    'Select the one you think is the odd one out, then tap Submit. ' +
-    'You only get one chance per attempt — if you\'re wrong, the board stays ' +
-    'unchanged so you can look again. ' +
-    'The differences get harder to spot as you progress through all 100 levels.';
+    'Color Blind shows you a grid of squares, all the same color except one. ' +
+    'Find it, select it, and submit. Get it right and the next board appears — ' +
+    'get it wrong and you\'ll just try again. The board grows and the difference ' +
+    'gets smaller as you go. By the end, you\'ll really need to look.';
 
   var SHARE_MSG =
     'Color Blind — found the odd one out, all 100 times. ' +
