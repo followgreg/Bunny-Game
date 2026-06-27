@@ -299,6 +299,11 @@
     /* Color Blind: warm off-white — logo's dark half needs a light background */
     .lc-colorblind { background: #f0ece4; border-color: rgba(0,0,0,0.12); }
     .lc-colorblind .lobby-card-desc { color: rgba(0,0,0,0.52); }
+
+    /* Color Bomb: dark with red-ember glow */
+    .lc-colorbomb { background: #100000; border-color: rgba(239,68,68,0.4); }
+    .lc-colorbomb .lobby-card-name { color: #fca5a5; }
+    .lc-colorbomb .lobby-card-desc { color: rgba(255,255,255,0.55); }
   </style>
 </head>
 <body>
@@ -324,6 +329,11 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-colorbomb" href="colorbomb.html">
+        <p class="lobby-card-name">Color Bomb</p>
+        <p class="lobby-card-desc">Minesweeper. But you don't know which color means what.</p>
       </a>
 
       <a class="lobby-card lc-colorblind" href="colorblind.html">

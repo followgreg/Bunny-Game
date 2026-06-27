@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Color Bomb — Minesweeper with a color twist — Bunny Game</title>
+  <meta name="description" content="Minesweeper, but you don't know which color means what. Clear the board to find out.">
+  <meta property="og:title" content="Color Bomb — Minesweeper with a color twist — Bunny Game">
+  <meta property="og:description" content="Minesweeper, but you don't know which color means what. Clear the board to find out.">
+  <meta property="og:url" content="https://www.thebunnygame.com/colorbomb">
+  <link rel="canonical" href="https://www.thebunnygame.com/colorbomb">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0c0e14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/colorbomb.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- HUD -->
+  <div class="cbomb-hud">
+    <span class="cbomb-counter" id="cbomb-mine-count">040</span>
+    <button class="cbomb-reset-btn" id="cbomb-reset" aria-label="New game">🙂</button>
+    <span class="cbomb-counter" id="cbomb-timer">000</span>
+  </div>
+
+  <!-- Board -->
+  <div class="cbomb-board-wrap">
+    <div id="cbomb-board"></div>
+  </div>
+
+  <!-- End overlay -->
+  <div id="cbomb-end" class="cbomb-end cbomb-hide">
+    <div class="cbomb-end-inner">
+      <p class="cbomb-end-headline" id="cbomb-end-headline"></p>
+      <p class="cbomb-end-sub" id="cbomb-end-sub"></p>
+      <button class="cb-btn-primary cbomb-hide" id="cbomb-share">Share</button>
+      <button class="cb-btn-ghost" id="cbomb-replay">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Directions overlay -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/colorbomb.js"></script>
+</body>
+</html>
