@@ -197,6 +197,65 @@
 .cb-btn-primary:hover  { background: #253045; }
 .cb-btn-primary:active { background: #1a2535; }
 
+.cb-btn-ghost {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #2d3f55;
+  color: #64748b;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cb-btn-ghost:hover  { border-color: #4a5568; color: #94a3b8; }
+.cb-btn-ghost:active { background: #1e293b; }
+
+/* ── Start screen ────────────────────────────────────────────────────────── */
+
+#cb-start {
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.cb-start-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+}
+
+.cb-start-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.01em;
+  margin-bottom: 4px;
+}
+
+.cb-start-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: rgba(148, 163, 184, 0.5);
+  margin-bottom: 20px;
+}
+
+.cb-start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
 /* ── Win screen ──────────────────────────────────────────────────────────── */
 
 #cb-win {
@@ -223,19 +282,10 @@
   letter-spacing: 0.01em;
 }
 
-.cb-win-sub-headline {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: rgba(148, 163, 184, 0.6);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
 .cb-win-body {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.88rem;
   color: rgba(148, 163, 184, 0.5);
   margin-bottom: 16px;
+  line-height: 1.5;
 }

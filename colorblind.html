@@ -56,6 +56,15 @@
     <p class="cb-error-text">Couldn't load levels. Please refresh.</p>
   </div>
 
+  <!-- Start screen (shown when saved progress exists) -->
+  <div id="cb-start" class="cb-screen cb-hide">
+    <div class="cb-start-inner">
+      <p class="cb-start-title">Color Blind</p>
+      <p class="cb-start-sub">One square is different. Can you find it?</p>
+      <div class="cb-start-btns" id="cb-start-btns"></div>
+    </div>
+  </div>
+
   <!-- Game screen -->
   <div id="cb-game" class="cb-screen cb-hide">
 
@@ -94,10 +103,10 @@
   <!-- Win screen -->
   <div id="cb-win" class="cb-screen cb-hide">
     <div class="cb-win-inner">
-      <p class="cb-win-headline">Color Blind</p>
-      <h2 class="cb-win-sub-headline">Complete</h2>
-      <p class="cb-win-body">All 100 levels cleared.</p>
-      <button class="cb-btn-primary" id="cb-play-again">Play Again</button>
+      <p class="cb-win-headline">Color Blind Complete</p>
+      <p class="cb-win-body">All 100 levels solved — your eyes have earned a rest.</p>
+      <button class="cb-btn-primary" id="cb-share">Share</button>
+      <button class="cb-btn-ghost" id="cb-play-again">Play Again</button>
     </div>
   </div>
 
