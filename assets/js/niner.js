@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  // ── Word list ──────────────────────────────────────────────────────────────
+  // ── Part 1 — Word list ─────────────────────────────────────────────────────
   var WORDS = [
     'ADVENTURE', 'AFTERNOON', 'ALONGSIDE', 'APARTMENT', 'ATTENTION',
     'AVAILABLE', 'BEAUTIFUL', 'BEGINNING', 'BREAKFAST', 'BRILLIANT',
@@ -25,31 +25,29 @@
     'UNCERTAIN', 'VEGETABLE', 'VOLUNTEER', 'WATERFALL', 'YESTERDAY',
   ];
 
-  // ── Grid constants ─────────────────────────────────────────────────────────
+  // ── Part 2 — Grid constants & generation ───────────────────────────────────
   //
-  //   Cell indices:    Row/col:
-  //   0  1  2          (0,0)(0,1)(0,2)
-  //   3  4  5          (1,0)(1,1)(1,2)
-  //   6  7  8          (2,0)(2,1)(2,2)
+  //   Cell layout (row-major):
+  //   0  1  2
+  //   3  4  5
+  //   6  7  8
   //
-  // 8-directional adjacency (orthogonal + diagonal).
   var ADJACENCY = [
     [1, 3, 4],                    // 0  top-left
     [0, 2, 3, 4, 5],              // 1  top-center
     [1, 4, 5],                    // 2  top-right
     [0, 1, 4, 6, 7],              // 3  mid-left
-    [0, 1, 2, 3, 5, 6, 7, 8],    // 4  center (all 8 neighbors)
+    [0, 1, 2, 3, 5, 6, 7, 8],    // 4  center
     [1, 2, 4, 7, 8],              // 5  mid-right
     [3, 4, 7],                    // 6  bottom-left
     [3, 4, 5, 6, 8],              // 7  bottom-center
     [4, 5, 7],                    // 8  bottom-right
   ];
 
-  // ── Utilities ──────────────────────────────────────────────────────────────
   function shuffle(arr) {
     for (var i = arr.length - 1; i > 0; i--) {
-      var j   = Math.floor(Math.random() * (i + 1));
-      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
     }
     return arr;
   }
@@ -58,101 +56,287 @@
     return WORDS[Math.floor(Math.random() * WORDS.length)];
   }
 
-  // ── Hamiltonian path (randomized backtracking) ─────────────────────────────
-  //
-  // Returns an array of 9 cell indices — a path visiting every cell exactly
-  // once where each consecutive pair is 8-directionally adjacent.
-  //
-  // Strategy: pick a random start cell, then greedily extend with shuffled
-  // neighbor order. Backtrack on dead ends. The 3×3 grid is small enough that
-  // this resolves in microseconds for any starting cell.
   function randomHamiltonianPath() {
     var path    = [];
     var visited = new Array(9).fill(false);
 
-    function backtrack(cell) {
+    function bt(cell) {
       path.push(cell);
       visited[cell] = true;
       if (path.length === 9) return true;
-
       var ns = shuffle(ADJACENCY[cell].slice());
       for (var i = 0; i < ns.length; i++) {
-        if (!visited[ns[i]] && backtrack(ns[i])) return true;
+        if (!visited[ns[i]] && bt(ns[i])) return true;
       }
-
       path.pop();
       visited[cell] = false;
       return false;
     }
 
-    // Randomize the starting cell for maximum layout variety
     var starts = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]);
     for (var s = 0; s < starts.length; s++) {
       path    = [];
       visited = new Array(9).fill(false);
-      if (backtrack(starts[s])) return path;
+      if (bt(starts[s])) return path;
     }
-
-    // Should never reach here on a fully-connected 3×3 8-directional grid
     return [0, 1, 2, 3, 4, 5, 6, 7, 8];
   }
 
-  // ── Grid builder ──────────────────────────────────────────────────────────
-  //
-  // Given a 9-letter word, places its letters into a randomized Hamiltonian
-  // path through the grid.
-  //
-  // Returns:
-  //   grid — array[9], grid[cellIndex] = letter at that cell
-  //   path — array[9], path[i] = cell index holding word[i]
-  //           (i.e. the correct solving order of cell indices)
+  // Returns { word, grid[9], path[9] }
+  //   grid[cellIndex] = letter at that cell
+  //   path[i]         = cell index holding word[i]
   function buildGrid(word) {
     var path = randomHamiltonianPath();
     var grid = new Array(9).fill('');
-    for (var i = 0; i < 9; i++) {
-      grid[path[i]] = word[i];
-    }
+    for (var i = 0; i < 9; i++) grid[path[i]] = word[i];
     return { word: word, grid: grid, path: path };
   }
 
-  // ── New game ───────────────────────────────────────────────────────────────
-  function newGame() {
-    return buildGrid(randomWord());
+  // ── Part 3 — Game state ────────────────────────────────────────────────────
+  var DIRECTIONS_TEXT =
+    'A 9-letter word is shown at the top. Find it hiding in the grid and tap ' +
+    'the letters in order to trace the path. Each step must connect to an ' +
+    'adjacent cell — including diagonals. Every cell is used exactly once. ' +
+    'If your path hits a dead end, tap Try Again to start over with the same word.';
+
+  var currentGame = null;  // { word, grid, path }
+  var trace       = [];    // cell indices in trace order
+  var gameActive  = false;
+
+  // DOM refs (set in DOMContentLoaded)
+  var gridEl, slotsEl, svgEl, targetEl, tryBtn, newBtn;
+
+  // ── Cell helpers ───────────────────────────────────────────────────────────
+  function getCellEl(idx) {
+    return gridEl.querySelector('[data-idx="' + idx + '"]');
   }
 
-  // ── Dev verification ───────────────────────────────────────────────────────
-  // Usage in console: _niner.verify('ADVENTURE', 6)
-  function verify(word, runs) {
-    runs = runs || 8;
-    console.group('[Niner] buildGrid("' + word + '") × ' + runs);
-    for (var r = 0; r < runs; r++) {
-      var g = buildGrid(word);
+  // Returns { x, y } of a cell's center relative to the board-wrap (= SVG origin)
+  function cellCenter(idx) {
+    var wrap = svgEl.parentElement;
+    var wR   = wrap.getBoundingClientRect();
+    var cR   = getCellEl(idx).getBoundingClientRect();
+    return {
+      x: cR.left + cR.width  / 2 - wR.left,
+      y: cR.top  + cR.height / 2 - wR.top,
+    };
+  }
 
-      // Reconstruct word from path and check adjacency
-      var rebuilt = '';
-      var ok      = true;
-      for (var i = 0; i < 9; i++) {
-        rebuilt += g.grid[g.path[i]];
-        if (i < 8 && ADJACENCY[g.path[i]].indexOf(g.path[i + 1]) === -1) ok = false;
-      }
-      if (rebuilt !== word) ok = false;
+  // ── SVG trace drawing ──────────────────────────────────────────────────────
+  function redrawSVG() {
+    svgEl.innerHTML = '';
+    if (trace.length === 0) return;
 
-      var row = [
-        g.grid[0], g.grid[1], g.grid[2], '|',
-        g.grid[3], g.grid[4], g.grid[5], '|',
-        g.grid[6], g.grid[7], g.grid[8],
-      ].join(' ');
-      console.log((ok ? '✓' : '✗') + '  ' + row + '  path:[' + g.path.join(',') + ']');
+    var ns = 'http://www.w3.org/2000/svg';
+
+    // Lines drawn first (under dots)
+    var linesG = document.createElementNS(ns, 'g');
+    for (var i = 1; i < trace.length; i++) {
+      var a    = cellCenter(trace[i - 1]);
+      var b    = cellCenter(trace[i]);
+      var line = document.createElementNS(ns, 'line');
+      line.setAttribute('x1', a.x);
+      line.setAttribute('y1', a.y);
+      line.setAttribute('x2', b.x);
+      line.setAttribute('y2', b.y);
+      line.setAttribute('stroke', 'rgba(255,255,255,0.55)');
+      line.setAttribute('stroke-width', '5');
+      line.setAttribute('stroke-linecap', 'round');
+      linesG.appendChild(line);
     }
-    console.groupEnd();
+    svgEl.appendChild(linesG);
+
+    // Dots on top so they show through cell centers
+    var dotsG = document.createElementNS(ns, 'g');
+    for (var j = 0; j < trace.length; j++) {
+      var p   = cellCenter(trace[j]);
+      var dot = document.createElementNS(ns, 'circle');
+      dot.setAttribute('cx', p.x);
+      dot.setAttribute('cy', p.y);
+      dot.setAttribute('r', j === 0 ? 8 : 5);
+      dot.setAttribute('fill',
+        j === trace.length - 1
+          ? 'rgba(255,255,255,0.95)'
+          : 'rgba(255,255,255,0.55)'
+      );
+      dotsG.appendChild(dot);
+    }
+    svgEl.appendChild(dotsG);
   }
 
-  // Expose to other parts and dev console
+  // ── Slot helpers ───────────────────────────────────────────────────────────
+  function renderSlots() {
+    slotsEl.innerHTML = '';
+    for (var i = 0; i < 9; i++) {
+      var div       = document.createElement('div');
+      div.className = 'niner-slot';
+      div.id        = 'nslot-' + i;
+      slotsEl.appendChild(div);
+    }
+  }
+
+  function fillSlot(pos, letter) {
+    var el = document.getElementById('nslot-' + pos);
+    if (el) el.textContent = letter;
+  }
+
+  function setSlotsState(state) {
+    for (var i = 0; i < trace.length; i++) {
+      var el = document.getElementById('nslot-' + i);
+      if (!el) continue;
+      el.classList.remove('error', 'correct');
+      if (state) el.classList.add(state);
+    }
+  }
+
+  function clearSlots() {
+    for (var i = 0; i < 9; i++) {
+      var el = document.getElementById('nslot-' + i);
+      if (el) { el.textContent = ''; el.classList.remove('error', 'correct'); }
+    }
+  }
+
+  // ── Cell visual state ──────────────────────────────────────────────────────
+  function refreshCellStates() {
+    for (var i = 0; i < 9; i++) {
+      var el = getCellEl(i);
+      if (!el) continue;
+      el.classList.remove('used', 'active', 'solved');
+    }
+    for (var j = 0; j < trace.length; j++) {
+      var cel = getCellEl(trace[j]);
+      if (!cel) continue;
+      if (j === trace.length - 1) {
+        cel.classList.add('active');
+      } else {
+        cel.classList.add('used');
+      }
+    }
+  }
+
+  function markAllSolved() {
+    for (var i = 0; i < 9; i++) {
+      var el = getCellEl(i);
+      if (el) { el.classList.remove('used', 'active'); el.classList.add('solved'); }
+    }
+  }
+
+  // ── Grid rendering ─────────────────────────────────────────────────────────
+  function renderGrid(game) {
+    gridEl.innerHTML = '';
+    for (var i = 0; i < 9; i++) {
+      var div         = document.createElement('div');
+      div.className   = 'niner-cell';
+      div.dataset.idx = String(i);
+      div.textContent = game.grid[i];
+      gridEl.appendChild(div);
+    }
+  }
+
+  // ── Win / dead-end states ──────────────────────────────────────────────────
+  function handleWin() {
+    gameActive = false;
+    markAllSolved();
+    setSlotsState('correct');
+    targetEl.classList.add('solved');
+    tryBtn.classList.add('n-hide');
+    // Part 4 will add a proper win overlay
+  }
+
+  function triggerDeadEnd() {
+    gameActive = false;
+    setSlotsState('error');
+    tryBtn.classList.remove('n-hide');
+  }
+
+  // ── Click handling ─────────────────────────────────────────────────────────
+  function handleCellClick(idx) {
+    if (!gameActive) return;
+
+    // Already in trace — ignore
+    if (trace.indexOf(idx) !== -1) return;
+
+    // After the first click, must be adjacent to the tail
+    if (trace.length > 0 && ADJACENCY[trace[trace.length - 1]].indexOf(idx) === -1) return;
+
+    // Commit the step
+    trace.push(idx);
+    fillSlot(trace.length - 1, currentGame.grid[idx]);
+    refreshCellStates();
+    redrawSVG();
+
+    // Win check: all 9 cells traced
+    if (trace.length === 9) {
+      var spelled = trace.map(function (ci) { return currentGame.grid[ci]; }).join('');
+      if (spelled === currentGame.word) {
+        handleWin();
+      } else {
+        // Traced all 9 but wrong word — treat as dead-end
+        triggerDeadEnd();
+      }
+      return;
+    }
+
+    // Dead-end detection injected here in Part 4
+  }
+
+  // ── Try Again — reset trace, keep same word/grid ───────────────────────────
+  function resetTrace() {
+    trace      = [];
+    gameActive = true;
+    svgEl.innerHTML = '';
+    clearSlots();
+    refreshCellStates();
+    targetEl.classList.remove('solved');
+    tryBtn.classList.add('n-hide');
+  }
+
+  // ── New Word — fresh word, fresh grid ─────────────────────────────────────
+  function startNewGame() {
+    currentGame = buildGrid(randomWord());
+    trace       = [];
+    gameActive  = true;
+
+    targetEl.textContent = currentGame.word;
+    targetEl.classList.remove('solved');
+    svgEl.innerHTML = '';
+    renderGrid(currentGame);
+    renderSlots();
+    tryBtn.classList.add('n-hide');
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    gridEl   = document.getElementById('niner-grid');
+    slotsEl  = document.getElementById('niner-slots');
+    svgEl    = document.getElementById('niner-svg');
+    targetEl = document.getElementById('niner-target');
+    tryBtn   = document.getElementById('niner-try');
+    newBtn   = document.getElementById('niner-new');
+
+    gridEl.addEventListener('click', function (e) {
+      var cell = e.target.closest('.niner-cell');
+      if (!cell) return;
+      handleCellClick(parseInt(cell.dataset.idx, 10));
+    });
+
+    tryBtn.addEventListener('click', resetTrace);
+    newBtn.addEventListener('click', startNewGame);
+
+    var helpBtn = document.getElementById('help-btn');
+    if (helpBtn) helpBtn.addEventListener('click', function () {
+      openDirections(DIRECTIONS_TEXT);
+    });
+
+    startNewGame();
+  });
+
+  // ── Dev hook ───────────────────────────────────────────────────────────────
   window._niner = {
     ADJACENCY : ADJACENCY,
     buildGrid : buildGrid,
-    newGame   : newGame,
-    verify    : verify,
+    game      : function () { return currentGame; },
+    trace     : function () { return trace; },
   };
 
 })();

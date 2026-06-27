@@ -1,0 +1,179 @@
+/* ── Page ─────────────────────────────────────────────────────────────────── */
+#canvas-wrap {
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 20px;
+  padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Target word ──────────────────────────────────────────────────────────── */
+.niner-target {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.2rem, 5vw, 1.6rem);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  color: #f1f5f9;
+  margin: 0;
+  text-align: center;
+  transition: color 0.3s;
+}
+
+.niner-target.solved {
+  color: #4ade80;
+}
+
+/* ── Board wrap (grid + SVG share this layer) ─────────────────────────────── */
+.niner-board-wrap {
+  position: relative;
+  width: min(320px, calc(100vw - 24px));
+  height: min(320px, calc(100vw - 24px));
+  flex-shrink: 0;
+}
+
+/* ── 3×3 grid ─────────────────────────────────────────────────────────────── */
+.niner-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Cells ────────────────────────────────────────────────────────────────── */
+.niner-cell {
+  background: #1e293b;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.5rem, 6.5vw, 2.2rem);
+  font-weight: 900;
+  color: #f1f5f9;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1;
+  transition: background 0.08s, transform 0.06s;
+}
+
+.niner-cell:active {
+  transform: scale(0.93);
+}
+
+/* Used — part of the trace but not the current tail */
+.niner-cell.used {
+  background: #1d4ed8;
+  color: #fff;
+  cursor: default;
+}
+
+/* Active — the current tail cell */
+.niner-cell.active {
+  background: #3b82f6;
+  color: #fff;
+  cursor: default;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.45);
+}
+
+/* Solved — all cells on a correct solve */
+.niner-cell.solved {
+  background: #166534;
+  color: #86efac;
+  cursor: default;
+}
+
+/* ── SVG trace overlay ────────────────────────────────────────────────────── */
+.niner-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+/* ── Letter slot row ──────────────────────────────────────────────────────── */
+.niner-slots {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.niner-slot {
+  width: min(28px, calc((100vw - 52px) / 9));
+  padding-bottom: 4px;
+  border-bottom: 2px solid #334155;
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(0.75rem, 3.2vw, 1rem);
+  font-weight: 800;
+  color: #f1f5f9;
+  text-align: center;
+  line-height: 1.5;
+  min-height: 28px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.niner-slot.error {
+  color: #f87171;
+  border-color: #ef4444;
+}
+
+.niner-slot.correct {
+  color: #4ade80;
+  border-color: #22c55e;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.niner-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.niner-btn {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 12px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+
+.niner-btn-try {
+  background: transparent;
+  border: 1.5px solid #ef4444;
+  color: #ef4444;
+}
+
+.niner-btn-try:hover  { background: rgba(239,68,68,0.1); }
+.niner-btn-try:active { background: rgba(239,68,68,0.2); }
+
+.niner-btn-new {
+  background: transparent;
+  border: 1.5px solid #334155;
+  color: #64748b;
+}
+
+.niner-btn-new:hover  { border-color: #475569; color: #94a3b8; }
+.niner-btn-new:active { background: rgba(255,255,255,0.04); }
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.n-hide { display: none !important; }
