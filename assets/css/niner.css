@@ -8,6 +8,8 @@
   flex: 1;
   gap: 20px;
   padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  overflow: hidden;
 }
 
 /* ── Target word ──────────────────────────────────────────────────────────── */
@@ -174,6 +176,61 @@
 
 .niner-btn-new:hover  { border-color: #475569; color: #94a3b8; }
 .niner-btn-new:active { background: rgba(255,255,255,0.04); }
+
+/* ── Solve overlay ────────────────────────────────────────────────────────── */
+.niner-solve {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.93);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.niner-solve-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 36px 28px;
+  text-align: center;
+  width: 100%;
+  max-width: 300px;
+}
+
+.niner-solve-tick {
+  font-size: 2.2rem;
+  line-height: 1;
+  color: #4ade80;
+}
+
+.niner-solve-word {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.3rem, 5.5vw, 1.9rem);
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: #4ade80;
+  margin: 0;
+}
+
+.niner-solve-hl {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.niner-btn-primary {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: none;
+}
+
+.niner-btn-primary:hover  { background: #e2e8f0; }
+.niner-btn-primary:active { background: #cbd5e1; }
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */
 .n-hide { display: none !important; }

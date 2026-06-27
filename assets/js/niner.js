@@ -104,7 +104,7 @@
   var gameActive  = false;
 
   // DOM refs (set in DOMContentLoaded)
-  var gridEl, slotsEl, svgEl, targetEl, tryBtn, newBtn;
+  var gridEl, slotsEl, svgEl, targetEl, tryBtn, newBtn, solveEl, solveWordEl;
 
   // ── Cell helpers ───────────────────────────────────────────────────────────
   function getCellEl(idx) {
@@ -233,6 +233,24 @@
     }
   }
 
+  // ── Dead-end detection ─────────────────────────────────────────────────────
+  //
+  // After each click (skip the very first), check whether any adjacent unused
+  // cell holds the next required letter in the target word. If none do and the
+  // trace isn't complete, the player is stuck.
+  function checkDeadEnd() {
+    if (trace.length === 0 || trace.length >= 9) return false;
+    var nextLetter = currentGame.word[trace.length];
+    var lastCell   = trace[trace.length - 1];
+    var ns         = ADJACENCY[lastCell];
+    for (var i = 0; i < ns.length; i++) {
+      if (trace.indexOf(ns[i]) === -1 && currentGame.grid[ns[i]] === nextLetter) {
+        return false; // at least one valid next move exists
+      }
+    }
+    return true; // no adjacent unused cell has the next letter
+  }
+
   // ── Win / dead-end states ──────────────────────────────────────────────────
   function handleWin() {
     gameActive = false;
@@ -240,7 +258,11 @@
     setSlotsState('correct');
     targetEl.classList.add('solved');
     tryBtn.classList.add('n-hide');
-    // Part 4 will add a proper win overlay
+
+    setTimeout(function () {
+      solveWordEl.textContent = currentGame.word;
+      solveEl.classList.remove('n-hide');
+    }, 500);
   }
 
   function triggerDeadEnd() {
@@ -277,7 +299,10 @@
       return;
     }
 
-    // Dead-end detection injected here in Part 4
+    // Dead-end check — skip after the very first click
+    if (trace.length > 1 && checkDeadEnd()) {
+      triggerDeadEnd();
+    }
   }
 
   // ── Try Again — reset trace, keep same word/grid ───────────────────────────
@@ -297,6 +322,7 @@
     trace       = [];
     gameActive  = true;
 
+    solveEl.classList.add('n-hide');
     targetEl.textContent = currentGame.word;
     targetEl.classList.remove('solved');
     svgEl.innerHTML = '';
@@ -307,12 +333,14 @@
 
   // ── Init ───────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
-    gridEl   = document.getElementById('niner-grid');
-    slotsEl  = document.getElementById('niner-slots');
-    svgEl    = document.getElementById('niner-svg');
-    targetEl = document.getElementById('niner-target');
-    tryBtn   = document.getElementById('niner-try');
-    newBtn   = document.getElementById('niner-new');
+    gridEl      = document.getElementById('niner-grid');
+    slotsEl     = document.getElementById('niner-slots');
+    svgEl       = document.getElementById('niner-svg');
+    targetEl    = document.getElementById('niner-target');
+    tryBtn      = document.getElementById('niner-try');
+    newBtn      = document.getElementById('niner-new');
+    solveEl     = document.getElementById('niner-solve');
+    solveWordEl = document.getElementById('niner-solve-word');
 
     gridEl.addEventListener('click', function (e) {
       var cell = e.target.closest('.niner-cell');
@@ -322,6 +350,9 @@
 
     tryBtn.addEventListener('click', resetTrace);
     newBtn.addEventListener('click', startNewGame);
+
+    var solveNewBtn = document.getElementById('niner-solve-new');
+    if (solveNewBtn) solveNewBtn.addEventListener('click', startNewGame);
 
     var helpBtn = document.getElementById('help-btn');
     if (helpBtn) helpBtn.addEventListener('click', function () {
