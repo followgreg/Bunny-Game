@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS_TEXT = 'Three threads hang at different heights. A golden eye slides along each one at its own speed. Launch the needle and thread every eye in a single shot — miss any one and try again immediately. Clear a round to add another thread, up to three. How far can you go?';
+  var DIRECTIONS_TEXT = 'Threaded gives you a needle and a stack of moving threads. Each thread has a circle sliding back and forth — time your launch so the needle passes clean through every active thread’s circle in one shot. Miss even one, and you’ll need to try again — no penalty, just another attempt. Clear a round and a new thread joins the stack, up to three at once. Your progress is saved — come back anytime and pick up where you left off, or start over from the beginning if you’d rather.';
 
   // ── Tunable constants ──────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@
   // meaningfully different rates regardless of round or random noise.
   var SPEED_MULTS = [0.68, 1.02, 1.52];
 
-  var LS_KEY = 'threaded_bestRound';
+  var LS_KEY = 'threaded_highestRound';
 
   // ── Layout globals ─────────────────────────────────────────────────────────
 
@@ -86,6 +86,11 @@
       document.getElementById('th-eye-2'),
     ];
 
+    var resumeScreenEl = document.getElementById('th-resume-screen');
+    var resumeRoundEl  = document.getElementById('th-resume-round');
+    var continueBtnEl  = document.getElementById('th-continue-btn');
+    var restartBtnEl   = document.getElementById('th-restart-btn');
+
     var helpBtn = document.getElementById('help-btn');
     if (helpBtn) helpBtn.addEventListener('click', function () {
       openDirections(DIRECTIONS_TEXT);
@@ -95,10 +100,28 @@
       if (!isFlying && !transitionTimeout) launch();
     });
 
+    continueBtnEl.addEventListener('click', function () {
+      resumeScreenEl.classList.add('th-hide');
+      round = bestRound + 1;
+      startRound();
+    });
+
+    restartBtnEl.addEventListener('click', function () {
+      resumeScreenEl.classList.add('th-hide');
+      startGame();
+    });
+
     bestRound = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
 
     computeLayout();
-    startGame();
+    updateHUD();
+
+    if (bestRound > 0) {
+      resumeRoundEl.textContent = String(bestRound + 1);
+      resumeScreenEl.classList.remove('th-hide');
+    } else {
+      startGame();
+    }
 
     window.addEventListener('resize', computeLayout);
   });

@@ -8,7 +8,9 @@
   <meta property="og:title" content="Threaded — Bunny Game">
   <meta property="og:description" content="Thread the needle. Hit every eye in one shot. How many rounds can you clear?">
   <meta property="og:url" content="https://www.thebunnygame.com/threaded.html">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/threaded-og.png">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/threaded-og.png">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
   <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
@@ -73,6 +75,15 @@
       <div class="th-round-inner">
         <p class="th-round-label">Round</p>
         <p class="th-round-num" id="th-round-num">2</p>
+      </div>
+    </div>
+
+    <!-- Resume / restart choice overlay (shown on return visit) -->
+    <div id="th-resume-screen" class="th-hide">
+      <div class="th-resume-inner">
+        <p class="th-resume-title">Welcome back</p>
+        <button id="th-continue-btn" class="th-resume-btn th-resume-continue">Continue from Round <span id="th-resume-round">2</span></button>
+        <button id="th-restart-btn" class="th-resume-btn th-resume-restart">Start from Level 1</button>
       </div>
     </div>
 

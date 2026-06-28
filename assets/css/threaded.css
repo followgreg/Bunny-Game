@@ -183,6 +183,67 @@
   opacity: 0.7;
 }
 
+/* ── Resume / restart overlay ── */
+#th-resume-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 14, 26, 0.97);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  z-index: 20;
+  padding: 32px 28px;
+}
+
+.th-resume-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.th-resume-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #c8b880;
+  margin: 0 0 6px;
+}
+
+.th-resume-btn {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 16px 20px;
+  border-radius: 13px;
+  cursor: pointer;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: opacity 0.1s;
+}
+
+.th-resume-btn:active { opacity: 0.80; }
+
+.th-resume-continue {
+  background: #f0c040;
+  color: #0b1420;
+}
+
+.th-resume-restart {
+  background: transparent;
+  color: rgba(200, 184, 128, 0.65);
+  border: 1.5px solid rgba(200, 184, 128, 0.22);
+}
+
 /* ── Round transition overlay ── */
 #th-round-screen {
   position: absolute;
