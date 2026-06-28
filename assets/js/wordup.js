@@ -94,7 +94,7 @@
 
   var GAME_DURATION = 60;
   var LS_PREFIX     = 'wordup_bestScore_';
-  var SHARE_URL     = 'https://www.thebunnygame.com/word-up';
+  var SHARE_URL     = 'https://www.thebunnygame.com/wordup.html';
 
   var DIRECTIONS_TEXT =
     'Word Up! gives everyone the same nine letters today. ' +
