@@ -127,13 +127,34 @@ body {
   width: 100%;
 }
 
+/* ── Board wrap (grid + SVG share this layer) ─────────────────────────────── */
+.wu-board-wrap {
+  position: relative;
+  width:  min(304px, calc(100vw - 32px));
+  height: min(304px, calc(100vw - 32px));
+  flex-shrink: 0;
+}
+
 /* ── 3×3 letter grid ──────────────────────────────────────────────────────── */
 .wu-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  width:  min(304px, calc(100vw - 32px));
-  height: min(304px, calc(100vw - 32px));
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── SVG trace overlay ────────────────────────────────────────────────────── */
+.wu-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
 }
 
 /* ── Letter cells ─────────────────────────────────────────────────────────── */
@@ -171,9 +192,438 @@ body {
   letter-spacing: -0.02em;
 }
 
-.wu-cell:active {
+.wu-cell:active:not(.wu-used):not(.wu-active) {
   transform: scale(0.90);
 }
+
+/* Used — part of the trace but not the tail */
+.wu-cell.wu-used {
+  background: rgba(255, 16, 240, 0.10);
+  border-color: rgba(255, 16, 240, 0.38);
+  color: rgba(0, 240, 255, 0.35);
+  text-shadow: none;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Active — the current tail */
+.wu-cell.wu-active {
+  background: rgba(255, 16, 240, 0.20);
+  border: 3px solid #FF10F0;
+  color: #fff;
+  text-shadow:
+    0 0 10px #FF10F0,
+    0 0 24px rgba(255, 16, 240, 0.7);
+  box-shadow:
+    0 0 16px rgba(255, 16, 240, 0.9),
+    0 0 32px rgba(255, 16, 240, 0.4),
+    inset 0 0 12px rgba(255, 16, 240, 0.15);
+  cursor: default;
+}
+
+/* Submit flash — briefly applied to all trace cells on word submit */
+.wu-cell.wu-submitted {
+  border-color: #00F0FF !important;
+  color: #fff !important;
+  text-shadow: 0 0 12px #00F0FF !important;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.85) !important;
+  animation: wu-submit-flash 0.32s ease-out forwards;
+}
+
+@keyframes wu-submit-flash {
+  0%   { background: rgba(0, 240, 255, 0.30); transform: scale(1.06); }
+  100% { background: rgba(13, 2, 33, 0.72);   transform: scale(1); }
+}
+
+/* Grid pop on rotate */
+.wu-grid.wu-rotating {
+  animation: wu-grid-pop 0.18s ease-out forwards;
+}
+
+@keyframes wu-grid-pop {
+  0%   { opacity: 0.5; transform: scale(0.92); }
+  65%  { opacity: 1;   transform: scale(1.02); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+
+/* ── Controls row ─────────────────────────────────────────────────────────── */
+.wu-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wu-rotate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(13, 2, 33, 0.70);
+  border: 2px solid #FF10F0;
+  border-radius: 10px;
+  color: #FF10F0;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  padding: 10px 22px;
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(255, 16, 240, 0.65);
+  box-shadow:
+    0 0 8px rgba(255, 16, 240, 0.30),
+    inset 0 0 6px rgba(255, 16, 240, 0.05);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, box-shadow 0.1s, transform 0.06s;
+}
+
+.wu-rotate-icon {
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.35s ease;
+}
+
+.wu-rotate-btn:hover {
+  background: rgba(255, 16, 240, 0.10);
+  box-shadow: 0 0 14px rgba(255, 16, 240, 0.55);
+}
+
+.wu-rotate-btn:active {
+  transform: scale(0.94);
+  background: rgba(255, 16, 240, 0.18);
+}
+
+/* Spin the arrow icon 90° each click */
+.wu-rotate-btn[data-rot="1"] .wu-rotate-icon { transform: rotate(90deg); }
+.wu-rotate-btn[data-rot="2"] .wu-rotate-icon { transform: rotate(180deg); }
+.wu-rotate-btn[data-rot="3"] .wu-rotate-icon { transform: rotate(270deg); }
+.wu-rotate-btn[data-rot="0"] .wu-rotate-icon { transform: rotate(360deg); }
+
+/* ── Status bar (timer + score) ───────────────────────────────────────────── */
+.wu-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(304px, calc(100vw - 32px));
+}
+
+.wu-timer {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  color: #00F0FF;
+  text-shadow:
+    0 0 10px rgba(0, 240, 255, 0.7),
+    0 0 24px rgba(0, 240, 255, 0.35);
+  min-width: 3rem;
+}
+
+.wu-timer--urgent {
+  color: #FF10F0;
+  text-shadow:
+    0 0 10px rgba(255, 16, 240, 0.9),
+    0 0 24px rgba(255, 16, 240, 0.5);
+  animation: wu-timer-pulse 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes wu-timer-pulse {
+  from { opacity: 0.65; }
+  to   { opacity: 1; }
+}
+
+.wu-score-display {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: #FF10F0;
+  text-shadow: 0 0 8px rgba(255, 16, 240, 0.65);
+  text-align: right;
+}
+
+.wu-pts-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  opacity: 0.65;
+}
+
+/* ── Pre-game start overlay (covers the board) ────────────────────────────── */
+.wu-start-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 2, 33, 0.68);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border-radius: 10px;
+  z-index: 10;
+}
+
+.wu-start-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.45rem;
+  letter-spacing: 0.14em;
+  color: #0D0221;
+  background: #FF10F0;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 40px;
+  cursor: pointer;
+  box-shadow:
+    0 0 28px rgba(255, 16, 240, 0.85),
+    0 0 56px rgba(255, 16, 240, 0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, box-shadow 0.1s, transform 0.06s, opacity 0.2s;
+}
+
+.wu-start-btn:hover {
+  background: #ff44f4;
+  box-shadow: 0 0 36px rgba(255, 16, 240, 1), 0 0 72px rgba(255, 16, 240, 0.5);
+}
+
+.wu-start-btn:active {
+  transform: scale(0.94);
+  background: #cc00c0;
+}
+
+.wu-start-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* ── Feedback flash ───────────────────────────────────────────────────────── */
+.wu-feedback {
+  min-height: 26px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-align: center;
+  color: transparent;
+  transition: color 0.12s, text-shadow 0.12s;
+}
+
+.wu-feedback--valid {
+  color: #00F0FF;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.65);
+}
+
+.wu-feedback--bonus {
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.85), 0 0 22px rgba(255, 215, 0, 0.4);
+  font-size: 0.88rem;
+}
+
+.wu-feedback--invalid {
+  color: #FF5555;
+  text-shadow: 0 0 8px rgba(255, 85, 85, 0.65);
+}
+
+.wu-feedback--duplicate {
+  color: #9D00FF;
+  text-shadow: 0 0 8px rgba(157, 0, 255, 0.65);
+}
+
+.wu-feedback--short {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Found-words list ─────────────────────────────────────────────────────── */
+.wu-found-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  width: min(304px, calc(100vw - 32px));
+  max-height: 82px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 0;
+  align-content: flex-start;
+}
+
+/* Word chips */
+.wu-word-chip {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.60rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.wu-word-chip--short {
+  color: rgba(0, 240, 255, 0.75);
+  border-color: rgba(0, 240, 255, 0.28);
+  background: rgba(0, 240, 255, 0.05);
+}
+
+.wu-word-chip--long {
+  color: #FF10F0;
+  border-color: rgba(255, 16, 240, 0.38);
+  background: rgba(255, 16, 240, 0.07);
+}
+
+.wu-word-chip--bonus {
+  color: #FFD700;
+  border-color: rgba(255, 215, 0, 0.45);
+  background: rgba(255, 215, 0, 0.09);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.22);
+}
+
+/* ── End-of-round overlay ─────────────────────────────────────────────────── */
+.wu-end-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 1, 22, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wu-end-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 24px 32px;
+  width: min(320px, calc(100vw - 24px));
+  text-align: center;
+}
+
+.wu-end-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.55rem;
+  letter-spacing: 0.12em;
+  color: #FF10F0;
+  text-shadow:
+    0 0 16px rgba(255, 16, 240, 0.85),
+    0 0 36px rgba(255, 16, 240, 0.4);
+  margin: 0;
+}
+
+.wu-end-score-block {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.wu-end-score-val {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 3.2rem;
+  color: #00F0FF;
+  text-shadow:
+    0 0 20px rgba(0, 240, 255, 0.85),
+    0 0 44px rgba(0, 240, 255, 0.4);
+  line-height: 1;
+}
+
+.wu-end-score-suffix {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: rgba(0, 240, 255, 0.55);
+  letter-spacing: 0.09em;
+}
+
+.wu-end-word-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+.wu-end-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  max-height: 130px;
+  overflow-y: auto;
+  width: 100%;
+  padding: 2px 0;
+}
+
+/* Best score line */
+.wu-end-best {
+  min-height: 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: rgba(0, 240, 255, 0.50);
+  letter-spacing: 0.02em;
+}
+
+.wu-end-best--new {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 0.82rem;
+  letter-spacing: 0.10em;
+  color: #FFD700;
+  text-shadow:
+    0 0 10px rgba(255, 215, 0, 0.85),
+    0 0 24px rgba(255, 215, 0, 0.4);
+}
+
+/* Action row */
+.wu-end-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.wu-play-again-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 0.82rem;
+  letter-spacing: 0.11em;
+  color: #0D0221;
+  background: #FF10F0;
+  border: none;
+  border-radius: 10px;
+  padding: 13px 22px;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(255, 16, 240, 0.7);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, box-shadow 0.1s, transform 0.06s;
+}
+
+.wu-play-again-btn:hover  { background: #ff44f4; box-shadow: 0 0 26px rgba(255, 16, 240, 0.9); }
+.wu-play-again-btn:active { transform: scale(0.94); background: #cc00c0; }
+
+/* Share button */
+.wu-share-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 0.82rem;
+  letter-spacing: 0.11em;
+  color: #00F0FF;
+  background: rgba(0, 240, 255, 0.07);
+  border: 2px solid #00F0FF;
+  border-radius: 10px;
+  padding: 11px 22px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.30);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, box-shadow 0.1s, transform 0.06s;
+}
+
+.wu-share-btn:hover  { background: rgba(0, 240, 255, 0.15); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); }
+.wu-share-btn:active { transform: scale(0.94); background: rgba(0, 240, 255, 0.22); }
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */
 .wu-hide { display: none !important; }

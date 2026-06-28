@@ -8,6 +8,11 @@
   <meta property="og:title" content="Word Up! — Bunny Game">
   <meta property="og:description" content="A new 3×3 grid of letters every day. Find as many words as you can in 60 seconds.">
   <meta property="og:url" content="https://www.thebunnygame.com/wordup.html">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/wordup-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/wordup-og.png">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
   <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
@@ -41,7 +46,53 @@
 
 <div id="canvas-wrap">
   <div id="wu-game">
-    <div id="wu-grid" class="wu-grid"></div>
+
+    <!-- Status bar: timer + score -->
+    <div class="wu-status-bar">
+      <div id="wu-timer" class="wu-timer">1:00</div>
+      <div id="wu-score-display" class="wu-score-display">0<span class="wu-pts-label"> pts</span></div>
+    </div>
+
+    <!-- Board + SVG + pre-game overlay -->
+    <div class="wu-board-wrap">
+      <div id="wu-grid" class="wu-grid"></div>
+      <svg id="wu-svg" class="wu-svg" aria-hidden="true"></svg>
+      <div id="wu-start-overlay" class="wu-start-overlay">
+        <button id="wu-start-btn" class="wu-start-btn">START</button>
+      </div>
+    </div>
+
+    <!-- Rotate -->
+    <div class="wu-controls">
+      <button class="wu-rotate-btn" id="wu-rotate-btn" aria-label="Rotate grid">
+        <span class="wu-rotate-icon">&#x21BB;</span> ROTATE
+      </button>
+    </div>
+
+    <!-- Feedback flash -->
+    <div id="wu-feedback" class="wu-feedback" aria-live="polite"></div>
+
+    <!-- Found words -->
+    <div id="wu-found-list" class="wu-found-list"></div>
+
+  </div>
+
+  <!-- End overlay (covers full canvas) -->
+  <div id="wu-end-overlay" class="wu-end-overlay wu-hide">
+    <div class="wu-end-inner">
+      <p class="wu-end-title">TIME'S UP</p>
+      <div class="wu-end-score-block">
+        <span id="wu-end-score-val" class="wu-end-score-val">0</span>
+        <span class="wu-end-score-suffix">pts</span>
+      </div>
+      <div id="wu-end-best" class="wu-end-best"></div>
+      <p id="wu-end-word-count" class="wu-end-word-count"></p>
+      <div id="wu-end-words" class="wu-end-words"></div>
+      <div class="wu-end-actions">
+        <button id="wu-play-again-btn" class="wu-play-again-btn">PLAY AGAIN</button>
+        <button id="wu-share-btn" class="wu-share-btn">SHARE</button>
+      </div>
+    </div>
   </div>
 </div>
 

@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v115';
+const CACHE = 'bunnygame-v116';
 const ASSETS = [
   '/',
   '/index.html',
@@ -122,6 +122,12 @@ const ASSETS = [
   '/assets/logos/niner_logo.svg',
   '/assets/logos/colorbomb_logo.svg',
   '/assets/og-images/niner-og.png',
+  '/wordup.html',
+  '/assets/css/wordup.css',
+  '/assets/js/wordup.js',
+  '/assets/logos/wordup_logo.svg',
+  '/assets/data/words.txt',
+  '/assets/og-images/wordup-og.png',
   '/fuse.html',
   '/assets/css/fuse.css',
   '/assets/js/fuse.js',

@@ -24,6 +24,7 @@ const GAMES = [
   { slug: 'classic',      html: 'classic.html',      bg: '#ffffff',  logo: 'classic_logo.svg',     desc: 'Click matching tiles to clear the board.',                          textColor: '#111111', descColor: 'rgba(0,0,0,0.55)' },
   { slug: 'colorbomb',    html: 'colorbomb.html',    bg: '#100000',  logo: 'colorbomb_logo.svg',   logoFill: 'white', desc: "Minesweeper, but the numbers are colors — and you don't know which is which.", textColor: '#fca5a5', descColor: 'rgba(255,255,255,0.65)' },
   { slug: 'niner',        html: 'niner.html',        bg: '#0f172a',  logo: 'niner_logo.svg',       logoFill: 'white', desc: 'Nine letters. One word. Trace the path.',                            textColor: '#a5b4fc', descColor: 'rgba(255,255,255,0.6)' },
+  { slug: 'wordup',      html: 'wordup.html',       bg: '#0D0221',  logo: 'wordup_logo.svg',      logoFill: '#FF10F0', bgGlow: 'rgba(157,0,255,0.32)', desc: "Same nine letters. Sixty seconds. Beat today's best.", textColor: '#FF10F0', descColor: 'rgba(0,240,255,0.82)' },
   { slug: 'colorblind',   html: 'colorblind.html',   bg: '#f0ece4',  logo: 'colorblind_logo.svg',  desc: 'One square is different. Can you find it?',                         textColor: '#111111', descColor: 'rgba(0,0,0,0.52)' },
   { slug: 'solo',         html: 'solo.html',          bg: '#0d0101',  logo: 'solo_logo.svg',        desc: 'Five shapes. Five stars. None of them touching.',                   textColor: '#f1f5f9', descColor: 'rgba(255,255,255,0.6)' },
   { slug: 'honey',        html: 'honey.html',         bg: '#1C1200',  logo: 'honey_logo.svg',       desc: 'Rotate the hive. Connect every cell. Watch the honey flow.',        textColor: '#f1f5f9', descColor: 'rgba(245,200,66,0.72)' },
@@ -152,7 +153,16 @@ function buildOgSvg(game) {
     </filter>`;
   }
 
+  if (game.bgGlow) {
+    defs += `
+    <radialGradient id="og-glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="${game.bgGlow}"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>`;
+  }
+
   const tsAttr = game.textShadow ? ' filter="url(#og-ts)"' : '';
+  const glowEl = game.bgGlow ? `<rect width="${W}" height="${H}" fill="url(#og-glow)"/>` : '';
 
   // ── Main element: logo image or text name ──
   let mainEl = '';
@@ -211,6 +221,7 @@ function buildOgSvg(game) {
   <defs>${defs}
   </defs>
   <rect width="${W}" height="${H}" fill="${bgFill}"/>
+  ${glowEl}
   ${mainEl}
   ${descEls}
 </svg>`;
