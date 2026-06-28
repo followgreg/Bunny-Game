@@ -134,6 +134,36 @@
   var timerHandle = null;
   var feedbackTimer = null;
 
+  // ── Per-tile cosmetic rotation ───────────────────────────────────────────────
+  var tileRots = [0, 0, 0, 0, 0, 0, 0, 0, 0];  // degrees per logical cell index
+
+  function applyTileRotations() {
+    for (var i = 0; i < 9; i++) {
+      var el = getCellEl(i);
+      if (!el) continue;
+      el.classList.remove('wu-r90', 'wu-r180', 'wu-r270');
+      if (tileRots[i] === 90)  el.classList.add('wu-r90');
+      if (tileRots[i] === 180) el.classList.add('wu-r180');
+      if (tileRots[i] === 270) el.classList.add('wu-r270');
+    }
+  }
+
+  function randomizeTileRots() {
+    var choices = [0, 90, 180, 270];
+    for (var i = 0; i < 9; i++) {
+      var el = getCellEl(i);
+      if (el) el.classList.add('wu-tumbling');
+      tileRots[i] = choices[Math.floor(Math.random() * 4)];
+    }
+    applyTileRotations();
+    setTimeout(function () {
+      for (var i = 0; i < 9; i++) {
+        var el = getCellEl(i);
+        if (el) el.classList.remove('wu-tumbling');
+      }
+    }, 450);
+  }
+
   // ── Dictionary ──────────────────────────────────────────────────────────────
   var wordSet = null;  // null = loading, Set = ready
 
@@ -279,6 +309,7 @@
       gridEl.appendChild(cell);
     }
     refreshCellStates();
+    applyTileRotations();
     redrawSVG();
   }
 
@@ -552,6 +583,7 @@
 
     if (rotateBtnEl) rotateBtnEl.dataset.rot = '0';
     renderGrid(dailyGrid, 0);
+    randomizeTileRots();
 
     if (endBestEl)    { endBestEl.textContent = ''; endBestEl.className = 'wu-end-best'; }
     if (endOverlay)   endOverlay.classList.add('wu-hide');
@@ -582,6 +614,8 @@
       dailyGrid = getDailyGrid(dailyKey);
       cleanupStale(dailyKey);
       renderGrid(dailyGrid, 0);
+      randomizeTileRots();
+      setInterval(randomizeTileRots, 10000);
       updateScoreDisplay();
       updateTimerDisplay();
 
