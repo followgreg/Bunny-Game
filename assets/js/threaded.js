@@ -288,6 +288,7 @@
 
   function onMiss() {
     missDetected = false;
+    randomizeThreads();
     launchBtnEl.disabled = false;
   }
 
