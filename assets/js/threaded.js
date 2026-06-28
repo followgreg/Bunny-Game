@@ -5,8 +5,9 @@
 
   // ── Tunable constants ──────────────────────────────────────────────────────
 
-  var BASE_EYE_SPEED   = 95;   // px/sec base (applied to mid-thread, round 1)
-  var SPEED_INCREMENT  = 14;   // px/sec added to base per round
+  var BASE_SWEEP_SECS  = 2.2;  // seconds per half-sweep (left→right) at round 1 reference thread
+  var SWEEP_DECREMENT  = 0.12; // seconds reduction per round
+  var MIN_SWEEP_SECS   = 0.55; // floor — fastest half-sweep at high rounds
   var FLIGHT_DURATION  = 0.90; // seconds, full needle arc (up + down)
   var PEAK_Y_FRAC      = 0.10; // needle tip reaches this fraction from play-area top at peak
   var NEEDLE_H         = 90;   // needle element height px (fixed)
@@ -37,9 +38,9 @@
   // ── Per-thread animation state ─────────────────────────────────────────────
 
   var threads = [
-    { eyeX: 0, eyeVX: 0, moveStyle: 'bounce', jitterTimer: 0 },
-    { eyeX: 0, eyeVX: 0, moveStyle: 'bounce', jitterTimer: 0 },
-    { eyeX: 0, eyeVX: 0, moveStyle: 'bounce', jitterTimer: 0 },
+    { eyeX: 0, phaseTime: 0, sweepDuration: 1 },
+    { eyeX: 0, phaseTime: 0, sweepDuration: 1 },
+    { eyeX: 0, phaseTime: 0, sweepDuration: 1 },
   ];
 
   // ── Game state ─────────────────────────────────────────────────────────────
@@ -186,21 +187,16 @@
   // ── Thread randomization ───────────────────────────────────────────────────
 
   function randomizeThreads() {
-    var base = BASE_EYE_SPEED + (round - 1) * SPEED_INCREMENT;
+    var baseSecs = Math.max(BASE_SWEEP_SECS - (round - 1) * SWEEP_DECREMENT, MIN_SWEEP_SECS);
 
     for (var i = 0; i < activeCount; i++) {
-      // ±10% noise on top of the fixed-spread multipliers keeps each round fresh
-      // while ensuring threads are never accidentally the same speed
-      var speed = base * SPEED_MULTS[i] * (0.90 + Math.random() * 0.20);
-      threads[i].eyeVX      = speed * (Math.random() < 0.5 ? 1 : -1);
-      threads[i].moveStyle  = Math.random() < 0.5 ? 'bounce' : 'jitter';
-      threads[i].jitterTimer = randomInterval();
-      threads[i].eyeX       = (PLAY_W - EYE_SIZE) * Math.random();
+      // Higher SPEED_MULT = faster = shorter sweep duration.
+      // ±10% noise keeps each round feeling fresh without changing the motion model.
+      var noise = 0.90 + Math.random() * 0.20;
+      threads[i].sweepDuration = (baseSecs / SPEED_MULTS[i]) * noise;
+      // Start each eye at a random point in its cycle so threads feel independent
+      threads[i].phaseTime = Math.random() * threads[i].sweepDuration * 2;
     }
-  }
-
-  function randomInterval() {
-    return 0.35 + Math.random() * 1.10;
   }
 
   // ── Main loop ──────────────────────────────────────────────────────────────
@@ -220,24 +216,18 @@
     raf = requestAnimationFrame(loop);
   }
 
-  // ── Eye movement (adapted from Pickler nose movement) ──────────────────────
+  // ── Eye movement — pure triangle-wave sweep ────────────────────────────────
 
   function updateEye(i, dt) {
     var t    = threads[i];
     var maxX = PLAY_W - EYE_SIZE;
-
-    if (t.moveStyle === 'bounce') {
-      t.eyeX += t.eyeVX * dt;
-      if (t.eyeX <= 0)    { t.eyeX = 0;    t.eyeVX =  Math.abs(t.eyeVX); }
-      if (t.eyeX >= maxX) { t.eyeX = maxX; t.eyeVX = -Math.abs(t.eyeVX); }
-    } else {
-      // Jitter: reverses on a random interval in addition to wall bounces
-      t.jitterTimer -= dt;
-      if (t.jitterTimer <= 0) { t.eyeVX = -t.eyeVX; t.jitterTimer = randomInterval(); }
-      t.eyeX += t.eyeVX * dt;
-      if (t.eyeX <= 0)    { t.eyeX = 0;    t.eyeVX =  Math.abs(t.eyeVX); t.jitterTimer = randomInterval(); }
-      if (t.eyeX >= maxX) { t.eyeX = maxX; t.eyeVX = -Math.abs(t.eyeVX); t.jitterTimer = randomInterval(); }
-    }
+    t.phaseTime += dt;
+    // Triangle wave: 0→sweepDuration maps to left→right, sweepDuration→2× maps back
+    var cycle = t.sweepDuration * 2;
+    var pos   = t.phaseTime % cycle;
+    t.eyeX = pos < t.sweepDuration
+      ? (pos / t.sweepDuration) * maxX
+      : (1 - (pos - t.sweepDuration) / t.sweepDuration) * maxX;
   }
 
   // ── Needle physics ─────────────────────────────────────────────────────────
