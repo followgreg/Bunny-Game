@@ -300,12 +300,17 @@
     if (!gridEl) return;
     gridEl.innerHTML = '';
     var order = VISUAL_ORDERS[rot || 0];
+    var UL_LETTERS = { 'Z': 1, 'N': 1, 'M': 1, 'W': 1 };
     for (var v = 0; v < 9; v++) {
-      var idx  = order[v];
-      var cell = document.createElement('div');
-      cell.className   = 'wu-cell' + (grid[idx] === 'Qu' ? ' wu-cell--qu' : '');
+      var idx    = order[v];
+      var letter = grid[idx];
+      var cell   = document.createElement('div');
+      var cls    = 'wu-cell';
+      if (letter === 'Qu') cls += ' wu-cell--qu';
+      if (UL_LETTERS[letter]) cls += ' wu-cell--ul';
+      cell.className   = cls;
       cell.dataset.idx = String(idx);
-      cell.textContent = grid[idx];
+      cell.textContent = letter;
       gridEl.appendChild(cell);
     }
     refreshCellStates();

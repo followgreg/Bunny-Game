@@ -187,6 +187,24 @@ body {
   z-index: 1;
 }
 
+/* Disambiguation underline for rotation-confusable letters (Z↔N, M↔W).
+   Pseudo-element lives inside the rotating cell so it always marks the
+   letter's true bottom regardless of which orientation the tile is in. */
+.wu-cell--ul::after {
+  content: '';
+  position: absolute;
+  top: calc(50% + 0.5em);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.55em;
+  height: 2px;
+  background: #00F0FF;
+  border-radius: 1px;
+  opacity: 0.85;
+  pointer-events: none;
+  box-shadow: 0 0 5px #00F0FF, 0 0 10px rgba(0, 240, 255, 0.45);
+}
+
 /* Qu needs a touch less size so it fits in the cell */
 .wu-cell--qu {
   font-size: clamp(1.05rem, 4.6vw, 1.55rem);
