@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+
+/* ── Palette
+   #0D0221  deep space (background)
+   #FF10F0  neon pink
+   #00F0FF  neon cyan
+   #9D00FF  neon purple
+──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Base overrides ───────────────────────────────────────────────────────── */
+body {
+  background: #0D0221;
+}
+
+#header {
+  background: rgba(8, 1, 22, 0.97);
+  border-bottom: 1px solid rgba(255, 16, 240, 0.45);
+}
+
+#wu-logo {
+  height: 26px !important;
+  width: auto;
+  display: block;
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 5px #FF10F0)
+    drop-shadow(0 0 12px rgba(255, 16, 240, 0.55));
+}
+
+.icon-btn {
+  background: rgba(157, 0, 255, 0.10);
+  border-color: rgba(157, 0, 255, 0.55);
+  color: #9D00FF;
+  text-shadow: 0 0 6px rgba(157, 0, 255, 0.8);
+  box-shadow: 0 0 6px rgba(157, 0, 255, 0.2), inset 0 0 5px rgba(157, 0, 255, 0.06);
+}
+.icon-btn:hover:not(:disabled) {
+  background: rgba(157, 0, 255, 0.22);
+  border-color: #9D00FF;
+  color: #bf40ff;
+  box-shadow: 0 0 12px rgba(157, 0, 255, 0.45);
+}
+.icon-btn:active:not(:disabled) {
+  background: rgba(157, 0, 255, 0.35);
+  color: #d080ff;
+}
+
+/* Directions modal — override shared dark-slate colours to neon palette */
+.directions-modal {
+  background: #100228;
+  border-color: rgba(157, 0, 255, 0.55);
+  box-shadow: 0 0 40px rgba(157, 0, 255, 0.35), 0 20px 60px rgba(0, 0, 0, 0.75);
+}
+.dir-heading {
+  color: #FF10F0;
+  text-shadow: 0 0 10px rgba(255, 16, 240, 0.6);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+.dir-pane { color: rgba(0, 240, 255, 0.82); }
+.dir-close-btn {
+  background: #FF10F0;
+  box-shadow: 0 0 12px rgba(255, 16, 240, 0.65);
+  color: #0D0221;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.dir-close-btn:hover  { background: #ff44f4; box-shadow: 0 0 18px rgba(255, 16, 240, 0.85); }
+.dir-close-btn:active { background: #cc00c0; }
+
+/* ── Canvas / play area ───────────────────────────────────────────────────── */
+#canvas-wrap {
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 105%, rgba(157, 0, 255, 0.28) 0%, transparent 68%),
+    linear-gradient(180deg, #0D0221 0%, #120136 100%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px 12px calc(20px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanlines */
+#canvas-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent        0px,
+    transparent        3px,
+    rgba(0,0,0,0.18)   3px,
+    rgba(0,0,0,0.18)   4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Horizon grid */
+#canvas-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background:
+    linear-gradient(to top, rgba(157,0,255,0.10) 0%, transparent 100%),
+    linear-gradient(90deg,       rgba(157,0,255,0.22) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(to bottom,   rgba(157,0,255,0.22) 1px, transparent 1px) 0 0 / 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Game container ───────────────────────────────────────────────────────── */
+#wu-game {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+/* ── 3×3 letter grid ──────────────────────────────────────────────────────── */
+.wu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width:  min(304px, calc(100vw - 32px));
+  height: min(304px, calc(100vw - 32px));
+}
+
+/* ── Letter cells ─────────────────────────────────────────────────────────── */
+.wu-cell {
+  background: rgba(13, 2, 33, 0.72);
+  border: 2px solid #FF10F0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.45rem, 6.2vw, 2.1rem);
+  color: #00F0FF;
+  text-shadow:
+    0 0  7px #00F0FF,
+    0 0 18px rgba(0, 240, 255, 0.55);
+  box-shadow:
+    0 0  8px rgba(255, 16, 240, 0.55),
+    0 0 18px rgba(255, 16, 240, 0.20),
+    inset 0 0 8px rgba(255, 16, 240, 0.08);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  transition: box-shadow 0.08s, color 0.08s, background 0.08s, transform 0.06s;
+  position: relative;
+  z-index: 1;
+}
+
+/* Qu needs a touch less size so it fits in the cell */
+.wu-cell--qu {
+  font-size: clamp(1.05rem, 4.6vw, 1.55rem);
+  letter-spacing: -0.02em;
+}
+
+.wu-cell:active {
+  transform: scale(0.90);
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.wu-hide { display: none !important; }
