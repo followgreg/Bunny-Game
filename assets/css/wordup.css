@@ -18,13 +18,13 @@ body {
 }
 
 #wu-logo {
-  height: 26px !important;
+  height: 36px;
   width: auto;
   display: block;
   filter:
     brightness(0) invert(1)
-    drop-shadow(0 0 5px #FF10F0)
-    drop-shadow(0 0 12px rgba(255, 16, 240, 0.55));
+    drop-shadow(0 0 6px #FF10F0)
+    drop-shadow(0 0 14px rgba(255, 16, 240, 0.55));
 }
 
 .icon-btn {
