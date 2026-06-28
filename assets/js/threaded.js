@@ -1,0 +1,279 @@
+(function () {
+  'use strict';
+
+  var DIRECTIONS_TEXT = 'Three threads hang at different heights. A golden eye slides along each one at its own speed. Launch the needle and thread every eye in a single shot — miss any one and try again immediately. Clear a round to add another thread, up to three. How far can you go?';
+
+  // ── Tunable constants ──────────────────────────────────────────────────────
+
+  var BASE_EYE_SPEED   = 95;   // px/sec base (applied to mid-thread, round 1)
+  var SPEED_INCREMENT  = 14;   // px/sec added to base per round
+  var FLIGHT_DURATION  = 0.90; // seconds, full needle arc (up + down)
+  var PEAK_Y_FRAC      = 0.10; // needle tip reaches this fraction from play-area top at peak
+  var NEEDLE_H         = 90;   // needle element height px (fixed)
+  var EYE_SIZE         = 28;   // eye circle diameter px
+
+  var TRANSITION_MS    = 1400; // ms to display round-number screen
+
+  // Thread Y positions as fraction from top of play area.
+  // Index 0 = thread 1 (lowest, nearest needle rest), index 2 = thread 3 (highest, nearest peak).
+  var THREAD_Y_FRACS = [0.65, 0.44, 0.24];
+
+  // Speed multipliers per thread slot — fixed spread ensures threads always run at
+  // meaningfully different rates regardless of round or random noise.
+  var SPEED_MULTS = [0.68, 1.02, 1.52];
+
+  var LS_KEY = 'threaded_bestRound';
+
+  // ── Layout globals ─────────────────────────────────────────────────────────
+
+  var PLAY_W = 0, PLAY_H = 0;
+  var PEAK_Y = 0;
+  var NEEDLE_REST_TOP = 0;   // needle element top when at rest
+  var PEAK_HEIGHT_PX  = 0;   // total vertical travel from rest to peak
+  var NEEDLE_X        = 0;   // needle horizontal centre
+  var THREAD_Y        = [0, 0, 0]; // absolute Y of each thread centre
+
+  // ── Per-thread animation state ─────────────────────────────────────────────
+
+  var threads = [
+    { eyeX: 0, eyeVX: 0, moveStyle: 'bounce', jitterTimer: 0 },
+    { eyeX: 0, eyeVX: 0, moveStyle: 'bounce', jitterTimer: 0 },
+    { eyeX: 0, eyeVX: 0, moveStyle: 'bounce', jitterTimer: 0 },
+  ];
+
+  // ── Game state ─────────────────────────────────────────────────────────────
+
+  var round             = 1;
+  var bestRound         = 0;
+  var activeCount       = 1;
+  var isFlying          = false;
+  var flightElapsed     = 0;
+  var transitionTimeout = null;
+
+  var lastTime = null;
+  var raf      = null;
+
+  // ── DOM refs ───────────────────────────────────────────────────────────────
+
+  var playAreaEl, needleEl, hitFlashEl;
+  var roundDisplayEl, bestDisplayEl, launchBtnEl;
+  var threadEls, eyeEls;
+  var roundScreenEl, roundNumEl;
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+
+  document.addEventListener('DOMContentLoaded', function () {
+    playAreaEl     = document.getElementById('th-play-area');
+    needleEl       = document.getElementById('th-needle');
+    hitFlashEl     = document.getElementById('th-hit-flash');
+    roundDisplayEl = document.getElementById('th-round-display');
+    bestDisplayEl  = document.getElementById('th-best-display');
+    launchBtnEl    = document.getElementById('th-launch-btn');
+    roundScreenEl  = document.getElementById('th-round-screen');
+    roundNumEl     = document.getElementById('th-round-num');
+
+    threadEls = [
+      document.getElementById('th-thread-0'),
+      document.getElementById('th-thread-1'),
+      document.getElementById('th-thread-2'),
+    ];
+    eyeEls = [
+      document.getElementById('th-eye-0'),
+      document.getElementById('th-eye-1'),
+      document.getElementById('th-eye-2'),
+    ];
+
+    var helpBtn = document.getElementById('help-btn');
+    if (helpBtn) helpBtn.addEventListener('click', function () {
+      openDirections(DIRECTIONS_TEXT);
+    });
+
+    launchBtnEl.addEventListener('click', function () {
+      if (!isFlying && !transitionTimeout) launch();
+    });
+
+    bestRound = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+
+    computeLayout();
+    startGame();
+
+    window.addEventListener('resize', computeLayout);
+  });
+
+  // ── Layout ─────────────────────────────────────────────────────────────────
+
+  function computeLayout() {
+    PLAY_W = playAreaEl.offsetWidth;
+    PLAY_H = playAreaEl.offsetHeight;
+
+    PEAK_Y          = PLAY_H * PEAK_Y_FRAC;
+    NEEDLE_REST_TOP = PLAY_H - NEEDLE_H;
+    PEAK_HEIGHT_PX  = NEEDLE_REST_TOP - PEAK_Y;
+    NEEDLE_X        = PLAY_W / 2;
+
+    // Needle: centred, 4px wide, tip = element top
+    needleEl.style.left   = (NEEDLE_X - 2) + 'px';
+    needleEl.style.height = NEEDLE_H + 'px';
+    setNeedleOffset(0);
+
+    // Thread lines and eye circles
+    for (var i = 0; i < 3; i++) {
+      THREAD_Y[i] = PLAY_H * THREAD_Y_FRACS[i];
+      threadEls[i].style.top = (THREAD_Y[i] - 1) + 'px'; // centre 2px line on THREAD_Y
+      eyeEls[i].style.top    = (THREAD_Y[i] - EYE_SIZE / 2) + 'px'; // eye centred on THREAD_Y
+    }
+  }
+
+  // ── Game control ───────────────────────────────────────────────────────────
+
+  function startGame() {
+    round     = 1;
+    isFlying  = false;
+    flightElapsed = 0;
+    if (transitionTimeout) { clearTimeout(transitionTimeout); transitionTimeout = null; }
+    roundScreenEl.classList.add('th-hide');
+    startRound();
+  }
+
+  function startRound() {
+    activeCount = Math.min(round, 3);
+
+    for (var i = 0; i < 3; i++) {
+      var on = i < activeCount;
+      threadEls[i].classList.toggle('th-hide', !on);
+      eyeEls[i].classList.toggle('th-hide', !on);
+    }
+
+    isFlying      = false;
+    flightElapsed = 0;
+    setNeedleOffset(0);
+    launchBtnEl.disabled = false;
+
+    updateHUD();
+    randomizeThreads();
+
+    if (raf) cancelAnimationFrame(raf);
+    lastTime = null;
+    raf = requestAnimationFrame(loop);
+  }
+
+  // ── Thread randomization ───────────────────────────────────────────────────
+
+  function randomizeThreads() {
+    var base = BASE_EYE_SPEED + (round - 1) * SPEED_INCREMENT;
+
+    for (var i = 0; i < activeCount; i++) {
+      // ±10% noise on top of the fixed-spread multipliers keeps each round fresh
+      // while ensuring threads are never accidentally the same speed
+      var speed = base * SPEED_MULTS[i] * (0.90 + Math.random() * 0.20);
+      threads[i].eyeVX      = speed * (Math.random() < 0.5 ? 1 : -1);
+      threads[i].moveStyle  = Math.random() < 0.5 ? 'bounce' : 'jitter';
+      threads[i].jitterTimer = randomInterval();
+      threads[i].eyeX       = (PLAY_W - EYE_SIZE) * Math.random();
+    }
+  }
+
+  function randomInterval() {
+    return 0.35 + Math.random() * 1.10;
+  }
+
+  // ── Main loop ──────────────────────────────────────────────────────────────
+
+  function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    var dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+    lastTime = timestamp;
+
+    for (var i = 0; i < activeCount; i++) {
+      updateEye(i, dt);
+      eyeEls[i].style.left = threads[i].eyeX + 'px';
+    }
+
+    if (isFlying) updateNeedle(dt);
+
+    raf = requestAnimationFrame(loop);
+  }
+
+  // ── Eye movement (adapted from Pickler nose movement) ──────────────────────
+
+  function updateEye(i, dt) {
+    var t    = threads[i];
+    var maxX = PLAY_W - EYE_SIZE;
+
+    if (t.moveStyle === 'bounce') {
+      t.eyeX += t.eyeVX * dt;
+      if (t.eyeX <= 0)    { t.eyeX = 0;    t.eyeVX =  Math.abs(t.eyeVX); }
+      if (t.eyeX >= maxX) { t.eyeX = maxX; t.eyeVX = -Math.abs(t.eyeVX); }
+    } else {
+      // Jitter: reverses on a random interval in addition to wall bounces
+      t.jitterTimer -= dt;
+      if (t.jitterTimer <= 0) { t.eyeVX = -t.eyeVX; t.jitterTimer = randomInterval(); }
+      t.eyeX += t.eyeVX * dt;
+      if (t.eyeX <= 0)    { t.eyeX = 0;    t.eyeVX =  Math.abs(t.eyeVX); t.jitterTimer = randomInterval(); }
+      if (t.eyeX >= maxX) { t.eyeX = maxX; t.eyeVX = -Math.abs(t.eyeVX); t.jitterTimer = randomInterval(); }
+    }
+  }
+
+  // ── Needle physics ─────────────────────────────────────────────────────────
+
+  function launch() {
+    isFlying      = true;
+    flightElapsed = 0;
+    launchBtnEl.disabled = true;
+  }
+
+  function updateNeedle(dt) {
+    flightElapsed += dt;
+    var p = flightElapsed / FLIGHT_DURATION;
+
+    if (p >= 1) {
+      isFlying = false;
+      setNeedleOffset(0);
+      // NOTE (Part 1): always treat a completed launch as success so all
+      // thread-count layouts can be inspected visually. Real hit detection
+      // replaces this in Part 2.
+      onSuccess();
+      return;
+    }
+
+    var offset = PEAK_HEIGHT_PX * 4 * p * (1 - p);
+    setNeedleOffset(offset);
+  }
+
+  function setNeedleOffset(offset) {
+    // Needle tip (top of element) sits at NEEDLE_REST_TOP - offset
+    needleEl.style.top = (NEEDLE_REST_TOP - offset) + 'px';
+  }
+
+  // ── Round advance (Part 1: always succeeds) ────────────────────────────────
+
+  function onSuccess() {
+    hitFlashEl.classList.remove('th-flashing');
+    void hitFlashEl.offsetWidth;
+    hitFlashEl.classList.add('th-flashing');
+
+    if (round > bestRound) {
+      bestRound = round;
+      try { localStorage.setItem(LS_KEY, String(bestRound)); } catch (e) {}
+    }
+
+    round++;
+    roundNumEl.textContent = String(round);
+    roundScreenEl.classList.remove('th-hide');
+    launchBtnEl.disabled = true;
+
+    transitionTimeout = setTimeout(function () {
+      transitionTimeout = null;
+      roundScreenEl.classList.add('th-hide');
+      startRound();
+    }, TRANSITION_MS);
+  }
+
+  // ── HUD ────────────────────────────────────────────────────────────────────
+
+  function updateHUD() {
+    roundDisplayEl.textContent = 'Round ' + round;
+    bestDisplayEl.textContent  = 'Best: ' + bestRound;
+  }
+
+}());

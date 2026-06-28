@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v116';
+const CACHE = 'bunnygame-v117';
 const ASSETS = [
   '/',
   '/index.html',
@@ -128,6 +128,10 @@ const ASSETS = [
   '/assets/logos/wordup_logo.svg',
   '/assets/data/words.txt',
   '/assets/og-images/wordup-og.png',
+  '/threaded.html',
+  '/assets/css/threaded.css',
+  '/assets/js/threaded.js',
+  '/assets/logos/threaded_logo.svg',
   '/fuse.html',
   '/assets/css/fuse.css',
   '/assets/js/fuse.js',
