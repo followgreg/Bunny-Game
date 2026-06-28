@@ -178,6 +178,7 @@ body {
     inset 0 0 8px rgba(255, 16, 240, 0.08);
   cursor: pointer;
   user-select: none;
+  touch-action: manipulation;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
