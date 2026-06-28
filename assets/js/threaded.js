@@ -13,6 +13,7 @@
   var EYE_SIZE         = 28;   // eye circle diameter px
 
   var TRANSITION_MS    = 1400; // ms to display round-number screen
+  var HIT_X_TOL        = 16;   // px horizontal tolerance from needle centre to eye centre
 
   // Thread Y positions as fraction from top of play area.
   // Index 0 = thread 1 (lowest, nearest needle rest), index 2 = thread 3 (highest, nearest peak).
@@ -49,6 +50,8 @@
   var isFlying          = false;
   var flightElapsed     = 0;
   var transitionTimeout = null;
+  var missDetected      = false;
+  var checkedThisLaunch = [false, false, false];
 
   var lastTime = null;
   var raf      = null;
@@ -219,6 +222,8 @@
   function launch() {
     isFlying      = true;
     flightElapsed = 0;
+    missDetected  = false;
+    checkedThisLaunch = [false, false, false];
     launchBtnEl.disabled = true;
   }
 
@@ -229,15 +234,61 @@
     if (p >= 1) {
       isFlying = false;
       setNeedleOffset(0);
-      // NOTE (Part 1): always treat a completed launch as success so all
-      // thread-count layouts can be inspected visually. Real hit detection
-      // replaces this in Part 2.
-      onSuccess();
+      if (missDetected) {
+        onMiss();
+      } else {
+        onSuccess();
+      }
       return;
     }
 
     var offset = PEAK_HEIGHT_PX * 4 * p * (1 - p);
     setNeedleOffset(offset);
+
+    // Only check thread hits during the upward phase
+    if (p <= 0.5) {
+      checkThreadHits(NEEDLE_REST_TOP - offset);
+    }
+  }
+
+  // ── Hit detection ──────────────────────────────────────────────────────────
+
+  function checkThreadHits(tipY) {
+    for (var i = 0; i < activeCount; i++) {
+      if (checkedThisLaunch[i]) continue;
+      // Needle tip has risen past this thread's height
+      if (tipY <= THREAD_Y[i]) {
+        checkedThisLaunch[i] = true;
+        var eyeCenterX = threads[i].eyeX + EYE_SIZE / 2;
+        var hit = Math.abs(eyeCenterX - NEEDLE_X) <= HIT_X_TOL;
+        if (hit) {
+          // Flash gold immediately if all active threads are now threaded
+          if (allThreaded()) {
+            hitFlashEl.classList.remove('th-flashing', 'th-miss');
+            void hitFlashEl.offsetWidth;
+            hitFlashEl.classList.add('th-flashing');
+          }
+        } else if (!missDetected) {
+          // Flash red on the first miss — needle completes its arc then re-enables
+          missDetected = true;
+          hitFlashEl.classList.remove('th-flashing', 'th-miss');
+          void hitFlashEl.offsetWidth;
+          hitFlashEl.classList.add('th-flashing', 'th-miss');
+        }
+      }
+    }
+  }
+
+  function allThreaded() {
+    for (var i = 0; i < activeCount; i++) {
+      if (!checkedThisLaunch[i]) return false;
+    }
+    return !missDetected;
+  }
+
+  function onMiss() {
+    missDetected = false;
+    launchBtnEl.disabled = false;
   }
 
   function setNeedleOffset(offset) {
@@ -245,10 +296,10 @@
     needleEl.style.top = (NEEDLE_REST_TOP - offset) + 'px';
   }
 
-  // ── Round advance (Part 1: always succeeds) ────────────────────────────────
+  // ── Round advance ──────────────────────────────────────────────────────────
 
   function onSuccess() {
-    hitFlashEl.classList.remove('th-flashing');
+    hitFlashEl.classList.remove('th-flashing', 'th-miss');
     void hitFlashEl.offsetWidth;
     hitFlashEl.classList.add('th-flashing');
 

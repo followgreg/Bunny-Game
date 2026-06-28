@@ -136,6 +136,10 @@
   animation: th-flash-anim 0.5s ease-out forwards;
 }
 
+#th-hit-flash.th-miss {
+  background: rgba(220, 60, 60, 0.42);
+}
+
 /* ── Controls ── */
 #th-controls {
   padding: 18px 16px 20px;
