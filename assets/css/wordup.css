@@ -10,6 +10,7 @@
 /* ── Base overrides ───────────────────────────────────────────────────────── */
 body {
   background: #0D0221;
+  touch-action: manipulation;
 }
 
 #header {
