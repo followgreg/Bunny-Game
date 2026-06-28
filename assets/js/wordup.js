@@ -98,10 +98,13 @@
 
   var DIRECTIONS_TEXT =
     'Word Up! gives everyone the same nine letters today. ' +
-    'Click through adjacent letters — including diagonals — to spell real words, ' +
-    'three letters or longer. Find a full nine-letter word and score a 50-point bonus. ' +
-    'You’ve got sixty seconds. Play as many rounds as you want; only your best score ' +
-    'today counts. Come back tomorrow for nine new letters.';
+    'The letters spin in place every few seconds — don’t worry, they’re still fully readable, ' +
+    'just facing a different direction. ' +
+    'Click through adjacent letters, including diagonals, to spell real words of three letters or more. ' +
+    'To lock in a word, double-tap the last letter in your trace. ' +
+    'Find a full nine-letter word and score a 50-point bonus. ' +
+    'You’ve got sixty seconds. Play as many rounds as you want — only your best score today counts. ' +
+    'Come back tomorrow for nine new letters.';
 
   // ── DOM refs ────────────────────────────────────────────────────────────────
   var gridEl        = null;
@@ -111,7 +114,7 @@
   var scoreEl       = null;
   var feedbackEl    = null;
   var foundListEl   = null;
-  var startOverlay  = null;
+  var splashEl      = null;
   var startBtn      = null;
   var endOverlay    = null;
   var endScoreEl    = null;
@@ -507,9 +510,6 @@
 
     resetTrace();
 
-    // Hide start overlay
-    if (startOverlay) startOverlay.classList.add('wu-hide');
-
     // Start countdown
     timerHandle = setInterval(function () {
       timeLeft--;
@@ -574,25 +574,16 @@
     clearInterval(timerHandle);
     timerHandle = null;
     gamePhase = 'idle';
-    score = 0;
-    foundWords = {};
-    timeLeft = GAME_DURATION;
-    trace = [];
     rotation = 0;
-
-    updateScoreDisplay();
-    updateTimerDisplay();
-    if (timerEl) timerEl.classList.remove('wu-timer--urgent');
-    if (foundListEl) foundListEl.innerHTML = '';
-    if (feedbackEl)  { feedbackEl.className = 'wu-feedback'; feedbackEl.textContent = ''; }
 
     if (rotateBtnEl) rotateBtnEl.dataset.rot = '0';
     renderGrid(dailyGrid, 0);
     randomizeTileRots();
 
-    if (endBestEl)    { endBestEl.textContent = ''; endBestEl.className = 'wu-end-best'; }
-    if (endOverlay)   endOverlay.classList.add('wu-hide');
-    if (startOverlay) startOverlay.classList.remove('wu-hide');
+    if (endBestEl)  { endBestEl.textContent = ''; endBestEl.className = 'wu-end-best'; }
+    if (endOverlay) endOverlay.classList.add('wu-hide');
+
+    startGame();
   }
 
   // ── Init ────────────────────────────────────────────────────────────────────
@@ -605,7 +596,7 @@
       scoreEl      = document.getElementById('wu-score-display');
       feedbackEl   = document.getElementById('wu-feedback');
       foundListEl  = document.getElementById('wu-found-list');
-      startOverlay = document.getElementById('wu-start-overlay');
+      splashEl     = document.getElementById('wu-splash');
       startBtn     = document.getElementById('wu-start-btn');
       endOverlay   = document.getElementById('wu-end-overlay');
       endScoreEl   = document.getElementById('wu-end-score-val');
@@ -642,7 +633,10 @@
         handleCellClick(parseInt(cell.dataset.idx, 10));
       });
 
-      if (startBtn)     startBtn.addEventListener('click', startGame);
+      if (startBtn) startBtn.addEventListener('click', function () {
+        if (splashEl) splashEl.classList.add('wu-hide');
+        startGame();
+      });
       if (playAgainBtn) playAgainBtn.addEventListener('click', resetGame);
       if (shareBtnEl)   shareBtnEl.addEventListener('click', shareResult);
 

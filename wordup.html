@@ -45,6 +45,14 @@
 <div id="nav-root"></div>
 
 <div id="canvas-wrap">
+
+  <!-- Splash: shown on load, dismissed by Start Game -->
+  <div id="wu-splash">
+    <img src="assets/logos/wordup_logo.svg" alt="Word Up!" class="wu-splash-logo">
+    <p class="wu-splash-text">Word Up! gives everyone the same nine letters today. The letters spin in place every few seconds &#8212; don&#8217;t worry, they&#8217;re still fully readable, just facing a different direction. Click through adjacent letters, including diagonals, to spell real words of three letters or more. To lock in a word, double-tap the last letter in your trace. Find a full nine-letter word and score a 50-point bonus. You&#8217;ve got sixty seconds. Play as many rounds as you want &#8212; only your best score today counts. Come back tomorrow for nine new letters.</p>
+    <button id="wu-start-btn" class="wu-start-btn" disabled>LOADING&#8230;</button>
+  </div>
+
   <div id="wu-game">
 
     <!-- Game logo -->
@@ -56,13 +64,10 @@
       <div id="wu-score-display" class="wu-score-display">0<span class="wu-pts-label"> pts</span></div>
     </div>
 
-    <!-- Board + SVG + pre-game overlay -->
+    <!-- Board + SVG -->
     <div class="wu-board-wrap">
       <div id="wu-grid" class="wu-grid"></div>
       <svg id="wu-svg" class="wu-svg" aria-hidden="true"></svg>
-      <div id="wu-start-overlay" class="wu-start-overlay">
-        <button id="wu-start-btn" class="wu-start-btn">START</button>
-      </div>
     </div>
 
     <!-- Rotate -->
