@@ -145,6 +145,49 @@
   padding: 18px 16px 20px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.th-nav-btn {
+  width: 52px;
+  height: 52px;
+  background: #1a3a58;
+  color: #e8d898;
+  font-size: 1rem;
+  font-family: 'DM Sans', sans-serif;
+  border: 2px solid rgba(200, 184, 128, 0.30);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #0d2234, 0 5px 12px rgba(0, 0, 0, 0.45);
+  transition: transform 0.07s, box-shadow 0.07s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.th-nav-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #0d2234, 0 2px 6px rgba(0, 0, 0, 0.40);
+}
+
+/* Needle positioning track — subtle rail at play-area bottom */
+#th-needle-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(200, 184, 128, 0.20) 8%,
+    rgba(200, 184, 128, 0.20) 92%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 #th-launch-btn {

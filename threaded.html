@@ -52,14 +52,14 @@
     </div>
 
     <div id="th-play-area">
-      <!-- Thread lines — index 0 lowest (round 1+), 1 middle (round 2+), 2 highest (round 3+) -->
+      <!-- Thread lines — index 0 lower (round 1+), index 1 upper (round 2+) -->
       <div class="th-thread" id="th-thread-0"></div>
       <div class="th-thread th-hide" id="th-thread-1"></div>
-      <div class="th-thread th-hide" id="th-thread-2"></div>
       <!-- Eye circles, one per thread -->
       <div class="th-eye" id="th-eye-0"></div>
       <div class="th-eye th-hide" id="th-eye-1"></div>
-      <div class="th-eye th-hide" id="th-eye-2"></div>
+      <!-- Subtle rail showing needle's horizontal range -->
+      <div id="th-needle-track"></div>
       <!-- Needle -->
       <div id="th-needle"></div>
       <!-- Hit flash -->
@@ -67,7 +67,9 @@
     </div>
 
     <div id="th-controls">
+      <button id="th-left-btn" class="th-nav-btn" aria-label="Move needle left">&#9664;</button>
       <button id="th-launch-btn">LAUNCH</button>
+      <button id="th-right-btn" class="th-nav-btn" aria-label="Move needle right">&#9654;</button>
     </div>
 
     <!-- Round transition overlay -->

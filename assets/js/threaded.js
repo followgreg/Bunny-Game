@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS_TEXT = 'Threaded gives you a needle and a stack of moving threads. Each thread has a circle sliding back and forth — time your launch so the needle passes clean through every active thread’s circle in one shot. Miss even one, and you’ll need to try again — no penalty, just another attempt. Clear a round and a new thread joins the stack, up to three at once. Your progress is saved — come back anytime and pick up where you left off, or start over from the beginning if you’d rather.';
+  var DIRECTIONS_TEXT = ‘Threaded gives you a needle and up to two moving threads. Each thread has a circle sliding back and forth — tap or drag anywhere in the play area (or use the arrow buttons) to position the needle left and right, then press Launch to fire it straight up. The needle must pass clean through every active circle in one shot. Miss any one and try again — no penalty. Clear a round and a second thread joins. Your progress is saved.’;
 
   // ── Tunable constants ──────────────────────────────────────────────────────
 
@@ -18,11 +18,13 @@
 
   // Thread Y positions as fraction from top of play area.
   // Index 0 = thread 1 (lowest, nearest needle rest), index 2 = thread 3 (highest, nearest peak).
-  var THREAD_Y_FRACS = [0.65, 0.44, 0.24];
+  var THREAD_Y_FRACS = [0.65, 0.44];
 
   // Speed multipliers per thread slot — fixed spread ensures threads always run at
   // meaningfully different rates regardless of round or random noise.
-  var SPEED_MULTS = [0.68, 1.02, 1.52];
+  var SPEED_MULTS = [0.75, 1.35];
+
+  var NEEDLE_STEP_PX = 18;  // px per arrow-button tap / per hold-repeat interval
 
   var LS_KEY = 'threaded_highestRound';
 
@@ -40,7 +42,6 @@
   var threads = [
     { eyeX: 0, phaseTime: 0, sweepDuration: 1 },
     { eyeX: 0, phaseTime: 0, sweepDuration: 1 },
-    { eyeX: 0, phaseTime: 0, sweepDuration: 1 },
   ];
 
   // ── Game state ─────────────────────────────────────────────────────────────
@@ -52,7 +53,9 @@
   var flightElapsed     = 0;
   var transitionTimeout = null;
   var missDetected      = false;
-  var checkedThisLaunch = [false, false, false];
+  var checkedThisLaunch = [false, false];
+  var isDraggingNeedle  = false;
+  var navTimer          = null;
 
   var lastTime = null;
   var raf      = null;
@@ -79,12 +82,10 @@
     threadEls = [
       document.getElementById('th-thread-0'),
       document.getElementById('th-thread-1'),
-      document.getElementById('th-thread-2'),
     ];
     eyeEls = [
       document.getElementById('th-eye-0'),
       document.getElementById('th-eye-1'),
-      document.getElementById('th-eye-2'),
     ];
 
     var resumeScreenEl = document.getElementById('th-resume-screen');
@@ -100,6 +101,30 @@
     launchBtnEl.addEventListener('click', function () {
       if (!isFlying && !transitionTimeout) launch();
     });
+
+    // ── Arrow buttons (hold-to-move) ──
+    var leftBtnEl  = document.getElementById('th-left-btn');
+    var rightBtnEl = document.getElementById('th-right-btn');
+    leftBtnEl.addEventListener('pointerdown',  function (e) { e.preventDefault(); startNavMove(-1); });
+    leftBtnEl.addEventListener('pointerup',    stopNavMove);
+    leftBtnEl.addEventListener('pointerleave', stopNavMove);
+    rightBtnEl.addEventListener('pointerdown',  function (e) { e.preventDefault(); startNavMove(1); });
+    rightBtnEl.addEventListener('pointerup',    stopNavMove);
+    rightBtnEl.addEventListener('pointerleave', stopNavMove);
+
+    // ── Drag / tap to position needle ──
+    playAreaEl.addEventListener('pointerdown', function (e) {
+      if (isFlying) return;
+      isDraggingNeedle = true;
+      playAreaEl.setPointerCapture(e.pointerId);
+      setNeedleX(e.clientX - playAreaEl.getBoundingClientRect().left);
+    });
+    playAreaEl.addEventListener('pointermove', function (e) {
+      if (!isDraggingNeedle || isFlying) return;
+      setNeedleX(e.clientX - playAreaEl.getBoundingClientRect().left);
+    });
+    playAreaEl.addEventListener('pointerup',     function () { isDraggingNeedle = false; });
+    playAreaEl.addEventListener('pointercancel', function () { isDraggingNeedle = false; });
 
     continueBtnEl.addEventListener('click', function () {
       resumeScreenEl.classList.add('th-hide');
@@ -136,18 +161,16 @@
     PEAK_Y          = PLAY_H * PEAK_Y_FRAC;
     NEEDLE_REST_TOP = PLAY_H - NEEDLE_H;
     PEAK_HEIGHT_PX  = NEEDLE_REST_TOP - PEAK_Y;
-    NEEDLE_X        = PLAY_W / 2;
-
-    // Needle: centred, 4px wide, tip = element top
-    needleEl.style.left   = (NEEDLE_X - 2) + 'px';
+    // Needle: 4px wide, tip = element top — player repositions via drag or arrow buttons
+    setNeedleX(PLAY_W / 2);
     needleEl.style.height = NEEDLE_H + 'px';
     setNeedleOffset(0);
 
     // Thread lines and eye circles
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < threadEls.length; i++) {
       THREAD_Y[i] = PLAY_H * THREAD_Y_FRACS[i];
-      threadEls[i].style.top = (THREAD_Y[i] - 1) + 'px'; // centre 2px line on THREAD_Y
-      eyeEls[i].style.top    = (THREAD_Y[i] - EYE_SIZE / 2) + 'px'; // eye centred on THREAD_Y
+      threadEls[i].style.top = (THREAD_Y[i] - 1) + 'px';
+      eyeEls[i].style.top    = (THREAD_Y[i] - EYE_SIZE / 2) + 'px';
     }
   }
 
@@ -163,9 +186,10 @@
   }
 
   function startRound() {
-    activeCount = Math.min(round, 3);
+    activeCount = Math.min(round, 2);
+    setNeedleX(PLAY_W / 2);
 
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < threadEls.length; i++) {
       var on = i < activeCount;
       threadEls[i].classList.toggle('th-hide', !on);
       eyeEls[i].classList.toggle('th-hide', !on);
@@ -187,16 +211,39 @@
   // ── Thread randomization ───────────────────────────────────────────────────
 
   function randomizeThreads() {
-    var baseSecs = Math.max(BASE_SWEEP_SECS - (round - 1) * SWEEP_DECREMENT, MIN_SWEEP_SECS);
+    var baseSecs  = Math.max(BASE_SWEEP_SECS - (round - 1) * SWEEP_DECREMENT, MIN_SWEEP_SECS);
+    var MAX_TRIES = 12;
 
-    for (var i = 0; i < activeCount; i++) {
-      // Higher SPEED_MULT = faster = shorter sweep duration.
-      // ±10% noise keeps each round feeling fresh without changing the motion model.
-      var noise = 0.90 + Math.random() * 0.20;
-      threads[i].sweepDuration = (baseSecs / SPEED_MULTS[i]) * noise;
-      // Start each eye at a random point in its cycle so threads feel independent
-      threads[i].phaseTime = Math.random() * threads[i].sweepDuration * 2;
+    for (var attempt = 0; attempt < MAX_TRIES; attempt++) {
+      for (var i = 0; i < activeCount; i++) {
+        var noise = 0.90 + Math.random() * 0.20;
+        threads[i].sweepDuration = (baseSecs / SPEED_MULTS[i]) * noise;
+        threads[i].phaseTime     = Math.random() * threads[i].sweepDuration * 2;
+      }
+      // For 2-thread rounds, verify at least one solvable (x, launch-time) exists
+      if (activeCount < 2 || isSolvable()) break;
     }
+  }
+
+  // ── Fairness — solvability check ──────────────────────────────────────────
+
+  function computeFlightTime(threadIdx) {
+    if (PEAK_HEIGHT_PX <= 0) return 0;
+    var k = (NEEDLE_REST_TOP - THREAD_Y[threadIdx]) / PEAK_HEIGHT_PX;
+    var p = (1 - Math.sqrt(Math.max(0, 1 - k))) / 2;
+    return p * FLIGHT_DURATION;
+  }
+
+  function isSolvable() {
+    var t0  = computeFlightTime(0);
+    var t1  = computeFlightTime(1);
+    var tol = 2 * HIT_X_TOL;
+    for (var launchT = 0; launchT <= 15; launchT += 0.04) {
+      var ex0 = eyePosAtPhaseTime(0, threads[0].phaseTime + launchT + t0);
+      var ex1 = eyePosAtPhaseTime(1, threads[1].phaseTime + launchT + t1);
+      if (Math.abs(ex0 - ex1) <= tol) return true;
+    }
+    return false;
   }
 
   // ── Main loop ──────────────────────────────────────────────────────────────
@@ -218,16 +265,38 @@
 
   // ── Eye movement — pure triangle-wave sweep ────────────────────────────────
 
-  function updateEye(i, dt) {
-    var t    = threads[i];
+  function eyePosAtPhaseTime(threadIdx, pt) {
+    var sd   = threads[threadIdx].sweepDuration;
     var maxX = PLAY_W - EYE_SIZE;
-    t.phaseTime += dt;
-    // Triangle wave: 0→sweepDuration maps to left→right, sweepDuration→2× maps back
-    var cycle = t.sweepDuration * 2;
-    var pos   = t.phaseTime % cycle;
-    t.eyeX = pos < t.sweepDuration
-      ? (pos / t.sweepDuration) * maxX
-      : (1 - (pos - t.sweepDuration) / t.sweepDuration) * maxX;
+    var pos  = pt % (sd * 2);
+    return pos < sd ? (pos / sd) * maxX : (1 - (pos - sd) / sd) * maxX;
+  }
+
+  function updateEye(i, dt) {
+    threads[i].phaseTime += dt;
+    threads[i].eyeX = eyePosAtPhaseTime(i, threads[i].phaseTime);
+  }
+
+  // ── Needle horizontal positioning ─────────────────────────────────────────
+
+  function setNeedleX(x) {
+    NEEDLE_X = Math.max(0, Math.min(PLAY_W, x));
+    needleEl.style.left = (NEEDLE_X - 2) + 'px';
+  }
+
+  function startNavMove(dir) {
+    if (isFlying) return;
+    moveNeedleStep(dir);
+    navTimer = setInterval(function () { moveNeedleStep(dir); }, 60);
+  }
+
+  function stopNavMove() {
+    if (navTimer) { clearInterval(navTimer); navTimer = null; }
+  }
+
+  function moveNeedleStep(dir) {
+    if (isFlying) { stopNavMove(); return; }
+    setNeedleX(NEEDLE_X + dir * NEEDLE_STEP_PX);
   }
 
   // ── Needle physics ─────────────────────────────────────────────────────────
@@ -236,7 +305,7 @@
     isFlying      = true;
     flightElapsed = 0;
     missDetected  = false;
-    checkedThisLaunch = [false, false, false];
+    checkedThisLaunch = [false, false];
     launchBtnEl.disabled = true;
   }
 
