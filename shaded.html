@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Shaded — a color sorting puzzle — Bunny Game</title>
+  <meta name="description" content="Five shades. One order. Lightest to darkest. Fifty levels, each harder to see.">
+  <meta property="og:title" content="Shaded — a color sorting puzzle — Bunny Game">
+  <meta property="og:description" content="Five shades. One order. Lightest to darkest. Fifty levels, each harder to see.">
+  <meta property="og:url" content="https://www.thebunnygame.com/shaded">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/shaded-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/shaded-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/shaded">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0c0c0c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/shaded.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Loading -->
+  <div id="sh-loading" class="sh-screen">
+    <p class="sh-loading-text">Loading…</p>
+  </div>
+
+  <!-- Error -->
+  <div id="sh-error" class="sh-screen sh-hide">
+    <p class="sh-error-text">Couldn't load levels. Please refresh.</p>
+  </div>
+
+  <!-- Start / resume screen (shown on return visits) -->
+  <div id="sh-start" class="sh-screen sh-hide">
+    <div class="sh-start-inner">
+      <p class="sh-start-title">Shaded</p>
+      <p class="sh-start-sub">Five shades. One order. Lightest to darkest.</p>
+      <div class="sh-start-btns" id="sh-start-btns"></div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="sh-game" class="sh-screen sh-hide">
+
+    <div class="sh-hud">
+      <span class="sh-level-label" id="sh-level-label"></span>
+    </div>
+
+    <div class="sh-hint">Lightest → Darkest</div>
+
+    <div class="sh-bars-wrap">
+      <div class="sh-bars" id="sh-bars"></div>
+    </div>
+
+  </div>
+
+  <!-- Accomplishment overlay (auto-shown on solve) -->
+  <div id="sh-solved" class="sh-overlay sh-hide">
+    <div class="sh-overlay-inner">
+      <p class="sh-overlay-head">Sorted!</p>
+      <p class="sh-overlay-sub" id="sh-solved-sub"></p>
+      <button class="sh-btn-primary" id="sh-next-btn">Next Level</button>
+    </div>
+  </div>
+
+  <!-- Win screen (after level 50) -->
+  <div id="sh-win" class="sh-screen sh-hide">
+    <div class="sh-win-inner">
+      <p class="sh-win-headline">Shaded Complete</p>
+      <p class="sh-win-body">All 50 levels sorted — your eye for color is exceptional.</p>
+      <button class="sh-btn-primary" id="sh-share-btn">Share</button>
+      <button class="sh-btn-ghost" id="sh-replay-btn">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Directions overlay -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/shaded.js"></script>
+</body>
+</html>
