@@ -1,26 +1,46 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS_TEXT = 'Threaded gives you a needle and up to two moving threads. Each thread has a circle sliding back and forth — tap or drag anywhere in the play area (or use the arrow buttons) to position the needle left and right, then press Launch to fire it straight up. The needle must pass clean through every active circle in one shot. Miss any one and try again — no penalty. Clear a round and a second thread joins. Your progress is saved.';
+  var DIRECTIONS_TEXT = 'Threaded gives you a needle and up to two moving threads. Each thread has a circle sliding back and forth — tap or drag anywhere in the play area (or use the arrow buttons) to position the needle left and right, then press Launch to fire it straight up. The needle must pass clean through every active circle in one shot. Miss any one and try again — no penalty. Clear all 25 boards to win.';
 
-  // ── Tunable constants ──────────────────────────────────────────────────────
+  // ── Constants ──────────────────────────────────────────────────────────────
 
-  var BASE_SWEEP_SECS   = 2.2;
-  var SWEEP_DECREMENT   = 0.12;
-  var MIN_SWEEP_SECS    = 0.55;
-  var FLIGHT_DURATION   = 0.90;  // seconds for the parabolic arc
-  var PEAK_Y_FRAC       = 0.10;  // needle tip reaches this fraction from top at peak
-  var NEEDLE_H          = 90;    // needle element height px
-  var EYE_SIZE          = 28;    // eye circle diameter px
-  var TRANSITION_MS     = 1400;  // ms for round-number screen after success
-  var HIT_X_TOL         = 16;    // px horizontal tolerance for threading
-  var CLEAN_MISS_SPEED  = 520;   // px/s upward speed after clean miss
-  var OUTCOME_DELAY_MS  = { cleanMiss: 860, partial: 660, success: 460 };
+  var MAX_BOARDS     = 25;
+  var FLIGHT_DURATION = 0.90;  // seconds for the parabolic arc
+  var PEAK_Y_FRAC    = 0.10;  // needle tip reaches this fraction from top at peak
+  var NEEDLE_H       = 90;    // needle element height px
+  var EYE_SIZE       = 28;    // eye circle diameter px
+  var TRANSITION_MS  = 1400;  // ms for round-number screen after success
+  var HIT_X_TOL      = 16;    // px horizontal tolerance for threading
+  var CLEAN_MISS_SPEED = 520; // px/s upward speed after clean miss
+  var OUTCOME_DELAY_MS = { cleanMiss: 860, partial: 660, success: 460 };
 
-  var THREAD_Y_FRACS = [0.65, 0.44];  // thread Y as fraction from play-area top
-  var SPEED_MULTS    = [0.75, 1.35];  // per-thread sweep speed multipliers
+  var SPEED_MULTS    = [0.75, 1.35];  // per-thread sweep speed multipliers (independent boards)
   var NEEDLE_STEP_PX = 18;
   var LS_KEY         = 'threaded_highestRound';
+
+  // ── Board config ───────────────────────────────────────────────────────────
+  // Returns { activeCount, threadYFracs, sweepSecs, synced } for board b (1-25)
+
+  function getBoardConfig(b) {
+    if (b <= 10) {
+      // Single thread: height eases from low (0.78) to mid (0.52), speed increases
+      var frac = 0.78 - (b - 1) * (0.26 / 9);
+      var secs = 2.6  - (b - 1) * (1.4  / 9);
+      return { activeCount: 1, threadYFracs: [frac, 0.44], sweepSecs: secs, synced: false };
+    }
+    if (b <= 20) {
+      // Two threads, synced (visually move together): escalating speed
+      var secs2 = 2.0 - (b - 11) * (1.1 / 9);
+      return { activeCount: 2, threadYFracs: [0.65, 0.44], sweepSecs: secs2, synced: true };
+    }
+    // Boards 21-25: two threads, fully independent
+    var secs3 = Math.max(1.2 - (b - 21) * 0.10, 0.80);
+    return { activeCount: 2, threadYFracs: [0.65, 0.44], sweepSecs: secs3, synced: false };
+  }
+
+  // Current board config — initialized to board 1 defaults
+  var boardConfig = getBoardConfig(1);
 
   // ── Layout globals ─────────────────────────────────────────────────────────
 
@@ -29,7 +49,7 @@
   var NEEDLE_REST_TOP = 0;
   var PEAK_HEIGHT_PX  = 0;
   var NEEDLE_X        = 0;
-  var THREAD_Y        = [0, 0, 0];
+  var THREAD_Y        = [0, 0];
 
   // ── Per-thread state ───────────────────────────────────────────────────────
 
@@ -48,13 +68,13 @@
   var flightPhase   = 'idle';
   var flightElapsed = 0;
 
-  var checkedThisLaunch = [false, false];  // needle has passed this thread's height
-  var hitThisLaunch     = [false, false];  // needle actually threaded through
+  var checkedThisLaunch = [false, false];
+  var hitThisLaunch     = [false, false];
 
-  var launchAnchorX = 0;   // needle centre X at moment of launch (fixed)
-  var needleTipX    = 0;   // current needle tip X (for string drawing)
-  var needleTipY    = 0;   // current needle tip Y (for string drawing)
-  var needleRideIdx = -1;  // which thread the needle rides with post-outcome
+  var launchAnchorX = 0;
+  var needleTipX    = 0;
+  var needleTipY    = 0;
+  var needleRideIdx = -1;
 
   var transitionTimeout = null;
   var outcomeTimeout    = null;
@@ -72,6 +92,7 @@
   var roundScreenEl, roundNumEl;
   var stringLineEl;
   var outcomeScreenEl, outcomeMsgEl, outcomeBtnEl;
+  var winScreenEl;
 
   // ── Init ───────────────────────────────────────────────────────────────────
 
@@ -87,6 +108,7 @@
     outcomeScreenEl = document.getElementById('th-outcome-screen');
     outcomeMsgEl   = document.getElementById('th-outcome-msg');
     outcomeBtnEl   = document.getElementById('th-outcome-btn');
+    winScreenEl    = document.getElementById('th-win-screen');
 
     threadEls = [
       document.getElementById('th-thread-0'),
@@ -101,6 +123,7 @@
     var resumeRoundEl  = document.getElementById('th-resume-round');
     var continueBtnEl  = document.getElementById('th-continue-btn');
     var restartBtnEl   = document.getElementById('th-restart-btn');
+    var winRestartBtnEl = document.getElementById('th-win-restart-btn');
 
     var helpBtn = document.getElementById('help-btn');
     if (helpBtn) helpBtn.addEventListener('click', function () {
@@ -111,7 +134,6 @@
       if (flightPhase === 'idle' && !transitionTimeout) launch();
     });
 
-    // ── Arrow buttons ──
     var leftBtnEl  = document.getElementById('th-left-btn');
     var rightBtnEl = document.getElementById('th-right-btn');
     leftBtnEl.addEventListener('pointerdown',  function (e) { e.preventDefault(); startNavMove(-1); });
@@ -121,7 +143,6 @@
     rightBtnEl.addEventListener('pointerup',    stopNavMove);
     rightBtnEl.addEventListener('pointerleave', stopNavMove);
 
-    // ── Drag / tap to position needle ──
     playAreaEl.addEventListener('pointerdown', function (e) {
       if (flightPhase !== 'idle') return;
       isDraggingNeedle = true;
@@ -146,6 +167,11 @@
       startGame();
     });
 
+    winRestartBtnEl.addEventListener('click', function () {
+      winScreenEl.classList.add('th-hide');
+      startGame();
+    });
+
     bestRound = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
 
     window.addEventListener('resize', computeLayout);
@@ -154,7 +180,9 @@
       computeLayout();
       updateHUD();
 
-      if (bestRound > 0) {
+      if (bestRound >= MAX_BOARDS) {
+        showWinScreen();
+      } else if (bestRound > 0) {
         resumeRoundEl.textContent = String(bestRound + 1);
         resumeScreenEl.classList.remove('th-hide');
       } else {
@@ -178,7 +206,7 @@
     setNeedleTop(NEEDLE_REST_TOP);
 
     for (var i = 0; i < threadEls.length; i++) {
-      THREAD_Y[i] = PLAY_H * THREAD_Y_FRACS[i];
+      THREAD_Y[i] = PLAY_H * boardConfig.threadYFracs[i];
       threadEls[i].style.top = (THREAD_Y[i] - 1) + 'px';
       eyeEls[i].style.top    = (THREAD_Y[i] - EYE_SIZE / 2) + 'px';
     }
@@ -193,23 +221,32 @@
     if (transitionTimeout) { clearTimeout(transitionTimeout); transitionTimeout = null; }
     if (outcomeTimeout)    { clearTimeout(outcomeTimeout);    outcomeTimeout    = null; }
     roundScreenEl.classList.add('th-hide');
+    winScreenEl.classList.add('th-hide');
     hideOutcome();
     startRound();
   }
 
   function startRound() {
-    activeCount = Math.min(round, 2);
+    boardConfig = getBoardConfig(round);
+    activeCount = boardConfig.activeCount;
 
-    needleEl.style.transform = '';  // clear any rotation from partial phase
+    // Update thread positions for this board's config
+    for (var i = 0; i < threadEls.length; i++) {
+      THREAD_Y[i] = PLAY_H * boardConfig.threadYFracs[i];
+      threadEls[i].style.top = (THREAD_Y[i] - 1) + 'px';
+      eyeEls[i].style.top    = (THREAD_Y[i] - EYE_SIZE / 2) + 'px';
+    }
+
+    needleEl.style.transform = '';
     setNeedleX(PLAY_W / 2);
     setNeedleTop(NEEDLE_REST_TOP);
     clearString();
     hideOutcome();
 
-    for (var i = 0; i < threadEls.length; i++) {
-      var on = i < activeCount;
-      threadEls[i].classList.toggle('th-hide', !on);
-      eyeEls[i].classList.toggle('th-hide', !on);
+    for (var j = 0; j < threadEls.length; j++) {
+      var on = j < activeCount;
+      threadEls[j].classList.toggle('th-hide', !on);
+      eyeEls[j].classList.toggle('th-hide', !on);
     }
 
     flightPhase       = 'idle';
@@ -230,16 +267,36 @@
   // ── Thread randomisation ───────────────────────────────────────────────────
 
   function randomizeThreads() {
-    var baseSecs  = Math.max(BASE_SWEEP_SECS - (round - 1) * SWEEP_DECREMENT, MIN_SWEEP_SECS);
-    var MAX_TRIES = 12;
+    var cfg = boardConfig;
 
+    if (cfg.synced) {
+      // Both threads move identically (same X every frame)
+      var noise = 0.90 + Math.random() * 0.20;
+      var sd    = cfg.sweepSecs * noise;
+      var pt    = Math.random() * sd * 2;
+      threads[0].sweepDuration = sd;
+      threads[0].phaseTime     = pt;
+      threads[1].sweepDuration = sd;
+      threads[1].phaseTime     = pt;
+      return;
+    }
+
+    if (activeCount === 1) {
+      var noise1 = 0.90 + Math.random() * 0.20;
+      threads[0].sweepDuration = cfg.sweepSecs * noise1;
+      threads[0].phaseTime     = Math.random() * threads[0].sweepDuration * 2;
+      return;
+    }
+
+    // Independent two-thread (boards 21-25): solvability check
+    var MAX_TRIES = 12;
     for (var attempt = 0; attempt < MAX_TRIES; attempt++) {
       for (var i = 0; i < activeCount; i++) {
-        var noise = 0.90 + Math.random() * 0.20;
-        threads[i].sweepDuration = (baseSecs / SPEED_MULTS[i]) * noise;
+        var noise2 = 0.90 + Math.random() * 0.20;
+        threads[i].sweepDuration = (cfg.sweepSecs / SPEED_MULTS[i]) * noise2;
         threads[i].phaseTime     = Math.random() * threads[i].sweepDuration * 2;
       }
-      if (activeCount < 2 || isSolvable()) break;
+      if (isSolvable()) break;
     }
   }
 
@@ -271,13 +328,11 @@
     var dt = Math.min((timestamp - lastTime) / 1000, 0.05);
     lastTime = timestamp;
 
-    // Eyes always sweep
     for (var i = 0; i < activeCount; i++) {
       updateEye(i, dt);
       eyeEls[i].style.left = threads[i].eyeX + 'px';
     }
 
-    // Needle / string update per phase
     if      (flightPhase === 'rising')         updateRising(dt);
     else if (flightPhase === 'clean_miss_fly') updateCleanMissFly(dt);
     else if (flightPhase === 'partial_hang')   updatePartialHang();
@@ -341,14 +396,13 @@
     clearString();
   }
 
-  // ── Phase: rising (parabolic arc, upward half only) ───────────────────────
+  // ── Phase: rising ─────────────────────────────────────────────────────────
 
   function updateRising(dt) {
     flightElapsed += dt;
     var p = flightElapsed / FLIGHT_DURATION;
 
     if (p >= 0.5) {
-      // Reached peak without outcome — must be a clean miss (all threads already below peak)
       if (flightPhase === 'rising') startCleanMiss();
       return;
     }
@@ -367,7 +421,7 @@
     }
   }
 
-  // ── Phase: clean miss — needle flies straight off the top ─────────────────
+  // ── Phase: clean miss ─────────────────────────────────────────────────────
 
   function startCleanMiss() {
     flightPhase = 'clean_miss_fly';
@@ -384,7 +438,7 @@
     setStringPoints([[launchAnchorX, PLAY_H], [needleTipX, needleTipY]]);
   }
 
-  // ── Phase: partial hang — lower hit, upper missed, needle hangs below circle
+  // ── Phase: partial hang ───────────────────────────────────────────────────
 
   function startPartial() {
     flightPhase = 'partial_hang';
@@ -397,10 +451,9 @@
 
   function updatePartialHang() {
     var cx0     = threads[0].eyeX + EYE_SIZE / 2;
-    var elemTop = THREAD_Y[0] + EYE_SIZE / 2 + 4;  // element top just below circle centre
+    var elemTop = THREAD_Y[0] + EYE_SIZE / 2 + 4;
     setNeedleTop(elemTop);
     needleEl.style.left = (cx0 - 2) + 'px';
-    // After 180° rotation, the visual tip is at element bottom
     var visualTipY = elemTop + NEEDLE_H;
     setStringPoints([
       [launchAnchorX, PLAY_H],
@@ -409,12 +462,12 @@
     ]);
   }
 
-  // ── Phase: success ride — needle rides with highest threaded circle ─────────
+  // ── Phase: success ride ───────────────────────────────────────────────────
 
   function startSuccess() {
     flightPhase   = 'success_ride';
-    needleRideIdx = activeCount - 1;         // highest active thread index
-    needleTipY    = THREAD_Y[needleRideIdx]; // snap tip to that thread's height
+    needleRideIdx = activeCount - 1;
+    needleTipY    = THREAD_Y[needleRideIdx];
 
     if (round > bestRound) {
       bestRound = round;
@@ -434,13 +487,11 @@
     needleEl.style.left = (rideX - 2) + 'px';
 
     if (activeCount === 1) {
-      // String: anchor → needle (riding with thread 0)
       setStringPoints([
         [launchAnchorX, PLAY_H],
         [rideX, needleTipY],
       ]);
     } else {
-      // String: anchor → lower circle → needle (at upper circle)
       var cx0 = threads[0].eyeX + EYE_SIZE / 2;
       setStringPoints([
         [launchAnchorX, PLAY_H],
@@ -455,7 +506,7 @@
   function checkThreadHits(tipY) {
     for (var i = 0; i < activeCount; i++) {
       if (checkedThisLaunch[i]) continue;
-      if (tipY > THREAD_Y[i]) continue;  // not yet reached
+      if (tipY > THREAD_Y[i]) continue;
 
       checkedThisLaunch[i] = true;
       var eyeCenterX = threads[i].eyeX + EYE_SIZE / 2;
@@ -464,13 +515,11 @@
 
       if (hit) {
         if (allThreaded()) { startSuccess(); return; }
-        // else: continue checking higher threads
       } else {
-        // Miss — determine which outcome
         if (i === 0) {
-          startCleanMiss();  // first thread missed → clean miss regardless of active count
+          startCleanMiss();
         } else {
-          startPartial();    // i === 1: lower hit, upper missed
+          startPartial();
         }
         return;
       }
@@ -510,6 +559,15 @@
     if (outcomeTimeout) { clearTimeout(outcomeTimeout); outcomeTimeout = null; }
   }
 
+  // ── Win screen ─────────────────────────────────────────────────────────────
+
+  function showWinScreen() {
+    launchBtnEl.disabled = true;
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+    winScreenEl.classList.remove('th-hide');
+    updateHUD();
+  }
+
   // ── Round flow ────────────────────────────────────────────────────────────
 
   function retryRound() {
@@ -533,6 +591,12 @@
     needleEl.style.transform = '';
 
     round++;
+
+    if (round > MAX_BOARDS) {
+      showWinScreen();
+      return;
+    }
+
     roundNumEl.textContent = String(round);
     roundScreenEl.classList.remove('th-hide');
     launchBtnEl.disabled = true;
