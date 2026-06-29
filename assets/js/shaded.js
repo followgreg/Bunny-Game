@@ -4,10 +4,20 @@
   var DIRECTIONS_TEXT = 'Shaded gives you five bars, all the same color, all different shades. Drag them into order — lightest on one side, darkest on the other. The moment you\'ve got it right, you\'ll know. As you go, the shades get closer and closer together. By the end, you\'ll really need to look.';
 
   var LS_KEY = 'shaded_highestLevel';
-  var N       = 5;
-  var BAR_W   = 25;
-  var BAR_GAP = 10;
-  var SLOT_STEP = BAR_W + BAR_GAP;  // 35px per slot
+
+  // Bar config — updated per level in applyBarConfig()
+  var N         = 5;
+  var BAR_W     = 25;
+  var BAR_GAP   = 10;
+  var SLOT_STEP = 35;
+
+  function applyBarConfig(level) {
+    if (level >= 25) {
+      N = 10; BAR_W = 20; BAR_GAP = 8; SLOT_STEP = 28;
+    } else {
+      N = 5;  BAR_W = 25; BAR_GAP = 10; SLOT_STEP = 35;
+    }
+  }
 
   var levels        = null;
   var currentLevel  = 1;
@@ -127,13 +137,17 @@
     winEl.classList.add('sh-hide');
     gameEl.classList.remove('sh-hide');
 
+    applyBarConfig(currentLevel);
+
     var entry = levels[currentLevel - 1];
     levelLabel.textContent = 'Level ' + currentLevel + ' of ' + levels.length;
 
     barsEl.innerHTML = '';
+    barsEl.style.gap = BAR_GAP + 'px';
     entry.shuffledOrder.forEach(function (hex) {
       var bar = document.createElement('div');
       bar.className = 'sh-bar';
+      bar.style.width = BAR_W + 'px';
       bar.style.backgroundColor = hex;
       bar.dataset.color = hex;
       bar.addEventListener('pointerdown', onPointerDown);
