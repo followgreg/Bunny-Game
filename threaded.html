@@ -64,6 +64,17 @@
       <div id="th-needle"></div>
       <!-- Hit flash -->
       <div id="th-hit-flash"></div>
+      <!-- Red string SVG — drawn each frame during flight -->
+      <svg id="th-string-svg" aria-hidden="true">
+        <polyline id="th-string-line" points=""/>
+      </svg>
+      <!-- Outcome overlay — fail / success — background animation continues -->
+      <div id="th-outcome-screen" class="th-hide">
+        <div class="th-outcome-inner">
+          <p class="th-outcome-msg" id="th-outcome-msg">Miss</p>
+          <button class="th-outcome-btn" id="th-outcome-btn">Try Again</button>
+        </div>
+      </div>
     </div>
 
     <div id="th-controls">

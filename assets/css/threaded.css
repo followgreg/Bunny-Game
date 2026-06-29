@@ -128,6 +128,73 @@
   z-index: 5;
 }
 
+/* ── String SVG ── */
+#th-string-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 4;
+}
+
+#th-string-line {
+  stroke: #c83030;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* ── Outcome overlay (fail / success) ── */
+#th-outcome-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 14, 26, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 18;
+  pointer-events: auto;
+}
+
+.th-outcome-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 32px 28px;
+}
+
+.th-outcome-msg {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #f0c040;
+  margin: 0;
+  text-shadow: 0 0 24px rgba(240, 192, 64, 0.45);
+}
+
+.th-outcome-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 14px 40px;
+  border-radius: 13px;
+  border: none;
+  background: #f0c040;
+  color: #0b1420;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: opacity 0.1s;
+}
+
+.th-outcome-btn:active { opacity: 0.78; }
+
 @keyframes th-flash-anim {
   0%   { opacity: 1; }
   100% { opacity: 0; }
