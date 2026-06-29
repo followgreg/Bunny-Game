@@ -2,7 +2,8 @@
 
 #canvas-wrap {
   background: #0b1420;
-  align-items: stretch;
+  flex-direction: column;
+  align-items: center;
   overflow: hidden;
   padding: 0;
 }
@@ -14,10 +15,10 @@
   position: relative;
   width: 100%;
   max-width: 480px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 /* ── HUD ── */
