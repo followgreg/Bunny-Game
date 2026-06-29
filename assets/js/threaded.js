@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS_TEXT = ‘Threaded gives you a needle and up to two moving threads. Each thread has a circle sliding back and forth — tap or drag anywhere in the play area (or use the arrow buttons) to position the needle left and right, then press Launch to fire it straight up. The needle must pass clean through every active circle in one shot. Miss any one and try again — no penalty. Clear a round and a second thread joins. Your progress is saved.’;
+  var DIRECTIONS_TEXT = 'Threaded gives you a needle and up to two moving threads. Each thread has a circle sliding back and forth — tap or drag anywhere in the play area (or use the arrow buttons) to position the needle left and right, then press Launch to fire it straight up. The needle must pass clean through every active circle in one shot. Miss any one and try again — no penalty. Clear a round and a second thread joins. Your progress is saved.';
 
   // ── Tunable constants ──────────────────────────────────────────────────────
 
