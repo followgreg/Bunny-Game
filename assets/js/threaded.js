@@ -139,17 +139,19 @@
 
     bestRound = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
 
-    computeLayout();
-    updateHUD();
-
-    if (bestRound > 0) {
-      resumeRoundEl.textContent = String(bestRound + 1);
-      resumeScreenEl.classList.remove('th-hide');
-    } else {
-      startGame();
-    }
-
     window.addEventListener('resize', computeLayout);
+
+    requestAnimationFrame(function () {
+      computeLayout();
+      updateHUD();
+
+      if (bestRound > 0) {
+        resumeRoundEl.textContent = String(bestRound + 1);
+        resumeScreenEl.classList.remove('th-hide');
+      } else {
+        startGame();
+      }
+    });
   });
 
   // ── Layout ─────────────────────────────────────────────────────────────────
