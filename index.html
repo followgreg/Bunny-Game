@@ -316,6 +316,10 @@
     .lc-threaded { background: #0b1420; border-color: rgba(240,192,64,0.42); }
     .lc-threaded .lobby-card-logo img { filter: brightness(0) invert(1) drop-shadow(0 0 4px rgba(240,192,64,0.65)); }
     .lc-threaded .lobby-card-desc { color: rgba(255,255,255,0.50); }
+
+    .lc-shaded { background: #ffffff; border-color: rgba(0,0,0,0.18); }
+    .lc-shaded .lobby-card-name { color: #111111; }
+    .lc-shaded .lobby-card-desc { color: rgba(0,0,0,0.55); }
   </style>
 </head>
 <body>
@@ -341,6 +345,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-shaded" href="shaded.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/shaded_logo.svg" alt="Shaded">
+        </div>
+        <p class="lobby-card-desc">Five shades. One order. Lightest to darkest.</p>
       </a>
 
       <a class="lobby-card lc-threaded" href="threaded.html">

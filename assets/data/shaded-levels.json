@@ -1,0 +1,852 @@
+[
+  {
+    "level": 1,
+    "correctOrder": [
+      "#43A9D9",
+      "#0081B0",
+      "#005C88",
+      "#003962",
+      "#001B3E"
+    ],
+    "shuffledOrder": [
+      "#003962",
+      "#0081B0",
+      "#43A9D9",
+      "#001B3E",
+      "#005C88"
+    ]
+  },
+  {
+    "level": 2,
+    "correctOrder": [
+      "#FFBCFF",
+      "#FFA8FF",
+      "#EF94FF",
+      "#DA81FF",
+      "#C56EFF"
+    ],
+    "shuffledOrder": [
+      "#FFA8FF",
+      "#FFBCFF",
+      "#C56EFF",
+      "#DA81FF",
+      "#EF94FF"
+    ]
+  },
+  {
+    "level": 3,
+    "correctOrder": [
+      "#FF80FF",
+      "#FF6EF7",
+      "#FF5AE6",
+      "#FD46D4",
+      "#EA2FC3"
+    ],
+    "shuffledOrder": [
+      "#FF5AE6",
+      "#FD46D4",
+      "#FF80FF",
+      "#EA2FC3",
+      "#FF6EF7"
+    ]
+  },
+  {
+    "level": 4,
+    "correctOrder": [
+      "#69F87E",
+      "#56E76F",
+      "#43D861",
+      "#2CC852",
+      "#05B844"
+    ],
+    "shuffledOrder": [
+      "#43D861",
+      "#56E76F",
+      "#05B844",
+      "#69F87E",
+      "#2CC852"
+    ]
+  },
+  {
+    "level": 5,
+    "correctOrder": [
+      "#009805",
+      "#008A00",
+      "#007C00",
+      "#006E00",
+      "#006100"
+    ],
+    "shuffledOrder": [
+      "#007C00",
+      "#006E00",
+      "#008A00",
+      "#009805",
+      "#006100"
+    ]
+  },
+  {
+    "level": 6,
+    "correctOrder": [
+      "#009B28",
+      "#008D1A",
+      "#008108",
+      "#007400",
+      "#006700"
+    ],
+    "shuffledOrder": [
+      "#009B28",
+      "#007400",
+      "#008108",
+      "#006700",
+      "#008D1A"
+    ]
+  },
+  {
+    "level": 7,
+    "correctOrder": [
+      "#30DD9D",
+      "#12D091",
+      "#00C385",
+      "#00B67A",
+      "#00A96E"
+    ],
+    "shuffledOrder": [
+      "#12D091",
+      "#30DD9D",
+      "#00B67A",
+      "#00A96E",
+      "#00C385"
+    ]
+  },
+  {
+    "level": 8,
+    "correctOrder": [
+      "#CF30B8",
+      "#C21DAC",
+      "#B500A0",
+      "#A80094",
+      "#9C0089"
+    ],
+    "shuffledOrder": [
+      "#C21DAC",
+      "#A80094",
+      "#9C0089",
+      "#B500A0",
+      "#CF30B8"
+    ]
+  },
+  {
+    "level": 9,
+    "correctOrder": [
+      "#5AC8FE",
+      "#4CBCF2",
+      "#3BB1E6",
+      "#28A6DA",
+      "#069BCE"
+    ],
+    "shuffledOrder": [
+      "#4CBCF2",
+      "#069BCE",
+      "#3BB1E6",
+      "#5AC8FE",
+      "#28A6DA"
+    ]
+  },
+  {
+    "level": 10,
+    "correctOrder": [
+      "#2CD86F",
+      "#12CC64",
+      "#00C15A",
+      "#00B650",
+      "#00AA46"
+    ],
+    "shuffledOrder": [
+      "#12CC64",
+      "#00AA46",
+      "#2CD86F",
+      "#00C15A",
+      "#00B650"
+    ]
+  },
+  {
+    "level": 11,
+    "correctOrder": [
+      "#37CAEB",
+      "#21C0E0",
+      "#00B5D5",
+      "#00AACA",
+      "#00A0BF"
+    ],
+    "shuffledOrder": [
+      "#00B5D5",
+      "#00A0BF",
+      "#00AACA",
+      "#37CAEB",
+      "#21C0E0"
+    ]
+  },
+  {
+    "level": 12,
+    "correctOrder": [
+      "#A66D00",
+      "#9B6400",
+      "#905A00",
+      "#855200",
+      "#7A4900"
+    ],
+    "shuffledOrder": [
+      "#7A4900",
+      "#A66D00",
+      "#855200",
+      "#9B6400",
+      "#905A00"
+    ]
+  },
+  {
+    "level": 13,
+    "correctOrder": [
+      "#0042B4",
+      "#003AAA",
+      "#0032A0",
+      "#002A96",
+      "#00238D"
+    ],
+    "shuffledOrder": [
+      "#003AAA",
+      "#0042B4",
+      "#0032A0",
+      "#002A96",
+      "#00238D"
+    ]
+  },
+  {
+    "level": 14,
+    "correctOrder": [
+      "#5372F6",
+      "#466AEC",
+      "#3861E2",
+      "#2759D8",
+      "#0C51CE"
+    ],
+    "shuffledOrder": [
+      "#3861E2",
+      "#466AEC",
+      "#5372F6",
+      "#0C51CE",
+      "#2759D8"
+    ]
+  },
+  {
+    "level": 15,
+    "correctOrder": [
+      "#A245FF",
+      "#973BFE",
+      "#8D30F4",
+      "#8225EA",
+      "#7717E0"
+    ],
+    "shuffledOrder": [
+      "#A245FF",
+      "#8D30F4",
+      "#973BFE",
+      "#8225EA",
+      "#7717E0"
+    ]
+  },
+  {
+    "level": 16,
+    "correctOrder": [
+      "#C87FFF",
+      "#BE76FF",
+      "#B46DFF",
+      "#AA64FF",
+      "#A05BFF"
+    ],
+    "shuffledOrder": [
+      "#BE76FF",
+      "#A05BFF",
+      "#B46DFF",
+      "#C87FFF",
+      "#AA64FF"
+    ]
+  },
+  {
+    "level": 17,
+    "correctOrder": [
+      "#FF97FF",
+      "#FF8DFF",
+      "#FF83FF",
+      "#FF79F6",
+      "#FF6FED"
+    ],
+    "shuffledOrder": [
+      "#FF8DFF",
+      "#FF83FF",
+      "#FF6FED",
+      "#FF79F6",
+      "#FF97FF"
+    ]
+  },
+  {
+    "level": 18,
+    "correctOrder": [
+      "#FF8DA9",
+      "#FF83A1",
+      "#FF7A98",
+      "#FF7190",
+      "#FF6788"
+    ],
+    "shuffledOrder": [
+      "#FF6788",
+      "#FF83A1",
+      "#FF8DA9",
+      "#FF7A98",
+      "#FF7190"
+    ]
+  },
+  {
+    "level": 19,
+    "correctOrder": [
+      "#EB455A",
+      "#E13B52",
+      "#D7304B",
+      "#CD2544",
+      "#C3173D"
+    ],
+    "shuffledOrder": [
+      "#CD2544",
+      "#E13B52",
+      "#D7304B",
+      "#C3173D",
+      "#EB455A"
+    ]
+  },
+  {
+    "level": 20,
+    "correctOrder": [
+      "#FF90FF",
+      "#FF87FF",
+      "#F67FFF",
+      "#EC76FF",
+      "#E36DFF"
+    ],
+    "shuffledOrder": [
+      "#E36DFF",
+      "#F67FFF",
+      "#EC76FF",
+      "#FF87FF",
+      "#FF90FF"
+    ]
+  },
+  {
+    "level": 21,
+    "correctOrder": [
+      "#D1662E",
+      "#C75E26",
+      "#BE561F",
+      "#B54F17",
+      "#AC470F"
+    ],
+    "shuffledOrder": [
+      "#BE561F",
+      "#D1662E",
+      "#B54F17",
+      "#C75E26",
+      "#AC470F"
+    ]
+  },
+  {
+    "level": 22,
+    "correctOrder": [
+      "#BD4FF6",
+      "#B446EE",
+      "#AB3EE5",
+      "#A335DD",
+      "#9A2BD4"
+    ],
+    "shuffledOrder": [
+      "#BD4FF6",
+      "#AB3EE5",
+      "#A335DD",
+      "#9A2BD4",
+      "#B446EE"
+    ]
+  },
+  {
+    "level": 23,
+    "correctOrder": [
+      "#6F7100",
+      "#676A00",
+      "#606300",
+      "#585C00",
+      "#525500"
+    ],
+    "shuffledOrder": [
+      "#525500",
+      "#676A00",
+      "#6F7100",
+      "#606300",
+      "#585C00"
+    ]
+  },
+  {
+    "level": 24,
+    "correctOrder": [
+      "#00896F",
+      "#008168",
+      "#007A61",
+      "#00735B",
+      "#006B54"
+    ],
+    "shuffledOrder": [
+      "#008168",
+      "#007A61",
+      "#006B54",
+      "#00896F",
+      "#00735B"
+    ]
+  },
+  {
+    "level": 25,
+    "correctOrder": [
+      "#3F3800",
+      "#3A3200",
+      "#362C00",
+      "#332500",
+      "#311F00"
+    ],
+    "shuffledOrder": [
+      "#311F00",
+      "#332500",
+      "#362C00",
+      "#3A3200",
+      "#3F3800"
+    ]
+  },
+  {
+    "level": 26,
+    "correctOrder": [
+      "#FFB3FF",
+      "#FFABFF",
+      "#FFA4FF",
+      "#FF9CFF",
+      "#F794FF"
+    ],
+    "shuffledOrder": [
+      "#FFABFF",
+      "#F794FF",
+      "#FF9CFF",
+      "#FFA4FF",
+      "#FFB3FF"
+    ]
+  },
+  {
+    "level": 27,
+    "correctOrder": [
+      "#910007",
+      "#890000",
+      "#810000",
+      "#790000",
+      "#710000"
+    ],
+    "shuffledOrder": [
+      "#810000",
+      "#890000",
+      "#710000",
+      "#790000",
+      "#910007"
+    ]
+  },
+  {
+    "level": 28,
+    "correctOrder": [
+      "#7EB9FF",
+      "#76B2FF",
+      "#6EABFF",
+      "#65A4FF",
+      "#5C9DFF"
+    ],
+    "shuffledOrder": [
+      "#6EABFF",
+      "#7EB9FF",
+      "#76B2FF",
+      "#5C9DFF",
+      "#65A4FF"
+    ]
+  },
+  {
+    "level": 29,
+    "correctOrder": [
+      "#004800",
+      "#004100",
+      "#003C00",
+      "#003600",
+      "#003200"
+    ],
+    "shuffledOrder": [
+      "#003200",
+      "#004800",
+      "#003600",
+      "#004100",
+      "#003C00"
+    ]
+  },
+  {
+    "level": 30,
+    "correctOrder": [
+      "#7F44E5",
+      "#773DDD",
+      "#6F36D6",
+      "#6830CF",
+      "#6029C7"
+    ],
+    "shuffledOrder": [
+      "#7F44E5",
+      "#6830CF",
+      "#6029C7",
+      "#6F36D6",
+      "#773DDD"
+    ]
+  },
+  {
+    "level": 31,
+    "correctOrder": [
+      "#E7D021",
+      "#DFC915",
+      "#D7C202",
+      "#D0BC00",
+      "#C8B500"
+    ],
+    "shuffledOrder": [
+      "#D0BC00",
+      "#DFC915",
+      "#E7D021",
+      "#C8B500",
+      "#D7C202"
+    ]
+  },
+  {
+    "level": 32,
+    "correctOrder": [
+      "#006F80",
+      "#00687A",
+      "#006273",
+      "#005C6D",
+      "#005667"
+    ],
+    "shuffledOrder": [
+      "#00687A",
+      "#006F80",
+      "#005C6D",
+      "#005667",
+      "#006273"
+    ]
+  },
+  {
+    "level": 33,
+    "correctOrder": [
+      "#FF5F5B",
+      "#FF5855",
+      "#F7514F",
+      "#EF4A4A",
+      "#E74244"
+    ],
+    "shuffledOrder": [
+      "#EF4A4A",
+      "#F7514F",
+      "#FF5F5B",
+      "#E74244",
+      "#FF5855"
+    ]
+  },
+  {
+    "level": 34,
+    "correctOrder": [
+      "#4CB7EB",
+      "#43B0E4",
+      "#39AADD",
+      "#2FA3D6",
+      "#229DCF"
+    ],
+    "shuffledOrder": [
+      "#43B0E4",
+      "#39AADD",
+      "#4CB7EB",
+      "#229DCF",
+      "#2FA3D6"
+    ]
+  },
+  {
+    "level": 35,
+    "correctOrder": [
+      "#3CAEF4",
+      "#31A7ED",
+      "#23A1E6",
+      "#109BDF",
+      "#0094D8"
+    ],
+    "shuffledOrder": [
+      "#109BDF",
+      "#23A1E6",
+      "#3CAEF4",
+      "#0094D8",
+      "#31A7ED"
+    ]
+  },
+  {
+    "level": 36,
+    "correctOrder": [
+      "#4878FA",
+      "#3F72F3",
+      "#346DEC",
+      "#2867E6",
+      "#1861DF"
+    ],
+    "shuffledOrder": [
+      "#1861DF",
+      "#2867E6",
+      "#4878FA",
+      "#346DEC",
+      "#3F72F3"
+    ]
+  },
+  {
+    "level": 37,
+    "correctOrder": [
+      "#007200",
+      "#006C00",
+      "#006600",
+      "#006000",
+      "#005A00"
+    ],
+    "shuffledOrder": [
+      "#006000",
+      "#006C00",
+      "#007200",
+      "#006600",
+      "#005A00"
+    ]
+  },
+  {
+    "level": 38,
+    "correctOrder": [
+      "#F2B1FF",
+      "#EBABFF",
+      "#E4A5FF",
+      "#DC9EFF",
+      "#D598FF"
+    ],
+    "shuffledOrder": [
+      "#E4A5FF",
+      "#F2B1FF",
+      "#EBABFF",
+      "#D598FF",
+      "#DC9EFF"
+    ]
+  },
+  {
+    "level": 39,
+    "correctOrder": [
+      "#FD4348",
+      "#F63B43",
+      "#EE333E",
+      "#E72B39",
+      "#E02133"
+    ],
+    "shuffledOrder": [
+      "#FD4348",
+      "#E72B39",
+      "#EE333E",
+      "#E02133",
+      "#F63B43"
+    ]
+  },
+  {
+    "level": 40,
+    "correctOrder": [
+      "#CF84FF",
+      "#C87EFF",
+      "#C178FF",
+      "#BA72FF",
+      "#B36CFF"
+    ],
+    "shuffledOrder": [
+      "#C87EFF",
+      "#B36CFF",
+      "#C178FF",
+      "#CF84FF",
+      "#BA72FF"
+    ]
+  },
+  {
+    "level": 41,
+    "correctOrder": [
+      "#6CBC00",
+      "#66B500",
+      "#5FAF00",
+      "#59A900",
+      "#52A300"
+    ],
+    "shuffledOrder": [
+      "#6CBC00",
+      "#52A300",
+      "#5FAF00",
+      "#66B500",
+      "#59A900"
+    ]
+  },
+  {
+    "level": 42,
+    "correctOrder": [
+      "#4CEB58",
+      "#43E552",
+      "#3ADF4C",
+      "#30D846",
+      "#24D240"
+    ],
+    "shuffledOrder": [
+      "#24D240",
+      "#4CEB58",
+      "#30D846",
+      "#3ADF4C",
+      "#43E552"
+    ]
+  },
+  {
+    "level": 43,
+    "correctOrder": [
+      "#00515B",
+      "#004B56",
+      "#004651",
+      "#00414C",
+      "#003C47"
+    ],
+    "shuffledOrder": [
+      "#004651",
+      "#004B56",
+      "#00515B",
+      "#00414C",
+      "#003C47"
+    ]
+  },
+  {
+    "level": 44,
+    "correctOrder": [
+      "#F7543A",
+      "#F04E35",
+      "#E94830",
+      "#E2412B",
+      "#DB3B26"
+    ],
+    "shuffledOrder": [
+      "#DB3B26",
+      "#F04E35",
+      "#E2412B",
+      "#E94830",
+      "#F7543A"
+    ]
+  },
+  {
+    "level": 45,
+    "correctOrder": [
+      "#004D6B",
+      "#004865",
+      "#004360",
+      "#003E5B",
+      "#003956"
+    ],
+    "shuffledOrder": [
+      "#003956",
+      "#004360",
+      "#004865",
+      "#003E5B",
+      "#004D6B"
+    ]
+  },
+  {
+    "level": 46,
+    "correctOrder": [
+      "#C59E14",
+      "#BF9809",
+      "#B89300",
+      "#B28E00",
+      "#AC8800"
+    ],
+    "shuffledOrder": [
+      "#B28E00",
+      "#AC8800",
+      "#BF9809",
+      "#C59E14",
+      "#B89300"
+    ]
+  },
+  {
+    "level": 47,
+    "correctOrder": [
+      "#D30039",
+      "#CD0035",
+      "#C60030",
+      "#C0002C",
+      "#B90028"
+    ],
+    "shuffledOrder": [
+      "#CD0035",
+      "#D30039",
+      "#C60030",
+      "#B90028",
+      "#C0002C"
+    ]
+  },
+  {
+    "level": 48,
+    "correctOrder": [
+      "#2EBA00",
+      "#23B400",
+      "#16AE00",
+      "#00A900",
+      "#00A300"
+    ],
+    "shuffledOrder": [
+      "#00A900",
+      "#16AE00",
+      "#2EBA00",
+      "#23B400",
+      "#00A300"
+    ]
+  },
+  {
+    "level": 49,
+    "correctOrder": [
+      "#C0EA2C",
+      "#BAE423",
+      "#B4DF1A",
+      "#AED90C",
+      "#A9D300"
+    ],
+    "shuffledOrder": [
+      "#C0EA2C",
+      "#AED90C",
+      "#B4DF1A",
+      "#BAE423",
+      "#A9D300"
+    ]
+  },
+  {
+    "level": 50,
+    "correctOrder": [
+      "#008F00",
+      "#008A00",
+      "#008500",
+      "#007F00",
+      "#007A00"
+    ],
+    "shuffledOrder": [
+      "#008A00",
+      "#007A00",
+      "#008F00",
+      "#007F00",
+      "#008500"
+    ]
+  }
+]

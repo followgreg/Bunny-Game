@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS_TEXT = 'Five color bars are shown in a shuffled order. Drag them to arrange the shades from lightest on the left to darkest on the right. The puzzle solves the instant the order is correct — no submit button needed. There are 50 levels; each one makes the shades harder to tell apart.';
+  var DIRECTIONS_TEXT = 'Shaded gives you five bars, all the same color, all different shades. Drag them into order — lightest on one side, darkest on the other. The moment you\'ve got it right, you\'ll know. As you go, the shades get closer and closer together. By the end, you\'ll really need to look.';
 
   var LS_KEY = 'shaded_highestLevel';
   var N       = 5;
