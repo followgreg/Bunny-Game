@@ -166,3 +166,56 @@
 
 .sp-btn-ghost:hover  { border-color: #888; color: #333; }
 .sp-btn-ghost:active { background: rgba(0,0,0,0.04); }
+
+/* ── Hint bar ──────────────────────────────────────────────────────────────── */
+
+#sp-hint-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-hint-btns {
+  display: flex;
+  gap: 10px;
+}
+
+#sp-hint-btn,
+#sp-superhint-btn {
+  background: transparent;
+  border: 1px solid #bbb8b2;
+  color: #55524c;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+#sp-hint-btn:hover,
+#sp-superhint-btn:hover { border-color: #888; color: #333; }
+
+#sp-hint-btn:active,
+#sp-superhint-btn:active { background: rgba(0,0,0,0.04); }
+
+#sp-hint-msg {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1c1c1c;
+  min-height: 1.2em;
+}
+
+/* Super-hint: correct tile highlight */
+.sp-tile--correct {
+  outline: 3px solid rgba(34, 197, 94, 0.9);
+  outline-offset: -3px;
+  position: relative;
+  z-index: 1;
+}

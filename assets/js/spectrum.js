@@ -272,18 +272,41 @@
     }
   }
 
+  // ── Hint helpers ─────────────────────────────────────────────────────────────
+
+  function countCorrect() {
+    var n = 0;
+    for (var r = 0; r < ROWS; r++)
+      for (var c = 0; c < COLS; c++)
+        if (field.board[r][c] === r * COLS + c) n++;
+    return n;
+  }
+
+  function clearSuperhint() {
+    if (superhintTimer) { clearTimeout(superhintTimer); superhintTimer = null; }
+    document.querySelectorAll('.sp-tile--correct').forEach(function (el) {
+      el.classList.remove('sp-tile--correct');
+    });
+  }
+
   // ── DOM bootstrap ─────────────────────────────────────────────────────────────
 
-  var splashEl, startBtn, gridWrap, gridEl, winEl, shareBtn, replayBtn;
+  var splashEl, startBtn, gridWrap, gridEl, winEl, shareBtn, replayBtn,
+      hintBar, hintBtn, superhintBtn, hintMsg;
+  var superhintTimer = null;
 
   document.addEventListener('DOMContentLoaded', function () {
-    splashEl  = document.getElementById('sp-splash');
-    startBtn  = document.getElementById('sp-start-btn');
-    gridWrap  = document.getElementById('sp-grid-wrap');
-    gridEl    = document.getElementById('sp-grid');
-    winEl     = document.getElementById('sp-win');
-    shareBtn  = document.getElementById('sp-share-btn');
-    replayBtn = document.getElementById('sp-replay-btn');
+    splashEl     = document.getElementById('sp-splash');
+    startBtn     = document.getElementById('sp-start-btn');
+    gridWrap     = document.getElementById('sp-grid-wrap');
+    gridEl       = document.getElementById('sp-grid');
+    winEl        = document.getElementById('sp-win');
+    shareBtn     = document.getElementById('sp-share-btn');
+    replayBtn    = document.getElementById('sp-replay-btn');
+    hintBar      = document.getElementById('sp-hint-bar');
+    hintBtn      = document.getElementById('sp-hint-btn');
+    superhintBtn = document.getElementById('sp-superhint-btn');
+    hintMsg      = document.getElementById('sp-hint-msg');
 
     // Populate directions text on both splash and ? overlay
     var dirSplash = document.getElementById('sp-directions');
@@ -298,6 +321,8 @@
       renderGrid(field);
       splashEl.classList.add('sp-hide');
       gridWrap.classList.remove('sp-hide');
+      hintBar.classList.remove('sp-hide');
+      hintMsg.textContent = '';
     });
 
     // Tile tap — event delegation on the grid
@@ -316,6 +341,30 @@
       winEl.classList.add('sp-hide');
       field = generateField();
       renderGrid(field);
+      hintMsg.textContent = '';
+    });
+
+    // Hint — count correct tiles
+    hintBtn.addEventListener('click', function () {
+      clearSuperhint();
+      var correct = countCorrect();
+      hintMsg.textContent = correct + ' / 25 correct';
+    });
+
+    // Super Hint — highlight correct tiles for 2s
+    superhintBtn.addEventListener('click', function () {
+      clearSuperhint();
+      hintMsg.textContent = '';
+      var correct = 0;
+      for (var r = 0; r < ROWS; r++) {
+        for (var c = 0; c < COLS; c++) {
+          if (field.board[r][c] === r * COLS + c) {
+            correct++;
+            tileElAt(r, c).classList.add('sp-tile--correct');
+          }
+        }
+      }
+      superhintTimer = setTimeout(clearSuperhint, 2000);
     });
   });
 
