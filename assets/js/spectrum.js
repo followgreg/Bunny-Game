@@ -9,7 +9,7 @@
   var DIST_MIN = 8;   // minimum Euclidean RGB distance between any two tiles
   var GAP = 4;        // px gap between tiles in the grid
 
-  var DIRECTIONS_TEXT = 'Spectrum gives you a 5×5 grid of colored tiles, all slightly out of place. Ten tiles are already locked in their correct positions — use them as reference points. Click any free tile to select it, then click another to swap their positions. Keep rearranging until the colors flow smoothly across the whole grid. When every tile is exactly where it belongs, you\'ll know.';
+  var DIRECTIONS_TEXT = 'Spectrum gives you a 5×5 grid of colored tiles, all slightly out of place. Five tiles are already locked in their correct positions — use them as reference points. Click any free tile to select it, then click another to swap their positions. Keep rearranging until the colors flow smoothly across the whole grid. When every tile is exactly where it belongs, you\'ll know.';
 
   // ── Utilities ─────────────────────────────────────────────────────────────────
 
