@@ -113,29 +113,18 @@
   }
 
   // ── Anchor selection ──────────────────────────────────────────────────────────
-  // One zone per row — 2 anchors per row × 5 rows = 10 total, one per row guaranteed.
+  // Fixed anchors: four corners + center — same every game.
 
-  var ZONES = [
-    [0, 1, 0, 5],
-    [1, 2, 0, 5],
-    [2, 3, 0, 5],
-    [3, 4, 0, 5],
-    [4, 5, 0, 5],
-  ];
+  var ANCHOR_IDS = new Set([
+    0 * COLS + 0,   // (0,0) top-left
+    0 * COLS + 4,   // (0,4) top-right
+    2 * COLS + 2,   // (2,2) center
+    4 * COLS + 0,   // (4,0) bottom-left
+    4 * COLS + 4,   // (4,4) bottom-right
+  ]);
 
   function selectAnchors(tiles) {
-    var anchored = new Set();
-    // 2 anchors per row × 5 rows = 10 total
-    ZONES.forEach(function (z) {
-      var pool = [];
-      for (var r = z[0]; r < z[1]; r++)
-        for (var c = z[2]; c < z[3]; c++)
-          pool.push(r * COLS + c);
-      shuffle(pool);
-      anchored.add(pool[0]);
-      anchored.add(pool[1]);
-    });
-    tiles.forEach(function (t) { t.isAnchor = anchored.has(t.id); });
+    tiles.forEach(function (t) { t.isAnchor = ANCHOR_IDS.has(t.id); });
   }
 
   // ── Board layout ──────────────────────────────────────────────────────────────
