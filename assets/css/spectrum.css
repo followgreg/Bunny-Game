@@ -104,55 +104,41 @@
   position: relative;
 }
 
-/* Win overlay (Part 4) */
-#sp-win {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(245, 242, 237, 0.88);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 10;
-  padding: 24px;
+/* Canvas column layout for win-bar + grid stacking */
+#canvas-wrap {
+  flex-direction: column;
+  gap: 16px;
 }
 
-#sp-win.sp-hide { display: none !important; }
-
-.sp-win-inner {
+/* Win bar — sits above the grid on completion */
+#sp-win {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   text-align: center;
-  max-width: 300px;
 }
 
 .sp-win-headline {
   font-family: 'DM Sans', sans-serif;
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #1c1c1c;
 }
 
-.sp-win-body {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.88rem;
-  color: #55524c;
-  line-height: 1.6;
-  margin-bottom: 8px;
+.sp-win-btns {
+  display: flex;
+  gap: 10px;
 }
 
 .sp-btn-primary {
-  width: 100%;
   background: #1c1c1c;
   color: #fff;
-  padding: 13px 0;
+  padding: 11px 24px;
   border: none;
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -164,14 +150,13 @@
 .sp-btn-primary:active { opacity: 0.65; }
 
 .sp-btn-ghost {
-  width: 100%;
   background: transparent;
   border: 1px solid #bbb8b2;
   color: #55524c;
-  padding: 12px 0;
+  padding: 11px 24px;
   border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;

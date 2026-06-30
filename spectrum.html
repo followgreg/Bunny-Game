@@ -58,19 +58,18 @@
     <button id="sp-start-btn">Start</button>
   </div>
 
+  <!-- Win bar (shown above the grid on completion) -->
+  <div id="sp-win" class="sp-hide">
+    <p class="sp-win-headline">Sorted!</p>
+    <div class="sp-win-btns">
+      <button class="sp-btn-ghost"   id="sp-replay-btn">New Puzzle</button>
+      <button class="sp-btn-primary" id="sp-share-btn">Share</button>
+    </div>
+  </div>
+
   <!-- Puzzle grid (hidden until Start is tapped) -->
   <div id="sp-grid-wrap" class="sp-hide">
     <div id="sp-grid"></div>
-  </div>
-
-  <!-- Win overlay (shown on completion, Part 4) -->
-  <div id="sp-win" class="sp-hide">
-    <div class="sp-win-inner">
-      <p class="sp-win-headline">Sorted!</p>
-      <p class="sp-win-body">Every tile in its place.</p>
-      <button class="sp-btn-primary" id="sp-share-btn">Share</button>
-      <button class="sp-btn-ghost"   id="sp-replay-btn">New Puzzle</button>
-    </div>
   </div>
 
 </div>
