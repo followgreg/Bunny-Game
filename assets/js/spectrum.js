@@ -5,7 +5,9 @@
 
   var ROWS = 5, COLS = 5;
   var N_ANCHORS = 10;
-  var SAT = 70;       // fixed HSL saturation (%)
+  var SAT_MIN = 35, SAT_MAX = 50;  // per-puzzle saturation range (%)
+  var VAL_LO = 25, VAL_HI = 75;   // lightness clamp — avoids harsh near-black/white
+  var HUE_ARC_MIN = 50, HUE_ARC_MAX = 70; // total hue sweep across the grid (°)
   var DIST_MIN = 8;   // minimum Euclidean RGB distance between any two tiles
   var GAP = 4;        // px gap between tiles in the grid
 
@@ -53,8 +55,8 @@
   // Coefficient constraints ensure a non-trivial diagonal gradient.
 
   function tryCoefficients() {
-    var a1 = rand(-40, 40), b1 = rand(-40, 40), c1 = rand(0, 360);
-    var a2 = rand(-7, 7),   b2 = rand(-7, 7),   c2 = rand(25, 75);
+    var a1 = rand(-20, 20), b1 = rand(-20, 20), c1 = rand(0, 360);
+    var a2 = rand(-7, 7),   b2 = rand(-7, 7),   c2 = rand(35, 65);
 
     if (Math.abs(a1) < 4 && Math.abs(b1) < 4) return null;
     if (Math.abs(a2) < 0.8 && Math.abs(b2) < 0.8) return null;
@@ -64,7 +66,7 @@
     for (var r = 0; r < ROWS; r++) {
       for (var c = 0; c < COLS; c++) {
         var rh = a1 * c + b1 * r;
-        var v  = Math.min(90, Math.max(10, a2 * c + b2 * r + c2));
+        var v  = Math.min(VAL_HI, Math.max(VAL_LO, a2 * c + b2 * r + c2));
         if (rh < rhMin) rhMin = rh;
         if (rh > rhMax) rhMax = rh;
         if (v  < vMin)  vMin  = v;
@@ -72,20 +74,21 @@
       }
     }
 
-    if (rhMax - rhMin < 120) return null;
-    if (vMax  - vMin  <  30) return null;
+    if (rhMax - rhMin < HUE_ARC_MIN) return null;
+    if (rhMax - rhMin > HUE_ARC_MAX) return null;
+    if (vMax  - vMin  < 30) return null;
 
     return { a1: a1, b1: b1, c1: c1, a2: a2, b2: b2, c2: c2,
              hueSpan: rhMax - rhMin, valSpan: vMax - vMin };
   }
 
-  function computeTiles(co) {
+  function computeTiles(co, sat) {
     var tiles = [];
     for (var r = 0; r < ROWS; r++) {
       for (var c = 0; c < COLS; c++) {
         var hue = ((co.a1 * c + co.b1 * r + co.c1) % 360 + 360) % 360;
-        var val = Math.min(90, Math.max(10, co.a2 * c + co.b2 * r + co.c2));
-        var rgb = hslToRgb(hue, SAT, val);
+        var val = Math.min(VAL_HI, Math.max(VAL_LO, co.a2 * c + co.b2 * r + co.c2));
+        var rgb = hslToRgb(hue, sat, val);
         tiles.push({
           id:       r * COLS + c,
           correctR: r,
@@ -159,16 +162,17 @@
   // ── generateField ─────────────────────────────────────────────────────────────
 
   function generateField() {
-    for (var attempt = 0; attempt < 100; attempt++) {
+    var sat = SAT_MIN + Math.random() * (SAT_MAX - SAT_MIN);
+    for (var attempt = 0; attempt < 200; attempt++) {
       var co = tryCoefficients();
       if (!co) continue;
-      var tiles = computeTiles(co);
+      var tiles = computeTiles(co, sat);
       if (minPairDist(tiles) < DIST_MIN) continue;
       selectAnchors(tiles);
       var bd = buildBoard(tiles);
       return { tiles: tiles, board: bd.board, freePos: bd.freePos, freeIds: bd.freeIds, coeffs: co };
     }
-    throw new Error('Spectrum: failed to generate a valid field in 100 attempts');
+    throw new Error('Spectrum: failed to generate a valid field in 200 attempts');
   }
 
   // ── Tile size calculation ─────────────────────────────────────────────────────
