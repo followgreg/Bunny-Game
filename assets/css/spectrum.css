@@ -56,6 +56,14 @@
 #sp-start-btn:hover  { opacity: 0.82; }
 #sp-start-btn:active { opacity: 0.65; }
 
+/* ── Game logo ──────────────────────────────────────────────────────────────── */
+
+#sp-game-logo {
+  width: 160px;
+  height: auto;
+  display: block;
+}
+
 /* ── Grid wrapper ──────────────────────────────────────────────────────────── */
 
 #sp-grid-wrap {

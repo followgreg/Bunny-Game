@@ -311,6 +311,7 @@
     hintBtn      = document.getElementById('sp-hint-btn');
     superhintBtn = document.getElementById('sp-superhint-btn');
     hintMsg      = document.getElementById('sp-hint-msg');
+    var gameLogo = document.getElementById('sp-game-logo');
 
     // Populate directions text on both splash and ? overlay
     var dirSplash = document.getElementById('sp-directions');
@@ -324,6 +325,7 @@
       field = generateField();
       renderGrid(field);
       splashEl.classList.add('sp-hide');
+      gameLogo.classList.remove('sp-hide');
       gridWrap.classList.remove('sp-hide');
       hintBar.classList.remove('sp-hide');
       hintMsg.textContent = '';
