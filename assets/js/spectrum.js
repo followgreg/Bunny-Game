@@ -4,7 +4,7 @@
   // ── Constants ─────────────────────────────────────────────────────────────────
 
   var ROWS = 10, COLS = 10;
-  var N_ANCHORS = 10;
+  var N_ANCHORS = 50;
   var SAT = 70;       // fixed HSL saturation (%)
   var DIST_MIN = 8;   // minimum Euclidean RGB distance between any two tiles
   var GAP = 2;        // px gap between tiles in the grid
@@ -124,19 +124,20 @@
 
   function selectAnchors(tiles) {
     var anchored = new Set();
+    // 5 anchors per zone × 9 zones = 45, then 5 random extras = 50 total
     ZONES.forEach(function (z) {
       var pool = [];
       for (var r = z[0]; r < z[1]; r++)
         for (var c = z[2]; c < z[3]; c++)
           pool.push(r * COLS + c);
       shuffle(pool);
-      anchored.add(pool[0]);
+      for (var i = 0; i < Math.min(5, pool.length); i++) anchored.add(pool[i]);
     });
     var spare = [];
     for (var id = 0; id < ROWS * COLS; id++)
       if (!anchored.has(id)) spare.push(id);
     shuffle(spare);
-    anchored.add(spare[0]);
+    for (var j = 0; j < 5; j++) anchored.add(spare[j]);
     tiles.forEach(function (t) { t.isAnchor = anchored.has(t.id); });
   }
 
