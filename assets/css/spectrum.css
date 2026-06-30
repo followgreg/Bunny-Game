@@ -1,0 +1,183 @@
+/* ── Spectrum ──────────────────────────────────────────────────────────────── */
+
+/* Light neutral canvas — overrides shared.css dark default */
+#canvas-wrap {
+  background: #f5f2ed;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sp-hide { display: none !important; }
+
+/* ── Splash screen ──────────────────────────────────────────────────────────── */
+
+#sp-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  padding: 32px 28px;
+  max-width: 420px;
+  margin: auto;
+}
+
+#sp-logo {
+  width: 260px;
+  height: auto;
+  display: block;
+}
+
+.sp-directions {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.72;
+  color: #55524c;
+  max-width: 300px;
+}
+
+#sp-start-btn {
+  margin-top: 6px;
+  background: #1c1c1c;
+  color: #ffffff;
+  padding: 13px 52px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+#sp-start-btn:hover  { opacity: 0.82; }
+#sp-start-btn:active { opacity: 0.65; }
+
+/* ── Grid wrapper ──────────────────────────────────────────────────────────── */
+
+#sp-grid-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Grid ──────────────────────────────────────────────────────────────────── */
+
+#sp-grid {
+  display: grid;
+  /* grid-template-columns / rows set inline by JS via tile size */
+  gap: 2px;
+}
+
+/* ── Tile base ─────────────────────────────────────────────────────────────── */
+
+.sp-tile {
+  border-radius: 2px;
+  /* background-color set inline by JS */
+}
+
+/* Anchor: subtle inset border — indicates "locked in place" */
+.sp-tile--anchor {
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.38);
+  cursor: default;
+}
+
+/* Free tile: interactive */
+.sp-tile--free {
+  cursor: pointer;
+  transition: filter 0.08s, box-shadow 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sp-tile--free:hover {
+  filter: brightness(1.10);
+}
+
+/* Selected tile: bright white outline */
+.sp-tile--selected {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(0, 0, 0, 0.7);
+  filter: brightness(1.08);
+  z-index: 1;
+  position: relative;
+}
+
+/* Win overlay (Part 4) */
+#sp-win {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 242, 237, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 10;
+  padding: 24px;
+}
+
+#sp-win.sp-hide { display: none !important; }
+
+.sp-win-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  max-width: 300px;
+}
+
+.sp-win-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #1c1c1c;
+}
+
+.sp-win-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: #55524c;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.sp-btn-primary {
+  width: 100%;
+  background: #1c1c1c;
+  color: #fff;
+  padding: 13px 0;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+.sp-btn-primary:hover  { opacity: 0.82; }
+.sp-btn-primary:active { opacity: 0.65; }
+
+.sp-btn-ghost {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #bbb8b2;
+  color: #55524c;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.sp-btn-ghost:hover  { border-color: #888; color: #333; }
+.sp-btn-ghost:active { background: rgba(0,0,0,0.04); }
