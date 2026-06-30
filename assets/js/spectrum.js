@@ -3,14 +3,13 @@
 
   // ── Constants ─────────────────────────────────────────────────────────────────
 
-  var ROWS = 10, COLS = 10;
-  var N_ANCHORS = 50;
+  var ROWS = 5, COLS = 5;
+  var N_ANCHORS = 10;
   var SAT = 70;       // fixed HSL saturation (%)
   var DIST_MIN = 8;   // minimum Euclidean RGB distance between any two tiles
-  var GAP = 2;        // px gap between tiles in the grid
+  var GAP = 4;        // px gap between tiles in the grid
 
-  // Directions text — finalised in Part 5
-  var DIRECTIONS_TEXT = 'Spectrum gives you a 10×10 grid of colored tiles, all slightly out of place. Ten tiles are already locked in their correct positions — use them as reference points. Click any free tile to select it, then click another to swap their positions. Keep rearranging until the colors flow smoothly across the whole grid. When every tile is exactly where it belongs, you\'ll know.';
+  var DIRECTIONS_TEXT = 'Spectrum gives you a 5×5 grid of colored tiles, all slightly out of place. Ten tiles are already locked in their correct positions — use them as reference points. Click any free tile to select it, then click another to swap their positions. Keep rearranging until the colors flow smoothly across the whole grid. When every tile is exactly where it belongs, you\'ll know.';
 
   // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -50,7 +49,7 @@
   //   hue(x, y)   = (a1·x + b1·y + c1) mod 360
   //   value(x, y) = clamp(a2·x + b2·y + c2, 10, 90)
   //
-  // x = column (0–9), y = row (0–9).
+  // x = column (0–4), y = row (0–4).
   // Coefficient constraints ensure a non-trivial diagonal gradient.
 
   function tryCoefficients() {
@@ -114,30 +113,28 @@
   }
 
   // ── Anchor selection ──────────────────────────────────────────────────────────
-  // 3×3 zone layout guarantees spatial spread.
+  // One zone per row — 2 anchors per row × 5 rows = 10 total, one per row guaranteed.
 
   var ZONES = [
-    [0, 3, 0, 3],  [0, 3, 3, 6],  [0, 3, 6, 10],
-    [3, 6, 0, 3],  [3, 6, 3, 6],  [3, 6, 6, 10],
-    [6, 10, 0, 3], [6, 10, 3, 6], [6, 10, 6, 10],
+    [0, 1, 0, 5],
+    [1, 2, 0, 5],
+    [2, 3, 0, 5],
+    [3, 4, 0, 5],
+    [4, 5, 0, 5],
   ];
 
   function selectAnchors(tiles) {
     var anchored = new Set();
-    // 5 anchors per zone × 9 zones = 45, then 5 random extras = 50 total
+    // 2 anchors per row × 5 rows = 10 total
     ZONES.forEach(function (z) {
       var pool = [];
       for (var r = z[0]; r < z[1]; r++)
         for (var c = z[2]; c < z[3]; c++)
           pool.push(r * COLS + c);
       shuffle(pool);
-      for (var i = 0; i < Math.min(5, pool.length); i++) anchored.add(pool[i]);
+      anchored.add(pool[0]);
+      anchored.add(pool[1]);
     });
-    var spare = [];
-    for (var id = 0; id < ROWS * COLS; id++)
-      if (!anchored.has(id)) spare.push(id);
-    shuffle(spare);
-    for (var j = 0; j < 5; j++) anchored.add(spare[j]);
     tiles.forEach(function (t) { t.isAnchor = anchored.has(t.id); });
   }
 
@@ -188,11 +185,11 @@
   // ── Tile size calculation ─────────────────────────────────────────────────────
 
   function calcTileSize() {
-    var availW = window.innerWidth - 8;           // 4px each side
-    var availH = window.innerHeight - 48 - 12;   // header + bottom pad
-    var maxFromW = Math.floor((availW - GAP * 9) / 10);
-    var maxFromH = Math.floor((availH - GAP * 9) / 10);
-    return Math.min(maxFromW, maxFromH, 56);      // cap at 56px on large screens
+    var availW = window.innerWidth - 24;          // 12px each side
+    var availH = window.innerHeight - 48 - 24;   // header + bottom pad
+    var maxFromW = Math.floor((availW - GAP * 4) / 5);
+    var maxFromH = Math.floor((availH - GAP * 4) / 5);
+    return Math.min(maxFromW, maxFromH, 120);     // cap at 120px on large screens
   }
 
   // ── Grid rendering ────────────────────────────────────────────────────────────
@@ -203,8 +200,8 @@
   function renderGrid(f) {
     var tileSize = calcTileSize();
 
-    gridEl.style.gridTemplateColumns = 'repeat(10, ' + tileSize + 'px)';
-    gridEl.style.gridTemplateRows    = 'repeat(10, ' + tileSize + 'px)';
+    gridEl.style.gridTemplateColumns = 'repeat(5, ' + tileSize + 'px)';
+    gridEl.style.gridTemplateRows    = 'repeat(5, ' + tileSize + 'px)';
     gridEl.innerHTML = '';
     selectedCell = null;
 
