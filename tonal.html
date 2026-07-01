@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Tonal — a color and sound memory game — Bunny Game</title>
+  <meta name="description" content="Five colors. Five notes. One chord. How well do you hear color?">
+  <meta property="og:title" content="Tonal — Bunny Game">
+  <meta property="og:description" content="Five colors. Five notes. One chord. How well do you hear color?">
+  <meta property="og:url" content="https://www.thebunnygame.com/tonal">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/tonal-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/tonal-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/tonal">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/tonal.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Sine-wave texture overlay (decorative) -->
+  <div id="tn-texture"></div>
+
+  <!-- Splash -->
+  <div id="tn-splash">
+    <img id="tn-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <p id="tn-directions" class="tn-directions"></p>
+    <button id="tn-start-btn">Listen</button>
+  </div>
+
+  <!-- Reveal phase: 5 bars light up one by one -->
+  <div id="tn-reveal" class="tn-hide">
+    <img id="tn-reveal-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <div id="tn-bars-wrap">
+      <div class="tn-bar" id="tn-bar-0"></div>
+      <div class="tn-bar" id="tn-bar-1"></div>
+      <div class="tn-bar" id="tn-bar-2"></div>
+      <div class="tn-bar" id="tn-bar-3"></div>
+      <div class="tn-bar" id="tn-bar-4"></div>
+    </div>
+    <p id="tn-reveal-status" class="tn-status-text"></p>
+  </div>
+
+  <!-- Pick phase: one color picker input per bar -->
+  <div id="tn-pick" class="tn-hide">
+    <img id="tn-pick-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <p class="tn-prompt">Recreate the five colors from memory.</p>
+    <div id="tn-pick-bars-wrap">
+      <div class="tn-pick-bar-col" id="tn-pick-col-0">
+        <input type="color" class="tn-color-input" id="tn-pick-0" value="#808080">
+        <div class="tn-pick-swatch" id="tn-swatch-0" style="background:#808080"></div>
+      </div>
+      <div class="tn-pick-bar-col" id="tn-pick-col-1">
+        <input type="color" class="tn-color-input" id="tn-pick-1" value="#808080">
+        <div class="tn-pick-swatch" id="tn-swatch-1" style="background:#808080"></div>
+      </div>
+      <div class="tn-pick-bar-col" id="tn-pick-col-2">
+        <input type="color" class="tn-color-input" id="tn-pick-2" value="#808080">
+        <div class="tn-pick-swatch" id="tn-swatch-2" style="background:#808080"></div>
+      </div>
+      <div class="tn-pick-bar-col" id="tn-pick-col-3">
+        <input type="color" class="tn-color-input" id="tn-pick-3" value="#808080">
+        <div class="tn-pick-swatch" id="tn-swatch-3" style="background:#808080"></div>
+      </div>
+      <div class="tn-pick-bar-col" id="tn-pick-col-4">
+        <input type="color" class="tn-color-input" id="tn-pick-4" value="#808080">
+        <div class="tn-pick-swatch" id="tn-swatch-4" style="background:#808080"></div>
+      </div>
+    </div>
+    <p class="tn-tap-hint">Tap a bar to pick its color</p>
+    <button id="tn-submit-btn">Submit</button>
+  </div>
+
+  <!-- Result phase -->
+  <div id="tn-result" class="tn-hide">
+    <img id="tn-result-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <div id="tn-result-pairs"></div>
+    <p id="tn-total-score" class="tn-total-score"></p>
+    <p id="tn-bar-scores" class="tn-bar-scores"></p>
+    <div class="tn-result-btns">
+      <button class="tn-btn-ghost"   id="tn-again-btn">Play Again</button>
+      <button class="tn-btn-primary" id="tn-share-btn">Share</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Directions overlay -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/tonal.js"></script>
+</body>
+</html>
