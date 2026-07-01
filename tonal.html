@@ -61,9 +61,9 @@
     <button id="tn-start-btn">Play</button>
   </div>
 
-  <!-- Reveal phase: 5 bars light up one by one -->
+  <!-- Reveal phase: 5 bars light up one by one, then full chord -->
   <div id="tn-reveal" class="tn-hide">
-    <img id="tn-reveal-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <img class="tn-phase-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
     <div id="tn-bars-wrap">
       <div class="tn-bar" id="tn-bar-0"></div>
       <div class="tn-bar" id="tn-bar-1"></div>
@@ -74,39 +74,51 @@
     <p id="tn-reveal-status" class="tn-status-text"></p>
   </div>
 
-  <!-- Pick phase: one color picker input per bar -->
-  <div id="tn-pick" class="tn-hide">
-    <img id="tn-pick-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
-    <p class="tn-prompt">Recreate the five colors from memory.</p>
-    <div id="tn-pick-bars-wrap">
-      <div class="tn-pick-bar-col" id="tn-pick-col-0">
-        <input type="color" class="tn-color-input" id="tn-pick-0" value="#808080">
-        <div class="tn-pick-swatch" id="tn-swatch-0" style="background:#808080"></div>
-      </div>
-      <div class="tn-pick-bar-col" id="tn-pick-col-1">
-        <input type="color" class="tn-color-input" id="tn-pick-1" value="#808080">
-        <div class="tn-pick-swatch" id="tn-swatch-1" style="background:#808080"></div>
-      </div>
-      <div class="tn-pick-bar-col" id="tn-pick-col-2">
-        <input type="color" class="tn-color-input" id="tn-pick-2" value="#808080">
-        <div class="tn-pick-swatch" id="tn-swatch-2" style="background:#808080"></div>
-      </div>
-      <div class="tn-pick-bar-col" id="tn-pick-col-3">
-        <input type="color" class="tn-color-input" id="tn-pick-3" value="#808080">
-        <div class="tn-pick-swatch" id="tn-swatch-3" style="background:#808080"></div>
-      </div>
-      <div class="tn-pick-bar-col" id="tn-pick-col-4">
-        <input type="color" class="tn-color-input" id="tn-pick-4" value="#808080">
-        <div class="tn-pick-swatch" id="tn-swatch-4" style="background:#808080"></div>
-      </div>
-    </div>
-    <p class="tn-tap-hint">Tap a bar to pick its color</p>
-    <button id="tn-submit-btn">Submit</button>
+  <!-- Bar show phase: one bar's color displayed with countdown -->
+  <div id="tn-bar-show" class="tn-hide">
+    <img class="tn-phase-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <p class="tn-bar-label" id="tn-show-label">Bar 1 of 5</p>
+    <div id="tn-show-swatch"></div>
+    <p id="tn-show-countdown" class="tn-countdown"></p>
   </div>
 
-  <!-- Result phase -->
+  <!-- Bar pick phase: native color picker for current bar -->
+  <div id="tn-bar-pick" class="tn-hide">
+    <img class="tn-phase-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <p class="tn-bar-label" id="tn-pick-label">Bar 1 of 5</p>
+    <p class="tn-prompt">What color was it?</p>
+    <div class="tn-picker-wrap">
+      <!-- Hidden input; programmatically .click()-ed to auto-open native picker.
+           iOS Safari blocks .click() on color inputs outside a user gesture —
+           if auto-open is blocked, the large styled swatch below acts as the tap target. -->
+      <input type="color" id="tn-single-input" value="#808080">
+      <div id="tn-single-swatch" class="tn-pick-swatch-large"></div>
+      <p class="tn-tap-hint">Tap to pick color</p>
+    </div>
+    <button id="tn-single-submit">Submit</button>
+  </div>
+
+  <!-- Per-bar result: original vs picked for this bar -->
+  <div id="tn-bar-result" class="tn-hide">
+    <img class="tn-phase-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <p class="tn-bar-label" id="tn-bar-result-label">Bar 1 of 5</p>
+    <p class="tn-bar-score-text" id="tn-bar-score-text"></p>
+    <div class="tn-bar-result-row">
+      <div class="tn-bar-result-col">
+        <p class="tn-result-label">Original</p>
+        <div class="tn-result-bar-tall" id="tn-bar-orig-swatch"></div>
+      </div>
+      <div class="tn-bar-result-col">
+        <p class="tn-result-label">Your Pick</p>
+        <div class="tn-result-bar-tall" id="tn-bar-picked-swatch"></div>
+      </div>
+    </div>
+    <button id="tn-bar-next-btn">Next</button>
+  </div>
+
+  <!-- Final result screen -->
   <div id="tn-result" class="tn-hide">
-    <img id="tn-result-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
+    <img class="tn-phase-logo" src="assets/logos/tonal_logo.svg" alt="Tonal">
     <div id="tn-result-pairs"></div>
     <p id="tn-total-score" class="tn-total-score"></p>
     <p id="tn-bar-scores" class="tn-bar-scores"></p>

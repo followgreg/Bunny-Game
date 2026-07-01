@@ -154,40 +154,74 @@
   opacity: 0.55;
 }
 
-/* ── Pick phase ──────────────────────────────────────────────────────────────── */
+/* ── Phase logo (shown in reveal, bar-show, bar-pick, bar-result, result) ─────── */
 
-#tn-pick {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  z-index: 1;
-}
-
-#tn-pick-logo {
+.tn-phase-logo {
   width: 160px;
   height: auto;
   display: block;
   filter: brightness(0) invert(1);
 }
 
-#tn-pick-bars-wrap {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 12px;
+/* ── Shared bar-label ────────────────────────────────────────────────────────── */
+
+.tn-bar-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
 }
 
-.tn-pick-bar-col {
+/* ── Bar show phase ──────────────────────────────────────────────────────────── */
+
+#tn-bar-show {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  position: relative;
+  gap: 28px;
+  z-index: 1;
+  padding: 0 28px;
 }
 
-/* Hidden color input — tapping the swatch triggers it */
-.tn-color-input {
+#tn-show-swatch {
+  width: 80px;
+  height: 200px;
+  border-radius: 8px;
+}
+
+.tn-countdown {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.02em;
+  min-height: 2.4rem;
+  text-align: center;
+}
+
+/* ── Bar pick phase ──────────────────────────────────────────────────────────── */
+
+#tn-bar-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  z-index: 1;
+  padding: 0 28px;
+}
+
+.tn-picker-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Hidden native color input — auto-opened via .click() */
+#tn-single-input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -195,27 +229,20 @@
   pointer-events: none;
 }
 
-.tn-pick-swatch {
-  width: 44px;
-  height: 160px;
-  border-radius: 6px;
-  background: #1a1a1a;
+.tn-pick-swatch-large {
+  width: 80px;
+  height: 200px;
+  border-radius: 8px;
+  background: #808080;
   cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.1);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  border: 2px solid rgba(255,255,255,0.15);
+  transition: border-color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
-.tn-pick-swatch:hover {
-  border-color: rgba(255,255,255,0.35);
-}
+.tn-pick-swatch-large:hover { border-color: rgba(255,255,255,0.4); }
 
-.tn-pick-swatch--selected {
-  border-color: rgba(255,255,255,0.7);
-  box-shadow: 0 0 12px 2px rgba(255,255,255,0.15);
-}
-
-#tn-submit-btn {
+#tn-single-submit {
   background: rgba(255,255,255,0.08);
   color: rgba(255,255,255,0.9);
   border: 1px solid rgba(255,255,255,0.18);
@@ -231,8 +258,67 @@
   transition: background 0.15s, border-color 0.15s;
 }
 
-#tn-submit-btn:hover  { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); }
-#tn-submit-btn:active { background: rgba(255,255,255,0.05); }
+#tn-single-submit:hover  { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); }
+#tn-single-submit:active { background: rgba(255,255,255,0.05); }
+
+/* ── Per-bar result phase ────────────────────────────────────────────────────── */
+
+#tn-bar-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  z-index: 1;
+  padding: 0 28px;
+}
+
+.tn-bar-score-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.tn-bar-result-row {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.tn-bar-result-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tn-result-bar-tall {
+  width: 80px;
+  height: 160px;
+  border-radius: 8px;
+}
+
+#tn-bar-next-btn {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 13px 52px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#tn-bar-next-btn:hover  { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); }
+#tn-bar-next-btn:active { background: rgba(255,255,255,0.05); }
 
 /* ── Result phase ────────────────────────────────────────────────────────────── */
 
