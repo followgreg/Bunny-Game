@@ -121,14 +121,23 @@
 }
 
 #rc-color-input {
-  width: 140px;
-  height: 80px;
+  width: 200px;
+  height: 100px;
   padding: 4px;
-  border: 2px solid #d0cabf;
-  border-radius: 10px;
+  border: 2px solid #c0b8ad;
+  border-radius: 14px;
   background: #fff;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+.rc-tap-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8a8278;
 }
 
 #rc-submit-btn {

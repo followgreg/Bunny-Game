@@ -105,6 +105,10 @@
     pickLabel.textContent = 'Round ' + num + ' of ' + TOTAL_ROUNDS;
     colorInput.value = '#808080';
     pickEl.classList.remove('rc-hide');
+    // Programmatically open the native color picker. Works on desktop browsers.
+    // iOS Safari blocks .click() on <input type="color"> unless triggered inside
+    // a direct user gesture — if blocked, the large styled input acts as fallback.
+    try { colorInput.click(); } catch (e) { /* iOS blocks non-gesture .click() */ }
   }
 
   function submitPick() {
