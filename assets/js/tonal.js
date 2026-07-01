@@ -1,12 +1,42 @@
 (function () {
   'use strict';
 
+  // ── State machine ─────────────────────────────────────────────────────────────
+
+  var STATES = {
+    SPLASH:             'splash',
+    REVEAL_SEQUENTIAL:  'reveal_sequential',  // bars 1-5 light up one by one
+    REVEAL_CHORD:       'reveal_chord',        // all 5 play together
+    PICK_COUNTDOWN:     'pick_countdown',      // current bar shows with 3-2-1
+    PICK_INPUT:         'pick_input',          // color hidden, picker open
+    PICK_RESULT:        'pick_result',         // per-bar result shown
+    FINAL_CHORD:        'final_chord',         // pitch-shifted chord plays
+    FINAL_RESULT:       'final_result',        // full result screen
+  };
+
+  var currentState = STATES.SPLASH;
+
+  function inState(s) { return currentState === s; }
+
+  function transition(to) {
+    currentState = to;
+  }
+
   // ── Constants ─────────────────────────────────────────────────────────────────
 
   var N_BARS   = 5;
-  var DIST_MIN = 60;   // minimum Euclidean RGB distance between any two bars
+  var DIST_MIN = 60;
 
   var DIRECTIONS_TEXT = 'Tonal shows you five colors, one at a time, each paired with a musical note. Together they form a chord. Then they disappear. Your job is to recreate each color as accurately as you can from memory. When you submit, the chord plays again — but slightly out of tune based on how far off your colors are. The closer your picks, the purer the sound. Five bars, five chances, five hundred points possible.';
+
+  var NOTE_DURATION    = 1500;   // ms per bar during sequential reveal
+  var NOTE_GAP         = 200;    // ms gap between bars
+  var CHORD_PAUSE      = 500;    // ms pause before playing reveal chord
+  var CHORD_DURATION   = 2500;   // ms duration of reveal chord (audio)
+  var FADE_DURATION    = 400;    // ms for bars to fade after reveal chord
+  var RESULT_CHORD_DUR = 4000;   // ms duration of final result chord (audio)
+  var RESULT_CHORD_TAIL= 1200;   // ms extra for delay-node tail to fade
+  var COUNTDOWN_START  = 3;      // seconds shown per bar in PICK_COUNTDOWN
 
   // ── Notes (C major 7 add 9) ───────────────────────────────────────────────────
 
@@ -18,21 +48,18 @@
     { name: 'D5', frequency: 587.33 },
   ];
 
-  // ── Audio context (lazy init on first user gesture) ───────────────────────────
+  // ── Audio ─────────────────────────────────────────────────────────────────────
 
-  var ctx = null;
+  var audioCtx = null;
 
   function getCtx() {
-    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-    if (ctx.state === 'suspended') ctx.resume();
-    return ctx;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
   }
 
-  // ── Pad voice ─────────────────────────────────────────────────────────────────
-
   function createPadVoice(frequency, peakGain, startTime, duration, extraDest) {
-    var c = getCtx();
-
+    var c   = getCtx();
     var env = c.createGain();
     env.gain.setValueAtTime(0, startTime);
     env.gain.linearRampToValueAtTime(peakGain, startTime + 0.1);
@@ -67,7 +94,7 @@
     createPadVoice(NOTES[barIndex].frequency, 0.28, c.currentTime, 1.5);
   }
 
-  function playChord() {
+  function playRevealChord() {
     var c = getCtx();
     var t = c.currentTime;
     NOTES.forEach(function (note) {
@@ -75,21 +102,20 @@
     });
   }
 
-  function shiftedFrequency(baseFreq, accuracyPercent, direction, maxCents) {
-    maxCents = maxCents || 50;
+  function shiftedFrequency(baseFreq, accuracyPercent, direction) {
+    var maxCents = 150;
     var centsOff = (1 - accuracyPercent / 100) * maxCents * direction;
     return baseFreq * Math.pow(2, centsOff / 1200);
   }
 
-  // Result chord: dramatically detuned (maxCents=150), longer (4s), with delay node
-  function playResultChordFinal(scores, directions) {
-    var c = getCtx();
-    var t = c.currentTime;
-    var duration = 4.0;
+  // Final chord: dramatically detuned, longer, with delay-node echo
+  function playFinalChord(scores, directions) {
+    var c        = getCtx();
+    var t        = c.currentTime;
+    var duration = RESULT_CHORD_DUR / 1000;
     var peakGain = 0.264; // 0.22 * 1.2
 
-    // DelayNode for echo effect — result chord only
-    var delay = c.createDelay(1.0);
+    var delay    = c.createDelay(1.0);
     delay.delayTime.setValueAtTime(0.3, t);
     var feedback = c.createGain();
     feedback.gain.setValueAtTime(0.4, t);
@@ -98,7 +124,7 @@
     delay.connect(c.destination);
 
     NOTES.forEach(function (note, i) {
-      var freq = shiftedFrequency(note.frequency, scores[i], directions[i], 150);
+      var freq = shiftedFrequency(note.frequency, scores[i], directions[i]);
       createPadVoice(freq, peakGain, t, duration, delay);
     });
   }
@@ -116,7 +142,7 @@
   }
 
   function toHex(rgb) {
-    return '#' + rgb.map(function (c) { return c.toString(16).padStart(2, '0'); }).join('');
+    return '#' + rgb.map(function (v) { return v.toString(16).padStart(2, '0'); }).join('');
   }
 
   function hexToRgb(hex) {
@@ -133,16 +159,16 @@
   }
 
   function scoreAccuracy(originalHex, pickedHex) {
-    var a = hexToRgb(originalHex);
-    var b = hexToRgb(pickedHex);
+    var a       = hexToRgb(originalHex);
+    var b       = hexToRgb(pickedHex);
     var maxDist = Math.sqrt(255*255 + 255*255 + 255*255);
     return Math.round((1 - rgbDist(a, b) / maxDist) * 100);
   }
 
   function generateColor() {
-    var h = Math.random() * 360;
-    var s = 45 + Math.random() * 40;  // 45-85%
-    var l = 25 + Math.random() * 45;  // 25-70%
+    var h   = Math.random() * 360;
+    var s   = 45 + Math.random() * 40;
+    var l   = 25 + Math.random() * 45;
     var rgb = hslToRgb(h, s, l);
     return { hex: toHex(rgb), rgb: rgb };
   }
@@ -152,11 +178,10 @@
     for (var attempt = 0; attempt < 500; attempt++) {
       colors = [];
       for (var i = 0; i < N_BARS; i++) colors.push(generateColor());
-
       var ok = true;
-      for (var a = 0; a < N_BARS - 1 && ok; a++) {
-        for (var b = a + 1; b < N_BARS && ok; b++) {
-          if (rgbDist(colors[a].rgb, colors[b].rgb) < DIST_MIN) ok = false;
+      outer: for (var a = 0; a < N_BARS - 1; a++) {
+        for (var b = a + 1; b < N_BARS; b++) {
+          if (rgbDist(colors[a].rgb, colors[b].rgb) < DIST_MIN) { ok = false; break outer; }
         }
       }
       if (ok) return colors;
@@ -176,8 +201,13 @@
   var scores      = [];
   var directions  = [];
   var currentBar  = 0;
-  var countdownId = null;
-  var revealTimer = null;
+  var timerId     = null;   // single active timer handle (cleared on reset)
+  var countdownId = null;   // setInterval handle for 3-2-1
+
+  function clearTimers() {
+    if (timerId)     { clearTimeout(timerId);   timerId     = null; }
+    if (countdownId) { clearInterval(countdownId); countdownId = null; }
+  }
 
   // ── DOM refs ──────────────────────────────────────────────────────────────────
 
@@ -188,7 +218,7 @@
       barResultEl, barResultLabel, barScoreLine, barOrigSwatch, barPickedSwatch, barNextBtn,
       resultEl, resultPairsEl, totalScoreEl, barScoresEl, shareBtn, againBtn;
 
-  // ── Phase helpers ─────────────────────────────────────────────────────────────
+  // ── Show/hide helpers ─────────────────────────────────────────────────────────
 
   function hideAll() {
     [splashEl, revealEl, barShowEl, barPickEl, barResultEl, resultEl].forEach(function (el) {
@@ -196,44 +226,31 @@
     });
   }
 
-  // ── Reveal sequence ───────────────────────────────────────────────────────────
+  // ── State: REVEAL_SEQUENTIAL ──────────────────────────────────────────────────
+  // Bars 1-5 light up one by one, each paired with its note.
 
-  var NOTE_DURATION  = 1500;
-  var NOTE_GAP       = 200;
-  var CHORD_PAUSE    = 500;
-  var CHORD_DURATION = 2500;
-  var FADE_DURATION  = 400;
-
-  function startReveal() {
-    colors      = generateColors();
-    pickedHexes = [];
-    scores      = [];
-    directions  = NOTES.map(function () { return Math.random() < 0.5 ? 1 : -1; });
-    currentBar  = 0;
+  function enterRevealSequential() {
+    transition(STATES.REVEAL_SEQUENTIAL);
     hideAll();
 
     barEls.forEach(function (el) {
       el.style.backgroundColor = '#1a1a1a';
-      el.style.opacity = '1';
-      el.style.transition = '';
+      el.style.opacity         = '1';
+      el.style.transition      = '';
       el.classList.remove('tn-bar--active', 'tn-bar--dimmed');
     });
 
     revealStatus.textContent = '';
     revealEl.classList.remove('tn-hide');
-    revealBar(0);
+    revealNextBar(0);
   }
 
-  function revealBar(index) {
+  function revealNextBar(index) {
+    if (!inState(STATES.REVEAL_SEQUENTIAL)) return;
+
     if (index >= N_BARS) {
-      revealStatus.textContent = 'Listen...';
-      revealTimer = setTimeout(function () {
-        playChord();
-        revealStatus.textContent = '';
-        revealTimer = setTimeout(function () {
-          fadeOutAndStartBarFlow();
-        }, CHORD_DURATION);
-      }, CHORD_PAUSE);
+      // All bars revealed — move to chord state
+      enterRevealChord();
       return;
     }
 
@@ -244,108 +261,152 @@
     bar.style.setProperty('--bar-glow', hexToGlow(color.hex));
     bar.classList.add('tn-bar--active');
     bar.classList.remove('tn-bar--dimmed');
-
     playNote(index);
 
-    revealTimer = setTimeout(function () {
+    timerId = setTimeout(function () {
+      if (!inState(STATES.REVEAL_SEQUENTIAL)) return;
       bar.classList.remove('tn-bar--active');
       bar.classList.add('tn-bar--dimmed');
-      revealTimer = setTimeout(function () {
-        revealBar(index + 1);
+      timerId = setTimeout(function () {
+        revealNextBar(index + 1);
       }, NOTE_GAP);
     }, NOTE_DURATION);
   }
 
-  function fadeOutAndStartBarFlow() {
+  // ── State: REVEAL_CHORD ───────────────────────────────────────────────────────
+  // All 5 bars visible (dimmed). Full chord plays. Then bars fade out.
+
+  function enterRevealChord() {
+    transition(STATES.REVEAL_CHORD);
+    // Bars already visible from sequential reveal (dimmed)
+    revealStatus.textContent = 'Listen...';
+
+    timerId = setTimeout(function () {
+      if (!inState(STATES.REVEAL_CHORD)) return;
+      playRevealChord();
+      revealStatus.textContent = '';
+
+      // After chord finishes, fade bars and move to first bar's countdown
+      timerId = setTimeout(function () {
+        if (!inState(STATES.REVEAL_CHORD)) return;
+        fadeBarsOut(function () {
+          enterPickCountdown(0);
+        });
+      }, CHORD_DURATION);
+    }, CHORD_PAUSE);
+  }
+
+  function fadeBarsOut(cb) {
     barEls.forEach(function (el) {
       el.style.transition = 'opacity ' + (FADE_DURATION / 1000) + 's ease';
-      el.style.opacity = '0';
+      el.style.opacity    = '0';
     });
-    setTimeout(function () {
-      startBarFlow(0);
-    }, FADE_DURATION);
+    timerId = setTimeout(cb, FADE_DURATION);
   }
 
-  // ── Bar-by-bar pick flow ──────────────────────────────────────────────────────
+  // ── State: PICK_COUNTDOWN ─────────────────────────────────────────────────────
+  // Current bar's color shown with 3-2-1 countdown. Then color hides, picker opens.
 
-  function startBarFlow(index) {
-    currentBar = index;
-    startBarShow(index);
-  }
-
-  function startBarShow(index) {
+  function enterPickCountdown(barIndex) {
+    transition(STATES.PICK_COUNTDOWN);
+    currentBar = barIndex;
     hideAll();
 
-    showLabel.textContent = 'Bar ' + (index + 1) + ' of ' + N_BARS;
-    showSwatch.style.background = colors[index].hex;
-    showSwatch.style.boxShadow = '0 0 32px 8px ' + hexToGlow(colors[index].hex);
-    showCountdown.textContent = '3';
-
+    showLabel.textContent = 'Bar ' + (barIndex + 1) + ' of ' + N_BARS;
+    showSwatch.style.background  = colors[barIndex].hex;
+    showSwatch.style.boxShadow   = '0 0 32px 8px ' + hexToGlow(colors[barIndex].hex);
+    showCountdown.textContent    = String(COUNTDOWN_START);
     barShowEl.classList.remove('tn-hide');
 
-    var count = 3;
+    var count = COUNTDOWN_START;
     countdownId = setInterval(function () {
+      if (!inState(STATES.PICK_COUNTDOWN)) { clearInterval(countdownId); return; }
       count--;
       if (count <= 0) {
         clearInterval(countdownId);
         countdownId = null;
-        startBarPick(index);
+        enterPickInput(barIndex);
       } else {
         showCountdown.textContent = String(count);
       }
     }, 1000);
   }
 
-  function startBarPick(index) {
+  // ── State: PICK_INPUT ─────────────────────────────────────────────────────────
+  // Color hidden, picker auto-opens. Player chooses a color and hits Submit.
+
+  function enterPickInput(barIndex) {
+    transition(STATES.PICK_INPUT);
     hideAll();
 
-    pickLabel.textContent = 'Bar ' + (index + 1) + ' of ' + N_BARS;
-    singleInput.value = '#808080';
+    pickLabel.textContent      = 'Bar ' + (barIndex + 1) + ' of ' + N_BARS;
+    singleInput.value          = '#808080';
     singleSwatch.style.background = '#808080';
-
     barPickEl.classList.remove('tn-hide');
 
-    // Auto-open native color picker; iOS Safari may block outside user gesture
+    // iOS Safari may block programmatic .click() outside a user gesture;
+    // the large visible swatch below serves as the tap fallback in that case.
     try { singleInput.click(); } catch (e) {}
   }
 
-  function submitBarPick() {
+  function onSubmitPick() {
+    if (!inState(STATES.PICK_INPUT)) return;
+
     var pickedHex = singleInput.value;
+    var score     = scoreAccuracy(colors[currentBar].hex, pickedHex);
     pickedHexes.push(pickedHex);
-    var score = scoreAccuracy(colors[currentBar].hex, pickedHex);
     scores.push(score);
 
-    showBarResult(currentBar, score, pickedHex);
+    enterPickResult(currentBar, score, pickedHex);
   }
 
-  function showBarResult(index, score, pickedHex) {
+  // ── State: PICK_RESULT ────────────────────────────────────────────────────────
+  // Per-bar result: original vs picked swatches + score. Player clicks Next.
+
+  function enterPickResult(barIndex, score, pickedHex) {
+    transition(STATES.PICK_RESULT);
     hideAll();
 
-    barResultLabel.textContent = 'Bar ' + (index + 1) + ' of ' + N_BARS;
-    barScoreLine.textContent   = 'Bar ' + (index + 1) + ': ' + score + '/100';
-    barOrigSwatch.style.background   = colors[index].hex;
-    barPickedSwatch.style.background = pickedHex;
-
-    // Last bar: button says "See Results", otherwise "Next"
-    barNextBtn.textContent = (index === N_BARS - 1) ? 'See Results' : 'Next';
-
+    barResultLabel.textContent          = 'Bar ' + (barIndex + 1) + ' of ' + N_BARS;
+    barScoreLine.textContent            = 'Bar ' + (barIndex + 1) + ': ' + score + '/100';
+    barOrigSwatch.style.background      = colors[barIndex].hex;
+    barPickedSwatch.style.background    = pickedHex;
+    barNextBtn.textContent              = (barIndex === N_BARS - 1) ? 'See Results' : 'Next';
     barResultEl.classList.remove('tn-hide');
   }
 
-  function advanceBar() {
+  function onNextBar() {
+    if (!inState(STATES.PICK_RESULT)) return;
     var next = currentBar + 1;
-    if (next >= N_BARS) {
-      // All bars done — play final chord, then show result screen
-      playResultChordFinal(scores, directions);
-      setTimeout(showFinalResult, 800);
+    if (next < N_BARS) {
+      enterPickCountdown(next);
     } else {
-      startBarFlow(next);
+      enterFinalChord();
     }
   }
 
-  // ── Final result screen ───────────────────────────────────────────────────────
+  // ── State: FINAL_CHORD ────────────────────────────────────────────────────────
+  // Pitch-shifted chord plays. Screen stays blank until chord + tail finish.
+  // Only then does FINAL_RESULT render.
 
-  function showFinalResult() {
+  function enterFinalChord() {
+    transition(STATES.FINAL_CHORD);
+    hideAll();   // blank screen while chord plays
+
+    playFinalChord(scores, directions);
+
+    // Wait for full chord duration plus delay-node tail before showing result
+    timerId = setTimeout(function () {
+      if (!inState(STATES.FINAL_CHORD)) return;
+      enterFinalResult();
+    }, RESULT_CHORD_DUR + RESULT_CHORD_TAIL);
+  }
+
+  // ── State: FINAL_RESULT ───────────────────────────────────────────────────────
+  // All 5 pairs, total score, share + play again.
+
+  function enterFinalResult() {
+    transition(STATES.FINAL_RESULT);
     hideAll();
 
     resultPairsEl.innerHTML = '';
@@ -362,7 +423,7 @@
       resultPairsEl.appendChild(pair);
     });
 
-    var total = scores.reduce(function (s, v) { return s + v; }, 0);
+    var total            = scores.reduce(function (s, v) { return s + v; }, 0);
     totalScoreEl.textContent = 'Total: ' + total + ' / 500';
     barScoresEl.textContent  = scores.map(function (s) { return s + '/100'; }).join('  ·  ');
 
@@ -376,6 +437,25 @@
     };
   }
 
+  // ── Reset / new game ──────────────────────────────────────────────────────────
+
+  function startNewGame() {
+    clearTimers();
+    colors      = generateColors();
+    pickedHexes = [];
+    scores      = [];
+    directions  = NOTES.map(function () { return Math.random() < 0.5 ? 1 : -1; });
+    currentBar  = 0;
+
+    // Reset bar opacity from previous game
+    barEls.forEach(function (el) {
+      el.style.opacity    = '1';
+      el.style.transition = '';
+    });
+
+    enterRevealSequential();
+  }
+
   // ── DOM bootstrap ─────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -384,10 +464,10 @@
     revealEl     = document.getElementById('tn-reveal');
     revealStatus = document.getElementById('tn-reveal-status');
 
-    barShowEl      = document.getElementById('tn-bar-show');
-    showLabel      = document.getElementById('tn-show-label');
-    showSwatch     = document.getElementById('tn-show-swatch');
-    showCountdown  = document.getElementById('tn-show-countdown');
+    barShowEl     = document.getElementById('tn-bar-show');
+    showLabel     = document.getElementById('tn-show-label');
+    showSwatch    = document.getElementById('tn-show-swatch');
+    showCountdown = document.getElementById('tn-show-countdown');
 
     barPickEl    = document.getElementById('tn-bar-pick');
     pickLabel    = document.getElementById('tn-pick-label');
@@ -411,45 +491,41 @@
 
     barEls = [0,1,2,3,4].map(function (i) { return document.getElementById('tn-bar-' + i); });
 
-    // Directions text
     var dirEl = document.getElementById('tn-directions');
     if (dirEl) dirEl.textContent = DIRECTIONS_TEXT;
 
     var helpBtn = document.getElementById('help-btn');
     if (helpBtn) helpBtn.addEventListener('click', function () { openDirections(DIRECTIONS_TEXT); });
 
-    startBtn.addEventListener('click', startReveal);
-    againBtn.addEventListener('click', startReveal);
+    startBtn.addEventListener('click', startNewGame);
+    againBtn.addEventListener('click', startNewGame);
 
-    // Sync swatch preview as color input changes
-    singleInput.addEventListener('input', function () {
-      singleSwatch.style.background = singleInput.value;
-    });
-    singleInput.addEventListener('change', function () {
-      singleSwatch.style.background = singleInput.value;
-    });
+    singleInput.addEventListener('input',  function () { singleSwatch.style.background = singleInput.value; });
+    singleInput.addEventListener('change', function () { singleSwatch.style.background = singleInput.value; });
 
-    // Tap the large visible swatch to open picker (iOS fallback)
+    // Tap large swatch to open picker (iOS fallback)
     singleSwatch.addEventListener('click', function () {
       try { singleInput.click(); } catch (e) {}
     });
 
-    singleSubmit.addEventListener('click', submitBarPick);
-    barNextBtn.addEventListener('click', advanceBar);
+    singleSubmit.addEventListener('click', onSubmitPick);
+    barNextBtn.addEventListener('click', onNextBar);
   });
 
   // ── Exports ───────────────────────────────────────────────────────────────────
 
   window.Tonal = {
-    NOTES:                NOTES,
-    playNote:             playNote,
-    playChord:            playChord,
-    playResultChordFinal: playResultChordFinal,
-    shiftedFrequency:     shiftedFrequency,
-    generateColors:       generateColors,
-    scoreAccuracy:        scoreAccuracy,
-    hexToRgb:             hexToRgb,
-    getCtx:               getCtx,
+    STATES:           STATES,
+    NOTES:            NOTES,
+    playNote:         playNote,
+    playRevealChord:  playRevealChord,
+    playFinalChord:   playFinalChord,
+    shiftedFrequency: shiftedFrequency,
+    generateColors:   generateColors,
+    scoreAccuracy:    scoreAccuracy,
+    hexToRgb:         hexToRgb,
+    getCtx:           getCtx,
+    getState:         function () { return currentState; },
   };
 
 }());
