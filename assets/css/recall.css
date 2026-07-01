@@ -4,7 +4,9 @@
   background: #f5f0e8;
   padding: 0;
   flex-direction: column;
-  gap: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
 }
 
 .rc-hide { display: none !important; }
@@ -89,8 +91,7 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  height: 100%;
-  padding: 28px 24px;
+  padding: 0 24px;
 }
 
 #rc-color-block {
@@ -117,8 +118,7 @@
   align-items: center;
   justify-content: center;
   gap: 24px;
-  height: 100%;
-  padding: 28px 24px;
+  padding: 0 24px;
 }
 
 .rc-picker-wrap {
@@ -174,8 +174,7 @@
   align-items: center;
   justify-content: center;
   gap: 24px;
-  height: 100%;
-  padding: 28px 24px;
+  padding: 0 24px;
 }
 
 .rc-round-score {
@@ -238,8 +237,7 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  height: 100%;
-  padding: 24px 20px;
+  padding: 0 20px;
 }
 
 #rc-total-score {
