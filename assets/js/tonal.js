@@ -6,7 +6,7 @@
   var N_BARS = 5;
   var DIST_MIN = 60;   // minimum Euclidean RGB distance between any two bars
 
-  var DIRECTIONS_TEXT = 'Five colors appear one by one, each paired with a musical note. Listen and look. Then the colors disappear and you recreate all five from memory. Tap each bar to pick its color, then submit. Your score is based on how close each pick is to the original — out of 500 total.';
+  var DIRECTIONS_TEXT = 'Tonal shows you five colors, one at a time, each paired with a musical note. Together they form a chord. Then they disappear. Your job is to recreate each color as accurately as you can from memory. When you submit, the chord plays again — but slightly out of tune based on how far off your colors are. The closer your picks, the purer the sound. Five bars, five chances, five hundred points possible.';
 
   // ── Notes (C major 7 add 9) ───────────────────────────────────────────────────
 
@@ -313,7 +313,7 @@
     // Wire share
     shareBtn.onclick = function () {
       shareText(
-        'Tonal — ' + total + '/500. Can you hear color? https://www.thebunnygame.com/tonal',
+        'Tonal — scored ' + total + '/500. How well do you hear color? https://www.thebunnygame.com/tonal',
         'Tonal — Bunny Game'
       );
     };

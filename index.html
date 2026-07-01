@@ -324,6 +324,11 @@
     .lc-spectrum { background: #f5f2ed; border-color: rgba(0,0,0,0.14); }
     .lc-spectrum .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Tonal: rich black, white logo */
+    .lc-tonal { background: #0a0a0a; border-color: rgba(255,255,255,0.12); }
+    .lc-tonal .lobby-card-logo img { filter: brightness(0) invert(1); }
+    .lc-tonal .lobby-card-desc { color: rgba(255,255,255,0.5); }
+
     /* Recall: warm off-white, dark logo */
     .lc-recall { background: #f5f0e8; border-color: rgba(0,0,0,0.14); }
     .lc-recall .lobby-card-desc { color: rgba(0,0,0,0.55); }
@@ -352,6 +357,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-tonal" href="tonal.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/tonal_logo.svg" alt="Tonal">
+        </div>
+        <p class="lobby-card-desc">See the colors. Hear the chord. Remember both.</p>
       </a>
 
       <a class="lobby-card lc-recall" href="recall.html">
