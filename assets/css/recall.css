@@ -1,0 +1,321 @@
+/* ── Recall ─────────────────────────────────────────────────────────────────── */
+
+#canvas-wrap {
+  background: #f5f0e8;
+  padding: 0;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rc-hide { display: none !important; }
+
+/* ── Shared typography ───────────────────────────────────────────────────────── */
+
+.rc-round-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a8278;
+}
+
+.rc-prompt {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3a3630;
+}
+
+/* ── Splash ──────────────────────────────────────────────────────────────────── */
+
+#rc-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  padding: 36px 28px;
+  height: 100%;
+}
+
+#rc-logo {
+  width: 200px;
+  height: auto;
+  display: block;
+}
+
+.rc-directions {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.72;
+  color: #55524c;
+  max-width: 300px;
+}
+
+#rc-start-btn {
+  margin-top: 4px;
+  background: #1c1c1c;
+  color: #fff;
+  padding: 13px 52px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+#rc-start-btn:hover  { opacity: 0.82; }
+#rc-start-btn:active { opacity: 0.65; }
+
+/* ── Show phase ──────────────────────────────────────────────────────────────── */
+
+#rc-show {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 100%;
+  padding: 28px 24px;
+}
+
+#rc-color-block {
+  width: 100%;
+  max-width: 340px;
+  height: 220px;
+  border-radius: 14px;
+}
+
+#rc-countdown {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #1c1c1c;
+  line-height: 1;
+  min-height: 1em;
+}
+
+/* ── Pick phase ──────────────────────────────────────────────────────────────── */
+
+#rc-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: 100%;
+  padding: 28px 24px;
+}
+
+.rc-picker-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#rc-color-input {
+  width: 140px;
+  height: 80px;
+  padding: 4px;
+  border: 2px solid #d0cabf;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#rc-submit-btn {
+  background: #1c1c1c;
+  color: #fff;
+  padding: 13px 52px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+#rc-submit-btn:hover  { opacity: 0.82; }
+#rc-submit-btn:active { opacity: 0.65; }
+
+/* ── Result phase ────────────────────────────────────────────────────────────── */
+
+#rc-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: 100%;
+  padding: 28px 24px;
+}
+
+.rc-round-score {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1c1c1c;
+}
+
+.rc-swatch-row {
+  display: flex;
+  gap: 20px;
+}
+
+.rc-swatch-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.rc-swatch-box {
+  width: 130px;
+  height: 110px;
+  border-radius: 10px;
+}
+
+.rc-swatch-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8278;
+}
+
+#rc-next-btn {
+  background: #1c1c1c;
+  color: #fff;
+  padding: 13px 44px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+#rc-next-btn:hover  { opacity: 0.82; }
+#rc-next-btn:active { opacity: 0.65; }
+
+/* ── Session end ─────────────────────────────────────────────────────────────── */
+
+#rc-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 100%;
+  padding: 24px 20px;
+}
+
+#rc-total-score {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1c1c1c;
+}
+
+#rc-end-rounds {
+  display: flex;
+  gap: 16px;
+}
+
+.rc-end-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.rc-end-round-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8278;
+}
+
+.rc-end-swatches {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rc-end-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.rc-end-swatch .rc-swatch-box {
+  width: 88px;
+  height: 64px;
+}
+
+#rc-round-scores {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #55524c;
+  letter-spacing: 0.02em;
+}
+
+.rc-end-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.rc-btn-primary {
+  background: #1c1c1c;
+  color: #fff;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+.rc-btn-primary:hover  { opacity: 0.82; }
+.rc-btn-primary:active { opacity: 0.65; }
+
+.rc-btn-ghost {
+  background: transparent;
+  border: 1px solid #bbb8b2;
+  color: #55524c;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.rc-btn-ghost:hover  { border-color: #888; color: #333; }
+.rc-btn-ghost:active { background: rgba(0,0,0,0.04); }
