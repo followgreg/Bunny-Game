@@ -9,6 +9,14 @@
 
 .rc-hide { display: none !important; }
 
+/* ── Persistent game logo ────────────────────────────────────────────────────── */
+
+#rc-game-logo {
+  width: 140px;
+  height: auto;
+  display: block;
+}
+
 /* ── Shared typography ───────────────────────────────────────────────────────── */
 
 .rc-round-label {

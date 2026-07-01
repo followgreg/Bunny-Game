@@ -53,7 +53,7 @@
 
   // ── DOM refs ──────────────────────────────────────────────────────────────────
 
-  var splashEl, startBtn,
+  var splashEl, startBtn, gameLogo,
       showEl, showLabel, colorBlock, countdownEl,
       pickEl, pickLabel, colorInput, submitBtn,
       resultEl, roundScoreEl, originalSwatch, pickedSwatch, nextBtn,
@@ -74,6 +74,8 @@
       rounds.push({ color: generateColor(), picked: null, score: null });
     }
     currentRound = 0;
+    splashEl.classList.add('rc-hide');
+    gameLogo.classList.remove('rc-hide');
     startShowPhase();
   }
 
@@ -174,6 +176,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     splashEl       = document.getElementById('rc-splash');
     startBtn       = document.getElementById('rc-start-btn');
+    gameLogo       = document.getElementById('rc-game-logo');
     showEl         = document.getElementById('rc-show');
     showLabel      = document.getElementById('rc-show-label');
     colorBlock     = document.getElementById('rc-color-block');
