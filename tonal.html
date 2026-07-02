@@ -88,11 +88,9 @@
     <p class="tn-bar-label" id="tn-pick-label">Bar 1 of 5</p>
     <p class="tn-prompt">What color was it?</p>
     <div class="tn-picker-wrap">
-      <!-- Hidden input; programmatically .click()-ed to auto-open native picker.
-           iOS Safari blocks .click() on color inputs outside a user gesture —
-           if auto-open is blocked, the large styled swatch below acts as the tap target. -->
+      <!-- label triggers the hidden input natively on all browsers including iOS Safari -->
       <input type="color" id="tn-single-input" value="#808080">
-      <div id="tn-single-swatch" class="tn-pick-swatch-large"></div>
+      <label for="tn-single-input" id="tn-single-swatch" class="tn-pick-swatch-large"></label>
       <p class="tn-tap-hint">Tap to pick color</p>
     </div>
     <button id="tn-single-submit">Submit</button>

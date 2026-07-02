@@ -503,11 +503,6 @@
     singleInput.addEventListener('input',  function () { singleSwatch.style.background = singleInput.value; });
     singleInput.addEventListener('change', function () { singleSwatch.style.background = singleInput.value; });
 
-    // Tap large swatch to open picker (iOS fallback)
-    singleSwatch.addEventListener('click', function () {
-      try { singleInput.click(); } catch (e) {}
-    });
-
     singleSubmit.addEventListener('click', onSubmitPick);
     barNextBtn.addEventListener('click', onNextBar);
   });

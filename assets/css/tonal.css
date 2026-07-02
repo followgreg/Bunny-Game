@@ -220,13 +220,14 @@
   gap: 10px;
 }
 
-/* Hidden native color input — auto-opened via .click() */
+/* Hidden native color input — triggered via label click */
 #tn-single-input {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: 0;
+  height: 0;
   opacity: 0;
-  pointer-events: none;
+  border: none;
+  padding: 0;
 }
 
 .tn-pick-swatch-large {
