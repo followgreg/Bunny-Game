@@ -436,10 +436,6 @@
         'Tonal — Bunny Game'
       );
     };
-
-    puzzleToneBtn.onclick = function () { playRevealChord(); };
-    answerToneBtn.onclick = function () { playFinalChord(scores, directions); };
-    togetherBtn.onclick   = function () { playRevealChord(); playFinalChord(scores, directions); };
   }
 
   // ── Reset / new game ──────────────────────────────────────────────────────────
@@ -513,6 +509,10 @@
 
     singleSubmit.addEventListener('click', onSubmitPick);
     barNextBtn.addEventListener('click', onNextBar);
+
+    puzzleToneBtn.addEventListener('click', function () { playRevealChord(); });
+    answerToneBtn.addEventListener('click', function () { playFinalChord(scores, directions); });
+    togetherBtn.addEventListener('click',   function () { playRevealChord(); playFinalChord(scores, directions); });
   });
 
   // ── Exports ───────────────────────────────────────────────────────────────────

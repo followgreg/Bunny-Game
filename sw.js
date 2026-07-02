@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v135';
+const CACHE = 'bunnygame-v136';
 const ASSETS = [
   '/',
   '/index.html',
