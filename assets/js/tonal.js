@@ -216,7 +216,8 @@
       barShowEl, showLabel, showSwatch, showCountdown,
       barPickEl, pickLabel, singleInput, singleSwatch, singleSubmit,
       barResultEl, barResultLabel, barScoreLine, barOrigSwatch, barPickedSwatch, barNextBtn,
-      resultEl, resultPairsEl, totalScoreEl, barScoresEl, shareBtn, againBtn;
+      resultEl, resultPairsEl, totalScoreEl, barScoresEl, shareBtn, againBtn,
+      puzzleToneBtn, answerToneBtn, togetherBtn;
 
   // ── Show/hide helpers ─────────────────────────────────────────────────────────
 
@@ -435,6 +436,10 @@
         'Tonal — Bunny Game'
       );
     };
+
+    puzzleToneBtn.onclick = function () { playRevealChord(); };
+    answerToneBtn.onclick = function () { playFinalChord(scores, directions); };
+    togetherBtn.onclick   = function () { playRevealChord(); playFinalChord(scores, directions); };
   }
 
   // ── Reset / new game ──────────────────────────────────────────────────────────
@@ -488,6 +493,9 @@
     barScoresEl   = document.getElementById('tn-bar-scores');
     shareBtn      = document.getElementById('tn-share-btn');
     againBtn      = document.getElementById('tn-again-btn');
+    puzzleToneBtn = document.getElementById('tn-puzzle-tone-btn');
+    answerToneBtn = document.getElementById('tn-answer-tone-btn');
+    togetherBtn   = document.getElementById('tn-together-btn');
 
     barEls = [0,1,2,3,4].map(function (i) { return document.getElementById('tn-bar-' + i); });
 

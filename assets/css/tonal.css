@@ -400,6 +400,30 @@
   letter-spacing: 0.02em;
 }
 
+.tn-tone-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.tn-tone-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.5);
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+
+.tn-tone-btn:hover  { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.8); }
+.tn-tone-btn:active { background: rgba(255,255,255,0.06); }
+
 .tn-result-btns {
   display: flex;
   gap: 10px;
