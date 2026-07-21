@@ -42,14 +42,14 @@
 <div id="warren-page">
 
   <!-- ── Header ──────────────────────────────────────────────────────── -->
-  <header class="warren-header">
-    <a href="index.html" style="display:flex;align-items:center;">
-      <img src="assets/logos/warren_logo.svg" alt="Warren" class="warren-logo">
-    </a>
-    <div class="warren-header-btns">
-      <button class="warren-icon-btn" onclick="warrenShowHelp()" title="How to play" aria-label="How to play">?</button>
+  <div id="header">
+    <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+    <div class="header-controls">
+      <button class="icon-btn" id="help-btn" onclick="warrenShowHelp()" aria-label="How to play">?</button>
     </div>
-  </header>
+  </div>
+
+  <div id="nav-root"></div>
 
   <!-- ── Meta bar ────────────────────────────────────────────────────── -->
   <div class="warren-meta">
@@ -128,6 +128,8 @@
 <!-- ── Toast ────────────────────────────────────────────────────────────── -->
 <div id="warren-toast"></div>
 
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
 <script src="assets/js/warren.js"></script>
 </body>
 </html>
