@@ -1,0 +1,428 @@
+/* ── Warren — 8×8 region-queens puzzle ─────────────────────────────────── */
+
+/* Master palette — 8 muted, elegant hues */
+:root {
+  --w-c1: #e07b54; /* terracotta */
+  --w-c2: #5b8dd9; /* cornflower */
+  --w-c3: #eac94d; /* saffron    */
+  --w-c4: #b94070; /* rose       */
+  --w-c5: #4caa82; /* sage       */
+  --w-c6: #8b6240; /* walnut     */
+  --w-c7: #8e9bb0; /* slate      */
+  --w-c8: #7c5cbf; /* lavender   */
+
+  --w-bg: #0f1420;
+  --w-surface: #1a2035;
+  --w-border: rgba(255,255,255,0.08);
+  --w-text: #e8eaf0;
+  --w-muted: rgba(232,234,240,0.5);
+  --w-accent: #7c5cbf;
+  --w-cell-size: min(10vw, 52px);
+}
+
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+#warren-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100dvh;
+  background: var(--w-bg);
+  padding: 0 0 env(safe-area-inset-bottom);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--w-text);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.warren-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+.warren-logo {
+  height: 28px;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
+.warren-header-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.warren-icon-btn {
+  background: none;
+  border: none;
+  color: var(--w-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.warren-icon-btn:hover { color: var(--w-text); }
+
+/* ── Timer & board number ───────────────────────────────────────────────── */
+.warren-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--w-muted);
+  padding: 2px 0 10px;
+  letter-spacing: 0.04em;
+}
+.warren-timer { font-variant-numeric: tabular-nums; }
+
+/* ── Grid ───────────────────────────────────────────────────────────────── */
+.warren-grid-wrap {
+  position: relative;
+  padding: 4px;
+}
+
+.warren-grid {
+  display: grid;
+  grid-template-columns: repeat(8, var(--w-cell-size));
+  grid-template-rows: repeat(8, var(--w-cell-size));
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* ── Cells ──────────────────────────────────────────────────────────────── */
+.warren-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+.warren-cell:active { filter: brightness(0.85); }
+
+/* Region colors */
+.warren-cell[data-region="1"] { background: var(--w-c1); }
+.warren-cell[data-region="2"] { background: var(--w-c2); }
+.warren-cell[data-region="3"] { background: var(--w-c3); }
+.warren-cell[data-region="4"] { background: var(--w-c4); }
+.warren-cell[data-region="5"] { background: var(--w-c5); }
+.warren-cell[data-region="6"] { background: var(--w-c6); }
+.warren-cell[data-region="7"] { background: var(--w-c7); }
+.warren-cell[data-region="8"] { background: var(--w-c8); }
+
+/* Inner border between cells of different regions */
+.warren-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+
+/* Thick border between different regions — applied via JS class */
+.warren-cell.border-top    { border-top:    2px solid rgba(0,0,0,0.55) !important; }
+.warren-cell.border-right  { border-right:  2px solid rgba(0,0,0,0.55) !important; }
+.warren-cell.border-bottom { border-bottom: 2px solid rgba(0,0,0,0.55) !important; }
+.warren-cell.border-left   { border-left:   2px solid rgba(0,0,0,0.55) !important; }
+
+/* ── Cell states ────────────────────────────────────────────────────────── */
+/* X mark (impossible) */
+.warren-cell.marked::before {
+  content: '×';
+  font-size: calc(var(--w-cell-size) * 0.45);
+  font-weight: 700;
+  color: rgba(0,0,0,0.55);
+  line-height: 1;
+}
+
+/* Bunny */
+.warren-cell.bunny::before {
+  content: '';
+  width: calc(var(--w-cell-size) * 0.68);
+  height: calc(var(--w-cell-size) * 0.68);
+  background: url('../icons/blue-bunny.svg') center/contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+/* Error flash */
+.warren-cell.error {
+  animation: errorFlash 0.4s ease-out;
+}
+@keyframes errorFlash {
+  0%   { filter: brightness(1.5) saturate(2); }
+  100% { filter: brightness(1); }
+}
+
+/* ── Conflict highlight ─────────────────────────────────────────────────── */
+.warren-cell.conflict::before {
+  color: rgba(239,68,68,0.9);
+}
+.warren-cell.conflict.bunny::before {
+  filter: drop-shadow(0 0 4px rgba(239,68,68,0.8));
+}
+
+/* ── Win banner ─────────────────────────────────────────────────────────── */
+#warren-win {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,20,32,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+}
+#warren-win.show { display: flex; animation: fadeIn 0.35s ease; }
+
+.win-emoji { font-size: 3.5rem; }
+.win-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: var(--w-text);
+  text-align: center;
+}
+.win-time {
+  font-size: 1.1rem;
+  color: var(--w-muted);
+}
+.win-board-num {
+  font-size: 0.85rem;
+  color: var(--w-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.win-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.win-btn {
+  padding: 10px 20px;
+  border-radius: 24px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.win-btn:active { opacity: 0.8; }
+.win-btn-share { background: var(--w-accent); color: #fff; }
+.win-btn-next  { background: rgba(255,255,255,0.12); color: var(--w-text); }
+
+/* ── Splash / How-to-play ───────────────────────────────────────────────── */
+#warren-splash {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,20,32,0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 200;
+  padding: 24px;
+}
+#warren-splash.show { display: flex; animation: fadeIn 0.3s ease; }
+
+.splash-logo {
+  height: 40px;
+  filter: brightness(0) invert(1);
+}
+
+.splash-rules {
+  max-width: 320px;
+  width: 100%;
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.splash-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--w-text);
+  line-height: 1.4;
+}
+.splash-rule-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Mini demo grid */
+.splash-demo {
+  display: grid;
+  grid-template-columns: repeat(4, 28px);
+  grid-template-rows: repeat(4, 28px);
+  gap: 0;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 4px auto;
+}
+.splash-demo-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  position: relative;
+}
+.splash-demo-cell.bunny::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: url('../icons/blue-bunny.svg') center/contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+.splash-demo-cell.x::before {
+  content: '×';
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.5);
+}
+
+.splash-start-btn {
+  padding: 14px 40px;
+  background: var(--w-accent);
+  color: #fff;
+  border: none;
+  border-radius: 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s;
+}
+.splash-start-btn:active { opacity: 0.85; }
+
+/* ── Give Up overlay ────────────────────────────────────────────────────── */
+#warren-giveup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,20,32,0.9);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+  padding: 24px;
+}
+#warren-giveup.show { display: flex; animation: fadeIn 0.3s ease; }
+
+.giveup-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  color: var(--w-text);
+}
+.giveup-sub {
+  font-size: 0.85rem;
+  color: var(--w-muted);
+  text-align: center;
+}
+.giveup-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.giveup-btn {
+  padding: 10px 22px;
+  border-radius: 24px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.giveup-btn-reveal  { background: rgba(255,255,255,0.1); color: var(--w-text); }
+.giveup-btn-restart { background: var(--w-accent); color: #fff; }
+.giveup-btn-cancel  { background: transparent; color: var(--w-muted); border: 1px solid var(--w-border); }
+
+/* ── Bottom controls ────────────────────────────────────────────────────── */
+.warren-controls {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0 8px;
+  align-items: center;
+}
+.warren-ctrl-btn {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  color: var(--w-text);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.warren-ctrl-btn:hover { background: rgba(255,255,255,0.08); }
+.warren-ctrl-btn.danger { border-color: rgba(239,68,68,0.3); color: rgba(239,68,68,0.85); }
+
+/* ── Hint bar ───────────────────────────────────────────────────────────── */
+.warren-hint {
+  font-size: 0.75rem;
+  color: var(--w-muted);
+  text-align: center;
+  padding-bottom: 4px;
+}
+
+/* ── Shared animation ───────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes winPop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.win-emoji { animation: winPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ── Share toast ────────────────────────────────────────────────────────── */
+#warren-toast {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  color: var(--w-text);
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: transform 0.3s ease;
+  z-index: 300;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#warren-toast.show { transform: translateX(-50%) translateY(0); }
