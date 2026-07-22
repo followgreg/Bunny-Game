@@ -1,0 +1,327 @@
+/* ── Lava — ice block puzzle ─────────────────────────────────────────────── */
+
+/* ── Lava background on body ─────────────────────────────────────────────── */
+body {
+  background-color: #8B0000;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, #FF4400 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, #CC2200 0%, transparent 40%),
+    radial-gradient(ellipse at 60% 80%, #FF8C00 0%, transparent 45%);
+  background-size: 100% 100%;
+  animation: lavaChurn 4s ease-in-out infinite alternate;
+}
+
+@keyframes lavaChurn {
+  0%   { background-position: 0% 0%, 100% 0%, 50% 100%; }
+  100% { background-position: 10% 20%, 90% 30%, 60% 80%; }
+}
+
+/* Extra lava layers via divs (parallax churn) */
+.lava-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lava-layer-2 {
+  background-image:
+    radial-gradient(ellipse at 70% 40%, rgba(255,100,0,0.45) 0%, transparent 55%),
+    radial-gradient(ellipse at 30% 70%, rgba(180,0,0,0.35) 0%, transparent 45%);
+  animation: lavaChurn2 3s ease-in-out infinite alternate;
+}
+@keyframes lavaChurn2 {
+  0%   { background-position: 0% 0%, 100% 100%; opacity: 0.7; }
+  100% { background-position: 15% 25%, 80%  70%; opacity: 1;   }
+}
+
+.lava-layer-3 {
+  background-image:
+    radial-gradient(ellipse at 50% 10%, rgba(255,160,0,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 90%, rgba(200,30,0,0.3) 0%, transparent 40%);
+  animation: lavaChurn3 5s ease-in-out infinite alternate;
+}
+@keyframes lavaChurn3 {
+  0%   { background-position: 0% 0%, 0% 100%; opacity: 0.6; }
+  100% { background-position: 20% 15%, 5%  85%; opacity: 0.9; }
+}
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+#lava-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100dvh - 60px);
+  padding: 16px 20px calc(32px + env(safe-area-inset-bottom));
+  font-family: 'DM Sans', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Info bar ────────────────────────────────────────────────────────────── */
+#lava-infobar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+#lava-level-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+
+.lava-counter {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 6px 16px;
+  letter-spacing: 0.01em;
+}
+
+.lava-counter #lava-count {
+  color: #FFD700;
+  font-size: 1.15rem;
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+#lava-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+  padding: 12px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* ── Ice block cell ──────────────────────────────────────────────────────── */
+.lava-cell {
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s;
+}
+
+/* Empty cell — lava shows through */
+.lava-cell.empty {
+  cursor: default;
+  background: transparent;
+}
+
+/* Filled ice block */
+.lava-cell.filled {
+  background: linear-gradient(135deg, #E8F4FF 0%, #C2E0F5 45%, #B8DFFF 100%);
+  border: 2px solid #7AB8D4;
+  box-shadow:
+    inset -3px -3px 6px rgba(168, 206, 222, 0.8),
+    inset  2px  2px 4px rgba(255,255,255,0.9),
+    0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Gloss highlight in upper-left corner */
+.lava-cell.filled::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 38%;
+  height: 28%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.3) 100%);
+  border-radius: 4px 4px 8px 4px;
+  pointer-events: none;
+}
+
+/* Bottom/right inner shadow for 3D depth */
+.lava-cell.filled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    rgba(100, 160, 190, 0.25) 100%
+  );
+  pointer-events: none;
+}
+
+.lava-cell.filled:active {
+  transform: scale(0.94);
+}
+
+/* Bunny cell — same ice but can't be clicked away */
+.lava-cell.bunny {
+  cursor: default;
+  background: linear-gradient(135deg, #DDF0FF 0%, #B8DFFF 45%, #A8D4FF 100%);
+  border-color: #5AA0CC;
+  box-shadow:
+    inset -3px -3px 6px rgba(140, 190, 220, 0.8),
+    inset  2px  2px 4px rgba(255,255,255,0.9),
+    0 0 12px rgba(100,180,255,0.4),
+    0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Bunny image inside bunny cell */
+.lava-bunny-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 65%;
+  height: 65%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Invalid flash (red) ─────────────────────────────────────────────────── */
+.lava-cell.flash-invalid {
+  animation: flashRed 0.4s ease-out forwards;
+}
+@keyframes flashRed {
+  0%   { background: linear-gradient(135deg, #FF6666 0%, #FF3333 100%); border-color: #CC0000; }
+  60%  { background: linear-gradient(135deg, #FF9999 0%, #FF6666 100%); border-color: #FF4444; }
+  100% { background: linear-gradient(135deg, #E8F4FF 0%, #C2E0F5 45%, #B8DFFF 100%); border-color: #7AB8D4; }
+}
+
+/* ── Fall animation ──────────────────────────────────────────────────────── */
+.lava-cell.falling {
+  animation: blockFall 0.45s ease-in forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes blockFall {
+  0%   { transform: translateY(0)   scale(1);    opacity: 1; }
+  55%  { transform: translateY(44px) scale(0.95); opacity: 0.9; }
+  100% { transform: translateY(60px) scale(0.8);  opacity: 0; }
+}
+
+/* Bunny fall (game-over) — faster, with red glow */
+.lava-cell.bunny-falling {
+  animation: bunnyFall 0.35s ease-in forwards;
+  pointer-events: none;
+  z-index: 20;
+}
+@keyframes bunnyFall {
+  0%   { transform: translateY(0)   scale(1);    opacity: 1; filter: none; }
+  40%  { transform: translateY(24px) scale(0.98); opacity: 1; filter: drop-shadow(0 0 8px #FF2200); }
+  100% { transform: translateY(55px) scale(0.85); opacity: 0; filter: drop-shadow(0 0 20px #FF4400); }
+}
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+#lava-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.lava-btn {
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 24px;
+  padding: 10px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lava-btn:active { transform: scale(0.96); background: rgba(0,0,0,0.5); }
+
+.lava-btn-primary {
+  background: rgba(255,200,50,0.25);
+  border-color: rgba(255,200,50,0.5);
+  color: #FFD700;
+}
+.lava-btn-primary:active { background: rgba(255,200,50,0.4); }
+
+/* ── Overlays ────────────────────────────────────────────────────────────── */
+.lava-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(60,0,0,0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.3s ease;
+}
+.lava-overlay.hidden { display: none; }
+
+.lava-modal {
+  background: rgba(20,5,5,0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 36px 28px;
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.lava-modal-emoji {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.lava-modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.9rem;
+  color: #fff;
+  margin: 0;
+}
+
+.lava-modal-sub {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.65);
+  margin: 0 0 8px;
+}
+
+.lava-modal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+.lava-modal-btns .lava-btn { width: 100%; text-align: center; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  #lava-grid { max-width: 300px; gap: 6px; padding: 10px; }
+}
+@media (min-width: 500px) {
+  #lava-grid   { max-width: 360px; gap: 10px; }
+  #lava-infobar { max-width: 360px; }
+}

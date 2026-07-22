@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lava — ice block puzzle — Bunny Game</title>
+  <meta name="description" content="Remove exactly N ice blocks without ever cutting the bunny off from the edge. Don't let it fall into the lava!">
+  <meta property="og:title" content="Lava — Bunny Game">
+  <meta property="og:description" content="Remove exactly N ice blocks without cutting the bunny off from the edge.">
+  <meta property="og:url" content="https://www.thebunnygame.com/lava">
+  <link rel="canonical" href="https://www.thebunnygame.com/lava">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#6B0000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/lava.css">
+</head>
+<body data-tab="lava">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Game wrap ─────────────────────────────────────────────────────────── -->
+<div id="lava-wrap">
+
+  <!-- Lava layers (CSS animated background is on body; extra bubbles here) -->
+  <div class="lava-layer lava-layer-2"></div>
+  <div class="lava-layer lava-layer-3"></div>
+
+  <!-- Level info bar -->
+  <div id="lava-infobar">
+    <span id="lava-level-label">Level 1</span>
+    <span id="lava-counter-label" class="lava-counter">Remove <span id="lava-count">3</span></span>
+  </div>
+
+  <!-- 4×4 grid -->
+  <div id="lava-grid"></div>
+
+  <!-- Controls -->
+  <div id="lava-controls">
+    <button class="lava-btn" id="lava-restart-btn">↺ Restart</button>
+    <button class="lava-btn" id="lava-next-btn" style="display:none">Next Level →</button>
+  </div>
+
+</div><!-- /#lava-wrap -->
+
+<!-- ── Win overlay ───────────────────────────────────────────────────────── -->
+<div id="lava-win" class="lava-overlay hidden">
+  <div class="lava-modal">
+    <div class="lava-modal-emoji">❄️</div>
+    <h2 class="lava-modal-title">Safe!</h2>
+    <p class="lava-modal-sub" id="lava-win-sub">The bunny made it!</p>
+    <div class="lava-modal-btns">
+      <button class="lava-btn lava-btn-primary" id="lava-win-next">Next Level →</button>
+      <button class="lava-btn" id="lava-win-restart">↺ Retry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Lose overlay ──────────────────────────────────────────────────────── -->
+<div id="lava-lose" class="lava-overlay hidden">
+  <div class="lava-modal">
+    <div class="lava-modal-emoji">🔥</div>
+    <h2 class="lava-modal-title">Into the lava!</h2>
+    <p class="lava-modal-sub">The bunny's block fell. Try again!</p>
+    <div class="lava-modal-btns">
+      <button class="lava-btn lava-btn-primary" id="lava-lose-restart">↺ Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Directions popup ──────────────────────────────────────────────────── -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/lava.js"></script>
+</body>
+</html>
