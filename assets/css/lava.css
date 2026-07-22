@@ -317,6 +317,39 @@ body {
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* ── Solution highlight (Give Up) ───────────────────────────────────────── */
+.lava-cell.solution-highlight {
+  background: linear-gradient(135deg, #90FF90 0%, #40DD40 45%, #00CC00 100%) !important;
+  border-color: #00AA00 !important;
+  box-shadow:
+    inset -2px -2px 5px rgba(0,180,0,0.4),
+    inset  2px  2px 4px rgba(200,255,200,0.8),
+    0 0 16px rgba(0,220,0,0.6),
+    0 2px 6px rgba(0,0,0,0.3) !important;
+}
+
+/* ── Win celebration ─────────────────────────────────────────────────────── */
+.lava-cell.win-glow {
+  animation: winGlow 0.5s ease-out forwards;
+}
+@keyframes winGlow {
+  0%   { box-shadow: 0 0 0 rgba(100,220,255,0); }
+  50%  { box-shadow: 0 0 20px rgba(100,220,255,0.9), 0 0 40px rgba(150,240,255,0.5); }
+  100% { box-shadow: 0 0 8px rgba(100,220,255,0.4); }
+}
+
+.lava-cell.bunny-bounce .lava-bunny-img,
+.lava-cell.bunny-bounce {
+  animation: bunnyBounce 0.7s ease-in-out;
+}
+@keyframes bunnyBounce {
+  0%   { transform: translateY(0) scale(1); }
+  25%  { transform: translateY(-10px) scale(1.1); }
+  50%  { transform: translateY(0) scale(0.95); }
+  70%  { transform: translateY(-5px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 380px) {
   #lava-grid { max-width: 300px; gap: 6px; padding: 10px; }

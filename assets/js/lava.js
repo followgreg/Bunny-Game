@@ -2,14 +2,15 @@
 'use strict';
 
 const DIRECTIONS_TEXT =
-  'Ice blocks float above the lava. The bunny is safe as long as its block stays ' +
-  'connected to the outer edge. Tap a block to remove it — but be careful: ' +
-  'if removing a block would cut the bunny off from the edge, it won\'t budge. ' +
-  'Remove exactly the number shown at the top. Any blocks that lose their connection ' +
-  'to the edge will fall into the lava too. Good luck!';
+  'Lava shows you a grid of ice blocks floating above molten lava. The blue bunny is perched ' +
+  'on one of them. Your job is to knock out exactly the number of blocks shown -- no more, no ' +
+  'less -- without ever leaving the bunny disconnected from the edge. A block stays safe as long ' +
+  'as there\'s a path of neighboring blocks connecting it to the grid\'s outer edge. Remove the ' +
+  'wrong one and the bunny falls. Figure out which blocks can go and which ones are holding ' +
+  'everything together.';
 
 const BUNNY_SRC = 'assets/icons/blue-bunny.svg';
-const STORAGE_KEY = 'lava_progress'; // stores highest unlocked level
+const STORAGE_KEY = 'lava_highestLevel';
 
 // ── State ─────────────────────────────────────────────────────────────────
 let levels = [];
@@ -146,7 +147,6 @@ function onCellClick(r, c) {
       if (isBunnyConnected(grid)) {
         triggerWin();
       }
-      // if somehow bunny disconnected at exactly 0 (shouldn't happen with guards), treat as lose
     }
   });
 }
@@ -185,18 +185,25 @@ function triggerWin() {
   const next = currentLevel + 2; // 1-based next level
   if (next > saved) localStorage.setItem(STORAGE_KEY, Math.min(next, levels.length));
 
-  winSubEl.textContent = currentLevel < levels.length - 1
-    ? `Level ${currentLevel + 1} complete!`
-    : 'You cleared all 25 levels!';
+  // Bunny bounce celebration
+  const bunnyCell = cellEl(bunny[0], bunny[1]);
+  bunnyCell.classList.add('bunny-bounce');
+  setTimeout(() => bunnyCell.classList.remove('bunny-bounce'), 800);
 
-  const nextBtn = document.getElementById('lava-win-next');
-  if (currentLevel >= levels.length - 1) {
-    nextBtn.style.display = 'none';
-  } else {
-    nextBtn.style.display = '';
-  }
+  // Glow filled cells
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 4; c++)
+      if (grid[r][c]) cellEl(r, c).classList.add('win-glow');
 
-  winOverlay.classList.remove('hidden');
+  // Show overlay after brief celebration
+  setTimeout(() => {
+    if (currentLevel >= levels.length - 1) {
+      document.getElementById('lava-complete').classList.remove('hidden');
+    } else {
+      winSubEl.textContent = `Level ${currentLevel + 1} clear!`;
+      winOverlay.classList.remove('hidden');
+    }
+  }, 500);
 }
 
 function triggerLose() {
@@ -205,6 +212,48 @@ function triggerLose() {
     loseOverlay.classList.remove('hidden');
     busy = false;
   });
+}
+
+// ── Solution / Give Up ────────────────────────────────────────────────────
+function showSolution() {
+  const lvl = levels[currentLevel];
+  if (!lvl || !lvl.solution) return;
+  const solSet = new Set(lvl.solution.map(([r, c]) => `${r},${c}`));
+  for (let r = 0; r < 4; r++)
+    for (let c = 0; c < 4; c++)
+      if (solSet.has(`${r},${c}`)) {
+        const el = cellEl(r, c);
+        el.classList.add('solution-highlight');
+      }
+}
+
+function doGiveUp() {
+  loseOverlay.classList.add('hidden');
+  // Reload the level visually so solution is visible on a fresh grid
+  loadLevel(currentLevel);
+  showSolution();
+  setTimeout(() => {
+    if (currentLevel >= levels.length - 1) {
+      document.getElementById('lava-complete').classList.remove('hidden');
+    } else {
+      loadLevel(currentLevel + 1);
+    }
+  }, 1500);
+}
+
+// ── Share (level 25 completion) ───────────────────────────────────────────
+function doShare() {
+  const text = 'Lava — kept the bunny safe through all 25 levels. Can you? https://www.thebunnygame.com/lava';
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('lava-share-btn');
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }).catch(() => {});
+  }
 }
 
 // ── Load level ────────────────────────────────────────────────────────────
@@ -223,7 +272,16 @@ function loadLevel(index) {
 
   winOverlay.classList.add('hidden');
   loseOverlay.classList.add('hidden');
+  document.getElementById('lava-complete').classList.add('hidden');
   busy = false;
+}
+
+// ── Level select (continue prompt) ───────────────────────────────────────
+function showLevelSelect(highestLevel) {
+  const overlay = document.getElementById('lava-level-select');
+  document.getElementById('lava-continue-label').textContent =
+    `Continue from Level ${Math.min(highestLevel, levels.length)}`;
+  overlay.classList.remove('hidden');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
@@ -245,8 +303,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Start at first level (could extend to last unlocked)
-  loadLevel(0);
+  // Check for saved progress
+  const saved = parseInt(localStorage.getItem(STORAGE_KEY) || '1', 10);
+  if (saved > 1) {
+    loadLevel(0); // load level 1 behind the modal
+    showLevelSelect(Math.min(saved, levels.length));
+  } else {
+    loadLevel(0);
+  }
 
   // Help
   document.getElementById('help-btn').addEventListener('click', () => openDirections(DIRECTIONS_TEXT));
@@ -265,4 +329,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Lose overlay
   document.getElementById('lava-lose-restart').addEventListener('click', () => loadLevel(currentLevel));
+  document.getElementById('lava-lose-giveup').addEventListener('click', doGiveUp);
+
+  // Level select overlay
+  document.getElementById('lava-continue-btn').addEventListener('click', () => {
+    const s = parseInt(localStorage.getItem(STORAGE_KEY) || '1', 10);
+    document.getElementById('lava-level-select').classList.add('hidden');
+    loadLevel(Math.min(s, levels.length) - 1); // 0-indexed
+  });
+  document.getElementById('lava-from-start-btn').addEventListener('click', () => {
+    document.getElementById('lava-level-select').classList.add('hidden');
+    loadLevel(0);
+  });
+
+  // Completion overlay (level 25)
+  document.getElementById('lava-share-btn').addEventListener('click', doShare);
+  document.getElementById('lava-play-again-btn').addEventListener('click', () => {
+    document.getElementById('lava-complete').classList.add('hidden');
+    loadLevel(0);
+  });
 });

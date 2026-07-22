@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Lava — ice block puzzle — Bunny Game</title>
-  <meta name="description" content="Remove exactly N ice blocks without ever cutting the bunny off from the edge. Don't let it fall into the lava!">
+  <title>Lava — a block removal logic puzzle — Bunny Game</title>
+  <meta name="description" content="Remove exactly the right blocks. Keep the bunny off the lava. Twenty-five levels of pure logic.">
   <meta property="og:title" content="Lava — Bunny Game">
-  <meta property="og:description" content="Remove exactly N ice blocks without cutting the bunny off from the edge.">
+  <meta property="og:description" content="Remove exactly the right blocks. Keep the bunny off the lava. Twenty-five levels of pure logic.">
   <meta property="og:url" content="https://www.thebunnygame.com/lava">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/lava-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/lava-og.png">
   <link rel="canonical" href="https://www.thebunnygame.com/lava">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -63,20 +68,45 @@
   <!-- Controls -->
   <div id="lava-controls">
     <button class="lava-btn" id="lava-restart-btn">↺ Restart</button>
-    <button class="lava-btn" id="lava-next-btn" style="display:none">Next Level →</button>
   </div>
 
 </div><!-- /#lava-wrap -->
+
+<!-- ── Level select overlay ──────────────────────────────────────────────── -->
+<div id="lava-level-select" class="lava-overlay hidden">
+  <div class="lava-modal">
+    <div class="lava-modal-emoji">🧊</div>
+    <h2 class="lava-modal-title">Welcome back!</h2>
+    <p class="lava-modal-sub">Pick up where you left off?</p>
+    <div class="lava-modal-btns">
+      <button class="lava-btn lava-btn-primary" id="lava-continue-btn"><span id="lava-continue-label">Continue from Level 1</span></button>
+      <button class="lava-btn" id="lava-from-start-btn">Start from Level 1</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Win overlay ───────────────────────────────────────────────────────── -->
 <div id="lava-win" class="lava-overlay hidden">
   <div class="lava-modal">
     <div class="lava-modal-emoji">❄️</div>
     <h2 class="lava-modal-title">Safe!</h2>
-    <p class="lava-modal-sub" id="lava-win-sub">The bunny made it!</p>
+    <p class="lava-modal-sub" id="lava-win-sub">Level 1 clear!</p>
     <div class="lava-modal-btns">
       <button class="lava-btn lava-btn-primary" id="lava-win-next">Next Level →</button>
       <button class="lava-btn" id="lava-win-restart">↺ Retry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Level 25 completion overlay ──────────────────────────────────────── -->
+<div id="lava-complete" class="lava-overlay hidden">
+  <div class="lava-modal">
+    <div class="lava-modal-emoji">🏆</div>
+    <h2 class="lava-modal-title">All 25 levels survived!</h2>
+    <p class="lava-modal-sub">The bunny never fell. Incredible.</p>
+    <div class="lava-modal-btns">
+      <button class="lava-btn lava-btn-primary" id="lava-share-btn">Share</button>
+      <button class="lava-btn" id="lava-play-again-btn">↺ Play Again</button>
     </div>
   </div>
 </div>
@@ -89,6 +119,7 @@
     <p class="lava-modal-sub">The bunny's block fell. Try again!</p>
     <div class="lava-modal-btns">
       <button class="lava-btn lava-btn-primary" id="lava-lose-restart">↺ Try Again</button>
+      <button class="lava-btn" id="lava-lose-giveup">I Give Up</button>
     </div>
   </div>
 </div>
