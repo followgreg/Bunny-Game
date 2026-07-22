@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Lava — a block removal logic puzzle — Bunny Game</title>
-  <meta name="description" content="Remove exactly the right blocks. Keep the bunny off the lava. Twenty-five levels of pure logic.">
-  <meta property="og:title" content="Lava — Bunny Game">
-  <meta property="og:description" content="Remove exactly the right blocks. Keep the bunny off the lava. Twenty-five levels of pure logic.">
+  <title>Lava — a rotation and gravity puzzle — Bunny Game</title>
+  <meta name="description" content="Remove a block. The grid rotates. Gravity does the rest. Keep the bunny off the lava.">
+  <meta property="og:title" content="Lava — a rotation and gravity puzzle — Bunny Game">
+  <meta property="og:description" content="Remove a block. The grid rotates. Gravity does the rest. Keep the bunny off the lava.">
   <meta property="og:url" content="https://www.thebunnygame.com/lava">
   <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/lava-og.png">
   <meta property="og:image:width" content="1200">
@@ -59,7 +59,7 @@
   <!-- Level info bar -->
   <div id="lava-infobar">
     <span id="lava-level-label">Level 1</span>
-    <span id="lava-counter-label" class="lava-counter">Remove <span id="lava-count">3</span></span>
+    <span id="lava-counter-label" class="lava-counter">Move <span id="lava-count">0</span></span>
   </div>
 
   <!-- 4×4 grid -->
@@ -71,6 +71,19 @@
   </div>
 
 </div><!-- /#lava-wrap -->
+
+<!-- ── Splash overlay ─────────────────────────────────────────────────────── -->
+<div id="lava-splash" class="lava-overlay">
+  <div class="lava-modal">
+    <div class="lava-modal-logo">
+      <img src="assets/logos/lava_logo.svg" alt="Lava">
+    </div>
+    <p class="lava-modal-sub lava-splash-text">Lava gives you a 4×4 grid of ice blocks floating above lava. The blue bunny is perched on one of them. Each turn, click a block to remove it — then the whole grid rotates 90° clockwise and gravity pulls everything down. Any block that hits the bottom of the frame with nothing beneath it falls into the lava and is gone. If the bunny's block hits the frame, the bunny falls in too and the round is over. Clear every block except the bunny's and you win. Think carefully — every rotation changes everything.</p>
+    <div class="lava-modal-btns">
+      <button class="lava-btn lava-btn-primary" id="lava-splash-play">Play</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Level select overlay ──────────────────────────────────────────────── -->
 <div id="lava-level-select" class="lava-overlay hidden">

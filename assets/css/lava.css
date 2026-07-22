@@ -202,16 +202,23 @@ body {
   100% { background: linear-gradient(135deg, #E8F4FF 0%, #C2E0F5 45%, #B8DFFF 100%); border-color: #7AB8D4; }
 }
 
-/* ── Fall animation ──────────────────────────────────────────────────────── */
-.lava-cell.falling {
-  animation: blockFall 0.45s ease-in forwards;
-  pointer-events: none;
-  z-index: 10;
+/* ── Grid rotation ───────────────────────────────────────────────────────── */
+#lava-grid {
+  transform-origin: center center;
 }
-@keyframes blockFall {
-  0%   { transform: translateY(0)   scale(1);    opacity: 1; }
-  55%  { transform: translateY(44px) scale(0.95); opacity: 0.9; }
-  100% { transform: translateY(60px) scale(0.8);  opacity: 0; }
+
+/* ── Gravity-clone fall (post-rotation, fixed-position overlay) ──────────── */
+.lava-gravity-clone {
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+.lava-gravity-clone.gravity-falling {
+  animation: gravityFall 0.24s ease-in forwards;
+}
+@keyframes gravityFall {
+  0%   { transform: translateY(0);    opacity: 1; }
+  60%  { transform: translateY(28px); opacity: 0.6; }
+  100% { transform: translateY(48px); opacity: 0; }
 }
 
 /* Bunny fall (game-over) — faster, with red glow */
@@ -315,6 +322,26 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Splash screen ───────────────────────────────────────────────────────── */
+.lava-modal-logo {
+  width: 140px;
+  margin-bottom: 4px;
+}
+.lava-modal-logo img {
+  width: 100%;
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+.lava-splash-text {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.7);
+  text-align: left;
+  max-height: 45vh;
+  overflow-y: auto;
+  margin: 0 0 4px;
 }
 
 /* ── Solution highlight (Give Up) ───────────────────────────────────────── */
