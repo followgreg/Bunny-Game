@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Lava — a rotation and gravity puzzle — Bunny Game</title>
-  <meta name="description" content="Remove a block. The grid rotates. Gravity does the rest. Keep the bunny off the lava.">
+  <meta name="description" content="Remove a block. Choose your rotation. Gravity does the rest. Keep the bunny off the lava.">
   <meta property="og:title" content="Lava — a rotation and gravity puzzle — Bunny Game">
-  <meta property="og:description" content="Remove a block. The grid rotates. Gravity does the rest. Keep the bunny off the lava.">
+  <meta property="og:description" content="Remove a block. Choose your rotation. Gravity does the rest. Keep the bunny off the lava.">
   <meta property="og:url" content="https://www.thebunnygame.com/lava">
   <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/lava-og.png">
   <meta property="og:image:width" content="1200">
@@ -59,11 +59,23 @@
   <!-- Level info bar -->
   <div id="lava-infobar">
     <span id="lava-level-label">Level 1</span>
-    <span id="lava-counter-label" class="lava-counter">Move <span id="lava-count">0</span></span>
+    <span id="lava-counter-label" class="lava-counter">Move <span id="lava-count">0</span> of 4</span>
   </div>
 
   <!-- 4×4 grid -->
   <div id="lava-grid"></div>
+
+  <!-- Rotation buttons (activate after block is selected) -->
+  <div id="lava-rotate-wrap">
+    <p id="lava-rotate-prompt" class="lava-rotate-prompt hidden">Choose rotation:</p>
+    <div id="lava-rotate-btns">
+      <button class="lava-btn lava-rotate-btn" id="lava-ccw-btn" disabled>↺ CCW</button>
+      <button class="lava-btn lava-rotate-btn" id="lava-cw-btn"  disabled>↻ CW</button>
+    </div>
+  </div>
+
+  <!-- Solution hint (Give Up) -->
+  <p id="lava-solution-hint" class="lava-solution-hint hidden"></p>
 
   <!-- Controls -->
   <div id="lava-controls">
@@ -78,7 +90,7 @@
     <div class="lava-modal-logo">
       <img src="assets/logos/lava_logo.svg" alt="Lava">
     </div>
-    <p class="lava-modal-sub lava-splash-text">Lava gives you a 4×4 grid of ice blocks floating above lava. The blue bunny is perched on one of them. Each turn, click a block to remove it — then the whole grid rotates 90° clockwise and gravity pulls everything down. Any block that hits the bottom of the frame with nothing beneath it falls into the lava and is gone. If the bunny's block hits the frame, the bunny falls in too and the round is over. Clear every block except the bunny's and you win. Think carefully — every rotation changes everything.</p>
+    <p class="lava-modal-sub lava-splash-text">Lava gives you a 4×4 grid of ice blocks floating above lava. The blue bunny is perched on one of them. Each turn: click a block to remove it, then choose which way to rotate the grid — clockwise or counterclockwise. After every rotation, gravity pulls everything down, and any block that hits the bottom of the frame with nothing beneath it falls into the lava and is gone. If the bunny's block hits the frame, it's over. Every puzzle is exactly four moves. Think carefully — your rotation choice changes everything.</p>
     <div class="lava-modal-btns">
       <button class="lava-btn lava-btn-primary" id="lava-splash-play">Play</button>
     </div>

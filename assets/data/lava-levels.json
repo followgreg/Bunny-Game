@@ -2,151 +2,223 @@
   {
     "level": 1,
     "bunny": [
-      1,
+      0,
       0
     ],
     "solution": [
-      [
-        1,
-        1
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
     "level": 2,
     "bunny": [
-      2,
-      0
+      0,
+      3
     ],
     "solution": [
-      [
-        2,
-        1
-      ],
-      [
-        2,
-        2
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          2
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          3,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          1
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 3,
     "bunny": [
-      1,
+      3,
       0
     ],
     "solution": [
-      [
-        1,
-        1
-      ],
-      [
-        3,
-        1
-      ],
-      [
-        2,
-        2
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          3,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          1
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 4,
     "bunny": [
-      2,
-      0
+      3,
+      3
     ],
     "solution": [
-      [
-        2,
-        1
-      ],
-      [
-        2,
-        3
-      ],
-      [
-        2,
-        1
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          3,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
     "level": 5,
     "bunny": [
-      1,
-      0
+      0,
+      1
     ],
     "solution": [
-      [
-        1,
-        2
-      ],
-      [
-        2,
-        1
-      ],
-      [
-        2,
-        1
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          2
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 6,
     "bunny": [
-      2,
-      0
+      0,
+      2
     ],
     "solution": [
-      [
-        2,
-        2
-      ],
-      [
-        2,
-        3
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
@@ -156,22 +228,34 @@
       0
     ],
     "solution": [
-      [
-        1,
-        3
-      ],
-      [
-        1,
-        3
-      ],
-      [
-        1,
-        1
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
@@ -181,122 +265,182 @@
       0
     ],
     "solution": [
-      [
-        2,
-        3
-      ],
-      [
-        2,
-        2
-      ],
-      [
-        2,
-        1
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          2,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          2
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 9,
     "bunny": [
       1,
-      1
+      3
     ],
     "solution": [
-      [
-        0,
-        0
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          2
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 10,
     "bunny": [
       2,
-      1
+      3
     ],
     "solution": [
-      [
-        0,
-        0
-      ],
-      [
-        2,
-        2
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 11,
     "bunny": [
-      1,
-      2
+      3,
+      1
     ],
     "solution": [
-      [
-        0,
-        0
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        3,
-        1
-      ],
-      [
-        3,
-        1
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
     "level": 12,
     "bunny": [
-      2,
+      3,
       2
     ],
     "solution": [
-      [
-        0,
-        0
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        3,
-        0
-      ],
-      [
-        3,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
@@ -306,72 +450,108 @@
       1
     ],
     "solution": [
-      [
-        0,
-        2
-      ],
-      [
-        3,
-        2
-      ],
-      [
-        2,
-        2
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          1
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 14,
     "bunny": [
-      2,
-      1
+      1,
+      2
     ],
     "solution": [
-      [
-        0,
-        3
-      ],
-      [
-        2,
-        3
-      ],
-      [
-        3,
-        0
-      ],
-      [
-        2,
-        1
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          2
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 15,
     "bunny": [
-      1,
-      2
+      2,
+      1
     ],
     "solution": [
-      [
-        0,
-        3
-      ],
-      [
-        2,
-        1
-      ],
-      [
-        3,
-        1
-      ],
-      [
-        2,
-        1
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          3
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
@@ -381,122 +561,182 @@
       2
     ],
     "solution": [
-      [
-        0,
-        3
-      ],
-      [
-        1,
-        2
-      ],
-      [
-        3,
-        2
-      ],
-      [
-        3,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 17,
     "bunny": [
-      1,
-      1
+      0,
+      0
     ],
     "solution": [
-      [
-        1,
-        3
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        3,
-        2
-      ],
-      [
-        3,
-        2
-      ]
+      {
+        "remove": [
+          0,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 18,
     "bunny": [
-      2,
-      1
+      3,
+      3
     ],
     "solution": [
-      [
-        1,
-        3
-      ],
-      [
-        2,
-        3
-      ],
-      [
-        3,
-        0
-      ],
-      [
-        2,
-        1
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          3,
+          0
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 19,
     "bunny": [
-      1,
-      2
+      0,
+      3
     ],
     "solution": [
-      [
-        2,
-        1
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        3,
-        1
-      ],
-      [
-        3,
-        1
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
     "level": 20,
     "bunny": [
-      2,
-      2
+      3,
+      0
     ],
     "solution": [
-      [
-        1,
-        3
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        3,
-        0
-      ],
-      [
-        3,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          3,
+          2
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
@@ -506,47 +746,71 @@
       1
     ],
     "solution": [
-      [
-        2,
-        2
-      ],
-      [
-        1,
-        3
-      ],
-      [
-        2,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          1,
+          0
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      }
     ]
   },
   {
     "level": 22,
     "bunny": [
       2,
-      1
+      2
     ],
     "solution": [
-      [
-        3,
-        0
-      ],
-      [
-        2,
-        2
-      ],
-      [
-        1,
-        0
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
@@ -556,72 +820,108 @@
       2
     ],
     "solution": [
-      [
-        3,
-        0
-      ],
-      [
-        2,
-        1
-      ],
-      [
-        3,
-        1
-      ],
-      [
-        2,
-        1
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          2
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
     "level": 24,
     "bunny": [
       2,
-      2
+      1
     ],
     "solution": [
-      [
-        3,
-        0
-      ],
-      [
-        1,
-        3
-      ],
-      [
-        3,
-        2
-      ],
-      [
-        3,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          1
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          2
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          3
+        ],
+        "direction": "CW"
+      }
     ]
   },
   {
     "level": 25,
     "bunny": [
-      1,
+      0,
       1
     ],
     "solution": [
-      [
-        3,
-        1
-      ],
-      [
-        1,
-        2
-      ],
-      [
-        1,
-        1
-      ],
-      [
-        2,
-        0
-      ]
+      {
+        "remove": [
+          0,
+          0
+        ],
+        "direction": "CW"
+      },
+      {
+        "remove": [
+          2,
+          0
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          1,
+          3
+        ],
+        "direction": "CCW"
+      },
+      {
+        "remove": [
+          2,
+          2
+        ],
+        "direction": "CW"
+      }
     ]
   }
 ]

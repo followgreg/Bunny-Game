@@ -2,19 +2,16 @@
 // Run: node generate-lava-levels.js
 // Produces: assets/data/lava-levels.json
 //
-// Mechanic: player removes one block, then board rotates 90° CW, then
-// gravity fires (bottom block of each non-empty column falls off the board).
-// Goal: bunny is the last block standing.
+// Mechanic (Variant 3): player removes one block, then chooses CW or CCW
+// rotation, then gravity fires (bottom block of each non-empty column falls
+// off the board). Goal: only bunny's block remains.
 //
-// Note: with a full 4×4 starting grid, only 6 bunny positions are solvable:
-//   left-edge: [1,0] [2,0]   inner: [1,1] [1,2] [2,1] [2,2]
-// All solutions are exactly 4 moves long.
-// Difficulty: left-edge first (more constrained), inner last (less predictable
-// rotation path but more valid sequences to discover).
+// All 16 bunny positions are solvable. All solutions are exactly 4 moves.
+// Each solution step: { remove: [r,c], direction: "CW"|"CCW" }
 
 const fs = require('fs');
 
-// ── Physics — EXACT from spec ─────────────────────────────────────────────────
+// ── Physics — EXACT from spec (identical to lava.js) ─────────────────────────
 
 function rotateGrid90CW(grid, bunnyPos) {
   const size = 4;
@@ -23,9 +20,20 @@ function rotateGrid90CW(grid, bunnyPos) {
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       newGrid[c][size-1-r] = grid[r][c];
-      if (r === bunnyPos[0] && c === bunnyPos[1]) {
-        newBunnyPos = [c, size-1-r];
-      }
+      if (r === bunnyPos[0] && c === bunnyPos[1]) newBunnyPos = [c, size-1-r];
+    }
+  }
+  return { newGrid, newBunnyPos };
+}
+
+function rotateGrid90CCW(grid, bunnyPos) {
+  const size = 4;
+  const newGrid = Array.from({length: size}, () => Array(size).fill(0));
+  let newBunnyPos = [0, 0];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      newGrid[size-1-c][r] = grid[r][c];
+      if (r === bunnyPos[0] && c === bunnyPos[1]) newBunnyPos = [size-1-c, r];
     }
   }
   return { newGrid, newBunnyPos };
@@ -42,34 +50,23 @@ function applyGravity(grid, bunnyPos) {
     let bunnyIndexInColumn = -1;
     for (let r = 0; r < size; r++) {
       if (grid[r][c] !== 0) {
-        if (r === bunnyPos[0] && c === bunnyPos[1]) {
-          bunnyIndexInColumn = blocks.length;
-        }
+        if (r === bunnyPos[0] && c === bunnyPos[1]) bunnyIndexInColumn = blocks.length;
         blocks.push(1);
       }
     }
-
     if (blocks.length === 0) continue;
-
     if (blocks.length === 1) {
       if (bunnyIndexInColumn === 0) bunnySurvived = false;
       continue;
     }
-
+    const bottomBlockIsBunny = (bunnyIndexInColumn === blocks.length - 1);
+    if (bottomBlockIsBunny) { bunnySurvived = false; continue; }
     const surviving = blocks.length - 1;
-    const bottomBlockWasBunny = (bunnyIndexInColumn === blocks.length - 1);
-    if (bottomBlockWasBunny) {
-      bunnySurvived = false;
-      continue;
-    }
-
     for (let i = 0; i < surviving; i++) {
       const newRow = size - 1 - i;
       newGrid[newRow][c] = 1;
-      const originalIndexInSurviving = surviving - 1 - i;
-      if (bunnyIndexInColumn === originalIndexInSurviving) {
-        newBunnyPos = [newRow, c];
-      }
+      const originalIndex = surviving - 1 - i;
+      if (bunnyIndexInColumn === originalIndex) newBunnyPos = [newRow, c];
     }
   }
 
@@ -77,119 +74,119 @@ function applyGravity(grid, bunnyPos) {
   return { newGrid, newBunnyPos: newBunnyPos || bunnyPos, bunnySurvived: true };
 }
 
-function simulateTurn(grid, bunnyPos, removePos) {
+function simulateTurn(grid, bunnyPos, removePos, direction) {
   const afterRemove = grid.map(r => [...r]);
   afterRemove[removePos[0]][removePos[1]] = 0;
-
   const { newGrid: rotated, newBunnyPos: bunnyAfterRotate } =
-    rotateGrid90CW(afterRemove, bunnyPos);
-
-  const { newGrid: final, newBunnyPos: finalBunny, bunnySurvived } =
-    applyGravity(rotated, bunnyAfterRotate);
-
-  return { grid: final, bunnyPos: finalBunny, bunnySurvived };
+    direction === 'CW'
+      ? rotateGrid90CW(afterRemove, bunnyPos)
+      : rotateGrid90CCW(afterRemove, bunnyPos);
+  return applyGravity(rotated, bunnyAfterRotate);
 }
-
-// ── Win check ─────────────────────────────────────────────────────────────────
 
 function isWin(grid, bunnyPos) {
   for (let r = 0; r < 4; r++)
     for (let c = 0; c < 4; c++)
-      if (grid[r][c] && !(r === bunnyPos[0] && c === bunnyPos[1]))
-        return false;
+      if (grid[r][c] && !(r === bunnyPos[0] && c === bunnyPos[1])) return false;
   return true;
 }
 
-// ── Find ALL solutions (DFS, depth 4) ────────────────────────────────────────
+// ── Find one solution per distinct direction pattern ───────────────────────────
+// With 4 moves × 2 directions, there are at most 16 distinct direction patterns.
+// Storing one solution per pattern gives maximum variety for repeat positions.
 
-function findAllSolutions(startBunny) {
+function findSolutionsByPattern(startBunny) {
   const FULL = [[1,1,1,1],[1,1,1,1],[1,1,1,1],[1,1,1,1]];
-  const solutions = [];
+  const byPattern = {}; // "CWCCWCWCW" -> solution array
 
   function dfs(grid, bunny, path) {
     if (isWin(grid, bunny)) {
-      solutions.push(path.map(m => [...m]));
+      const key = path.map(s => s.direction).join('');
+      if (!byPattern[key]) {
+        byPattern[key] = path.map(s => ({ remove: [...s.remove], direction: s.direction }));
+      }
       return;
     }
     if (path.length >= 4) return;
-    for (let r = 0; r < 4; r++) {
-      for (let c = 0; c < 4; c++) {
-        if (!grid[r][c] || (r === bunny[0] && c === bunny[1])) continue;
-        const result = simulateTurn(grid, bunny, [r, c]);
-        if (!result.bunnySurvived) continue;
-        path.push([r, c]);
-        dfs(result.grid, result.bunnyPos, path);
-        path.pop();
+    for (const dir of ['CW', 'CCW']) {
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (!grid[r][c] || (r === bunny[0] && c === bunny[1])) continue;
+          const result = simulateTurn(grid, bunny, [r, c], dir);
+          if (!result.bunnySurvived) continue;
+          path.push({ remove: [r, c], direction: dir });
+          dfs(result.newGrid, result.newBunnyPos, path);
+          path.pop();
+        }
       }
     }
   }
 
   dfs(FULL, startBunny, []);
-  return solutions;
+  return byPattern;
 }
 
-// ── Difficulty schedule ───────────────────────────────────────────────────────
-// Only 6 bunny positions are solvable from a full 4×4 grid.
-// Left-edge ([1,0],[2,0]): fewer valid sequences → more constrained → levels 1-8
-// Inner ([1,1],[1,2],[2,1],[2,2]): more sequences → less predictable → levels 9-25
-// Positions repeat across 25 levels; each occurrence gets a distinct solution
-// drawn from that position's full solution pool.
+// ── Difficulty schedule ────────────────────────────────────────────────────────
+// Levels 1-4:   corners [0,0],[0,3],[3,0],[3,3]  (660 solutions each)
+// Levels 5-12:  edges   (1,356–1,384 solutions each)
+// Levels 13-16: inner   [1,1],[1,2],[2,1],[2,2]  (4,216 solutions each)
+// Levels 17-25: repeats with different direction patterns for maximum variety
 
 const SCHEDULE = [
-  // Levels 1-8: left-edge positions (fewer valid paths)
-  [1,0],[2,0],[1,0],[2,0],[1,0],[2,0],[1,0],[2,0],
-  // Levels 9-17: inner cells, first pass
-  [1,1],[2,1],[1,2],[2,2],[1,1],[2,1],[1,2],[2,2],[1,1],
-  // Levels 18-25: inner cells, second pass (different solutions)
-  [2,1],[1,2],[2,2],[1,1],[2,1],[1,2],[2,2],[1,1],
+  // Levels 1-4: corners
+  [0,0],[0,3],[3,0],[3,3],
+  // Levels 5-12: edges (top, left, right, bottom)
+  [0,1],[0,2],[1,0],[2,0],[1,3],[2,3],[3,1],[3,2],
+  // Levels 13-16: inner cells
+  [1,1],[1,2],[2,1],[2,2],
+  // Levels 17-20: corners again, different direction patterns
+  [0,0],[3,3],[0,3],[3,0],
+  // Levels 21-25: inner + edges, different direction patterns
+  [1,1],[2,2],[1,2],[2,1],[0,1],
 ];
 
-// ── Pre-compute all solutions per position ────────────────────────────────────
+// ── Pre-compute solutions for each unique bunny position ──────────────────────
 
-console.log('Pre-computing all solutions for each solvable position...');
-const SOLVABLE = [[1,0],[2,0],[1,1],[2,1],[1,2],[2,2]];
-const allSolutionsMap = {};
-for (const pos of SOLVABLE) {
-  const key = `${pos[0]},${pos[1]}`;
-  const sols = findAllSolutions(pos);
-  allSolutionsMap[key] = sols;
-  console.log(`  [${pos}]: ${sols.length} distinct solutions`);
+const uniqueKeys = [...new Set(SCHEDULE.map(p => p.join(',')))];
+const uniquePositions = uniqueKeys.map(k => k.split(',').map(Number));
+
+console.log('Pre-computing solutions by direction pattern for each unique position...\n');
+const patternMaps = {};
+for (const pos of uniquePositions) {
+  const key = pos.join(',');
+  process.stdout.write(`  [${pos}]... `);
+  patternMaps[key] = findSolutionsByPattern(pos);
+  const n = Object.keys(patternMaps[key]).length;
+  process.stdout.write(`${n} distinct direction patterns\n`);
 }
 
-// ── Generate levels ───────────────────────────────────────────────────────────
+// ── Generate 25 levels ────────────────────────────────────────────────────────
 
-console.log('\nGenerating 25 Lava levels (rotate+gravity mechanic)...\n');
+console.log('\nGenerating 25 Lava levels (player-chosen rotation)...\n');
 
-// Count occurrences per position to evenly space solution picks
-const positionCount = {};
-for (const pos of SCHEDULE) {
-  const key = `${pos[0]},${pos[1]}`;
-  positionCount[key] = (positionCount[key] || 0) + 1;
-}
-
-const positionPickIndex = {};
+const posOccurrence = {};
 const levels = [];
 
 for (let i = 0; i < SCHEDULE.length; i++) {
   const levelNum = i + 1;
   const bunny = SCHEDULE[i];
-  const key = `${bunny[0]},${bunny[1]}`;
-  const type = (bunny[1] === 0) ? 'left-edge' : 'inner   ';
+  const key = bunny.join(',');
+  const occurrence = (posOccurrence[key] || 0);
+  posOccurrence[key] = occurrence + 1;
 
-  const pool = allSolutionsMap[key];
-  const total = positionCount[key];
-  const pickIdx = positionPickIndex[key] || 0;
-  // Space picks evenly across the solution pool
-  const solutionIdx = Math.floor((pickIdx / total) * pool.length);
-  positionPickIndex[key] = pickIdx + 1;
-  const solution = pool[solutionIdx];
+  const patternMap = patternMaps[key];
+  const patterns = Object.keys(patternMap).sort();
+  // Each occurrence of this position picks a different direction pattern
+  const patternKey = patterns[occurrence % patterns.length];
+  const solution = patternMap[patternKey];
+  const dirStr = solution.map(s => s.direction).join('/');
 
-  process.stdout.write(`Level ${String(levelNum).padStart(2)} bunny=[${bunny}] ${type}  `);
-  console.log(`solution length=${solution.length}  moves=${JSON.stringify(solution)}`);
+  const tierLabel = i < 4 ? 'corner' : i < 12 ? 'edge  ' : i < 16 ? 'inner ' : 'repeat';
+  console.log(`Level ${String(levelNum).padStart(2)}: bunny=[${bunny}] ${tierLabel}  dirs=${dirStr.padEnd(14)}  moves=${JSON.stringify(solution.map(s => s.remove))}`);
   levels.push({ level: levelNum, bunny, solution });
 }
 
-// ── Verify ────────────────────────────────────────────────────────────────────
+// ── Verify all 25 levels by replaying solutions ───────────────────────────────
 
 console.log('\nVerifying all levels (replaying solutions)...');
 const FULL = [[1,1,1,1],[1,1,1,1],[1,1,1,1],[1,1,1,1]];
@@ -200,21 +197,33 @@ for (const { level, bunny, solution } of levels) {
   let pos = [...bunny];
   let ok = true;
 
-  for (const move of solution) {
-    if (!grid[move[0]][move[1]]) { console.error(`  Level ${level}: FAIL — cell [${move}] already empty`); ok = false; break; }
-    if (move[0] === pos[0] && move[1] === pos[1]) { console.error(`  Level ${level}: FAIL — tried to remove bunny cell`); ok = false; break; }
-    const result = simulateTurn(grid, pos, move);
-    if (!result.bunnySurvived) { console.error(`  Level ${level}: FAIL — bunny fell off at move [${move}]`); ok = false; break; }
-    grid = result.grid;
-    pos = result.bunnyPos;
+  for (const { remove, direction } of solution) {
+    if (!grid[remove[0]][remove[1]]) {
+      console.error(`  Level ${level}: FAIL — cell [${remove}] already empty`);
+      ok = false; break;
+    }
+    if (remove[0] === pos[0] && remove[1] === pos[1]) {
+      console.error(`  Level ${level}: FAIL — tried to remove bunny cell`);
+      ok = false; break;
+    }
+    const result = simulateTurn(grid, pos, remove, direction);
+    if (!result.bunnySurvived) {
+      console.error(`  Level ${level}: FAIL — bunny fell at move [${remove}] dir=${direction}`);
+      ok = false; break;
+    }
+    grid = result.newGrid;
+    pos = result.newBunnyPos;
   }
 
-  if (ok && !isWin(grid, pos)) { console.error(`  Level ${level}: FAIL — not a win state after solution`); ok = false; }
-  if (ok) console.log(`  Level ${level}: OK  (${solution.length} moves, bunny ends at [${pos}])`);
+  if (ok && !isWin(grid, pos)) {
+    console.error(`  Level ${level}: FAIL — not a win state after solution`);
+    ok = false;
+  }
+  if (ok) console.log(`  Level ${level}: OK  (bunny ends at [${pos}])`);
   else allOk = false;
 }
 
-if (!allOk) { console.error('\nSome levels failed — check above.'); process.exit(1); }
+if (!allOk) { console.error('\nSome levels failed.'); process.exit(1); }
 
 console.log('\nAll 25 levels verified ✓');
 fs.writeFileSync('assets/data/lava-levels.json', JSON.stringify(levels, null, 2));

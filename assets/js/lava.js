@@ -1,12 +1,12 @@
-/* ── Lava — rotate & gravity puzzle ──────────────────────────────────────── */
+/* ── Lava — rotate & gravity puzzle (player-chosen direction) ─────────────── */
 'use strict';
 
 const DIRECTIONS_TEXT =
   'Lava gives you a 4×4 grid of ice blocks floating above lava. The blue bunny is perched on one of them. ' +
-  'Each turn, click a block to remove it — then the whole grid rotates 90° clockwise and gravity pulls everything down. ' +
-  'Any block that hits the bottom of the frame with nothing beneath it falls into the lava and is gone. ' +
-  'If the bunny\'s block hits the frame, the bunny falls in too and the round is over. ' +
-  'Clear every block except the bunny\'s and you win. Think carefully — every rotation changes everything.';
+  'Each turn: click a block to remove it, then choose which way to rotate the grid — clockwise or counterclockwise. ' +
+  'After every rotation, gravity pulls everything down, and any block that hits the bottom of the frame ' +
+  'with nothing beneath it falls into the lava and is gone. If the bunny\'s block hits the frame, it\'s over. ' +
+  'Every puzzle is exactly four moves. Think carefully — your rotation choice changes everything.';
 
 const BUNNY_SRC = 'assets/icons/blue-bunny.svg';
 const STORAGE_KEY = 'lava_highestLevel';
@@ -20,9 +20,20 @@ function rotateGrid90CW(grid, bunnyPos) {
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       newGrid[c][size-1-r] = grid[r][c];
-      if (r === bunnyPos[0] && c === bunnyPos[1]) {
-        newBunnyPos = [c, size-1-r];
-      }
+      if (r === bunnyPos[0] && c === bunnyPos[1]) newBunnyPos = [c, size-1-r];
+    }
+  }
+  return { newGrid, newBunnyPos };
+}
+
+function rotateGrid90CCW(grid, bunnyPos) {
+  const size = 4;
+  const newGrid = Array.from({length: size}, () => Array(size).fill(0));
+  let newBunnyPos = [0, 0];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      newGrid[size-1-c][r] = grid[r][c];
+      if (r === bunnyPos[0] && c === bunnyPos[1]) newBunnyPos = [size-1-c, r];
     }
   }
   return { newGrid, newBunnyPos };
@@ -39,9 +50,7 @@ function applyGravity(grid, bunnyPos) {
     let bunnyIndexInColumn = -1;
     for (let r = 0; r < size; r++) {
       if (grid[r][c] !== 0) {
-        if (r === bunnyPos[0] && c === bunnyPos[1]) {
-          bunnyIndexInColumn = blocks.length;
-        }
+        if (r === bunnyPos[0] && c === bunnyPos[1]) bunnyIndexInColumn = blocks.length;
         blocks.push(1);
       }
     }
@@ -50,35 +59,35 @@ function applyGravity(grid, bunnyPos) {
       if (bunnyIndexInColumn === 0) bunnySurvived = false;
       continue;
     }
+    const bottomBlockIsBunny = (bunnyIndexInColumn === blocks.length - 1);
+    if (bottomBlockIsBunny) { bunnySurvived = false; continue; }
     const surviving = blocks.length - 1;
-    const bottomBlockWasBunny = (bunnyIndexInColumn === blocks.length - 1);
-    if (bottomBlockWasBunny) { bunnySurvived = false; continue; }
     for (let i = 0; i < surviving; i++) {
       const newRow = size - 1 - i;
       newGrid[newRow][c] = 1;
-      const originalIndexInSurviving = surviving - 1 - i;
-      if (bunnyIndexInColumn === originalIndexInSurviving) {
-        newBunnyPos = [newRow, c];
-      }
+      const originalIndex = surviving - 1 - i;
+      if (bunnyIndexInColumn === originalIndex) newBunnyPos = [newRow, c];
     }
   }
+
   if (!bunnySurvived) return { newGrid, newBunnyPos: null, bunnySurvived: false };
   return { newGrid, newBunnyPos: newBunnyPos || bunnyPos, bunnySurvived: true };
 }
 
-function simulateTurn(grid, bunnyPos, removePos) {
+function simulateTurn(grid, bunnyPos, removePos, direction) {
   const afterRemove = grid.map(r => [...r]);
   afterRemove[removePos[0]][removePos[1]] = 0;
-  const { newGrid: rotated, newBunnyPos: bunnyAfterRotate } = rotateGrid90CW(afterRemove, bunnyPos);
-  const { newGrid: final, newBunnyPos: finalBunny, bunnySurvived } = applyGravity(rotated, bunnyAfterRotate);
-  return { grid: final, bunnyPos: finalBunny, bunnySurvived };
+  const { newGrid: rotated, newBunnyPos: bunnyAfterRotate } =
+    direction === 'CW'
+      ? rotateGrid90CW(afterRemove, bunnyPos)
+      : rotateGrid90CCW(afterRemove, bunnyPos);
+  return applyGravity(rotated, bunnyAfterRotate);
 }
 
 function isWin(grid, bunnyPos) {
   for (let r = 0; r < 4; r++)
     for (let c = 0; c < 4; c++)
-      if (grid[r][c] && !(r === bunnyPos[0] && c === bunnyPos[1]))
-        return false;
+      if (grid[r][c] && !(r === bunnyPos[0] && c === bunnyPos[1])) return false;
   return true;
 }
 
@@ -87,27 +96,28 @@ let levels = [];
 let currentLevel = 0;
 let grid = [];
 let bunny = [0, 0];
-let busy = false;
+// Turn state machine: 'IDLE' | 'AWAITING_DIRECTION' | 'ANIMATING'
+let turnState = 'IDLE';
+let pendingRemovePos = null;
 let moveCount = 0;
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
 let gridEl, countEl, levelLabelEl, winOverlay, loseOverlay, winSubEl;
+let cwBtn, ccwBtn, rotatePromptEl;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function cellEl(r, c) {
-  return gridEl.children[r * 4 + c];
-}
-
-function blockCount() {
-  let n = 0;
-  for (let r = 0; r < 4; r++)
-    for (let c = 0; c < 4; c++)
-      if (grid[r][c] && !(r === bunny[0] && c === bunny[1])) n++;
-  return n;
-}
+function cellEl(r, c) { return gridEl.children[r * 4 + c]; }
 
 function updateCounter() {
   countEl.textContent = moveCount;
+}
+
+function setRotateButtons(active) {
+  cwBtn.disabled  = !active;
+  ccwBtn.disabled = !active;
+  cwBtn.classList.toggle('lava-rotate-active', active);
+  ccwBtn.classList.toggle('lava-rotate-active', active);
+  rotatePromptEl.classList.toggle('hidden', !active);
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -147,93 +157,109 @@ function refreshAllCells() {
       refreshCell(cellEl(r, c), r, c);
 }
 
-// ── Click handler with rotation animation ─────────────────────────────────────
+// ── Block click (Step 1 of turn) ─────────────────────────────────────────────
 function onCellClick(r, c) {
-  if (busy) return;
+  if (turnState !== 'IDLE') return;
   if (!grid[r][c]) return;
   if (r === bunny[0] && c === bunny[1]) return;
-  busy = true;
+
+  // Visually pop the block off immediately
+  const el = cellEl(r, c);
+  el.classList.remove('filled');
+  el.classList.add('empty');
+  el.innerHTML = '';
+
+  pendingRemovePos = [r, c];
   moveCount++;
   updateCounter();
+  turnState = 'AWAITING_DIRECTION';
+  setRotateButtons(true);
+}
 
-  // Pre-compute the full turn result
-  const result = simulateTurn(grid, bunny, [r, c]);
+// ── Direction click (Step 2 of turn) ─────────────────────────────────────────
+function onDirectionClick(direction) {
+  if (turnState !== 'AWAITING_DIRECTION') return;
+  turnState = 'ANIMATING';
+  setRotateButtons(false);
 
-  // Identify which original DOM cells gravity will remove (for post-rotation clone animation).
-  // rotateGrid90CW maps original[r][c] → rotated[c][3-r],
-  // so rotated[rotR][rotC] came from original[3-rotC][rotR].
+  const result = simulateTurn(grid, bunny, pendingRemovePos, direction);
+
+  // Identify which original DOM cells gravity will remove.
+  // CW:  rotated[rotR][rotC] came from original[3-rotC][rotR]
+  // CCW: rotated[rotR][rotC] came from original[rotC][3-rotR]
   const afterRemove = grid.map(row => [...row]);
-  afterRemove[r][c] = 0;
-  const { newGrid: rotatedGrid } = rotateGrid90CW(afterRemove, bunny);
+  afterRemove[pendingRemovePos[0]][pendingRemovePos[1]] = 0;
+  const { newGrid: rotatedGrid } = direction === 'CW'
+    ? rotateGrid90CW(afterRemove, bunny)
+    : rotateGrid90CCW(afterRemove, bunny);
 
-  const fallenDomCells = []; // [origR, origC] for each cell gravity removes
+  const fallenDomCells = [];
   for (let rotC = 0; rotC < 4; rotC++) {
     let bottomRotR = -1;
     for (let rotR = 3; rotR >= 0; rotR--) {
       if (rotatedGrid[rotR][rotC]) { bottomRotR = rotR; break; }
     }
     if (bottomRotR === -1) continue;
-    const origR = 3 - rotC;
-    const origC = bottomRotR;
-    if (origR === r && origC === c) continue; // already removed
+    let origR, origC;
+    if (direction === 'CW') {
+      origR = 3 - rotC;
+      origC = bottomRotR;
+    } else {
+      origR = rotC;
+      origC = 3 - bottomRotR;
+    }
+    if (origR === pendingRemovePos[0] && origC === pendingRemovePos[1]) continue;
     fallenDomCells.push([origR, origC]);
   }
 
-  // Step 1: visually pop the clicked cell off immediately
-  const clickedEl = cellEl(r, c);
-  clickedEl.classList.remove('filled');
-  clickedEl.classList.add('empty');
-  clickedEl.innerHTML = '';
-
-  // Step 2: brief pause then start grid CSS rotation
+  // CSS rotation animation
+  const deg = direction === 'CW' ? 90 : -90;
   setTimeout(() => {
     gridEl.style.transition = 'transform 0.5s ease-in-out';
-    void gridEl.offsetWidth; // force reflow so transition takes effect
-    gridEl.style.transform = 'rotate(90deg)';
+    void gridEl.offsetWidth;
+    gridEl.style.transform = `rotate(${deg}deg)`;
 
     let rotationHandled = false;
-
     const afterRotation = () => {
       if (rotationHandled) return;
       rotationHandled = true;
       gridEl.removeEventListener('transitionend', onTransitionEnd);
 
       if (!result.bunnySurvived) {
-        // Snap grid back, re-render with bunny still visible, play lose animation
         gridEl.style.transition = 'none';
         gridEl.style.transform = '';
         void gridEl.offsetWidth;
         gridEl.style.transition = '';
+        grid[pendingRemovePos[0]][pendingRemovePos[1]] = 0;
         refreshAllCells();
         triggerLose();
         return;
       }
 
-      // Capture screen positions of gravity-fallen cells while grid is still at 90°
+      // Capture screen positions of gravity-fallen cells while grid is rotated
       const fallenRects = fallenDomCells.map(([dr, dc]) => ({
         rect: cellEl(dr, dc).getBoundingClientRect(),
         isBunnyCell: dr === bunny[0] && dc === bunny[1],
       }));
 
-      // Step 3: snap grid back to 0°, re-render final state
+      // Snap grid back to 0°, apply physics state
       gridEl.style.transition = 'none';
       gridEl.style.transform = '';
       void gridEl.offsetWidth;
       gridEl.style.transition = '';
 
-      grid = result.grid;
-      bunny = result.bunnyPos;
+      grid = result.newGrid;
+      bunny = result.newBunnyPos;
       refreshAllCells();
-      updateCounter();
 
-      // Step 4: create fixed-position clones of fallen cells and animate them down
+      // Gravity-fall clone animation
       const clones = fallenRects.map(({ rect, isBunnyCell }) => {
         const clone = document.createElement('div');
         clone.className = 'lava-cell lava-gravity-clone ' + (isBunnyCell ? 'bunny' : 'filled');
         clone.style.cssText =
           `position:fixed;left:${rect.left}px;top:${rect.top}px;` +
           `width:${rect.width}px;height:${rect.height}px;` +
-          `z-index:50;pointer-events:none;margin:0;padding:0;box-sizing:border-box;`;
+          `z-index:50;pointer-events:none;margin:0;box-sizing:border-box;`;
         document.body.appendChild(clone);
         return clone;
       });
@@ -246,17 +272,17 @@ function onCellClick(r, c) {
 
       setTimeout(() => {
         clones.forEach(cl => cl.remove());
+        pendingRemovePos = null;
         if (isWin(grid, bunny)) {
           triggerWin();
         } else {
-          busy = false;
+          turnState = 'IDLE';
         }
       }, 260);
     };
 
     const onTransitionEnd = (e) => { if (e.target === gridEl) afterRotation(); };
     gridEl.addEventListener('transitionend', onTransitionEnd);
-    // Fallback: if transitionend never fires, proceed after transition duration
     setTimeout(afterRotation, 560);
   }, 80);
 }
@@ -293,10 +319,10 @@ function triggerWin() {
 }
 
 function triggerLose() {
-  busy = true;
+  turnState = 'ANIMATING';
   animateBunnyFall(() => {
     loseOverlay.classList.remove('hidden');
-    busy = false;
+    turnState = 'IDLE';
   });
 }
 
@@ -304,10 +330,13 @@ function triggerLose() {
 function showSolution() {
   const lvl = levels[currentLevel];
   if (!lvl || !lvl.solution) return;
-  const solSet = new Set(lvl.solution.map(([r, c]) => `${r},${c}`));
-  for (let r = 0; r < 4; r++)
-    for (let c = 0; c < 4; c++)
-      if (solSet.has(`${r},${c}`)) cellEl(r, c).classList.add('solution-highlight');
+  // Highlight removal blocks and show direction pattern
+  const dirPattern = lvl.solution.map(s => s.direction).join(' → ');
+  const hintEl = document.getElementById('lava-solution-hint');
+  if (hintEl) { hintEl.textContent = `Rotations: ${dirPattern}`; hintEl.classList.remove('hidden'); }
+  lvl.solution.forEach(({ remove }) => {
+    if (grid[remove[0]][remove[1]]) cellEl(remove[0], remove[1]).classList.add('solution-highlight');
+  });
 }
 
 function doGiveUp() {
@@ -315,12 +344,13 @@ function doGiveUp() {
   loadLevel(currentLevel);
   showSolution();
   setTimeout(() => {
+    document.getElementById('lava-solution-hint')?.classList.add('hidden');
     if (currentLevel >= levels.length - 1) {
       document.getElementById('lava-complete').classList.remove('hidden');
     } else {
       loadLevel(currentLevel + 1);
     }
-  }, 1500);
+  }, 2000);
 }
 
 // ── Share ─────────────────────────────────────────────────────────────────────
@@ -346,20 +376,22 @@ function loadLevel(index) {
   currentLevel = index;
   bunny = [...lvl.bunny];
   grid = [[1,1,1,1],[1,1,1,1],[1,1,1,1],[1,1,1,1]];
+  turnState = 'IDLE';
+  pendingRemovePos = null;
   moveCount = 0;
 
-  // Reset any in-progress grid rotation
   gridEl.style.transition = 'none';
   gridEl.style.transform = '';
 
   levelLabelEl.textContent = `Level ${lvl.level}`;
   updateCounter();
   buildGrid();
+  setRotateButtons(false);
 
   winOverlay.classList.add('hidden');
   loseOverlay.classList.add('hidden');
   document.getElementById('lava-complete').classList.add('hidden');
-  busy = false;
+  document.getElementById('lava-solution-hint')?.classList.add('hidden');
 }
 
 // ── Level select ──────────────────────────────────────────────────────────────
@@ -372,12 +404,15 @@ function showLevelSelect(highestLevel) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  gridEl       = document.getElementById('lava-grid');
-  countEl      = document.getElementById('lava-count');
-  levelLabelEl = document.getElementById('lava-level-label');
-  winOverlay   = document.getElementById('lava-win');
-  loseOverlay  = document.getElementById('lava-lose');
-  winSubEl     = document.getElementById('lava-win-sub');
+  gridEl        = document.getElementById('lava-grid');
+  countEl       = document.getElementById('lava-count');
+  levelLabelEl  = document.getElementById('lava-level-label');
+  winOverlay    = document.getElementById('lava-win');
+  loseOverlay   = document.getElementById('lava-lose');
+  winSubEl      = document.getElementById('lava-win-sub');
+  cwBtn         = document.getElementById('lava-cw-btn');
+  ccwBtn        = document.getElementById('lava-ccw-btn');
+  rotatePromptEl = document.getElementById('lava-rotate-prompt');
 
   try {
     const res = await fetch('assets/data/lava-levels.json');
@@ -388,22 +423,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Splash: shown on every fresh page load; Play button dismisses it
+  // Splash: shown on every fresh page load
   const splashEl = document.getElementById('lava-splash');
-  loadLevel(0); // pre-load so grid is ready behind splash
+  loadLevel(0);
 
   document.getElementById('lava-splash-play').addEventListener('click', () => {
     splashEl.classList.add('hidden');
     const saved = parseInt(localStorage.getItem(STORAGE_KEY) || '1', 10);
-    if (saved > 1) {
-      showLevelSelect(Math.min(saved, levels.length));
-    }
+    if (saved > 1) showLevelSelect(Math.min(saved, levels.length));
   });
 
   document.getElementById('help-btn').addEventListener('click', () => openDirections(DIRECTIONS_TEXT));
 
+  cwBtn.addEventListener('click',  () => onDirectionClick('CW'));
+  ccwBtn.addEventListener('click', () => onDirectionClick('CCW'));
+
   document.getElementById('lava-restart-btn').addEventListener('click', () => {
-    if (busy) return;
+    if (turnState === 'ANIMATING') return;
     loadLevel(currentLevel);
   });
 
