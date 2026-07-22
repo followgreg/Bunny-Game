@@ -264,7 +264,8 @@ function loadLevel(index) {
   currentLevel = index;
   bunny = [...lvl.bunny];
   remaining = lvl.removeCount;
-  grid = lvl.grid.map(row => row.map(v => v === 1));
+  // Every level starts with all 16 cells filled — grid field is omitted from JSON
+  grid = [[true,true,true,true],[true,true,true,true],[true,true,true,true],[true,true,true,true]];
 
   levelLabelEl.textContent = `Level ${lvl.level}`;
   updateCounter();
