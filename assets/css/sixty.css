@@ -75,13 +75,18 @@
 }
 
 /* ── Button grid ────────────────────────────────────────────────────────── */
+#sixty-grid-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 28px;
+}
+
 #sixty-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
   width: 100%;
-  max-width: 320px;
-  margin-bottom: 28px;
 }
 
 .sixty-btn {
@@ -119,19 +124,26 @@
 
 /* ── Start button ───────────────────────────────────────────────────────── */
 #sixty-start-btn {
-  background: #4CAF50;
-  color: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  color: #0f172a;
   border: none;
   border-radius: 28px;
-  padding: 13px 48px;
+  padding: 14px 52px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
   cursor: pointer;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45);
   transition: opacity 0.15s, transform 0.1s;
+  z-index: 10;
+  white-space: nowrap;
 }
-#sixty-start-btn:active { transform: scale(0.97); opacity: 0.9; }
+#sixty-start-btn:active { transform: translate(-50%, -50%) scale(0.97); opacity: 0.9; }
 #sixty-start-btn.hidden { display: none; }
 
 /* ── End-screen overlay ─────────────────────────────────────────────────── */
