@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v145';
+const CACHE = 'bunnygame-v146';
 const ASSETS = [
   '/',
   '/index.html',
@@ -167,6 +167,12 @@ const ASSETS = [
   '/assets/og-images/bunny-hop-og.png',
   '/assets/og-images/cabbage-drop-og.png',
   '/assets/og-images/whiskers-og.png',
+  '/proof.html',
+  '/assets/css/proof.css',
+  '/assets/js/proof.js',
+  '/assets/data/proof-index.json',
+  '/assets/logos/proof_logo.svg',
+  '/assets/og-images/proof-og.png',
   '/colorblind.html',
   '/assets/css/colorblind.css',
   '/assets/js/colorblind.js',
