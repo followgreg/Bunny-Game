@@ -181,6 +181,14 @@
 
   // ── Advance level ─────────────────────────────────────────────────────────
   function advanceLevel() {
+    // Instantly clear highlight before new question loads (suppress CSS transition
+    // so the green/wrong state never flashes on top of the new question's text)
+    answerBtns.forEach(function (btn) {
+      btn.style.transition = 'none';
+      btn.className = 'lexi-answer-btn';
+      btn.disabled = false;
+    });
+
     // Save checkpoint at multiples of 10
     if (currentLevel % 10 === 0) {
       checkpoint = currentLevel;
@@ -194,6 +202,13 @@
     }
 
     startLevel(currentLevel + 1);
+
+    // Re-enable transitions after the clean state has painted
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        answerBtns.forEach(function (btn) { btn.style.transition = ''; });
+      });
+    });
   }
 
   // ── Fail screen ───────────────────────────────────────────────────────────
