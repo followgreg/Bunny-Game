@@ -1,0 +1,319 @@
+/* ── Lexi — vocabulary game ──────────────────────────────────────────────── */
+
+body {
+  background: #F5F0E8;
+}
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+#lexi-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100dvh - 60px);
+  padding: 20px 20px calc(40px + env(safe-area-inset-bottom));
+  font-family: 'DM Sans', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Info bar ────────────────────────────────────────────────────────────── */
+#lexi-infobar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 20px;
+}
+
+#lexi-level-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7A5C34;
+}
+
+.lexi-checkpoint-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #A08060;
+  letter-spacing: 0.03em;
+}
+
+/* ── Definition card ─────────────────────────────────────────────────────── */
+#lexi-card {
+  width: 100%;
+  max-width: 560px;
+  background: #FDFAF4;
+  border: 1px solid #D8CAB2;
+  border-radius: 16px;
+  padding: 32px 28px;
+  margin-bottom: 20px;
+  box-shadow:
+    0 1px 3px rgba(60, 42, 20, 0.06),
+    0 4px 16px rgba(60, 42, 20, 0.06);
+}
+
+.lexi-definition {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  line-height: 1.7;
+  color: #1A1008;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ── Answer buttons ──────────────────────────────────────────────────────── */
+#lexi-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.lexi-answer-btn {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #FDFAF4;
+  border: 1.5px solid #D0C0A8;
+  border-radius: 12px;
+  padding: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  color: #1A1008;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+  width: 100%;
+}
+
+.lexi-answer-btn:hover:not(:disabled) {
+  background: #F0E8D8;
+  border-color: #B8A488;
+}
+
+.lexi-answer-btn:active:not(:disabled) {
+  transform: scale(0.985);
+  background: #EAE0CC;
+}
+
+.lexi-answer-btn:disabled {
+  cursor: default;
+}
+
+.lexi-btn-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 100%;
+  padding: 16px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #A08060;
+  background: rgba(210, 190, 160, 0.18);
+  border-right: 1.5px solid #D0C0A8;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.lexi-btn-word {
+  padding: 16px 18px;
+  flex: 1;
+}
+
+/* Correct / wrong feedback */
+.lexi-answer-btn.lexi-correct {
+  background: #EAF5EA;
+  border-color: #4A9B4A;
+  color: #1A4A1A;
+}
+.lexi-answer-btn.lexi-correct .lexi-btn-label {
+  background: rgba(74, 155, 74, 0.15);
+  border-right-color: #4A9B4A;
+  color: #2D6A2D;
+}
+
+.lexi-answer-btn.lexi-wrong {
+  background: #F5EAEA;
+  border-color: #C04040;
+  color: #4A1A1A;
+}
+.lexi-answer-btn.lexi-wrong .lexi-btn-label {
+  background: rgba(192, 64, 64, 0.15);
+  border-right-color: #C04040;
+  color: #8B2020;
+}
+
+/* ── Overlays ────────────────────────────────────────────────────────────── */
+.lexi-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 16, 6, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: lexiFadeIn 0.25s ease;
+  padding: 20px;
+}
+.lexi-overlay.hidden { display: none; }
+
+.lexi-modal {
+  background: #FDFAF4;
+  border: 1px solid #D8CAB2;
+  border-radius: 20px;
+  padding: 36px 28px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.lexi-modal-emoji {
+  font-size: 2.8rem;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.lexi-modal-logo {
+  width: 130px;
+  margin-bottom: 4px;
+}
+.lexi-modal-logo img {
+  width: 100%;
+  height: auto;
+  filter: brightness(0);
+}
+
+.lexi-modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.75rem;
+  color: #1A1008;
+  margin: 0;
+  font-weight: 600;
+}
+
+.lexi-modal-sub {
+  font-size: 0.95rem;
+  color: #6B5030;
+  margin: 0 0 4px;
+  line-height: 1.5;
+}
+
+.lexi-modal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.lexi-btn {
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  text-align: center;
+}
+.lexi-btn:active { transform: scale(0.97); }
+
+.lexi-btn-primary {
+  background: #3C2A14;
+  color: #F5F0E8;
+  border: 1.5px solid #3C2A14;
+}
+.lexi-btn-primary:hover { background: #4E3820; }
+
+.lexi-btn-secondary {
+  background: transparent;
+  color: #3C2A14;
+  border: 1.5px solid #C8B898;
+}
+.lexi-btn-secondary:hover { background: #F0E8D8; }
+
+/* ── Splash text ─────────────────────────────────────────────────────────── */
+.lexi-splash-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #5A3E20;
+  text-align: left;
+  margin: 2px 0 6px;
+}
+
+/* ── Fail reveal block ───────────────────────────────────────────────────── */
+.lexi-reveal-block {
+  background: #F5EFE5;
+  border: 1px solid #D0C0A8;
+  border-radius: 10px;
+  padding: 16px 18px;
+  text-align: left;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.lexi-reveal-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #A08060;
+  margin: 0 0 6px;
+}
+
+.lexi-reveal-word {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1A1008;
+  margin: 0 0 8px;
+}
+
+.lexi-reveal-def {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #5A3E20;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Animation ───────────────────────────────────────────────────────────── */
+@keyframes lexiFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (min-width: 500px) {
+  .lexi-definition { font-size: 1.5rem; }
+  #lexi-card { padding: 40px 36px; }
+}
+
+@media (max-width: 360px) {
+  .lexi-definition { font-size: 1.15rem; }
+  #lexi-card { padding: 24px 18px; }
+  .lexi-answer-btn { font-size: 0.95rem; }
+}

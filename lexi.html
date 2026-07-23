@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lexi — a vocabulary game — Bunny Game</title>
+  <meta name="description" content="100 levels of increasingly obscure words. One wrong answer and you start over. How far can you get?">
+  <meta property="og:title" content="Lexi — a vocabulary game — Bunny Game">
+  <meta property="og:description" content="100 levels of increasingly obscure words. One wrong answer and you start over. How far can you get?">
+  <meta property="og:url" content="https://www.thebunnygame.com/lexi">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/lexi-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/lexi-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/lexi">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#3C2A14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/lexi.css">
+</head>
+<body data-tab="lexi">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Game wrap ─────────────────────────────────────────────────────────── -->
+<div id="lexi-wrap">
+
+  <!-- Info bar -->
+  <div id="lexi-infobar">
+    <span id="lexi-level-label">Level 1</span>
+    <span id="lexi-checkpoint-label" class="lexi-checkpoint-label">No checkpoint yet</span>
+  </div>
+
+  <!-- Definition card -->
+  <div id="lexi-card">
+    <p id="lexi-definition" class="lexi-definition"></p>
+  </div>
+
+  <!-- Answer buttons -->
+  <div id="lexi-answers">
+    <button class="lexi-answer-btn" data-index="0"></button>
+    <button class="lexi-answer-btn" data-index="1"></button>
+    <button class="lexi-answer-btn" data-index="2"></button>
+    <button class="lexi-answer-btn" data-index="3"></button>
+  </div>
+
+</div><!-- /#lexi-wrap -->
+
+<!-- ── Splash overlay ─────────────────────────────────────────────────────── -->
+<div id="lexi-splash" class="lexi-overlay">
+  <div class="lexi-modal">
+    <div class="lexi-modal-logo">
+      <img src="assets/logos/lexi_logo.svg" alt="Lexi">
+    </div>
+    <p class="lexi-splash-text" id="lexi-splash-text"></p>
+    <div class="lexi-modal-btns">
+      <button class="lexi-btn lexi-btn-primary" id="lexi-splash-begin">Begin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Level select overlay (resume prompt) ──────────────────────────────── -->
+<div id="lexi-level-select" class="lexi-overlay hidden">
+  <div class="lexi-modal">
+    <div class="lexi-modal-emoji">📖</div>
+    <h2 class="lexi-modal-title">Welcome back</h2>
+    <p class="lexi-modal-sub" id="lexi-resume-sub">You were on level 1.</p>
+    <div class="lexi-modal-btns">
+      <button class="lexi-btn lexi-btn-primary" id="lexi-continue-btn">Continue</button>
+      <button class="lexi-btn" id="lexi-from-start-btn">Start from Level 1</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Fail overlay ──────────────────────────────────────────────────────── -->
+<div id="lexi-fail" class="lexi-overlay hidden">
+  <div class="lexi-modal">
+    <div class="lexi-modal-emoji">📕</div>
+    <h2 class="lexi-modal-title">Lexi</h2>
+    <p class="lexi-modal-sub">You fell at level <strong id="lexi-fail-level"></strong>.</p>
+    <div class="lexi-reveal-block">
+      <p class="lexi-reveal-label">The word was:</p>
+      <p class="lexi-reveal-word" id="lexi-fail-word"></p>
+      <p class="lexi-reveal-def" id="lexi-fail-def"></p>
+    </div>
+    <div class="lexi-modal-btns">
+      <button class="lexi-btn lexi-btn-secondary" id="lexi-fail-share-btn">Share</button>
+      <button class="lexi-btn lexi-btn-primary" id="lexi-restart-btn">Restart from Level 1</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Win overlay ───────────────────────────────────────────────────────── -->
+<div id="lexi-win" class="lexi-overlay hidden">
+  <div class="lexi-modal">
+    <div class="lexi-modal-emoji">🏆</div>
+    <h2 class="lexi-modal-title">Lexi Complete</h2>
+    <p class="lexi-modal-sub">All 100 levels. You have an exceptional vocabulary.</p>
+    <div class="lexi-modal-btns">
+      <button class="lexi-btn lexi-btn-secondary" id="lexi-win-share-btn">Share</button>
+      <button class="lexi-btn lexi-btn-primary" id="lexi-play-again-btn">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Directions popup ──────────────────────────────────────────────────── -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/lexi.js"></script>
+</body>
+</html>
