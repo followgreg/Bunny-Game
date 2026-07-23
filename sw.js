@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v143';
+const CACHE = 'bunnygame-v144';
 const ASSETS = [
   '/',
   '/index.html',
@@ -143,6 +143,12 @@ const ASSETS = [
   '/assets/og-images/shaded-og.png',
   '/assets/og-images/lava-og.png',
   '/assets/logos/lava_logo.svg',
+  '/lexi.html',
+  '/assets/css/lexi.css',
+  '/assets/js/lexi.js',
+  '/assets/data/lexi-questions.json',
+  '/assets/logos/lexi_logo.svg',
+  '/assets/og-images/lexi-og.png',
   '/colorblind.html',
   '/assets/css/colorblind.css',
   '/assets/js/colorblind.js',
