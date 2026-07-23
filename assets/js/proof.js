@@ -235,43 +235,15 @@
     }
   }
 
-  // ── Load today's passage ──────────────────────────────────────────────────────
+  // ── Load today's passage from the index (no external fetch needed) ───────────
   function loadPassage(storedResult) {
     show(loadingEl);
 
     fetch('assets/data/proof-index.json')
       .then(function (r) { return r.json(); })
       .then(function (index) {
-        entry = getDailyEntry(index);
-        var url = 'https://www.gutenberg.org/cache/epub/' + entry.gutenbergId + '/pg' + entry.gutenbergId + '.txt';
-        return fetchWithTimeout(url, FETCH_TIMEOUT_MS);
-      })
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
-      })
-      .then(function (fullText) {
-        // Extract passage using char offsets from index
-        var raw = fullText.slice(entry.charStart, entry.charEnd);
-        var passage = cleanSlice(raw);
-
-        // Verify the original word is present; if offset drift occurred, expand window
-        var wordRe = new RegExp('\\b' + escRe(entry.typoWordOriginal) + '\\b');
-        if (!wordRe.test(passage)) {
-          var wider = fullText.slice(
-            Math.max(0, entry.charStart - 400),
-            entry.charEnd + 400
-          );
-          passage = cleanSlice(wider);
-        }
-
-        // Insert typo: replace first (only) occurrence of the original word
-        passage = passage.replace(
-          new RegExp('\\b' + escRe(entry.typoWordOriginal) + '\\b'),
-          entry.typoWordCorrupted
-        );
-
-        passageText = passage;
+        entry       = getDailyEntry(index);
+        passageText = entry.passage;
 
         if (storedResult && storedResult.solved) {
           showResult(storedResult.elapsed);

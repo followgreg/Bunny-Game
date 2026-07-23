@@ -267,17 +267,18 @@ function buildEntry(para, baseOffset, source, id, typoType) {
   if (countWord(passage, corrupted) > 0) return null;
 
   // charStart is offset in the FULL raw file (baseOffset = boilerplate offset)
-  const charStart = baseOffset + para.rawStart;
-  // charEnd is generous — runtime will clean and trim
-  const charEnd   = charStart + para.rawLen;
+  // Insert typo into the clean passage for storage
+  const passageWithTypo = passage.replace(
+    new RegExp('\\b' + escRe(target) + '\\b'),
+    corrupted
+  );
 
   return {
     id,
     gutenbergId:       source.id,
     title:             source.title,
     author:            source.author,
-    charStart,
-    charEnd,
+    passage:           passageWithTypo,
     typoWordOriginal:  target,
     typoWordCorrupted: corrupted,
     typoType:          useTransposition ? 'transposition' : 'substitution',
