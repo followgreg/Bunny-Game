@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  const DIRECTIONS_TEXT = 'Lexi gives you a definition and four possible words. Only one is spelled correctly and means what the definition says. The others might be real words that don\'t fit, or plausible misspellings of the right answer -- or both. Get it right and move on. Get it wrong and the run ends. Checkpoints save your progress every ten levels, so you won\'t have to start completely from scratch. One hundred levels, each more obscure than the last.';
+  const DIRECTIONS_TEXT = 'Lexi gives you a definition and four possible words. Only one means what the definition says. The others are real words chosen to deceive -- sharing roots, sounding similar, or belonging to the same field as the correct answer. Get it right and move on. Get it wrong and the run ends. Checkpoints save your progress every ten levels, so you won\'t have to start completely from scratch. One hundred levels, each more obscure than the last.';
 
   const SHARE_URL = 'https://www.thebunnygame.com/lexi';
   const LABELS = ['A', 'B', 'C', 'D'];

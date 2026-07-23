@@ -5,13 +5,8 @@
     "correct": "sycophant",
     "distractors": [
       "toady",
-      "sycophent",
+      "adulator",
       "fawner"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -19,14 +14,9 @@
     "definition": "Lasting for only a very short time; quickly fading or disappearing",
     "correct": "ephemeral",
     "distractors": [
-      "ephemoral",
+      "fugacious",
       "transient",
       "evanescent"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -34,14 +24,9 @@
     "definition": "Guilty of deceit and betrayal; untrustworthy in a way that is likely to cause harm",
     "correct": "perfidious",
     "distractors": [
-      "perfideous",
+      "recreant",
       "treacherous",
       "duplicitous"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -50,13 +35,8 @@
     "correct": "laconic",
     "distractors": [
       "taciturn",
-      "laconick",
+      "telegraphic",
       "brusque"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -64,14 +44,9 @@
     "definition": "Excessively eager to please or serve others; fawning and overly submissive",
     "correct": "obsequious",
     "distractors": [
-      "obsequous",
+      "sycophantic",
       "servile",
       "deferential"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -79,14 +54,9 @@
     "definition": "The quality of being open to more than one interpretation; deliberate vagueness or uncertainty in meaning",
     "correct": "ambiguity",
     "distractors": [
-      "ambiguety",
+      "polysemy",
       "equivocation",
       "vagueness"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -96,12 +66,7 @@
     "distractors": [
       "cynicism",
       "nihilism",
-      "pessimizm"
-    ],
-    "distractorTypes": [
-      "real",
-      "real",
-      "misspelling"
+      "defeatism"
     ]
   },
   {
@@ -110,13 +75,8 @@
     "correct": "irreverent",
     "distractors": [
       "impious",
-      "ireverent",
+      "sacrilegious",
       "blasphemous"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -124,14 +84,9 @@
     "definition": "The tendency to believe things too readily; willingness to accept claims without sufficient evidence",
     "correct": "credulity",
     "distractors": [
-      "credulty",
+      "ingenuousness",
       "naivety",
       "gullibility"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -140,13 +95,8 @@
     "correct": "nonchalant",
     "distractors": [
       "insouciant",
-      "nonchalent",
+      "sangfroid",
       "blasé"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -155,13 +105,8 @@
     "correct": "tmesis",
     "distractors": [
       "infixation",
-      "thmesis",
+      "intercalation",
       "interpolation"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -169,14 +114,9 @@
     "definition": "The strange wistfulness felt when visiting a used bookshop, sensing all the lives and worlds contained in books you'll never have time to read",
     "correct": "vellichor",
     "distractors": [
-      "velicor",
+      "desiderium",
       "hiraeth",
       "saudade"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -185,13 +125,8 @@
     "correct": "solipsism",
     "distractors": [
       "solecism",
-      "solipsizm",
+      "phenomenalism",
       "narcissism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -199,14 +134,9 @@
     "definition": "Intended to ward off evil, bad luck, or harm; having a protective or magical function",
     "correct": "apotropaic",
     "distractors": [
-      "apotropaick",
+      "propitiatory",
       "talismanic",
       "prophylactic"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -215,13 +145,8 @@
     "correct": "reticent",
     "distractors": [
       "taciturn",
-      "reticant",
+      "diffident",
       "reserved"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -230,13 +155,8 @@
     "correct": "tendentious",
     "distractors": [
       "partisan",
-      "tendencious",
+      "doctrinaire",
       "polemical"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -245,13 +165,8 @@
     "correct": "polysemy",
     "distractors": [
       "ambiguity",
-      "polysemie",
+      "amphibology",
       "homonymy"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -260,13 +175,8 @@
     "correct": "prolific",
     "distractors": [
       "prodigious",
-      "prolifick",
+      "fructiferous",
       "fecund"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -274,14 +184,9 @@
     "definition": "In a state of decline and approaching death; no longer effective or vigorous",
     "correct": "moribund",
     "distractors": [
-      "morabund",
+      "effete",
       "terminal",
       "sepulchral"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -290,13 +195,8 @@
     "correct": "syllogism",
     "distractors": [
       "aphorism",
-      "syllogizm",
+      "sorites",
       "enthymeme"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -305,13 +205,8 @@
     "correct": "egocentrism",
     "distractors": [
       "narcissism",
-      "egocentrizm",
+      "individualism",
       "solipsism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -319,14 +214,9 @@
     "definition": "Expressing or conveying a warning; intended to caution against bad behavior or poor choices",
     "correct": "admonitory",
     "distractors": [
-      "admonetary",
+      "hortatory",
       "cautionary",
       "exemplary"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -335,13 +225,8 @@
     "correct": "sesquipedalianism",
     "distractors": [
       "verbosity",
-      "sesquipedalizm",
+      "magniloquence",
       "grandiloquence"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -350,13 +235,8 @@
     "correct": "chiasmus",
     "distractors": [
       "antithesis",
-      "chiazmus",
+      "anastrophe",
       "parallelism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -364,14 +244,9 @@
     "definition": "Tending to fade or vanish like vapor; delicate and short-lived in a ghostly or ethereal way",
     "correct": "evanescent",
     "distractors": [
-      "evanescant",
+      "tenuous",
       "ephemeral",
       "fugacious"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -380,13 +255,8 @@
     "correct": "apophenia",
     "distractors": [
       "pareidolia",
-      "apophenea",
+      "synchronicity",
       "confabulation"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -395,13 +265,8 @@
     "correct": "susurrus",
     "distractors": [
       "sibilance",
-      "susurus",
+      "sough",
       "sibilation"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -410,13 +275,8 @@
     "correct": "aposiopesis",
     "distractors": [
       "anacoluthon",
-      "aposiopisis",
+      "epanorthosis",
       "ellipsis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -425,13 +285,8 @@
     "correct": "hyperbaton",
     "distractors": [
       "anastrophe",
-      "hyperbatan",
+      "synchysis",
       "inversion"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -439,14 +294,9 @@
     "definition": "A word that imitates the sound it describes — for example, 'buzz,' 'crash,' or 'murmur'",
     "correct": "onomatopoeia",
     "distractors": [
-      "onomatopeia",
+      "echoism",
       "alliteration",
       "assonance"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -454,14 +304,9 @@
     "definition": "The use of a mild or indirect word or phrase in place of something blunt or potentially offensive",
     "correct": "euphemism",
     "distractors": [
-      "euphemizm",
+      "periphrasis",
       "circumlocution",
       "litotes"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -470,13 +315,8 @@
     "correct": "rancor",
     "distractors": [
       "resentment",
-      "renkor",
+      "animus",
       "acrimony"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -485,13 +325,8 @@
     "correct": "paronomasia",
     "distractors": [
       "antanaclasis",
-      "paranomasia",
+      "syllepsis",
       "equivocation"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -500,13 +335,8 @@
     "correct": "acedia",
     "distractors": [
       "ennui",
-      "acedie",
+      "hebetude",
       "anomie"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -515,13 +345,8 @@
     "correct": "vituperation",
     "distractors": [
       "diatribe",
-      "vitupration",
+      "philippic",
       "invective"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -530,13 +355,8 @@
     "correct": "apophthegm",
     "distractors": [
       "aphorism",
-      "apophthegem",
+      "gnome",
       "epigram"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -544,14 +364,9 @@
     "definition": "A figure of speech in which a part stands for the whole, or the whole for a part — for example, 'all hands on deck' using 'hands' to mean people",
     "correct": "synecdoche",
     "distractors": [
-      "synecdochy",
+      "meronymy",
       "metonymy",
       "antonomasia"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -560,13 +375,8 @@
     "correct": "praxis",
     "distractors": [
       "pragmatics",
-      "praxsis",
+      "techne",
       "heuristics"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -574,14 +384,9 @@
     "definition": "The formal withdrawal of a previous statement or belief; a public declaration that one was wrong and now rejects what was said",
     "correct": "recantation",
     "distractors": [
-      "recantasion",
+      "abjuration",
       "contrition",
       "palinode"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -590,13 +395,8 @@
     "correct": "determinism",
     "distractors": [
       "fatalism",
-      "determinizm",
+      "compatibilism",
       "predestination"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -605,13 +405,8 @@
     "correct": "double entendre",
     "distractors": [
       "innuendo",
-      "double entandre",
+      "equivoque",
       "ambiguity"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -620,13 +415,8 @@
     "correct": "waggish",
     "distractors": [
       "facetious",
-      "waggisch",
+      "droll",
       "jocular"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -634,14 +424,9 @@
     "definition": "Making a hypocritical show of being morally superior or pious; self-righteously judgmental of others",
     "correct": "sanctimonious",
     "distractors": [
-      "sanctimoneous",
+      "pietistic",
       "unctuous",
       "pharisaical"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -650,13 +435,8 @@
     "correct": "diegesis",
     "distractors": [
       "mimesis",
-      "diegessis",
+      "fabula",
       "ekphrasis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -665,13 +445,8 @@
     "correct": "portentous",
     "distractors": [
       "pompous",
-      "portentious",
+      "inauspicious",
       "ponderous"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -679,14 +454,9 @@
     "definition": "Vague and unclear; lacking definite form or limits; hazy in meaning",
     "correct": "nebulous",
     "distractors": [
-      "nebulos",
+      "tenebrous",
       "amorphous",
       "ethereal"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -695,13 +465,8 @@
     "correct": "ethnocentrism",
     "distractors": [
       "xenophobia",
-      "ethnocentrizm",
+      "chauvinism",
       "parochialism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -710,13 +475,8 @@
     "correct": "parenesis",
     "distractors": [
       "homily",
-      "parenisis",
+      "protreptic",
       "catechesis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -724,14 +484,9 @@
     "definition": "The study of signs and symbols and how they produce meaning; the analysis of how language, images, and objects communicate",
     "correct": "semiotics",
     "distractors": [
-      "semeiology",
-      "semioticks",
+      "significs",
+      "structuralism",
       "hermeneutics"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -740,13 +495,8 @@
     "correct": "reductionism",
     "distractors": [
       "determinism",
-      "reductionizm",
+      "parsimony",
       "oversimplification"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -755,13 +505,8 @@
     "correct": "epistemology",
     "distractors": [
       "ontology",
-      "epistemolgy",
+      "agnoiology",
       "phenomenology"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -770,13 +515,8 @@
     "correct": "zeugma",
     "distractors": [
       "syllepsis",
-      "zeugmah",
+      "diazeugma",
       "hendiadys"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -785,13 +525,8 @@
     "correct": "catachresis",
     "distractors": [
       "solecism",
-      "catachrisis",
+      "acyrologia",
       "malapropism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -800,13 +535,8 @@
     "correct": "acrophony",
     "distractors": [
       "acrophobia",
-      "acrophonie",
+      "phonography",
       "logography"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -815,13 +545,8 @@
     "correct": "asteism",
     "distractors": [
       "irony",
-      "asteizm",
+      "charientismus",
       "sarcasm"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -829,14 +554,9 @@
     "definition": "A figure of speech in which an affirmative is expressed through the negation of its opposite — for example, 'not bad' meaning 'good,' or 'no small feat' meaning 'a great achievement'",
     "correct": "litotes",
     "distractors": [
-      "litotees",
+      "diminution",
       "meiosis",
       "understatement"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -845,13 +565,8 @@
     "correct": "pathetic fallacy",
     "distractors": [
       "anthropomorphism",
-      "pathetic falacy",
+      "animism",
       "prosopopoeia"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -860,13 +575,8 @@
     "correct": "paralogism",
     "distractors": [
       "syllogism",
-      "paralogizm",
+      "enthymeme",
       "sophism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -875,13 +585,8 @@
     "correct": "pleonasm",
     "distractors": [
       "tautology",
-      "plenonasm",
+      "battology",
       "verbosity"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -890,13 +595,8 @@
     "correct": "apostrophe",
     "distractors": [
       "invocation",
-      "apostrofe",
+      "allocution",
       "prosopopoeia"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -905,13 +605,8 @@
     "correct": "anaphora",
     "distractors": [
       "epistrophe",
-      "anapora",
+      "anadiplosis",
       "epanalepsis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -920,13 +615,8 @@
     "correct": "antimeria",
     "distractors": [
       "enallage",
-      "antinomia",
+      "metaplasm",
       "syllepsis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -935,13 +625,8 @@
     "correct": "asyndeton",
     "distractors": [
       "polysyndeton",
-      "asyndetton",
+      "syndesis",
       "parataxis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -950,13 +635,8 @@
     "correct": "auxesis",
     "distractors": [
       "climax",
-      "auxisis",
+      "anabasis",
       "amplification"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -965,13 +645,8 @@
     "correct": "isogloss",
     "distractors": [
       "dialect boundary",
-      "isoglosse",
+      "isopleth",
       "isophone"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -979,14 +654,9 @@
     "definition": "The placement of a word or phrase next to another to explain or rename it — for example, 'my friend, the doctor' or 'the city of Rome'",
     "correct": "apposition",
     "distractors": [
-      "appositon",
+      "epexegesis",
       "juxtaposition",
       "predication"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -994,14 +664,9 @@
     "definition": "The use of a word or phrase to mean its opposite, typically for ironic or sarcastic effect — for example, calling a very large man 'Tiny'",
     "correct": "antiphrasis",
     "distractors": [
-      "antiphasis",
+      "enantiosis",
       "irony",
       "sarcasm"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -1010,13 +675,8 @@
     "correct": "metonymy",
     "distractors": [
       "synecdoche",
-      "metonimy",
+      "metalepsis",
       "meronymy"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1024,14 +684,9 @@
     "definition": "The deliberate omission of words from a sentence whose meaning can be inferred from context; a trailing off that allows the reader or listener to fill in the gap",
     "correct": "ellipsis",
     "distractors": [
-      "elipsis",
+      "aposiopesis",
       "asyndeton",
       "apocope"
-    ],
-    "distractorTypes": [
-      "misspelling",
-      "real",
-      "real"
     ]
   },
   {
@@ -1040,13 +695,8 @@
     "correct": "argumentum ad verecundiam",
     "distractors": [
       "ad hominem",
-      "argumentum ad vericundiam",
+      "argumentum ad populum",
       "ipse dixit"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1055,13 +705,8 @@
     "correct": "polysyndeton",
     "distractors": [
       "asyndeton",
-      "polisyndeton",
-      "syndeton"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
+      "parataxis",
+      "zeugma"
     ]
   },
   {
@@ -1071,12 +716,7 @@
     "distractors": [
       "toponym",
       "toponymy",
-      "eponomyn"
-    ],
-    "distractorTypes": [
-      "real",
-      "real",
-      "misspelling"
+      "anthroponym"
     ]
   },
   {
@@ -1085,13 +725,8 @@
     "correct": "epistrophe",
     "distractors": [
       "anaphora",
-      "epastrophe",
+      "symploce",
       "epanalepsis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1100,13 +735,8 @@
     "correct": "enantiosemy",
     "distractors": [
       "polysemy",
-      "enantiosemie",
-      "contranymy"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "misspelling"
+      "antonymy",
+      "heterosemy"
     ]
   },
   {
@@ -1116,12 +746,7 @@
     "distractors": [
       "augury",
       "haruspex",
-      "haruspacy"
-    ],
-    "distractorTypes": [
-      "real",
-      "real",
-      "misspelling"
+      "extispicy"
     ]
   },
   {
@@ -1130,13 +755,8 @@
     "correct": "antedating",
     "distractors": [
       "predating",
-      "antedateing",
+      "prochronism",
       "anachronism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1145,13 +765,8 @@
     "correct": "aporia",
     "distractors": [
       "dubitatio",
-      "aporeia",
+      "diaporesis",
       "perplexity"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1160,13 +775,8 @@
     "correct": "moral relativism",
     "distractors": [
       "nihilism",
-      "moral relitivism",
+      "moral skepticism",
       "ethical subjectivism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1175,13 +785,8 @@
     "correct": "aphaeresis",
     "distractors": [
       "apocope",
-      "aphearesis",
+      "prothesis",
       "syncope"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1190,13 +795,8 @@
     "correct": "antinomy",
     "distractors": [
       "paradox",
-      "antimonee",
+      "aporia",
       "antimony"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1205,13 +805,8 @@
     "correct": "apophasis",
     "distractors": [
       "apophysis",
-      "preterition",
-      "apophatis"
-    ],
-    "distractorTypes": [
-      "real",
-      "real",
-      "misspelling"
+      "procatalepsis",
+      "prolepsis"
     ]
   },
   {
@@ -1220,13 +815,8 @@
     "correct": "metaethics",
     "distractors": [
       "deontology",
-      "metaethicks",
+      "cognitivism",
       "axiology"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1235,13 +825,8 @@
     "correct": "hypallage",
     "distractors": [
       "enallage",
-      "hypallege",
+      "synchysis",
       "hyperbaton"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1251,12 +836,7 @@
     "distractors": [
       "anticlimax",
       "pathos",
-      "bathoss"
-    ],
-    "distractorTypes": [
-      "real",
-      "real",
-      "misspelling"
+      "meiosis"
     ]
   },
   {
@@ -1265,13 +845,8 @@
     "correct": "hapax legomenon",
     "distractors": [
       "nonce word",
-      "hapex legomenon",
+      "ghostword",
       "dis legomenon"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1280,13 +855,8 @@
     "correct": "apocope",
     "distractors": [
       "syncope",
-      "apcope",
+      "paragoge",
       "aphaeresis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1296,12 +866,7 @@
     "distractors": [
       "eroteme",
       "hypophora",
-      "erotima"
-    ],
-    "distractorTypes": [
-      "real",
-      "real",
-      "misspelling"
+      "anacoenosis"
     ]
   },
   {
@@ -1310,13 +875,8 @@
     "correct": "dysphemism",
     "distractors": [
       "euphemism",
-      "dysphemizm",
+      "imprecation",
       "malediction"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1325,13 +885,8 @@
     "correct": "enallage",
     "distractors": [
       "syllepsis",
-      "enalage",
+      "anthimeria",
       "hypallage"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1340,13 +895,8 @@
     "correct": "ornithomancy",
     "distractors": [
       "augury",
-      "orinthomancy",
+      "auspication",
       "alectromancy"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1355,13 +905,8 @@
     "correct": "hendiadys",
     "distractors": [
       "zeugma",
-      "hendiadis",
+      "merism",
       "syllepsis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1370,13 +915,8 @@
     "correct": "Platonism",
     "distractors": [
       "idealism",
-      "platonizm",
-      "realism"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
+      "essentialism",
+      "rationalism"
     ]
   },
   {
@@ -1385,13 +925,8 @@
     "correct": "abduction",
     "distractors": [
       "induction",
-      "abdution",
-      "retroduction"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
+      "adduction",
+      "epagoge"
     ]
   },
   {
@@ -1400,13 +935,8 @@
     "correct": "antonomasia",
     "distractors": [
       "eponym",
-      "antanomasia",
+      "periphrasis",
       "synecdoche"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1415,13 +945,8 @@
     "correct": "periphrasis",
     "distractors": [
       "circumlocution",
-      "periphasis",
+      "perissology",
       "antonomasia"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1430,13 +955,8 @@
     "correct": "antimetabole",
     "distractors": [
       "chiasmus",
-      "antimetablee",
+      "anadiplosis",
       "epanalepsis"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1445,13 +965,8 @@
     "correct": "prosopopoeia",
     "distractors": [
       "personification",
-      "prosopeia",
+      "ethopoeia",
       "enargeia"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1460,13 +975,8 @@
     "correct": "prosody",
     "distractors": [
       "metrics",
-      "prosodie",
+      "versification",
       "scansion"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1475,13 +985,8 @@
     "correct": "cacoethes",
     "distractors": [
       "compulsion",
-      "cacoethon",
+      "monomania",
       "kleptomania"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   },
   {
@@ -1490,13 +995,8 @@
     "correct": "brontomancy",
     "distractors": [
       "keraunomancy",
-      "bruntomancy",
+      "ombromancy",
       "astrapomancy"
-    ],
-    "distractorTypes": [
-      "real",
-      "misspelling",
-      "real"
     ]
   }
 ]
