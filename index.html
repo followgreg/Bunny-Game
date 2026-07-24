@@ -180,6 +180,11 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Sound Destroyer: black bg, neon cyan */
+    .lc-sounddestroyer { background: #000000; border-color: rgba(0,255,255,0.22); }
+    .lc-sounddestroyer .lobby-card-logo img { filter: invert(1) drop-shadow(0 0 5px rgba(0,255,255,0.7)); }
+    .lc-sounddestroyer .lobby-card-desc { color: rgba(0,255,255,0.55); }
+
     /* Pitch: black bg, neon green */
     .lc-pitch { background: #0A0A0A; border-color: rgba(57,255,20,0.2); }
     .lc-pitch .lobby-card-desc { color: rgba(57,255,20,0.55); }
@@ -417,6 +422,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-sounddestroyer" href="sounddestroyer.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/sounddestroyer_logo.svg" alt="Sound Destroyer">
+        </div>
+        <p class="lobby-card-desc">Match the frequency. Fire the laser. Destroy them all.</p>
       </a>
 
       <a class="lobby-card lc-pitch" href="pitch.html">
