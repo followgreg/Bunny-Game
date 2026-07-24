@@ -157,27 +157,10 @@ body[data-tab="sounddestroyer"]::after {
   display: block;
 }
 
-/* Override all fills in monsterbunny.svg to wireframe stroke */
-.sd-cell .sd-monster path,
-.sd-cell .sd-monster polygon,
-.sd-cell .sd-monster rect,
-.sd-cell .sd-monster circle {
-  fill: none !important;
-  stroke: var(--sd-cyan);
-  stroke-width: 1.5px;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Targeted column: monsters glow orange-red */
-.sd-cell.targeted .sd-monster path,
-.sd-cell.targeted .sd-monster polygon,
-.sd-cell.targeted .sd-monster rect,
-.sd-cell.targeted .sd-monster circle {
-  stroke: var(--sd-laser);
-}
+/* SVG monsters are cyan-filled; targeted column shifts to orange via filter + pulse */
 
 .sd-cell.targeted {
-  background: rgba(255, 69, 0, 0.04);
+  background: rgba(255, 69, 0, 0.12);
 }
 
 /* Empty cell (monster destroyed) */
@@ -231,10 +214,9 @@ body[data-tab="sounddestroyer"]::after {
   to   { opacity: 1; filter: drop-shadow(0 0 4px var(--sd-laser)); }
 }
 
-/* Targeted column monster pulse animation */
 @keyframes sd-pulse-monster {
-  from { opacity: 0.6; }
-  to   { opacity: 1; filter: drop-shadow(0 0 3px var(--sd-laser)); }
+  from { opacity: 0.7; filter: hue-rotate(196deg) saturate(1.5) brightness(1.0); }
+  to   { opacity: 1;   filter: hue-rotate(196deg) saturate(2.0) brightness(1.3) drop-shadow(0 0 4px var(--sd-laser)); }
 }
 
 .sd-cell.targeted .sd-monster {
@@ -284,10 +266,17 @@ body[data-tab="sounddestroyer"]::after {
   100% { transform: translateX(-50%) translateY(0); }
 }
 
-/* ── Laser beam ──────────────────────────────────────────────────────────── */
+/* ── Overlay canvases (shatter + laser, both cover the grid) ────────────── */
+#sd-shatter-canvas,
 #sd-laser-beam {
   position: absolute;
+  inset: 0;
   pointer-events: none;
+}
+
+#sd-shatter-canvas { z-index: 5; }
+
+#sd-laser-beam {
   z-index: 10;
   display: none;
 }
@@ -414,6 +403,16 @@ body[data-tab="sounddestroyer"]::after {
   letter-spacing: 0.04em;
   line-height: 1.8;
 }
+
+/* SHOT_RESULT state: larger prominent display */
+#sd-shot-result.sd-result-active {
+  font-size: 0.62rem;
+  line-height: 2.4;
+  text-shadow: 0 0 18px rgba(57, 255, 20, 0.65);
+}
+
+/* ── Dial section hidden during AIMING / FIRING / SHOT_RESULT ───────────── */
+#sd-dial-section.hidden { display: none; }
 
 /* ── Phase label ─────────────────────────────────────────────────────────── */
 #sd-phase-label {
