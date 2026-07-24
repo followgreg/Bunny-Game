@@ -288,11 +288,11 @@
 
   // ── Beam drawing helpers ───────────────────────────────────────────────────
   function _beamWidth(score) {
-    if (score >= 90) return 7;
-    if (score >= 70) return 5;
-    if (score >= 50) return 3.5;
-    if (score >= 30) return 2.5;
-    return 1.5;
+    if (score >= 93) return 7;   // excellent — wide bloom
+    if (score >= 75) return 4.5; // good — medium beam
+    if (score >= 50) return 2.5; // mediocre — narrow
+    if (score >= 35) return 1.5; // weak — thin
+    return 0.8;                  // miss — hairline flicker, passes through
   }
 
   function _drawBeam(ctx, x, fromY, toY, bw) {

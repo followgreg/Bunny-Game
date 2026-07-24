@@ -43,9 +43,16 @@
   }
 
   // ── Damage formula ───────────────────────────────────────────────────────────
-  // Score 100 → 10 columns, Score 50 → 5, Score 0-9 → 0 (miss)
+  // Steep curve — only high accuracy produces meaningful damage
   function calculateColumnsDestroyed(accuracyScore) {
-    return Math.floor(accuracyScore / 10);
+    if (accuracyScore >= 98) return 10; // near-perfect: full grid width
+    if (accuracyScore >= 93) return 8;  // excellent
+    if (accuracyScore >= 85) return 6;  // very good
+    if (accuracyScore >= 75) return 4;  // good
+    if (accuracyScore >= 63) return 3;  // decent
+    if (accuracyScore >= 50) return 2;  // mediocre
+    if (accuracyScore >= 35) return 1;  // weak
+    return 0;                           // miss — beam fires but nothing dies
   }
 
   // ── Column spread ────────────────────────────────────────────────────────────
