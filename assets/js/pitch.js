@@ -225,10 +225,9 @@
 
   function _setupCanvas() {
     var dpr = window.devicePixelRatio || 1;
-    var rect = _canvas.getBoundingClientRect();
-    _logW = rect.width;
-    _canvas.width  = Math.round(rect.width  * dpr);
-    _canvas.height = Math.round(rect.height * dpr);
+    _logW = _canvas.offsetWidth || 300;
+    _canvas.width  = Math.round(_logW * dpr);
+    _canvas.height = Math.round(_logW * dpr);
     _canvas.getContext('2d').scale(dpr, dpr);
   }
 
@@ -279,8 +278,10 @@
     _canvas = canvas;
     _hzEl   = hzEl;
 
-    _setupCanvas();
-    resetDial();
+    requestAnimationFrame(function () {
+      _setupCanvas();
+      resetDial();
+    });
 
     // Mouse
     canvas.addEventListener('mousedown', function (e) {
