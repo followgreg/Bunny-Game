@@ -49,7 +49,7 @@
 
 <div id="nav-root"></div>
 
-<!-- ── Game ──────────────────────────────────────────────────────────────── -->
+<!-- ── Game screen ────────────────────────────────────────────────────────── -->
 <div id="pitch-wrap">
   <div id="pitch-game">
 
@@ -57,13 +57,38 @@
 
     <div id="pitch-dial-container">
       <canvas id="pitch-dial"></canvas>
+      <!-- "Listening…" overlay during target tone playback -->
+      <div id="pitch-listen-overlay">
+        <span id="pitch-listen-label">Listening…</span>
+      </div>
     </div>
 
     <div id="pitch-hz-display">— Hz</div>
 
+    <!-- Per-round result line (hidden until Submit) -->
+    <div id="pitch-round-result" class="hidden"></div>
+
     <div id="pitch-controls">
       <button class="pitch-btn" id="pitch-replay-btn">↻ Replay</button>
       <button class="pitch-btn" id="pitch-submit-btn">Submit</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Session-end screen ─────────────────────────────────────────────────── -->
+<div id="pitch-end" class="hidden">
+  <div id="pitch-end-inner">
+
+    <div id="pitch-end-total-label">Total Score</div>
+    <div id="pitch-end-total">0 / 300</div>
+    <div id="pitch-end-pb" class="hidden">New Personal Best!</div>
+
+    <div id="pitch-end-rounds"></div>
+
+    <div id="pitch-end-btns">
+      <button class="pitch-btn" id="pitch-share-btn">Share</button>
+      <button class="pitch-btn" id="pitch-again-btn">Play Again</button>
     </div>
 
   </div>
@@ -82,42 +107,178 @@
 <script src="assets/js/shared.js"></script>
 <script src="assets/js/pitch.js"></script>
 <script>
-  // ── Part 2 test init — wires dial and Replay; full game flow in Part 3 ──
-  (function () {
-    var DIRECTIONS = 'A target tone plays for 3 seconds. Use the dial to tune your own tone to match it — you can hear your frequency in real time as you turn. Hit Replay as many times as you need. When you think you\'ve matched the pitch, press Submit. You get a score out of 100 based on how close you are. Three rounds total.';
+(function () {
+  'use strict';
 
-    document.getElementById('help-btn').addEventListener('click', function () {
-      openDirections(DIRECTIONS);
-    });
+  var DIRECTIONS = 'A target tone plays for 3 seconds. Use the dial to tune your own tone to match it — you can hear your frequency in real time as you turn. Hit Replay as many times as you need. When you think you\'ve matched the pitch, press Submit. You get a score out of 100 based on how close you are. Three rounds total.';
+  var SHARE_URL  = 'https://www.thebunnygame.com/pitch';
+  var PB_KEY     = 'pitch_bestScore';
 
-    var canvas   = document.getElementById('pitch-dial');
-    var hzEl     = document.getElementById('pitch-hz-display');
-    var replayBtn = document.getElementById('pitch-replay-btn');
-    var submitBtn = document.getElementById('pitch-submit-btn');
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  var gameEl       = document.getElementById('pitch-game');
+  var endEl        = document.getElementById('pitch-end');
+  var roundLabelEl = document.getElementById('pitch-round-label');
+  var dialEl       = document.getElementById('pitch-dial');
+  var hzEl         = document.getElementById('pitch-hz-display');
+  var listenOverlay= document.getElementById('pitch-listen-overlay');
+  var roundResultEl= document.getElementById('pitch-round-result');
+  var replayBtn    = document.getElementById('pitch-replay-btn');
+  var submitBtn    = document.getElementById('pitch-submit-btn');
+  var endTotalEl   = document.getElementById('pitch-end-total');
+  var endPbEl      = document.getElementById('pitch-end-pb');
+  var endRoundsEl  = document.getElementById('pitch-end-rounds');
+  var shareBtn     = document.getElementById('pitch-share-btn');
+  var againBtn     = document.getElementById('pitch-again-btn');
 
-    // Test session — Part 3 will replace with real session management
-    var testFreq = Pitch.generateTargetFrequency();
+  // ── Session state ─────────────────────────────────────────────────────────
+  var session    = [];   // 3 target frequencies
+  var roundIndex = 0;    // 0–2
+  var results    = [];   // {targetHz, playerHz, score} per round
+  var locked     = false;// true during listen + after submit
 
-    Pitch.initDial(canvas, hzEl);
+  // ── Directions ────────────────────────────────────────────────────────────
+  document.getElementById('help-btn').addEventListener('click', function () {
+    openDirections(DIRECTIONS);
+  });
+  var dirEl = document.getElementById('directions-text');
+  if (dirEl) dirEl.textContent = DIRECTIONS;
 
-    // Play target tone immediately on load (after a short delay so AudioContext
-    // can start — some browsers need a gesture but Chromium allows it)
+  // ── Init dial once ────────────────────────────────────────────────────────
+  Pitch.initDial(dialEl, hzEl);
+
+  // ── Start session ─────────────────────────────────────────────────────────
+  function startSession() {
+    session    = Pitch.generateSession();
+    roundIndex = 0;
+    results    = [];
+    gameEl.classList.remove('hidden');
+    endEl.classList.add('hidden');
+    startRound();
+  }
+
+  function startRound() {
+    locked = true;
+    var targetHz = session[roundIndex];
+
+    roundLabelEl.textContent = 'Round ' + (roundIndex + 1) + ' of 3';
+    roundResultEl.classList.add('hidden');
+    roundResultEl.textContent = '';
+
+    // Reset dial to centre
+    Pitch.resetDial();
+
+    // Show listen overlay, hide controls
+    listenOverlay.classList.remove('hidden');
+    replayBtn.classList.add('hidden');
+    submitBtn.classList.add('hidden');
+    dialEl.style.pointerEvents = 'none';
+
+    // Play target tone; unlock after it ends
+    Pitch.playTargetTone(targetHz, 3.0);
     setTimeout(function () {
-      Pitch.playTargetTone(testFreq);
-    }, 300);
+      listenOverlay.classList.add('hidden');
+      replayBtn.classList.remove('hidden');
+      submitBtn.classList.remove('hidden');
+      dialEl.style.pointerEvents = '';
+      locked = false;
+    }, 3200); // 3s tone + 200ms buffer
+  }
 
-    replayBtn.addEventListener('click', function () {
-      Pitch.stopLiveTone(); // stop dial tone if dragging
-      Pitch.playTargetTone(testFreq);
+  // ── Replay ────────────────────────────────────────────────────────────────
+  replayBtn.addEventListener('click', function () {
+    if (locked) return;
+    Pitch.stopLiveTone();
+    Pitch.playTargetTone(session[roundIndex], 3.0);
+  });
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  submitBtn.addEventListener('click', function () {
+    if (locked) return;
+    locked = true;
+
+    Pitch.stopLiveTone();
+    dialEl.style.pointerEvents = 'none';
+
+    var targetHz = session[roundIndex];
+    var playerHz = Pitch.getDialFrequency();
+    var score    = Pitch.scoreAccuracy(targetHz, playerHz);
+
+    results.push({ targetHz: targetHz, playerHz: playerHz, score: score });
+
+    // Show per-round result
+    roundResultEl.textContent =
+      'Your pitch: ' + playerHz + ' Hz  ·  Target: ' + targetHz + ' Hz  ·  Score: ' + score + '/100';
+    roundResultEl.classList.remove('hidden');
+
+    // Disable Replay and Submit
+    replayBtn.disabled = true;
+    submitBtn.disabled = true;
+
+    setTimeout(function () {
+      replayBtn.disabled = false;
+      submitBtn.disabled = false;
+
+      if (roundIndex < 2) {
+        roundIndex++;
+        startRound();
+      } else {
+        showEnd();
+      }
+    }, 2000);
+  });
+
+  // ── Session end ───────────────────────────────────────────────────────────
+  function showEnd() {
+    document.getElementById('pitch-wrap').classList.add('hidden');
+    var total = results.reduce(function (sum, r) { return sum + r.score; }, 0);
+
+    // Personal best
+    var prev = parseInt(localStorage.getItem(PB_KEY) || '0', 10);
+    var isNewBest = total > prev;
+    if (isNewBest) localStorage.setItem(PB_KEY, total);
+
+    endTotalEl.textContent = total + ' / 300';
+    endPbEl.classList.toggle('hidden', !isNewBest);
+
+    // Round summary rows
+    endRoundsEl.innerHTML = '';
+    results.forEach(function (r, i) {
+      var row = document.createElement('div');
+      row.className = 'pitch-end-row';
+      row.innerHTML =
+        '<span class="pitch-end-round-num">Round ' + (i + 1) + '</span>' +
+        '<span class="pitch-end-row-detail">' +
+          'Target <strong>' + r.targetHz + ' Hz</strong> · ' +
+          'You <strong>' + r.playerHz + ' Hz</strong>' +
+        '</span>' +
+        '<span class="pitch-end-row-score">' + r.score + '<small>/100</small></span>';
+      endRoundsEl.appendChild(row);
     });
 
-    submitBtn.addEventListener('click', function () {
-      Pitch.stopLiveTone();
-      var player = Pitch.getDialFrequency();
-      var score  = Pitch.scoreAccuracy(testFreq, player);
-      alert('Target: ' + testFreq + ' Hz\nYour dial: ' + player + ' Hz\nScore: ' + score + ' / 100');
-    });
-  }());
+    gameEl.classList.add('hidden');
+    endEl.classList.remove('hidden');
+
+    // Store total for share
+    endEl.dataset.total = total;
+  }
+
+  // ── Share ─────────────────────────────────────────────────────────────────
+  shareBtn.addEventListener('click', function () {
+    var total = endEl.dataset.total || '0';
+    var text  = 'Pitch — scored ' + total + '/300. How well do you hear frequency? ' + SHARE_URL;
+    shareText(text, 'Pitch');
+  });
+
+  // ── Play Again ────────────────────────────────────────────────────────────
+  againBtn.addEventListener('click', function () {
+    document.getElementById('pitch-wrap').classList.remove('hidden');
+    startSession();
+  });
+
+  // ── Kick off ──────────────────────────────────────────────────────────────
+  startSession();
+
+}());
 </script>
 </body>
 </html>
