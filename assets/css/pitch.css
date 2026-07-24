@@ -1,9 +1,26 @@
-/* pitch.css — Pitch game styles (full UI in Part 2) */
+/* ── pitch.css ───────────────────────────────────────────────────────────── */
+
 body[data-tab="pitch"] {
   background: #0A0A0A;
 }
 
+/* Sine wave texture across the full background */
+body[data-tab="pitch"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 56'%3E%3Cpath d='M0 28 C25 12 75 12 100 28 S175 44 200 28' stroke='%2339FF14' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-size: 200px 56px;
+  background-repeat: repeat;
+  opacity: 0.09;
+}
+
+/* ── Game wrap ───────────────────────────────────────────────────────────── */
 #pitch-wrap {
+  position: relative;
+  z-index: 1;
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -11,12 +28,114 @@ body[data-tab="pitch"] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 20px 20px 32px;
   box-sizing: border-box;
 }
 
-code {
+/* ── Game screen ─────────────────────────────────────────────────────────── */
+#pitch-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* ── Round label ─────────────────────────────────────────────────────────── */
+#pitch-round-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(57, 255, 20, 0.5);
+}
+
+/* ── Dial ────────────────────────────────────────────────────────────────── */
+#pitch-dial-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#pitch-dial {
   display: block;
-  margin-top: 8px;
+  width: min(300px, calc(100vw - 60px));
+  height: min(300px, calc(100vw - 60px));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#pitch-dial:active {
+  cursor: grabbing;
+}
+
+/* ── Hz readout ──────────────────────────────────────────────────────────── */
+#pitch-hz-display {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
   color: #39FF14;
-  opacity: 0.7;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px rgba(57, 255, 20, 0.5);
+  min-width: 9ch;
+  text-align: center;
+}
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+#pitch-controls {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.pitch-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.12s, transform 0.08s, background 0.12s;
+  flex: 1;
+  letter-spacing: 0.02em;
+}
+
+.pitch-btn:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+#pitch-replay-btn {
+  background: #1A1A1A;
+  color: #39FF14;
+  border: 1.5px solid rgba(57, 255, 20, 0.35);
+}
+
+#pitch-replay-btn:hover {
+  background: #222;
+  border-color: rgba(57, 255, 20, 0.6);
+}
+
+#pitch-submit-btn {
+  background: #39FF14;
+  color: #0A0A0A;
+}
+
+#pitch-submit-btn:hover {
+  background: #5fff35;
+}
+
+#pitch-submit-btn:disabled {
+  background: #1a3a0a;
+  color: rgba(57, 255, 20, 0.35);
+  cursor: default;
+  transform: none;
+  opacity: 1;
 }

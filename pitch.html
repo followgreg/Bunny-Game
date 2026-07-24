@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Pitch — tune your ear — Bunny Game</title>
-  <meta name="description" content="Hear a tone. Match it. Three rounds. How well can you tune your ear?">
+  <meta name="description" content="Hear a tone. Match it with the dial. Three rounds. How well can you tune your ear?">
   <meta property="og:title" content="Pitch — tune your ear — Bunny Game">
-  <meta property="og:description" content="Hear a tone. Match it. Three rounds. How well can you tune your ear?">
+  <meta property="og:description" content="Hear a tone. Match it with the dial. Three rounds. How well can you tune your ear?">
   <meta property="og:url" content="https://www.thebunnygame.com/pitch">
   <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/pitch-og.png">
   <meta property="og:image:width" content="1200">
@@ -49,18 +49,27 @@
 
 <div id="nav-root"></div>
 
-<!-- ── Game wrap (placeholder — full UI in Part 2) ───────────────────────── -->
+<!-- ── Game ──────────────────────────────────────────────────────────────── -->
 <div id="pitch-wrap">
-  <p id="pitch-status" style="color:#39FF14;font-family:'DM Sans',sans-serif;padding:32px 24px;font-size:0.9rem;">
-    Audio engine loaded. Open DevTools console and run:<br><br>
-    <code>Pitch.generateSession()</code><br>
-    <code>Pitch.playTargetTone(440)</code><br>
-    <code>Pitch.startLiveTone(330); Pitch.updateLiveToneFrequency(440); Pitch.stopLiveTone()</code><br>
-    <code>Pitch.scoreAccuracy(440, 466)</code>
-  </p>
+  <div id="pitch-game">
+
+    <div id="pitch-round-label">Round 1 of 3</div>
+
+    <div id="pitch-dial-container">
+      <canvas id="pitch-dial"></canvas>
+    </div>
+
+    <div id="pitch-hz-display">— Hz</div>
+
+    <div id="pitch-controls">
+      <button class="pitch-btn" id="pitch-replay-btn">↻ Replay</button>
+      <button class="pitch-btn" id="pitch-submit-btn">Submit</button>
+    </div>
+
+  </div>
 </div>
 
-<!-- ── Directions popup ──────────────────────────────────────────────────── -->
+<!-- ── Directions popup ───────────────────────────────────────────────────── -->
 <div id="directions-overlay" class="hidden">
   <div class="directions-modal">
     <p class="dir-heading">How to Play</p>
@@ -72,5 +81,43 @@
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
 <script src="assets/js/pitch.js"></script>
+<script>
+  // ── Part 2 test init — wires dial and Replay; full game flow in Part 3 ──
+  (function () {
+    var DIRECTIONS = 'A target tone plays for 3 seconds. Use the dial to tune your own tone to match it — you can hear your frequency in real time as you turn. Hit Replay as many times as you need. When you think you\'ve matched the pitch, press Submit. You get a score out of 100 based on how close you are. Three rounds total.';
+
+    document.getElementById('help-btn').addEventListener('click', function () {
+      openDirections(DIRECTIONS);
+    });
+
+    var canvas   = document.getElementById('pitch-dial');
+    var hzEl     = document.getElementById('pitch-hz-display');
+    var replayBtn = document.getElementById('pitch-replay-btn');
+    var submitBtn = document.getElementById('pitch-submit-btn');
+
+    // Test session — Part 3 will replace with real session management
+    var testFreq = Pitch.generateTargetFrequency();
+
+    Pitch.initDial(canvas, hzEl);
+
+    // Play target tone immediately on load (after a short delay so AudioContext
+    // can start — some browsers need a gesture but Chromium allows it)
+    setTimeout(function () {
+      Pitch.playTargetTone(testFreq);
+    }, 300);
+
+    replayBtn.addEventListener('click', function () {
+      Pitch.stopLiveTone(); // stop dial tone if dragging
+      Pitch.playTargetTone(testFreq);
+    });
+
+    submitBtn.addEventListener('click', function () {
+      Pitch.stopLiveTone();
+      var player = Pitch.getDialFrequency();
+      var score  = Pitch.scoreAccuracy(testFreq, player);
+      alert('Target: ' + testFreq + ' Hz\nYour dial: ' + player + ' Hz\nScore: ' + score + ' / 100');
+    });
+  }());
+</script>
 </body>
 </html>
