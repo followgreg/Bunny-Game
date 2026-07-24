@@ -36,7 +36,7 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/sounddestroyer.css?v=5">
+  <link rel="stylesheet" href="assets/css/sounddestroyer.css?v=6">
 </head>
 <body data-tab="sounddestroyer">
 
@@ -402,7 +402,7 @@
       listenLabelEl.textContent = '';
       phaseLabelEl.textContent  = 'DIAL IN — THEN FIRE';
       Pitch.setDialLocked(false);
-      hzEl.textContent = Math.round(Pitch.getDialFrequency()) + ' Hz';
+      hzEl.textContent = '— Hz';
       replayBtn.disabled = false;
       fireBtn.disabled   = false;
     } else if (s === SHOT_STATES.FIRING) {
@@ -447,6 +447,56 @@
       })(c);
     }
   }
+
+  // ── Drag-to-aim cannon ─────────────────────────────────────────────────────
+  var _dragActive = false;
+
+  function _colFromClientX(clientX) {
+    var gr = gridEl.getBoundingClientRect();
+    return Math.max(0, Math.min(COLS - 1, Math.floor((clientX - gr.left) / (gr.width / COLS))));
+  }
+
+  function _dragMove(clientX) {
+    var gr = gridEl.getBoundingClientRect();
+    var rr = cannonRowEl.getBoundingClientRect();
+    var x  = Math.max(gr.left, Math.min(gr.right, clientX));
+    cannonEl.style.left = (x - rr.left) + 'px';
+    var col = _colFromClientX(clientX);
+    colIndicators.forEach(function (ind, c) { ind.classList.toggle('aimed', c === col); });
+  }
+
+  cannonRowEl.addEventListener('mousedown', function (e) {
+    if (gameState !== SHOT_STATES.AIMING) return;
+    _dragActive = true;
+    _dragMove(e.clientX);
+    e.preventDefault();
+  });
+  cannonRowEl.addEventListener('touchstart', function (e) {
+    if (gameState !== SHOT_STATES.AIMING) return;
+    _dragActive = true;
+    _dragMove(e.touches[0].clientX);
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('mousemove', function (e) {
+    if (!_dragActive) return;
+    _dragMove(e.clientX);
+  });
+  document.addEventListener('touchmove', function (e) {
+    if (!_dragActive) return;
+    _dragMove(e.touches[0].clientX);
+  }, { passive: false });
+
+  document.addEventListener('mouseup', function (e) {
+    if (!_dragActive) return;
+    _dragActive = false;
+    aimColumn(_colFromClientX(e.clientX));
+  });
+  document.addEventListener('touchend', function (e) {
+    if (!_dragActive) return;
+    _dragActive = false;
+    aimColumn(_colFromClientX(e.changedTouches[0].clientX));
+  });
 
   // ── Aim column ─────────────────────────────────────────────────────────────
   function aimColumn(col) {

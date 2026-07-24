@@ -281,16 +281,19 @@ body[data-tab="sounddestroyer"]::after {
   display: none;
 }
 
-/* ── Dial area (reused from Pitch) ──────────────────────────────────────── */
+/* ── Dial area — overlays the gameboard as a modal ──────────────────────── */
 #sd-dial-section {
-  width: 100%;
-  max-width: 420px;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-shrink: 0;
-  gap: 4px;
-  padding-bottom: 4px;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.86);
+  gap: 8px;
+  padding: 0 24px 32px;
+  box-sizing: border-box;
 }
 
 #sd-listen-label {
@@ -304,13 +307,7 @@ body[data-tab="sounddestroyer"]::after {
 }
 
 #sd-hz-display {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1.1rem;
-  color: var(--sd-green);
-  text-shadow: 0 0 14px rgba(57, 255, 20, 0.5);
-  text-align: center;
-  min-width: 8ch;
-  font-variant-numeric: tabular-nums;
+  display: none;
 }
 
 #sd-dial-canvas {
@@ -414,6 +411,9 @@ body[data-tab="sounddestroyer"]::after {
 /* ── Dial section hidden during AIMING / FIRING / SHOT_RESULT ───────────── */
 #sd-dial-section.hidden { display: none; }
 
+/* ── Cannon row: drag target ─────────────────────────────────────────────── */
+#sd-cannon-row { cursor: ew-resize; touch-action: none; }
+
 /* ── Phase label ─────────────────────────────────────────────────────────── */
 #sd-phase-label {
   font-family: 'Press Start 2P', monospace;
@@ -446,13 +446,14 @@ body[data-tab="sounddestroyer"]::after {
 #sd-splash-logo {
   height: 52px;
   width: auto;
+  filter: invert(1);
 }
 
 #sd-splash-text {
   font-family: 'Press Start 2P', monospace;
-  font-size: 0.45rem;
+  font-size: 0.62rem;
   line-height: 2.2;
-  color: rgba(0, 255, 255, 0.6);
+  color: rgba(0, 255, 255, 0.75);
   text-align: center;
   margin: 0;
   letter-spacing: 0.04em;
