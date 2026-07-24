@@ -280,7 +280,7 @@
 
     requestAnimationFrame(function () {
       _setupCanvas();
-      resetDial();
+      _drawDial(_dialPos);
     });
 
     // Mouse

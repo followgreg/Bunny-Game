@@ -164,8 +164,9 @@
     roundResultEl.classList.add('hidden');
     roundResultEl.textContent = '';
 
-    // Reset dial to centre
+    // Reset dial to centre, then blank the Hz display during listen phase
     Pitch.resetDial();
+    hzEl.textContent = '— Hz';
 
     // Show listen overlay, hide controls
     listenOverlay.classList.remove('hidden');
@@ -180,6 +181,8 @@
       replayBtn.classList.remove('hidden');
       submitBtn.classList.remove('hidden');
       dialEl.style.pointerEvents = '';
+      // Now show the actual dial position so player knows their starting point
+      hzEl.textContent = Pitch.getDialFrequency() + ' Hz';
       locked = false;
     }, 3200); // 3s tone + 200ms buffer
   }
