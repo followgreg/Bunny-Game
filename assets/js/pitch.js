@@ -95,8 +95,9 @@
   }
 
   // ── Frequency ↔ normalized position ─────────────────────────────────────────
+  // Returns raw float — do NOT round here; rounding happens only at display sites
   function normToFreq(t) {
-    return Math.round(Math.exp(LOG_MIN + t * (LOG_MAX - LOG_MIN)));
+    return Math.exp(LOG_MIN + t * (LOG_MAX - LOG_MIN));
   }
 
   function freqToNorm(hz) {
@@ -232,7 +233,10 @@
   }
 
   function _updateHzDisplay() {
-    if (_hzEl) _hzEl.textContent = normToFreq(_dialPos) + ' Hz';
+    if (_hzEl) {
+      var freq = normToFreq(_dialPos);
+      _hzEl.textContent = (_dragging ? freq.toFixed(1) : Math.round(freq)) + ' Hz';
+    }
   }
 
   // ── Drag interaction ─────────────────────────────────────────────────────────
@@ -246,7 +250,7 @@
   function _dragStart(clientX, clientY) {
     _dragging   = true;
     _lastAngle  = _angleFromCenter(clientX, clientY);
-    startLiveTone(normToFreq(_dialPos));
+    startLiveTone(normToFreq(_dialPos)); // float — no rounding
   }
 
   function _dragMove(clientX, clientY) {
@@ -264,7 +268,7 @@
 
     _drawDial(_dialPos);
     _updateHzDisplay();
-    updateLiveToneFrequency(normToFreq(_dialPos));
+    updateLiveToneFrequency(normToFreq(_dialPos)); // float — no rounding
   }
 
   function _dragEnd() {

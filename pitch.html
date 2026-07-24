@@ -190,7 +190,7 @@
       submitBtn.classList.remove('hidden');
       dialEl.style.pointerEvents = '';
       // Now show the actual dial position so player knows their starting point
-      hzEl.textContent = Pitch.getDialFrequency() + ' Hz';
+      hzEl.textContent = Math.round(Pitch.getDialFrequency()) + ' Hz';
       locked = false;
     }, 3200); // 3s tone + 200ms buffer
   }
@@ -218,9 +218,9 @@
 
     results.push({ targetHz: targetHz, playerHz: playerHz, score: score });
 
-    // Show per-round result
+    // Show per-round result (round Hz for display; scoring used floats)
     roundResultEl.textContent =
-      'Your pitch: ' + playerHz + ' Hz  ·  Target: ' + targetHz + ' Hz  ·  Score: ' + score + '/100';
+      'Your pitch: ' + Math.round(playerHz) + ' Hz  ·  Target: ' + targetHz + ' Hz  ·  Score: ' + score + '/100';
     roundResultEl.classList.remove('hidden');
 
     // Disable Replay and Submit
@@ -261,8 +261,8 @@
       row.innerHTML =
         '<span class="pitch-end-round-num">Round ' + (i + 1) + '</span>' +
         '<span class="pitch-end-row-detail">' +
-          'Target <strong>' + r.targetHz + ' Hz</strong> · ' +
-          'You <strong>' + r.playerHz + ' Hz</strong>' +
+          'Target <strong>' + Math.round(r.targetHz) + ' Hz</strong> · ' +
+          'You <strong>' + Math.round(r.playerHz) + ' Hz</strong>' +
         '</span>' +
         '<span class="pitch-end-row-score">' + r.score + '<small>/100</small></span>';
       endRoundsEl.appendChild(row);
