@@ -1,0 +1,555 @@
+/* ── sounddestroyer.css ───────────────────────────────────────────────────── */
+
+:root {
+  --sd-bg:       #000000;
+  --sd-cyan:     #00FFFF;
+  --sd-laser:    #FF4500;
+  --sd-green:    #39FF14;
+  --sd-purple:   #BF00FF;
+  --sd-white:    #FFFFFF;
+  --sd-dim-cyan: #005555;
+}
+
+/* ── Background ──────────────────────────────────────────────────────────── */
+body[data-tab="sounddestroyer"] {
+  background: var(--sd-bg);
+}
+
+/* Fractal wireframe hex/triangle texture */
+body[data-tab="sounddestroyer"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 70'%3E%3Cpolygon points='40,5 75,65 5,65' fill='none' stroke='%23005555' stroke-width='0.8'/%3E%3Cpolygon points='40,25 62,65 18,65' fill='none' stroke='%23005555' stroke-width='0.5'/%3E%3Cline x1='5' y1='65' x2='40' y2='5' stroke='%23005555' stroke-width='0.4'/%3E%3Cline x1='75' y1='65' x2='40' y2='5' stroke='%23005555' stroke-width='0.4'/%3E%3C/svg%3E");
+  background-size: 80px 70px;
+  background-repeat: repeat;
+  opacity: 0.08;
+}
+
+/* Scanline overlay */
+body[data-tab="sounddestroyer"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 1px,
+    rgba(0, 0, 0, 0.35) 1px,
+    rgba(0, 0, 0, 0.35) 2px
+  );
+  opacity: 0.03;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+#sd-wrap {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 12px 0;
+  box-sizing: border-box;
+}
+
+/* ── HUD ─────────────────────────────────────────────────────────────────── */
+#sd-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 420px;
+  padding: 6px 0 8px;
+  flex-shrink: 0;
+}
+
+#sd-round-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: var(--sd-purple);
+  text-shadow: 0 0 12px rgba(191, 0, 255, 0.6);
+  letter-spacing: 0.05em;
+}
+
+#sd-shots-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sd-shot-icon {
+  width: 14px;
+  height: 14px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Available shot: filled cannon chevron */
+.sd-shot-icon.available::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  background: var(--sd-purple);
+  box-shadow: 0 0 6px rgba(191, 0, 255, 0.7);
+}
+
+/* Used shot: outline only */
+.sd-shot-icon.used::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  border: 1px solid rgba(191, 0, 255, 0.3);
+  background: transparent;
+}
+
+/* ── Play area ───────────────────────────────────────────────────────────── */
+#sd-play-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 420px;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+/* ── Monster grid ────────────────────────────────────────────────────────── */
+#sd-grid-container {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+#sd-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: 100%;
+  border: 1px solid var(--sd-dim-cyan);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.06), inset 0 0 30px rgba(0, 255, 255, 0.03);
+}
+
+.sd-cell {
+  aspect-ratio: 1;
+  border: 0.5px solid var(--sd-dim-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  position: relative;
+  cursor: default;
+  box-sizing: border-box;
+  transition: background 0.15s;
+}
+
+/* Monster SVG inside each cell */
+.sd-cell .sd-monster {
+  width: 80%;
+  height: 80%;
+  display: block;
+}
+
+/* Override all fills in monsterbunny.svg to wireframe stroke */
+.sd-cell .sd-monster path,
+.sd-cell .sd-monster polygon,
+.sd-cell .sd-monster rect,
+.sd-cell .sd-monster circle {
+  fill: none !important;
+  stroke: var(--sd-cyan);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Targeted column: monsters glow orange-red */
+.sd-cell.targeted .sd-monster path,
+.sd-cell.targeted .sd-monster polygon,
+.sd-cell.targeted .sd-monster rect,
+.sd-cell.targeted .sd-monster circle {
+  stroke: var(--sd-laser);
+}
+
+.sd-cell.targeted {
+  background: rgba(255, 69, 0, 0.04);
+}
+
+/* Empty cell (monster destroyed) */
+.sd-cell.dead {
+  background: transparent;
+}
+.sd-cell.dead .sd-monster {
+  display: none;
+}
+
+/* ── Column indicators ───────────────────────────────────────────────────── */
+#sd-col-indicators {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: 100%;
+  margin-top: 2px;
+}
+
+.sd-col-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 0 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.sd-col-indicator svg {
+  width: 10px;
+  height: 8px;
+  overflow: visible;
+}
+
+.sd-col-indicator .ind-chevron {
+  fill: none;
+  stroke: var(--sd-dim-cyan);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: stroke 0.12s;
+}
+
+/* Aimed column indicator pulses */
+.sd-col-indicator.aimed .ind-chevron {
+  stroke: var(--sd-laser);
+  animation: sd-pulse-ind 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes sd-pulse-ind {
+  from { opacity: 0.55; }
+  to   { opacity: 1; filter: drop-shadow(0 0 4px var(--sd-laser)); }
+}
+
+/* Targeted column monster pulse animation */
+@keyframes sd-pulse-monster {
+  from { opacity: 0.6; }
+  to   { opacity: 1; filter: drop-shadow(0 0 3px var(--sd-laser)); }
+}
+
+.sd-cell.targeted .sd-monster {
+  animation: sd-pulse-monster 0.8s ease-in-out infinite alternate;
+}
+
+/* ── Laser cannon ────────────────────────────────────────────────────────── */
+#sd-cannon-row {
+  width: 100%;
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+#sd-cannon {
+  position: absolute;
+  bottom: 0;
+  width: 28px;
+  height: 32px;
+  transform: translateX(-50%);
+  transition: left 0.18s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#sd-cannon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+#sd-cannon .cannon-body {
+  fill: none;
+  stroke: var(--sd-laser);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(255,69,0,0.7));
+}
+
+/* Recoil animation on fire */
+#sd-cannon.recoil {
+  animation: sd-recoil 0.15s ease-out forwards;
+}
+
+@keyframes sd-recoil {
+  0%   { transform: translateX(-50%) translateY(0); }
+  40%  { transform: translateX(-50%) translateY(8px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Laser beam ──────────────────────────────────────────────────────────── */
+#sd-laser-beam {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  display: none;
+}
+
+/* ── Dial area (reused from Pitch) ──────────────────────────────────────── */
+#sd-dial-section {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+
+#sd-listen-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: rgba(0, 255, 255, 0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  min-height: 1em;
+  text-align: center;
+}
+
+#sd-hz-display {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.1rem;
+  color: var(--sd-green);
+  text-shadow: 0 0 14px rgba(57, 255, 20, 0.5);
+  text-align: center;
+  min-width: 8ch;
+  font-variant-numeric: tabular-nums;
+}
+
+#sd-dial-canvas {
+  display: block;
+  width: min(160px, calc(100vw - 80px));
+  height: min(160px, calc(100vw - 80px));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#sd-dial-canvas:active { cursor: grabbing; }
+
+#sd-dial-canvas.dial--disabled {
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  cursor: default;
+}
+
+#sd-dial-listen-overlay {
+  position: relative;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  color: rgba(0, 255, 255, 0.65);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  min-height: 1em;
+}
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+#sd-controls {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+  flex-shrink: 0;
+  padding-bottom: 6px;
+}
+
+.sd-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1.5px solid;
+  cursor: pointer;
+  flex: 1;
+  letter-spacing: 0.04em;
+  transition: opacity 0.12s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sd-btn:active { transform: scale(0.96); opacity: 0.8; }
+
+#sd-replay-btn {
+  background: #0a0a0a;
+  color: var(--sd-cyan);
+  border-color: rgba(0, 255, 255, 0.35);
+}
+
+#sd-replay-btn:hover { border-color: rgba(0, 255, 255, 0.6); }
+
+#sd-fire-btn {
+  background: var(--sd-laser);
+  color: #000;
+  border-color: var(--sd-laser);
+  text-shadow: none;
+  box-shadow: 0 0 12px rgba(255, 69, 0, 0.5);
+}
+
+#sd-fire-btn:hover { background: #ff6020; }
+
+#sd-fire-btn:disabled,
+#sd-replay-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  transform: none;
+}
+
+/* ── Result readout ──────────────────────────────────────────────────────── */
+#sd-shot-result {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--sd-green);
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+  text-align: center;
+  min-height: 1.5em;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+}
+
+/* ── Phase label ─────────────────────────────────────────────────────────── */
+#sd-phase-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: rgba(0, 255, 255, 0.5);
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  min-height: 1em;
+}
+
+/* ── Splash ──────────────────────────────────────────────────────────────── */
+#sd-splash {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px calc(40px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
+  gap: 22px;
+}
+
+#sd-splash.hidden { display: none; }
+
+#sd-splash-logo {
+  height: 52px;
+  width: auto;
+}
+
+#sd-splash-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  line-height: 2.2;
+  color: rgba(0, 255, 255, 0.6);
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+#sd-splash-warning {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  font-weight: normal;
+  line-height: 2;
+  color: var(--sd-laser);
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 0 14px rgba(255, 69, 0, 0.5);
+}
+
+#sd-play-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  padding: 16px 40px;
+  border-radius: 6px;
+  border: 2px solid var(--sd-cyan);
+  cursor: pointer;
+  background: transparent;
+  color: var(--sd-cyan);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15), inset 0 0 20px rgba(0, 255, 255, 0.04);
+  transition: background 0.12s, box-shadow 0.12s;
+}
+
+#sd-play-btn:hover {
+  background: rgba(0, 255, 255, 0.08);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.25);
+}
+
+/* ── Game over / Win screens ──────────────────────────────────────────────── */
+#sd-gameover,
+#sd-win {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px calc(40px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+#sd-gameover.hidden,
+#sd-win.hidden { display: none; }
+
+#sd-gameover-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.1rem;
+  color: var(--sd-laser);
+  text-shadow: 0 0 24px rgba(255, 69, 0, 0.7);
+  text-align: center;
+  line-height: 1.6;
+}
+
+#sd-win-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.9rem;
+  color: var(--sd-green);
+  text-shadow: 0 0 24px rgba(57, 255, 20, 0.7);
+  text-align: center;
+  line-height: 1.8;
+}
+
+#sd-gameover-sub,
+#sd-win-sub {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  color: rgba(0, 255, 255, 0.55);
+  text-align: center;
+  line-height: 2.4;
+  letter-spacing: 0.04em;
+}
+
+.sd-end-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  padding: 14px 28px;
+  border-radius: 6px;
+  border: 1.5px solid var(--sd-cyan);
+  background: transparent;
+  color: var(--sd-cyan);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.12s;
+}
+
+.sd-end-btn:hover { background: rgba(0, 255, 255, 0.08); }
+
+/* ── Directions overlay ───────────────────────────────────────────────────── */
+#sd-wrap.hidden { display: none; }

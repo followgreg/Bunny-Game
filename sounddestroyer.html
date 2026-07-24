@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sound Destroyer — Bunny Game</title>
+  <meta name="description" content="Match the frequency. Fire the laser. Destroy the grid.">
+  <meta property="og:title" content="Sound Destroyer — Bunny Game">
+  <meta property="og:description" content="Match the frequency. Fire the laser. Destroy the grid.">
+  <meta property="og:url" content="https://www.thebunnygame.com/sounddestroyer">
+  <link rel="canonical" href="https://www.thebunnygame.com/sounddestroyer">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/sounddestroyer.css">
+</head>
+<body data-tab="sounddestroyer">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Splash ─────────────────────────────────────────────────────────────── -->
+<div id="sd-splash">
+  <img src="assets/logos/sounddestroyer_logo.svg" alt="Sound Destroyer" id="sd-splash-logo"
+       onerror="this.style.display='none'">
+  <p id="sd-splash-text">
+    A tone plays. Match it with the dial.<br>
+    Fire your laser at a column.<br>
+    Your accuracy = your damage.<br>
+    Clear all 100 monsters to advance.<br>
+    100 rounds. Get to the end.
+  </p>
+  <p id="sd-splash-warning">⚠ TURN YOUR VOLUME ON<br>THIS GAME IS SOUND-BASED</p>
+  <button id="sd-play-btn">PLAY</button>
+</div>
+
+<!-- ── Game screen ────────────────────────────────────────────────────────── -->
+<div id="sd-wrap" class="hidden">
+
+  <!-- HUD -->
+  <div id="sd-hud">
+    <div id="sd-round-label">ROUND 1</div>
+    <div id="sd-shots-row"><!-- shot icons injected by JS --></div>
+  </div>
+
+  <div id="sd-play-area">
+
+    <!-- Monster grid -->
+    <div id="sd-grid-container">
+      <div id="sd-grid">
+        <!-- 100 cells injected by JS -->
+      </div>
+      <!-- Laser beam canvas overlaid on the grid -->
+      <canvas id="sd-laser-beam"></canvas>
+    </div>
+
+    <!-- Column aim indicators -->
+    <div id="sd-col-indicators">
+      <!-- 10 chevrons injected by JS -->
+    </div>
+
+    <!-- Laser cannon -->
+    <div id="sd-cannon-row">
+      <div id="sd-cannon">
+        <svg viewBox="0 0 28 32" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer chevron body -->
+          <polyline class="cannon-body" points="2,30 14,2 26,30"/>
+          <!-- Inner detail lines -->
+          <polyline class="cannon-body" points="8,30 14,12 20,30" style="stroke-width:1;opacity:0.5;"/>
+          <!-- Base bar -->
+          <line class="cannon-body" x1="3" y1="30" x2="25" y2="30" style="stroke-width:2;"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Phase label (LISTEN / AIM / FIRE) -->
+    <div id="sd-phase-label">SELECT A COLUMN</div>
+
+    <!-- Shot result readout -->
+    <div id="sd-shot-result"></div>
+
+  </div><!-- /sd-play-area -->
+
+  <!-- Dial section -->
+  <div id="sd-dial-section">
+    <div id="sd-listen-label"></div>
+    <canvas id="sd-dial-canvas"></canvas>
+    <div id="sd-hz-display">— Hz</div>
+    <div id="sd-controls">
+      <button class="sd-btn" id="sd-replay-btn" disabled>↻ REPLAY</button>
+      <button class="sd-btn" id="sd-fire-btn" disabled>FIRE</button>
+    </div>
+  </div>
+
+</div><!-- /sd-wrap -->
+
+<!-- ── Game over ──────────────────────────────────────────────────────────── -->
+<div id="sd-gameover" class="hidden">
+  <div id="sd-gameover-title">GAME<br>OVER</div>
+  <div id="sd-gameover-sub"></div>
+  <button class="sd-end-btn" id="sd-restart-btn">TRY AGAIN</button>
+</div>
+
+<!-- ── Win ────────────────────────────────────────────────────────────────── -->
+<div id="sd-win" class="hidden">
+  <div id="sd-win-title">YOU<br>WIN</div>
+  <div id="sd-win-sub">ALL 100 ROUNDS CLEARED</div>
+  <button class="sd-end-btn" id="sd-win-restart-btn">PLAY AGAIN</button>
+</div>
+
+<!-- ── Directions popup ───────────────────────────────────────────────────── -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/pitch.js"></script>
+<script src="assets/js/sounddestroyer.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var COLS = 10;
+  var ROWS = 10;
+  var DIRECTIONS = 'A pure tone plays. Turn the dial to match the frequency. Your accuracy score (0-100) determines how many columns your laser destroys — centered on the column you aimed at. Clear all 100 monsters to advance to the next round. Fail to clear the grid within your shot allocation and it\'s Game Over. 100 rounds total. Make sure your volume is on.';
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  var splashEl    = document.getElementById('sd-splash');
+  var wrapEl      = document.getElementById('sd-wrap');
+  var gameoverEl  = document.getElementById('sd-gameover');
+  var winEl       = document.getElementById('sd-win');
+  var hudRoundEl  = document.getElementById('sd-round-label');
+  var shotsRowEl  = document.getElementById('sd-shots-row');
+  var gridEl      = document.getElementById('sd-grid');
+  var colIndEl    = document.getElementById('sd-col-indicators');
+  var cannonEl    = document.getElementById('sd-cannon');
+  var cannonRowEl = document.getElementById('sd-cannon-row');
+  var phaseLabelEl= document.getElementById('sd-phase-label');
+  var shotResultEl= document.getElementById('sd-shot-result');
+  var listenLabelEl=document.getElementById('sd-listen-label');
+  var hzEl        = document.getElementById('sd-hz-display');
+  var dialCanvas  = document.getElementById('sd-dial-canvas');
+  var replayBtn   = document.getElementById('sd-replay-btn');
+  var fireBtn     = document.getElementById('sd-fire-btn');
+  var laserCanvas = document.getElementById('sd-laser-beam');
+  var gameoverSubEl = document.getElementById('sd-gameover-sub');
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  var currentRound  = 1;
+  var shotsLeft     = 0;
+  var aimedCol      = null;  // 0-indexed
+  var targetHz      = null;
+  var phase         = 'aim'; // 'aim' | 'listen' | 'fire'
+  var cells         = [];    // flat array of 100 cell elements, row-major
+  var alive         = [];    // 100 booleans, row-major
+  var colIndicators = [];
+
+  // ── Directions ────────────────────────────────────────────────────────────
+  document.getElementById('help-btn').addEventListener('click', function () {
+    openDirections(DIRECTIONS);
+  });
+  var dirEl = document.getElementById('directions-text');
+  if (dirEl) dirEl.textContent = DIRECTIONS;
+
+  // ── Build grid ─────────────────────────────────────────────────────────────
+  function buildGrid() {
+    gridEl.innerHTML = '';
+    cells = [];
+    alive = [];
+    for (var i = 0; i < ROWS * COLS; i++) {
+      var cell = document.createElement('div');
+      cell.className = 'sd-cell';
+      cell.dataset.idx = i;
+      var img = document.createElement('img');
+      img.src = 'assets/icons/monsterbunny.svg';
+      img.className = 'sd-monster';
+      img.alt = '';
+      cell.appendChild(img);
+      gridEl.appendChild(cell);
+      cells.push(cell);
+      alive.push(true);
+    }
+  }
+
+  // ── Build column indicators ────────────────────────────────────────────────
+  function buildColIndicators() {
+    colIndEl.innerHTML = '';
+    colIndicators = [];
+    for (var c = 0; c < COLS; c++) {
+      (function (col) {
+        var ind = document.createElement('div');
+        ind.className = 'sd-col-indicator';
+        ind.innerHTML = '<svg viewBox="0 0 10 8" xmlns="http://www.w3.org/2000/svg">' +
+          '<polyline class="ind-chevron" points="1,7 5,1 9,7"/></svg>';
+        ind.addEventListener('click', function () { aimColumn(col); });
+        colIndEl.appendChild(ind);
+        colIndicators.push(ind);
+      })(c);
+    }
+  }
+
+  // ── Aim a column ───────────────────────────────────────────────────────────
+  function aimColumn(col) {
+    if (phase !== 'aim') return;
+    aimedCol = col;
+
+    // Update cell highlights
+    cells.forEach(function (cell, idx) {
+      var cellCol = idx % COLS;
+      cell.classList.toggle('targeted', cellCol === col && alive[idx]);
+    });
+
+    // Update indicators
+    colIndicators.forEach(function (ind, c) {
+      ind.classList.toggle('aimed', c === col);
+    });
+
+    // Move cannon
+    positionCannon(col);
+
+    // Enable fire, start listen phase
+    startListenPhase();
+  }
+
+  // ── Position cannon ────────────────────────────────────────────────────────
+  function positionCannon(col) {
+    var gridRect = gridEl.getBoundingClientRect();
+    var rowRect  = cannonRowEl.getBoundingClientRect();
+    var cellW    = gridRect.width / COLS;
+    var leftInRow = (gridRect.left - rowRect.left) + cellW * col + cellW / 2;
+    cannonEl.style.left = leftInRow + 'px';
+  }
+
+  // ── Listen phase ───────────────────────────────────────────────────────────
+  function startListenPhase() {
+    if (phase === 'listen') return; // already listening
+    phase = 'listen';
+    targetHz = SoundDestroyer.getRoundConfig(currentRound)[0]; // reuse shot count slot?
+    // Actually generate a fresh tone
+    targetHz = Pitch.generateTargetFrequency();
+
+    Pitch.resetDial();
+    hzEl.textContent = '— Hz';
+    listenLabelEl.textContent = 'LISTENING...';
+    phaseLabelEl.textContent  = 'MATCH THE TONE';
+    replayBtn.disabled = true;
+    fireBtn.disabled   = true;
+    Pitch.setDialLocked(true);
+
+    var duration = SoundDestroyer.getRoundConfig(currentRound)[1];
+    Pitch.playTargetTone(targetHz, duration);
+
+    var unlockMs = Math.round(duration * 1000) + 200;
+    setTimeout(function () {
+      listenLabelEl.textContent = '';
+      phaseLabelEl.textContent  = 'DIAL IN — THEN FIRE';
+      Pitch.setDialLocked(false);
+      hzEl.textContent = Math.round(Pitch.getDialFrequency()) + ' Hz';
+      replayBtn.disabled = false;
+      fireBtn.disabled   = false;
+      phase = 'fire';
+    }, unlockMs);
+  }
+
+  // ── Replay ─────────────────────────────────────────────────────────────────
+  replayBtn.addEventListener('click', function () {
+    if (phase !== 'fire') return;
+    Pitch.stopLiveTone();
+    replayBtn.disabled = true;
+    fireBtn.disabled   = true;
+    Pitch.setDialLocked(true);
+    listenLabelEl.textContent = 'LISTENING...';
+    var duration = SoundDestroyer.getRoundConfig(currentRound)[1];
+    Pitch.playTargetTone(targetHz, duration);
+    var unlockMs = Math.round(duration * 1000) + 200;
+    setTimeout(function () {
+      listenLabelEl.textContent = '';
+      Pitch.setDialLocked(false);
+      hzEl.textContent = Math.round(Pitch.getDialFrequency()) + ' Hz';
+      replayBtn.disabled = false;
+      fireBtn.disabled   = false;
+    }, unlockMs);
+  });
+
+  // ── Fire ───────────────────────────────────────────────────────────────────
+  fireBtn.addEventListener('click', function () {
+    if (phase !== 'fire' || aimedCol === null) return;
+    phase = 'aim'; // reset so next column can be aimed after result
+
+    Pitch.stopLiveTone();
+    Pitch.setDialLocked(true);
+    replayBtn.disabled = true;
+    fireBtn.disabled   = true;
+
+    var playerHz = Pitch.getDialFrequency();
+    var score    = Pitch.scoreAccuracy(targetHz, playerHz);
+    var colsHit  = SoundDestroyer.calculateColumnsDestroyed(score);
+    var destroyed = SoundDestroyer.getDestroyedColumns(aimedCol, colsHit, COLS);
+
+    shotsLeft--;
+    updateShotsHUD();
+
+    // Recoil animation then beam
+    cannonEl.classList.remove('recoil');
+    void cannonEl.offsetWidth; // reflow
+    cannonEl.classList.add('recoil');
+
+    setTimeout(function () {
+      fireLaserBeam(aimedCol, score, function () {
+        // After beam: destroy monsters in targeted columns (all rows)
+        var monstersKilled = 0;
+        destroyed.forEach(function (col) {
+          for (var row = 0; row < ROWS; row++) {
+            var idx = row * COLS + col;
+            if (alive[idx]) {
+              alive[idx] = false;
+              cells[idx].classList.add('dead');
+              cells[idx].classList.remove('targeted');
+              monstersKilled++;
+            }
+          }
+        });
+
+        // Clear targeted highlights from aimed column that wasn't destroyed
+        cells.forEach(function (cell, idx) {
+          cell.classList.remove('targeted');
+        });
+        colIndicators.forEach(function (ind) { ind.classList.remove('aimed'); });
+
+        // Readout
+        if (colsHit === 0) {
+          shotResultEl.textContent = score + ' — MISS';
+        } else {
+          shotResultEl.textContent = score + ' ACC · ' + colsHit + ' COL · ' + monstersKilled + ' DOWN';
+        }
+
+        cannonEl.classList.remove('recoil');
+        Pitch.setDialLocked(false);
+
+        // Check win / game-over
+        var remaining = alive.filter(Boolean).length;
+        if (remaining === 0) {
+          // Cleared the round
+          setTimeout(function () { advanceRound(); }, 1000);
+        } else if (shotsLeft <= 0) {
+          // Out of shots, still monsters alive
+          setTimeout(function () { showGameOver(); }, 1200);
+        } else {
+          // Next shot: reset to aim phase
+          phase = 'aim';
+          phaseLabelEl.textContent = 'SELECT A COLUMN';
+          aimedCol = null;
+          targetHz = null;
+          listenLabelEl.textContent = '';
+          hzEl.textContent = '— Hz';
+          replayBtn.disabled = true;
+          fireBtn.disabled   = true;
+        }
+      });
+    }, 160); // after recoil
+  });
+
+  // ── Laser beam animation ───────────────────────────────────────────────────
+  function fireLaserBeam(col, score, onComplete) {
+    var gridRect = gridEl.getBoundingClientRect();
+    var wrapRect = wrapEl.getBoundingClientRect();
+
+    // Position canvas over the full play column
+    var cellW  = gridRect.width / COLS;
+    var beamX  = gridRect.left - wrapRect.left + cellW * col + cellW / 2;
+    var beamW  = Math.max(4, Math.round(2 + score / 20)); // width scales with accuracy
+    var beamTop = gridRect.top - wrapRect.top;
+    var beamH   = gridRect.height;
+
+    laserCanvas.style.display = 'block';
+    laserCanvas.style.left    = (beamX - beamW * 3) + 'px';
+    laserCanvas.style.top     = beamTop + 'px';
+    laserCanvas.style.width   = (beamW * 6) + 'px';
+    laserCanvas.style.height  = beamH + 'px';
+    laserCanvas.width  = beamW * 6;
+    laserCanvas.height = beamH;
+
+    var ctx = laserCanvas.getContext('2d');
+    var cx  = beamW * 3;
+    var progress = 0; // 0→1 as beam travels up
+    var start = null;
+    var totalMs = 400;
+
+    function frame(ts) {
+      if (!start) start = ts;
+      progress = Math.min(1, (ts - start) / totalMs);
+
+      ctx.clearRect(0, 0, laserCanvas.width, beamH);
+
+      var beamBottom = beamH;
+      var beamTip    = beamH * (1 - progress);
+
+      // Outer glow
+      var grd = ctx.createLinearGradient(0, beamTip, 0, beamBottom);
+      grd.addColorStop(0, 'rgba(255,69,0,0)');
+      grd.addColorStop(0.3, 'rgba(255,150,0,0.3)');
+      grd.addColorStop(1, 'rgba(255,69,0,0.15)');
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, beamTip, laserCanvas.width, beamBottom - beamTip);
+
+      // Core beam
+      ctx.beginPath();
+      ctx.moveTo(cx, beamBottom);
+      ctx.lineTo(cx, beamTip);
+      ctx.strokeStyle = '#FF4500';
+      ctx.lineWidth   = beamW;
+      ctx.lineCap     = 'round';
+      ctx.shadowColor = '#FF6020';
+      ctx.shadowBlur  = 12;
+      ctx.stroke();
+      ctx.shadowBlur  = 0;
+
+      // Hot white core
+      ctx.beginPath();
+      ctx.moveTo(cx, beamBottom);
+      ctx.lineTo(cx, beamTip);
+      ctx.strokeStyle = 'rgba(255,220,180,0.9)';
+      ctx.lineWidth   = Math.max(1, beamW * 0.35);
+      ctx.stroke();
+
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        // Fade out
+        var fadeStart = null;
+        var fadeMs = 200;
+        function fade(ts2) {
+          if (!fadeStart) fadeStart = ts2;
+          var fp = Math.min(1, (ts2 - fadeStart) / fadeMs);
+          ctx.clearRect(0, 0, laserCanvas.width, beamH);
+          ctx.globalAlpha = 1 - fp;
+          ctx.beginPath();
+          ctx.moveTo(cx, beamBottom);
+          ctx.lineTo(cx, 0);
+          ctx.strokeStyle = '#FF4500';
+          ctx.lineWidth   = beamW * (1 - fp * 0.5);
+          ctx.shadowColor = '#FF6020';
+          ctx.shadowBlur  = 8;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          if (fp < 1) {
+            requestAnimationFrame(fade);
+          } else {
+            laserCanvas.style.display = 'none';
+            onComplete();
+          }
+        }
+        requestAnimationFrame(fade);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ── HUD helpers ────────────────────────────────────────────────────────────
+  function updateShotsHUD() {
+    var total = SoundDestroyer.getRoundConfig(currentRound)[0];
+    shotsRowEl.innerHTML = '';
+    for (var i = 0; i < total; i++) {
+      var icon = document.createElement('div');
+      icon.className = 'sd-shot-icon ' + (i < shotsLeft ? 'available' : 'used');
+      shotsRowEl.appendChild(icon);
+    }
+  }
+
+  // ── Round start ────────────────────────────────────────────────────────────
+  function startRound(round) {
+    currentRound = round;
+    var cfg = SoundDestroyer.getRoundConfig(round);
+    shotsLeft = cfg[0];
+
+    hudRoundEl.textContent = 'ROUND ' + round;
+    updateShotsHUD();
+
+    buildGrid();
+    buildColIndicators();
+
+    // Position cannon at center col initially
+    requestAnimationFrame(function () {
+      positionCannon(4);
+    });
+
+    phase    = 'aim';
+    aimedCol = null;
+    targetHz = null;
+    shotResultEl.textContent   = '';
+    listenLabelEl.textContent  = '';
+    hzEl.textContent           = '— Hz';
+    phaseLabelEl.textContent   = 'SELECT A COLUMN';
+    replayBtn.disabled = true;
+    fireBtn.disabled   = true;
+    Pitch.setDialLocked(false);
+
+    wrapEl.classList.remove('hidden');
+    gameoverEl.classList.add('hidden');
+    winEl.classList.add('hidden');
+  }
+
+  // ── Advance round ──────────────────────────────────────────────────────────
+  function advanceRound() {
+    if (currentRound >= 100) {
+      showWin();
+    } else {
+      startRound(currentRound + 1);
+    }
+  }
+
+  // ── Game over ──────────────────────────────────────────────────────────────
+  function showGameOver() {
+    wrapEl.classList.add('hidden');
+    gameoverEl.classList.remove('hidden');
+    var remaining = alive.filter(Boolean).length;
+    gameoverSubEl.textContent = remaining + ' MONSTERS SURVIVED\nROUND ' + currentRound;
+  }
+
+  // ── Win ────────────────────────────────────────────────────────────────────
+  function showWin() {
+    wrapEl.classList.add('hidden');
+    winEl.classList.remove('hidden');
+  }
+
+  // ── Restart ────────────────────────────────────────────────────────────────
+  document.getElementById('sd-restart-btn').addEventListener('click', function () {
+    gameoverEl.classList.add('hidden');
+    startRound(1);
+  });
+  document.getElementById('sd-win-restart-btn').addEventListener('click', function () {
+    winEl.classList.add('hidden');
+    startRound(1);
+  });
+
+  // ── Init dial ──────────────────────────────────────────────────────────────
+  Pitch.initDial(dialCanvas, hzEl);
+
+  // ── Splash ─────────────────────────────────────────────────────────────────
+  document.getElementById('sd-play-btn').addEventListener('click', function () {
+    splashEl.classList.add('hidden');
+    startRound(1);
+  });
+
+}());
+</script>
+</body>
+</html>
