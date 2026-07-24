@@ -176,23 +176,23 @@
     Pitch.resetDial();
     hzEl.textContent = '— Hz';
 
-    // Show listen overlay, hide controls
+    // Show listen overlay, hide controls; lock dial for entire playback
     listenOverlay.classList.remove('hidden');
     replayBtn.classList.add('hidden');
     submitBtn.classList.add('hidden');
-    dialEl.style.pointerEvents = 'none';
+    Pitch.setDialLocked(true);
 
-    // Play target tone; unlock after it ends
+    // Play target tone; unlock dial only after tone + release tail finishes
     Pitch.playTargetTone(targetHz, 3.0);
     setTimeout(function () {
       listenOverlay.classList.add('hidden');
       replayBtn.classList.remove('hidden');
       submitBtn.classList.remove('hidden');
-      dialEl.style.pointerEvents = '';
+      Pitch.setDialLocked(false);
       // Now show the actual dial position so player knows their starting point
       hzEl.textContent = Math.round(Pitch.getDialFrequency()) + ' Hz';
       locked = false;
-    }, 3200); // 3s tone + 200ms buffer
+    }, 3200); // 3s tone + 200ms buffer for release tail
   }
 
   // ── Replay ────────────────────────────────────────────────────────────────
@@ -200,8 +200,12 @@
     if (locked) return;
     Pitch.stopLiveTone();
     replayBtn.disabled = true;
+    Pitch.setDialLocked(true);
     Pitch.playTargetTone(session[roundIndex], 3.0);
-    setTimeout(function () { replayBtn.disabled = false; }, 3200);
+    setTimeout(function () {
+      replayBtn.disabled = false;
+      Pitch.setDialLocked(false);
+    }, 3200);
   });
 
   // ── Submit ────────────────────────────────────────────────────────────────
@@ -210,7 +214,7 @@
     locked = true;
 
     Pitch.stopLiveTone();
-    dialEl.style.pointerEvents = 'none';
+    Pitch.setDialLocked(true);
 
     var targetHz = session[roundIndex];
     var playerHz = Pitch.getDialFrequency();

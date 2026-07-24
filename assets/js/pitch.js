@@ -116,6 +116,7 @@
   var _dialPos   = 0.5; // normalized 0–1; 0.5 = geometric mean (~310 Hz)
   var _dragging  = false;
   var _lastAngle = null;
+  var _dialLocked = false; // true while target tone is playing
 
   function _toCanvasAngle(degFromTop) {
     // canvas arc: 0 = right, CW. Offset -90° to make 0 = top.
@@ -247,7 +248,16 @@
     return Math.atan2(dy, dx); // −π to π
   }
 
+  function setDialLocked(locked) {
+    _dialLocked = locked;
+    if (!_canvas) return;
+    _canvas.style.pointerEvents = locked ? 'none' : '';
+    _canvas.style.cursor        = locked ? 'default' : '';
+    _canvas.classList.toggle('dial--disabled', locked);
+  }
+
   function _dragStart(clientX, clientY) {
+    if (_dialLocked) return;
     _dragging   = true;
     _lastAngle  = _angleFromCenter(clientX, clientY);
     startLiveTone(normToFreq(_dialPos)); // float — no rounding
@@ -337,6 +347,7 @@
     initDial:                 initDial,
     resetDial:                resetDial,
     getDialFrequency:         getDialFrequency,
+    setDialLocked:            setDialLocked,
     normToFreq:               normToFreq,
     freqToNorm:               freqToNorm,
   };

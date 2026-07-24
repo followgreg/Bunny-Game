@@ -138,6 +138,11 @@ body[data-tab="pitch"]::before {
   cursor: grabbing;
 }
 
+#pitch-dial.dial--disabled {
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
 /* ── Hz readout ──────────────────────────────────────────────────────────── */
 #pitch-hz-display {
   font-family: 'DM Sans', sans-serif;
