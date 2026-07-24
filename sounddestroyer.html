@@ -31,7 +31,7 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/sounddestroyer.css">
+  <link rel="stylesheet" href="assets/css/sounddestroyer.css?v=5">
 </head>
 <body data-tab="sounddestroyer">
 
@@ -108,6 +108,11 @@
 
   </div><!-- /sd-play-area -->
 
+  <!-- Round clear overlay -->
+  <div id="sd-round-clear" class="hidden">
+    <div id="sd-round-clear-text">ROUND<br>CLEAR</div>
+  </div>
+
   <!-- Dial section -->
   <div id="sd-dial-section">
     <div id="sd-listen-label"></div>
@@ -125,14 +130,16 @@
 <div id="sd-gameover" class="hidden">
   <div id="sd-gameover-title">GAME<br>OVER</div>
   <div id="sd-gameover-sub"></div>
+  <button class="sd-end-btn" id="sd-share-go-btn">SHARE</button>
   <button class="sd-end-btn" id="sd-restart-btn">TRY AGAIN</button>
 </div>
 
 <!-- ── Win ────────────────────────────────────────────────────────────────── -->
 <div id="sd-win" class="hidden">
-  <div id="sd-win-title">YOU<br>WIN</div>
-  <div id="sd-win-sub">ALL 100 ROUNDS CLEARED</div>
-  <button class="sd-end-btn" id="sd-win-restart-btn">PLAY AGAIN</button>
+  <div id="sd-win-title">SOUND<br>DESTROYED</div>
+  <div id="sd-win-sub">All 100 rounds.<br>Maximum signal achieved.</div>
+  <button class="sd-end-btn sd-end-btn--green" id="sd-share-win-btn">SHARE</button>
+  <button class="sd-end-btn sd-end-btn--green" id="sd-win-restart-btn">PLAY AGAIN</button>
 </div>
 
 <!-- ── Directions popup ───────────────────────────────────────────────────── -->
@@ -186,6 +193,7 @@
   var fireBtn       = document.getElementById('sd-fire-btn');
   var laserCanvas   = document.getElementById('sd-laser-beam');
   var shatterCanvas = document.getElementById('sd-shatter-canvas');
+  var roundClearEl  = document.getElementById('sd-round-clear');
 
   // ── Game state ─────────────────────────────────────────────────────────────
   var gameState     = SHOT_STATES.AIMING;
@@ -264,7 +272,7 @@
       _shatterCtx.beginPath();
       _shatterCtx.moveTo(p.x - hx, p.y - hy);
       _shatterCtx.lineTo(p.x + hx, p.y + hy);
-      _shatterCtx.strokeStyle = '#00FFFF';
+      _shatterCtx.strokeStyle = p.color || '#00FFFF';
       _shatterCtx.lineWidth   = 1.5;
       _shatterCtx.lineCap     = 'round';
       _shatterCtx.stroke();
@@ -560,30 +568,95 @@
     setState(SHOT_STATES.AIMING);
   }
 
+  var SD_URL = 'https://www.thebunnygame.com/sounddestroyer';
+
+  // ── Win cascade particle emitter (doesn't touch alive[] or cell classes) ───
+  function _emitWinParticlesAt(cellIdx) {
+    if (!_shatterCtx) return;
+    var cell     = cells[cellIdx];
+    var gridRect = gridEl.getBoundingClientRect();
+    var cellRect = cell.getBoundingClientRect();
+    var cx = cellRect.left - gridRect.left + cellRect.width  / 2;
+    var cy = cellRect.top  - gridRect.top  + cellRect.height / 2;
+    var r  = cellRect.width * 0.32;
+    for (var i = 0; i < 14; i++) {
+      var angle = (i / 14) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+      var speed = r * (0.09 + Math.random() * 0.13);
+      _particles.push({
+        x:  cx + Math.cos(angle) * r * 0.15,
+        y:  cy + Math.sin(angle) * r * 0.15,
+        dx: Math.cos(angle) * speed,
+        dy: Math.sin(angle) * speed,
+        len:  r * (0.5 + Math.random() * 0.6),
+        perp: angle + Math.PI / 2,
+        alpha: 1,
+        color: '#39FF14',
+      });
+    }
+    if (!_shatterAnimId) _shatterAnimId = requestAnimationFrame(_tickShatter);
+  }
+
   function advanceRound() {
-    if (currentRound >= 100) showWin();
-    else startRound(currentRound + 1);
+    if (currentRound >= 100) { showWin(); return; }
+    // ROUND_CLEAR: green cell flash + overlay for 2 s then next round
+    setState(SHOT_STATES.ROUND_CLEAR);
+    cells.forEach(function (c) { c.classList.add('round-clear'); });
+    roundClearEl.classList.remove('hidden');
+    setTimeout(function () {
+      roundClearEl.classList.add('hidden');
+      cells.forEach(function (c) { c.classList.remove('round-clear'); });
+      startRound(currentRound + 1);
+    }, 2000);
   }
 
   function showGameOver() {
+    // Brief red flash overlay
+    var flash = document.createElement('div');
+    flash.id = 'sd-red-flash';
+    document.body.appendChild(flash);
+    setTimeout(function () { flash.remove(); }, 500);
+
     wrapEl.classList.add('hidden');
     gameoverEl.classList.remove('hidden');
-    var remaining = alive.filter(Boolean).length;
-    document.getElementById('sd-gameover-sub').textContent =
-      remaining + ' MONSTERS SURVIVED · ROUND ' + currentRound;
+    document.getElementById('sd-gameover-sub').textContent = 'REACHED ROUND ' + currentRound;
   }
 
   function showWin() {
-    wrapEl.classList.add('hidden');
-    winEl.classList.remove('hidden');
+    // Cascade green shatter across all 100 cells, then reveal win screen
+    var cellDelay = 14; // ms per cell
+    for (var row = 0; row < ROWS; row++) {
+      for (var col = 0; col < COLS; col++) {
+        (function (idx, delay) {
+          setTimeout(function () { _emitWinParticlesAt(idx); }, delay);
+        })(row * COLS + col, (row * COLS + col) * cellDelay);
+      }
+    }
+    var totalMs = ROWS * COLS * cellDelay + 900;
+    setTimeout(function () {
+      wrapEl.classList.add('hidden');
+      winEl.classList.remove('hidden');
+    }, totalMs);
   }
 
-  // ── Restart ─────────────────────────────────────────────────────────────────
+  // ── Restart / Share ──────────────────────────────────────────────────────────
   document.getElementById('sd-restart-btn').addEventListener('click', function () {
     gameoverEl.classList.add('hidden'); startRound(1);
   });
   document.getElementById('sd-win-restart-btn').addEventListener('click', function () {
     winEl.classList.add('hidden'); startRound(1);
+  });
+  document.getElementById('sd-share-go-btn').addEventListener('click', function () {
+    shareText(
+      'Sound Destroyer — made it to round ' + currentRound +
+      ' before the monsters won. Think you can do better? ' + SD_URL,
+      'Sound Destroyer'
+    );
+  });
+  document.getElementById('sd-share-win-btn').addEventListener('click', function () {
+    shareText(
+      'Sound Destroyer — destroyed all 100 rounds. Maximum signal achieved. ' + SD_URL,
+      'Sound Destroyer'
+    );
   });
 
   // ── Directions ───────────────────────────────────────────────────────────────

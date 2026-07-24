@@ -552,3 +552,87 @@ body[data-tab="sounddestroyer"]::after {
 
 /* ── Directions overlay ───────────────────────────────────────────────────── */
 #sd-wrap.hidden { display: none; }
+
+/* ── Round clear overlay ──────────────────────────────────────────────────── */
+#sd-round-clear {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
+}
+#sd-round-clear.hidden { display: none; }
+
+#sd-round-clear-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.1rem;
+  color: var(--sd-green);
+  text-align: center;
+  line-height: 1.8;
+  animation: sd-pulse-round-clear 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes sd-pulse-round-clear {
+  from { opacity: 0.65; text-shadow: 0 0 10px rgba(57,255,20,0.4); }
+  to   { opacity: 1;    text-shadow: 0 0 32px rgba(57,255,20,0.9), 0 0 70px rgba(57,255,20,0.25); }
+}
+
+/* Green-tinted monsters during round-clear flash */
+.sd-cell.round-clear {
+  background: rgba(57, 255, 20, 0.07);
+}
+.sd-cell.round-clear .sd-monster {
+  filter: hue-rotate(-60deg) brightness(1.25);
+  animation: none;
+}
+
+/* ── Red flash overlay (game over) ───────────────────────────────────────── */
+#sd-red-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: rgba(255, 0, 0, 0);
+  animation: sd-red-flash 0.5s ease-out forwards;
+}
+@keyframes sd-red-flash {
+  0%   { background: rgba(255, 0, 0, 0); }
+  20%  { background: rgba(255, 0, 0, 0.38); }
+  100% { background: rgba(255, 0, 0, 0); }
+}
+
+/* ── Win screen enhancements ──────────────────────────────────────────────── */
+#sd-win {
+  position: relative;
+  overflow: hidden;
+}
+#sd-win::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(circle at center, rgba(57,255,20,0.06) 0%, transparent 65%);
+  animation: sd-win-radial 2s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes sd-win-radial {
+  from { transform: scale(0.8); opacity: 0.5; }
+  to   { transform: scale(1.4); opacity: 1; }
+}
+#sd-win > * { position: relative; z-index: 1; }
+
+#sd-win-title {
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  animation: sd-pulse-round-clear 0.7s ease-in-out infinite alternate;
+}
+
+/* Green variant end buttons (win screen) */
+.sd-end-btn--green {
+  border-color: var(--sd-green);
+  color: var(--sd-green);
+}
+.sd-end-btn--green:hover { background: rgba(57, 255, 20, 0.08); }
