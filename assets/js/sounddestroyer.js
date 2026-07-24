@@ -42,43 +42,54 @@
     return ROUND_CONFIG[roundNumber - 1];
   }
 
-  // ── Damage formula ───────────────────────────────────────────────────────────
-  // Steep curve — only high accuracy produces meaningful damage
-  function calculateColumnsDestroyed(accuracyScore) {
-    if (accuracyScore >= 98) return 10; // near-perfect: full grid width
-    if (accuracyScore >= 93) return 8;  // excellent
-    if (accuracyScore >= 85) return 6;  // very good
-    if (accuracyScore >= 75) return 4;  // good
-    if (accuracyScore >= 63) return 3;  // decent
-    if (accuracyScore >= 50) return 2;  // mediocre
-    if (accuracyScore >= 35) return 1;  // weak
-    return 0;                           // miss — beam fires but nothing dies
+  // ── Fan damage formula ────────────────────────────────────────────────────────
+  // Returns {columns, rows} — both dimensions scale with accuracy.
+  function getFanDimensions(accuracyScore) {
+    if (accuracyScore >= 98) return { columns: 10, rows: 10 };
+    if (accuracyScore >= 93) return { columns: 8,  rows: 9  };
+    if (accuracyScore >= 85) return { columns: 6,  rows: 7  };
+    if (accuracyScore >= 75) return { columns: 4,  rows: 5  };
+    if (accuracyScore >= 63) return { columns: 3,  rows: 4  };
+    if (accuracyScore >= 50) return { columns: 2,  rows: 3  };
+    if (accuracyScore >= 35) return { columns: 1,  rows: 2  };
+    return { columns: 0, rows: 0 };                           // miss
   }
 
-  // ── Column spread ────────────────────────────────────────────────────────────
-  // Returns sorted array of 0-indexed column indices destroyed by a shot.
-  // Spreads outward left+right from aimedColumn until columnsCount reached.
-  function getDestroyedColumns(aimedColumn, columnsCount, totalColumns) {
+  // ── Fan geometry ─────────────────────────────────────────────────────────────
+  // Returns array of {row, col} objects the fan destroys.
+  // Fan tapers from 1 column wide at the base to maxColumns wide at the top.
+  function getFanCellsDestroyed(aimedColumn, accuracyScore, totalColumns) {
     totalColumns = totalColumns !== undefined ? totalColumns : 10;
-    if (columnsCount <= 0) return [];
-    var columns = {};
-    columns[aimedColumn] = true;
-    var left  = aimedColumn - 1;
-    var right = aimedColumn + 1;
-    while (Object.keys(columns).length < columnsCount) {
-      if (right < totalColumns) { columns[right] = true; right++; }
-      if (Object.keys(columns).length < columnsCount && left >= 0) { columns[left] = true; left--; }
-      if (left < 0 && right >= totalColumns) break;
+    var dims = getFanDimensions(accuracyScore);
+    if (dims.columns === 0 || dims.rows === 0) return [];
+
+    var maxColumns = dims.columns;
+    var maxRows    = dims.rows;
+    var result     = [];
+    var bottomRow  = 9;
+    var topRow     = bottomRow - maxRows + 1;
+
+    for (var row = bottomRow; row >= topRow; row--) {
+      var rowsFromBottom = bottomRow - row;
+      var widthAtRow = maxRows <= 1
+        ? maxColumns
+        : Math.round(1 + (rowsFromBottom / (maxRows - 1)) * (maxColumns - 1));
+      var halfSpread = Math.floor(widthAtRow / 2);
+      var leftCol    = Math.max(0, aimedColumn - halfSpread);
+      var rightCol   = Math.min(totalColumns - 1, aimedColumn + halfSpread);
+      for (var col = leftCol; col <= rightCol; col++) {
+        result.push({ row: row, col: col });
+      }
     }
-    return Object.keys(columns).map(Number).sort(function (a, b) { return a - b; });
+    return result;
   }
 
   // ── Public API ───────────────────────────────────────────────────────────────
   global.SoundDestroyer = {
-    ROUND_CONFIG:            ROUND_CONFIG,
-    getRoundConfig:          getRoundConfig,
-    calculateColumnsDestroyed: calculateColumnsDestroyed,
-    getDestroyedColumns:     getDestroyedColumns,
+    ROUND_CONFIG:           ROUND_CONFIG,
+    getRoundConfig:         getRoundConfig,
+    getFanDimensions:       getFanDimensions,
+    getFanCellsDestroyed:   getFanCellsDestroyed,
   };
 
 }(window));
