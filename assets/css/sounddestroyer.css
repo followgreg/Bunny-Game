@@ -328,6 +328,11 @@ body[data-tab="sounddestroyer"]::after {
   cursor: default;
 }
 
+/* In Sound Destroyer, keep dial fully visible while listening */
+#sd-dial-section #sd-dial-canvas.dial--disabled {
+  opacity: 1;
+}
+
 #sd-dial-listen-overlay {
   position: relative;
   font-family: 'Press Start 2P', monospace;

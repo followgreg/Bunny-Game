@@ -36,7 +36,7 @@
   </script>
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/sounddestroyer.css?v=6">
+  <link rel="stylesheet" href="assets/css/sounddestroyer.css?v=7">
 </head>
 <body data-tab="sounddestroyer">
 
@@ -214,6 +214,11 @@
     var dpr = window.devicePixelRatio || 1;
     _canvasW = gridEl.offsetWidth;
     _canvasH = gridEl.offsetHeight;
+    // Retry if layout hasn't completed yet (common on mobile)
+    if (_canvasW === 0 || _canvasH === 0) {
+      requestAnimationFrame(setupCanvases);
+      return;
+    }
     [laserCanvas, shatterCanvas].forEach(function (c) {
       c.width  = Math.round(_canvasW * dpr);
       c.height = Math.round(_canvasH * dpr);
@@ -320,6 +325,10 @@
 
   // ── Fire sequence ──────────────────────────────────────────────────────────
   function runFireSequence(col, score, destroyedCols, onDone) {
+    // Re-measure canvases in case layout shifted since buildGrid (mobile)
+    if (_canvasW === 0 || _canvasH === 0 || _canvasW !== gridEl.offsetWidth) {
+      setupCanvases();
+    }
     // 1. Cannon recoil
     cannonEl.classList.remove('recoil');
     void cannonEl.offsetWidth;
