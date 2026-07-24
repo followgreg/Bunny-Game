@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pitch — tune your ear — Bunny Game</title>
+  <meta name="description" content="Hear a tone. Match it. Three rounds. How well can you tune your ear?">
+  <meta property="og:title" content="Pitch — tune your ear — Bunny Game">
+  <meta property="og:description" content="Hear a tone. Match it. Three rounds. How well can you tune your ear?">
+  <meta property="og:url" content="https://www.thebunnygame.com/pitch">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/pitch-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/pitch-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/pitch">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/pitch.css">
+</head>
+<body data-tab="pitch">
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Game wrap (placeholder — full UI in Part 2) ───────────────────────── -->
+<div id="pitch-wrap">
+  <p id="pitch-status" style="color:#39FF14;font-family:'DM Sans',sans-serif;padding:32px 24px;font-size:0.9rem;">
+    Audio engine loaded. Open DevTools console and run:<br><br>
+    <code>Pitch.generateSession()</code><br>
+    <code>Pitch.playTargetTone(440)</code><br>
+    <code>Pitch.startLiveTone(330); Pitch.updateLiveToneFrequency(440); Pitch.stopLiveTone()</code><br>
+    <code>Pitch.scoreAccuracy(440, 466)</code>
+  </p>
+</div>
+
+<!-- ── Directions popup ──────────────────────────────────────────────────── -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/pitch.js"></script>
+</body>
+</html>

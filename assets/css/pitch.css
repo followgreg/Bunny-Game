@@ -1,0 +1,22 @@
+/* pitch.css — Pitch game styles (full UI in Part 2) */
+body[data-tab="pitch"] {
+  background: #0A0A0A;
+}
+
+#pitch-wrap {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+code {
+  display: block;
+  margin-top: 8px;
+  color: #39FF14;
+  opacity: 0.7;
+}
