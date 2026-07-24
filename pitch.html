@@ -49,8 +49,16 @@
 
 <div id="nav-root"></div>
 
+<!-- ── Splash ─────────────────────────────────────────────────────────────── -->
+<div id="pitch-splash">
+  <img src="assets/logos/pitch_logo.svg" alt="Pitch" id="pitch-splash-logo">
+  <p id="pitch-splash-text">Pitch plays you a pure sine wave tone. Your job is to turn the dial until you match it exactly. As you turn, you'll hear your current frequency in real time — use your ears to zero in. You can replay the target tone as many times as you need before submitting. Three rounds, scored by how close you get. Perfect score is 300.</p>
+  <p id="pitch-splash-warning">⚠️ Turn your volume on before playing — this game is entirely sound-based.</p>
+  <button id="pitch-play-btn">Play</button>
+</div>
+
 <!-- ── Game screen ────────────────────────────────────────────────────────── -->
-<div id="pitch-wrap">
+<div id="pitch-wrap" class="hidden">
   <div id="pitch-game">
 
     <div id="pitch-round-label">Round 1 of 3</div>
@@ -110,7 +118,7 @@
 (function () {
   'use strict';
 
-  var DIRECTIONS = 'Pitch plays you a pure tone for three seconds. Your job is to turn the dial until the sound matches what you heard. As you turn, you\'ll hear your current frequency in real time — use your ears to find the match. Hit Replay as many times as you need before submitting. Three rounds, scored by how close you get. Perfect score is 300. Trust your ears.';
+  var DIRECTIONS = 'Pitch plays you a pure sine wave tone. Your job is to turn the dial until you match it exactly. As you turn, you\'ll hear your current frequency in real time — use your ears to zero in. Replay the target tone as many times as you need before submitting. Three rounds, scored by how close you get. Perfect score is 300. Make sure your volume is on — this game is entirely sound-based.';
   var SHARE_URL  = 'https://www.thebunnygame.com/pitch';
   var PB_KEY     = 'pitch_bestScore';
 
@@ -143,7 +151,7 @@
   var dirEl = document.getElementById('directions-text');
   if (dirEl) dirEl.textContent = DIRECTIONS;
 
-  // ── Init dial once ────────────────────────────────────────────────────────
+  // ── Init dial once (canvas set up; game doesn't start until Play) ─────────
   Pitch.initDial(dialEl, hzEl);
 
   // ── Start session ─────────────────────────────────────────────────────────
@@ -191,7 +199,9 @@
   replayBtn.addEventListener('click', function () {
     if (locked) return;
     Pitch.stopLiveTone();
+    replayBtn.disabled = true;
     Pitch.playTargetTone(session[roundIndex], 3.0);
+    setTimeout(function () { replayBtn.disabled = false; }, 3200);
   });
 
   // ── Submit ────────────────────────────────────────────────────────────────
@@ -278,8 +288,14 @@
     startSession();
   });
 
-  // ── Kick off ──────────────────────────────────────────────────────────────
-  startSession();
+  // ── Splash — shown every load; Play button kicks off session ──────────────
+  var splashEl  = document.getElementById('pitch-splash');
+  var wrapEl    = document.getElementById('pitch-wrap');
+  document.getElementById('pitch-play-btn').addEventListener('click', function () {
+    splashEl.classList.add('hidden');
+    wrapEl.classList.remove('hidden');
+    startSession();
+  });
 
 }());
 </script>

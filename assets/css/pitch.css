@@ -17,6 +17,68 @@ body[data-tab="pitch"]::before {
   opacity: 0.09;
 }
 
+/* ── Splash screen ───────────────────────────────────────────────────────── */
+#pitch-splash {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px calc(40px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
+  gap: 20px;
+}
+
+#pitch-splash.hidden { display: none; }
+
+#pitch-splash-logo {
+  height: 48px;
+  width: auto;
+  margin-bottom: 8px;
+}
+
+#pitch-splash-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(57, 255, 20, 0.65);
+  text-align: center;
+  margin: 0;
+}
+
+#pitch-splash-warning {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #39FF14;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 0 14px rgba(57, 255, 20, 0.4);
+}
+
+#pitch-play-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 15px 48px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #39FF14;
+  color: #0A0A0A;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+  transition: background 0.12s, transform 0.08s;
+}
+
+#pitch-play-btn:hover { background: #5fff35; }
+#pitch-play-btn:active { transform: scale(0.97); }
+
 /* ── Game wrap ───────────────────────────────────────────────────────────── */
 #pitch-wrap.hidden { display: none; }
 
