@@ -142,6 +142,20 @@
   fill: none;
 }
 
+/* ── Directions overlay overrides (white/black for Numeral) ─────────────────── */
+#directions-overlay .directions-modal {
+  background: #fff;
+  border-color: #e0e0e0;
+}
+
+#directions-overlay .dir-heading {
+  color: #111;
+}
+
+#directions-overlay .dir-pane {
+  color: #333;
+}
+
 /* ── Game over overlay ──────────────────────────────────────────────────────── */
 #num-gameover {
   position: fixed;
