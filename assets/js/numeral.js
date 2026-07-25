@@ -93,6 +93,24 @@
     return false;
   }
 
+  // ── Hint: first valid pair in row-major order ─────────────────────────────
+  function findHintPair(grid) {
+    for (var r1 = 0; r1 < ROWS; r1++) {
+      for (var c1 = 0; c1 < COLS; c1++) {
+        if (grid[r1][c1] === null) continue;
+        for (var r2 = 0; r2 < ROWS; r2++) {
+          for (var c2 = 0; c2 < COLS; c2++) {
+            if (r1 === r2 && c1 === c2) continue;
+            if (isValidPair(grid, r1, c1, r2, c2)) {
+              return { r1: r1, c1: c1, r2: r2, c2: c2 };
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   // ── Score: count remaining non-null cells ─────────────────────────────────
   function countRemaining(grid) {
     var n = 0;
@@ -115,6 +133,7 @@
     consolidateRows:   consolidateRows,
     hasAnyValidPair:   hasAnyValidPair,
     countRemaining:    countRemaining,
+    findHintPair:      findHintPair,
   };
 
 }(window));

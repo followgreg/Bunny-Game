@@ -43,6 +43,23 @@
     #directions-overlay .dir-pane { color: #333; }
     #num-grid-outer { border-top: 3px solid #000; border-left: 3px solid #000; }
     .num-cell { border-right: 3px solid #000; border-bottom: 3px solid #000; }
+    .num-cell.hint { background: #FFF176 !important; transition: background 0s; }
+    #num-hint-btn {
+      margin-top: 10px;
+      padding: 10px 32px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #1A6FD4;
+      background: #fff;
+      border: 2px solid #1A6FD4;
+      border-radius: 8px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #num-hint-btn:active { background: #E8F0FE; }
   </style>
 </head>
 <body>
@@ -75,6 +92,7 @@
     </div>
     <svg id="num-svg" aria-hidden="true"></svg>
   </div>
+  <button id="num-hint-btn">Hint</button>
 </div>
 
 <!-- ── Game over ──────────────────────────────────────────────────────────── -->
@@ -463,6 +481,22 @@
     gameoverEl.classList.add('hidden');
     renderGrid();
   }
+
+  // ── Hint ──────────────────────────────────────────────────────────────────
+  document.getElementById('num-hint-btn').addEventListener('click', function () {
+    if (animating) return;
+    var pair = Numeral.findHintPair(grid);
+    if (!pair) return;
+    var el1 = getCellEl(pair.r1, pair.c1);
+    var el2 = getCellEl(pair.r2, pair.c2);
+    if (!el1 || !el2) return;
+    el1.classList.add('hint');
+    el2.classList.add('hint');
+    setTimeout(function () {
+      el1.classList.remove('hint');
+      el2.classList.remove('hint');
+    }, 1500);
+  });
 
   document.getElementById('new-btn').addEventListener('click', newGame);
   document.getElementById('num-play-again-btn').addEventListener('click', newGame);
