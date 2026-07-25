@@ -52,7 +52,7 @@
 
 /* ── Cell sizing: fits 12×20 in mobile viewport with no scroll ─────────────── */
 :root {
-  --num-cell: min(calc(100vw / 12), calc((100vh - 80px) / 20));
+  --num-cell: min(calc(100vw / 12), calc((100vh - 90px) / 12));
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────────── */

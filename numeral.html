@@ -60,7 +60,7 @@
 <!-- ── Game area ──────────────────────────────────────────────────────────── -->
 <div id="num-wrap">
   <div id="num-score-bar">
-    <span id="num-remaining">240</span>&nbsp;remaining
+    <span id="num-remaining">144</span>&nbsp;remaining
   </div>
   <div id="num-grid-outer">
     <div id="num-grid-wrap">
@@ -104,7 +104,7 @@
   var ROWS = Numeral.ROWS;
   var COLS = Numeral.COLS;
 
-  var DIRECTIONS = 'Numeral fills a grid with single-digit numbers. Click two numbers to pair them — they disappear if they match, or if they add up to 10. Pairs work left-to-right, top-to-bottom, or diagonally, and blank spaces between them don\'t matter. Click a number to select it, then click its partner. Wrong click? Your selection clears and you try again. When a full row empties, everything below shifts up. The game ends when no valid pairs remain. How many boxes can you clear?';
+  var DIRECTIONS = 'Numeral fills a grid with single-digit numbers. Click two numbers to pair them — they disappear if they match, or if they add up to 10. Pairs work left-to-right, top-to-bottom, or diagonally, and blank spaces between them don\'t matter. A number at the end of a row can also pair with a matching number at the start of the row directly below, as long as all cells between them are blank. Click a number to select it, then click its partner. Wrong click? Your selection clears and you try again. When a full row empties, everything below shifts up. The game ends when no valid pairs remain. How many boxes can you clear?';
 
   var grid = [];
   var selectedCell = null; // { row, col }
@@ -166,8 +166,71 @@
     };
   }
 
+  // ── SVG line animation — wrap pair (two segments) ────────────────────────
+  function animateWrapPairLine(ra, ca, rb, cb, onDone) {
+    // Normalize so upper row is r1
+    var r1 = ra, c1 = ca, r2 = rb, c2 = cb;
+    if (rb < ra) { r1 = rb; c1 = cb; r2 = ra; c2 = ca; }
+
+    var outer = document.getElementById('num-grid-outer');
+    svgEl.setAttribute('width',  outer.offsetWidth);
+    svgEl.setAttribute('height', outer.offsetHeight);
+
+    var p1 = cellCenter(r1, c1);
+    var p2 = cellCenter(r2, c2);
+    if (!p1 || !p2) { onDone(); return; }
+
+    var gridW = outer.offsetWidth;
+
+    // Segment 1: p1 → right edge (same y)
+    var seg1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    seg1.setAttribute('x1', p1.x); seg1.setAttribute('y1', p1.y);
+    seg1.setAttribute('x2', gridW); seg1.setAttribute('y2', p1.y);
+    seg1.classList.add('num-pair-line');
+
+    // Segment 2: left edge → p2 (same y)
+    var seg2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    seg2.setAttribute('x1', 0); seg2.setAttribute('y1', p2.y);
+    seg2.setAttribute('x2', p2.x); seg2.setAttribute('y2', p2.y);
+    seg2.classList.add('num-pair-line');
+
+    var len1 = gridW - p1.x;
+    var len2 = p2.x;
+    seg1.setAttribute('stroke-dasharray', len1); seg1.setAttribute('stroke-dashoffset', len1);
+    seg2.setAttribute('stroke-dasharray', len2); seg2.setAttribute('stroke-dashoffset', len2);
+    svgEl.appendChild(seg1);
+    svgEl.appendChild(seg2);
+
+    var drawMs = 200, holdMs = 200, fadeMs = 100, startTs = null;
+    (function drawFrame(ts) {
+      if (!startTs) startTs = ts;
+      var p = Math.min(1, (ts - startTs) / drawMs);
+      seg1.setAttribute('stroke-dashoffset', len1 * (1 - p));
+      seg2.setAttribute('stroke-dashoffset', len2 * (1 - p));
+      if (p < 1) { requestAnimationFrame(drawFrame); }
+      else {
+        setTimeout(function () {
+          var fadeStart = null;
+          (function fadeFrame(ts2) {
+            if (!fadeStart) fadeStart = ts2;
+            var fp = Math.min(1, (ts2 - fadeStart) / fadeMs);
+            seg1.style.opacity = 1 - fp;
+            seg2.style.opacity = 1 - fp;
+            if (fp < 1) { requestAnimationFrame(fadeFrame); }
+            else { svgEl.removeChild(seg1); svgEl.removeChild(seg2); onDone(); }
+          })(performance.now());
+        }, holdMs);
+      }
+    })(performance.now());
+  }
+
   // ── SVG line animation ────────────────────────────────────────────────────
   function animatePairLine(r1, c1, r2, c2, onDone) {
+    if (Numeral.isWrapPair(grid, r1, c1, r2, c2) || Numeral.isWrapPair(grid, r2, c2, r1, c1)) {
+      animateWrapPairLine(r1, c1, r2, c2, onDone);
+      return;
+    }
+
     var p1 = cellCenter(r1, c1);
     var p2 = cellCenter(r2, c2);
     if (!p1 || !p2) { onDone(); return; }

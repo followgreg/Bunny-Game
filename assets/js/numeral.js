@@ -2,7 +2,7 @@
 (function (global) {
   'use strict';
 
-  var ROWS = 20;
+  var ROWS = 12;
   var COLS = 12;
 
   // ── Grid initialisation ───────────────────────────────────────────────────
@@ -32,10 +32,29 @@
     return true;
   }
 
+  function isWrapPair(grid, r1, c1, r2, c2) {
+    if (r2 !== r1 + 1) return false;
+    var colsLen = grid[0].length;
+    var v1 = grid[r1][c1];
+    var v2 = grid[r2][c2];
+    if (v1 === null || v2 === null) return false;
+    if (v1 !== v2 && v1 + v2 !== 10) return false;
+    for (var ca = c1 + 1; ca < colsLen; ca++) {
+      if (grid[r1][ca] !== null) return false;
+    }
+    for (var cb = 0; cb < c2; cb++) {
+      if (grid[r2][cb] !== null) return false;
+    }
+    return true;
+  }
+
   function isValidPair(grid, r1, c1, r2, c2) {
     var v1 = grid[r1][c1];
     var v2 = grid[r2][c2];
     if (v1 === null || v2 === null) return false;
+
+    if (isWrapPair(grid, r1, c1, r2, c2)) return true;
+    if (isWrapPair(grid, r2, c2, r1, c1)) return true;
 
     var sameRow  = r1 === r2;
     var sameCol  = c1 === c2;
@@ -91,6 +110,7 @@
     COLS:              COLS,
     initGrid:          initGrid,
     isValidPair:       isValidPair,
+    isWrapPair:        isWrapPair,
     allBlanksBetween:  allBlanksBetween,
     consolidateRows:   consolidateRows,
     hasAnyValidPair:   hasAnyValidPair,
