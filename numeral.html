@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Numeral — a number pairing puzzle — Bunny Game</title>
+  <meta name="description" content="Match the numbers. Clear the grid. Pairs that match or add up to 10 disappear.">
+  <meta property="og:title" content="Numeral — a number pairing puzzle — Bunny Game">
+  <meta property="og:description" content="Match the numbers. Clear the grid. Pairs that match or add up to 10 disappear.">
+  <meta property="og:url" content="https://www.thebunnygame.com/numeral">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/numeral-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/numeral-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/numeral">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/numeral.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Splash ───────────────────────────────────────────────────────────── -->
+<div id="num-splash">
+  <img src="assets/logos/numeral_logo.svg" alt="Numeral" id="num-splash-logo">
+  <p id="num-splash-text"></p>
+  <button id="num-splash-play">Play</button>
+</div>
+
+<!-- ── Game area ──────────────────────────────────────────────────────────── -->
+<div id="num-wrap">
+  <div id="num-score-bar">
+    <span id="num-remaining">240</span>&nbsp;remaining
+  </div>
+  <div id="num-grid-outer">
+    <div id="num-grid-wrap">
+      <!-- rows injected by JS -->
+    </div>
+    <svg id="num-svg" aria-hidden="true"></svg>
+  </div>
+</div>
+
+<!-- ── Game over ──────────────────────────────────────────────────────────── -->
+<div id="num-gameover" class="hidden">
+  <div class="num-end-modal">
+    <div class="num-end-title">No more moves.</div>
+    <div class="num-end-score">
+      <strong id="num-final-score"></strong>
+      <span id="num-score-label">boxes remaining</span>
+    </div>
+    <div class="num-end-perfect hidden" id="num-end-perfect">Perfect clear!</div>
+    <div class="num-end-best" id="num-end-best"></div>
+    <button class="num-end-btn num-end-btn--secondary" id="num-share-btn">Share</button>
+    <button class="num-end-btn" id="num-play-again-btn">New Game</button>
+  </div>
+</div>
+
+<!-- ── Directions overlay ────────────────────────────────────────────────── -->
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/numeral.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var ROWS = Numeral.ROWS;
+  var COLS = Numeral.COLS;
+
+  var DIRECTIONS = 'Numeral fills a grid with single-digit numbers. Click two numbers to pair them — they disappear if they match, or if they add up to 10. Pairs work left-to-right, top-to-bottom, or diagonally, and blank spaces between them don\'t matter. Click a number to select it, then click its partner. Wrong click? Your selection clears and you try again. When a full row empties, everything below shifts up. The game ends when no valid pairs remain. How many boxes can you clear?';
+
+  var grid = [];
+  var selectedCell = null; // { row, col }
+  var animating = false;
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  var gridWrap   = document.getElementById('num-grid-wrap');
+  var svgEl      = document.getElementById('num-svg');
+  var remainEl   = document.getElementById('num-remaining');
+  var gameoverEl = document.getElementById('num-gameover');
+
+  // ── Render grid ───────────────────────────────────────────────────────────
+  function renderGrid() {
+    gridWrap.innerHTML = '';
+    for (var r = 0; r < ROWS; r++) {
+      var rowEl = document.createElement('div');
+      rowEl.className = 'num-row';
+      rowEl.dataset.row = r;
+      for (var c = 0; c < COLS; c++) {
+        var cellEl = document.createElement('div');
+        cellEl.className = 'num-cell' + (grid[r][c] === null ? ' empty' : '');
+        cellEl.dataset.row = r;
+        cellEl.dataset.col = c;
+        if (grid[r][c] !== null) cellEl.textContent = grid[r][c];
+        rowEl.appendChild(cellEl);
+      }
+      gridWrap.appendChild(rowEl);
+    }
+    updateSelectedHighlight();
+    updateScore();
+  }
+
+  function updateSelectedHighlight() {
+    var cells = gridWrap.querySelectorAll('.num-cell');
+    cells.forEach(function (el) { el.classList.remove('selected'); });
+    if (selectedCell !== null) {
+      var sel = getCellEl(selectedCell.row, selectedCell.col);
+      if (sel) sel.classList.add('selected');
+    }
+  }
+
+  function updateScore() {
+    remainEl.textContent = Numeral.countRemaining(grid);
+  }
+
+  function getCellEl(r, c) {
+    return gridWrap.querySelector('[data-row="' + r + '"][data-col="' + c + '"]');
+  }
+
+  // ── Cell center coordinates (relative to grid outer) ─────────────────────
+  function cellCenter(r, c) {
+    var outerRect = document.getElementById('num-grid-outer').getBoundingClientRect();
+    var el = getCellEl(r, c);
+    if (!el) return null;
+    var rect = el.getBoundingClientRect();
+    return {
+      x: rect.left - outerRect.left + rect.width  / 2,
+      y: rect.top  - outerRect.top  + rect.height / 2,
+    };
+  }
+
+  // ── SVG line animation ────────────────────────────────────────────────────
+  function animatePairLine(r1, c1, r2, c2, onDone) {
+    var p1 = cellCenter(r1, c1);
+    var p2 = cellCenter(r2, c2);
+    if (!p1 || !p2) { onDone(); return; }
+
+    // Size SVG to match grid outer
+    var outer = document.getElementById('num-grid-outer');
+    svgEl.setAttribute('width',  outer.offsetWidth);
+    svgEl.setAttribute('height', outer.offsetHeight);
+
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+    line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+    line.classList.add('num-pair-line');
+
+    var len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    line.setAttribute('stroke-dasharray', len);
+    line.setAttribute('stroke-dashoffset', len);
+    svgEl.appendChild(line);
+
+    // Draw: 200ms
+    var startTs = null;
+    var drawMs  = 200;
+    var holdMs  = 200;
+    var fadeMs  = 100;
+
+    (function drawFrame(ts) {
+      if (!startTs) startTs = ts;
+      var p = Math.min(1, (ts - startTs) / drawMs);
+      line.setAttribute('stroke-dashoffset', len * (1 - p));
+      if (p < 1) { requestAnimationFrame(drawFrame); }
+      else {
+        // Hold then fade
+        setTimeout(function () {
+          var fadeStart = null;
+          (function fadeFrame(ts2) {
+            if (!fadeStart) fadeStart = ts2;
+            var fp = Math.min(1, (ts2 - fadeStart) / fadeMs);
+            line.style.opacity = 1 - fp;
+            if (fp < 1) { requestAnimationFrame(fadeFrame); }
+            else { svgEl.removeChild(line); onDone(); }
+          })(performance.now());
+        }, holdMs);
+      }
+    })(performance.now());
+  }
+
+  // ── Row consolidation with FLIP animation ─────────────────────────────────
+  function consolidateWithAnimation(onDone) {
+    var rowEls = Array.from(gridWrap.querySelectorAll('.num-row'));
+
+    // Identify which rows are entirely empty in current grid state
+    var emptyRowIndices = [];
+    for (var r = 0; r < ROWS; r++) {
+      if (grid[r].every(function (v) { return v === null; })) {
+        emptyRowIndices.push(r);
+      }
+    }
+
+    if (emptyRowIndices.length === 0) { onDone(); return; }
+
+    // Record positions BEFORE consolidation
+    var beforeTops = rowEls.map(function (el) { return el.getBoundingClientRect().top; });
+
+    // Update data model
+    grid = Numeral.consolidateRows(grid);
+
+    // Rebuild DOM (instant, no transition yet)
+    renderGrid();
+
+    var newRowEls = Array.from(gridWrap.querySelectorAll('.num-row'));
+    var afterTops = newRowEls.map(function (el) { return el.getBoundingClientRect().top; });
+
+    // Apply inverse transforms so rows appear at their old positions
+    newRowEls.forEach(function (el, i) {
+      var delta = beforeTops[i] - afterTops[i];
+      if (delta !== 0) {
+        el.style.transition = 'none';
+        el.style.transform  = 'translateY(' + delta + 'px)';
+      }
+    });
+
+    // Force reflow
+    gridWrap.offsetHeight; // eslint-disable-line no-unused-expressions
+
+    // Animate to final positions
+    newRowEls.forEach(function (el) {
+      el.style.transition = 'transform 200ms ease-in-out';
+      el.style.transform  = 'translateY(0)';
+    });
+
+    setTimeout(function () {
+      // Clean up inline styles
+      newRowEls.forEach(function (el) {
+        el.style.transition = '';
+        el.style.transform  = '';
+      });
+      onDone();
+    }, 220);
+  }
+
+  // ── Clear a pair ──────────────────────────────────────────────────────────
+  function clearPair(r1, c1, r2, c2) {
+    animating = true;
+    selectedCell = null;
+
+    // Dim both cells immediately so user knows they're clearing
+    var el1 = getCellEl(r1, c1);
+    var el2 = getCellEl(r2, c2);
+    if (el1) el1.style.opacity = '0.35';
+    if (el2) el2.style.opacity = '0.35';
+
+    animatePairLine(r1, c1, r2, c2, function () {
+      // Remove from model
+      grid[r1][c1] = null;
+      grid[r2][c2] = null;
+
+      // Check for full empty rows
+      var hasEmpty = grid.some(function (row) {
+        return row.every(function (v) { return v === null; });
+      });
+
+      if (hasEmpty) {
+        renderGrid(); // show cleared cells first
+        consolidateWithAnimation(function () {
+          animating = false;
+          checkGameEnd();
+        });
+      } else {
+        renderGrid();
+        animating = false;
+        checkGameEnd();
+      }
+    });
+  }
+
+  var NUM_URL = 'https://www.thebunnygame.com/numeral';
+  var LS_KEY  = 'numeral_bestScore';
+
+  // ── Game end ──────────────────────────────────────────────────────────────
+  function checkGameEnd() {
+    if (Numeral.hasAnyValidPair(grid)) return;
+
+    var remaining = Numeral.countRemaining(grid);
+
+    // Score display
+    document.getElementById('num-final-score').textContent = remaining;
+    var perfectEl = document.getElementById('num-end-perfect');
+    if (remaining === 0) {
+      perfectEl.classList.remove('hidden');
+    } else {
+      perfectEl.classList.add('hidden');
+    }
+
+    // Personal best
+    var bestEl = document.getElementById('num-end-best');
+    var stored = localStorage.getItem(LS_KEY);
+    var prev   = stored !== null ? parseInt(stored, 10) : null;
+    if (prev === null || remaining < prev) {
+      localStorage.setItem(LS_KEY, remaining);
+      bestEl.textContent = prev === null ? '' : 'New personal best!';
+    } else {
+      bestEl.textContent = 'Your best: ' + prev + ' box' + (prev !== 1 ? 'es' : '') + ' remaining.';
+    }
+
+    gameoverEl.classList.remove('hidden');
+  }
+
+  // ── Share ──────────────────────────────────────────────────────────────────
+  document.getElementById('num-share-btn').addEventListener('click', function () {
+    var remaining = parseInt(document.getElementById('num-final-score').textContent, 10);
+    var text = remaining === 0
+      ? 'Numeral — cleared the entire board. Can you? ' + NUM_URL
+      : 'Numeral — finished with ' + remaining + ' box' + (remaining !== 1 ? 'es' : '') + ' remaining. Think you can do better? ' + NUM_URL;
+    shareText(text, 'Numeral');
+  });
+
+  // ── Click handling ────────────────────────────────────────────────────────
+  gridWrap.addEventListener('click', function (e) {
+    if (animating) return;
+    var target = e.target.closest('.num-cell');
+    if (!target) return;
+
+    var r = parseInt(target.dataset.row, 10);
+    var c = parseInt(target.dataset.col, 10);
+
+    // Blank cell: clear selection
+    if (grid[r][c] === null) {
+      selectedCell = null;
+      updateSelectedHighlight();
+      return;
+    }
+
+    // No selection yet: select this cell
+    if (selectedCell === null) {
+      selectedCell = { row: r, col: c };
+      updateSelectedHighlight();
+      return;
+    }
+
+    // Tapped the same cell: deselect
+    if (selectedCell.row === r && selectedCell.col === c) {
+      selectedCell = null;
+      updateSelectedHighlight();
+      return;
+    }
+
+    // Check pair validity
+    if (Numeral.isValidPair(grid, selectedCell.row, selectedCell.col, r, c)) {
+      clearPair(selectedCell.row, selectedCell.col, r, c);
+    } else {
+      // Invalid: clear selection silently
+      selectedCell = null;
+      updateSelectedHighlight();
+    }
+  });
+
+  // ── New game ──────────────────────────────────────────────────────────────
+  function newGame() {
+    grid = Numeral.initGrid();
+    selectedCell = null;
+    animating = false;
+    gameoverEl.classList.add('hidden');
+    renderGrid();
+  }
+
+  document.getElementById('new-btn').addEventListener('click', newGame);
+  document.getElementById('num-play-again-btn').addEventListener('click', newGame);
+
+  // ── Help button ───────────────────────────────────────────────────────────
+  document.getElementById('help-btn').addEventListener('click', function () {
+    openDirections(DIRECTIONS);
+  });
+
+  // ── Splash ────────────────────────────────────────────────────────────────
+  document.getElementById('num-splash-text').textContent = DIRECTIONS;
+  document.getElementById('num-splash-play').addEventListener('click', function () {
+    document.getElementById('num-splash').classList.add('hidden');
+    document.getElementById('num-wrap').classList.remove('hidden');
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  grid = Numeral.initGrid();
+  renderGrid();
+  // Hide game area until splash is dismissed
+  document.getElementById('num-wrap').classList.add('hidden');
+
+}());
+</script>
+</body>
+</html>

@@ -180,6 +180,10 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Numeral: white bg, black logo, blue accent */
+    .lc-numeral { background: #ffffff; border-color: rgba(0,0,0,0.18); }
+    .lc-numeral .lobby-card-desc { color: rgba(0,0,0,0.55); }
+
     /* Sound Destroyer: black bg, neon cyan */
     .lc-sounddestroyer { background: #000000; border-color: rgba(0,255,255,0.22); }
     .lc-sounddestroyer .lobby-card-logo img { filter: invert(1) drop-shadow(0 0 5px rgba(0,255,255,0.7)); }
@@ -422,6 +426,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-numeral" href="numeral.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/numeral_logo.svg" alt="Numeral">
+        </div>
+        <p class="lobby-card-desc">Match numbers or add to 10. Clear the grid.</p>
       </a>
 
       <a class="lobby-card lc-sounddestroyer" href="sounddestroyer.html">

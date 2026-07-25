@@ -1,0 +1,244 @@
+/* numeral.css */
+
+/* ── Splash ─────────────────────────────────────────────────────────────────── */
+#num-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px 48px;
+  gap: 20px;
+  min-height: calc(100vh - 52px);
+  background: #fff;
+  text-align: center;
+}
+
+#num-splash.hidden {
+  display: none;
+}
+
+#num-splash-logo {
+  width: min(260px, 80vw);
+  height: auto;
+}
+
+#num-splash-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #333;
+  max-width: 340px;
+  margin: 0;
+}
+
+#num-splash-play {
+  margin-top: 8px;
+  padding: 14px 48px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  background: #1A6FD4;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#num-splash-play:active {
+  background: #1558b0;
+}
+
+/* ── Cell sizing: fits 12×20 in mobile viewport with no scroll ─────────────── */
+:root {
+  --num-cell: min(calc(100vw / 12), calc((100vh - 80px) / 20));
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+#num-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+  gap: 4px;
+}
+
+/* ── Score bar ──────────────────────────────────────────────────────────────── */
+#num-score-bar {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#num-remaining {
+  font-weight: 700;
+  color: #1A6FD4;
+}
+
+/* ── Grid outer: positions the SVG overlay ──────────────────────────────────── */
+#num-grid-outer {
+  position: relative;
+  border-top: 1.5px solid #000;
+  border-left: 1.5px solid #000;
+  line-height: 0; /* remove inline-block gaps */
+  background: #fff;
+}
+
+/* ── Rows ───────────────────────────────────────────────────────────────────── */
+.num-row {
+  display: flex;
+  will-change: transform; /* layer hint for FLIP animation */
+}
+
+/* ── Cells ──────────────────────────────────────────────────────────────────── */
+.num-cell {
+  width: var(--num-cell);
+  height: var(--num-cell);
+  border-right: 1.5px solid #000;
+  border-bottom: 1.5px solid #000;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: calc(var(--num-cell) * 0.58);
+  color: #1A6FD4;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 80ms ease;
+}
+
+.num-cell.selected {
+  background: #E8F0FE;
+}
+
+.num-cell.empty {
+  cursor: default;
+}
+
+/* ── SVG overlay (red connecting line) ──────────────────────────────────────── */
+#num-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  overflow: visible;
+}
+
+.num-pair-line {
+  stroke: #FF0000;
+  stroke-width: 4;
+  stroke-linecap: round;
+  fill: none;
+}
+
+/* ── Game over overlay ──────────────────────────────────────────────────────── */
+#num-gameover {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#num-gameover.hidden {
+  display: none;
+}
+
+.num-end-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 32px 28px;
+  text-align: center;
+  width: min(320px, 88vw);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.num-end-title {
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #111;
+  letter-spacing: -0.01em;
+}
+
+.num-end-score {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1rem;
+  color: #444;
+}
+
+.num-end-score strong {
+  color: #1A6FD4;
+  font-size: 2rem;
+  display: block;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.num-end-sub {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.num-end-perfect {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1A6FD4;
+  letter-spacing: 0.01em;
+}
+
+.num-end-perfect.hidden {
+  display: none;
+}
+
+.num-end-best {
+  font-size: 0.8rem;
+  color: #888;
+  min-height: 1em;
+}
+
+.num-end-btn {
+  margin-top: 4px;
+  padding: 12px 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  background: #1A6FD4;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.num-end-btn:active {
+  background: #1558b0;
+}
+
+.num-end-btn--secondary {
+  background: #fff;
+  color: #1A6FD4;
+  border: 2px solid #1A6FD4;
+}
+
+.num-end-btn--secondary:active {
+  background: #E8F0FE;
+}
