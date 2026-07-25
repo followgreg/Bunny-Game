@@ -50,9 +50,9 @@
   background: #1558b0;
 }
 
-/* ── Cell sizing: fits 12×20 in mobile viewport with no scroll ─────────────── */
+/* ── Cell sizing: fits 12×12 in mobile viewport with 50px padding and no scroll */
 :root {
-  --num-cell: min(calc(100vw / 12), calc((100vh - 90px) / 12));
+  --num-cell: min(calc((100vw - 100px) / 12), calc((100vh - 190px) / 12));
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────────── */
@@ -60,7 +60,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 4px;
+  padding: 50px;
   gap: 4px;
 }
 
