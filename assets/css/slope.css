@@ -161,18 +161,10 @@ body {
 /* ── Ramp-off (toggled to empty — marble passes straight through) ─────────── */
 .slp-cell.ramp-off {
   cursor: pointer;
-  background: #080808;
-}
-.slp-cell.ramp-off::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 26%;
-  height: 26%;
-  border-radius: 50%;
-  border: 1.5px solid rgba(245, 240, 232, 0.2);
+  background: #0D0D0D;
+  box-shadow: inset 0 0 0 2px rgba(245, 240, 232, 0.25);
+  outline: 2px dotted rgba(245, 240, 232, 0.25);
+  outline-offset: -4px;
 }
 
 /* ── Wall ─────────────────────────────────────────────────────────────────── */
@@ -198,7 +190,7 @@ body {
 .slp-cell.ramp-right,
 .slp-cell.ramp-left {
   background: #0D0D0D;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
   cursor: pointer;
 }
 .slp-cell.ramp-right svg,
