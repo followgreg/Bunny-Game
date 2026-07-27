@@ -224,7 +224,7 @@
         var ghostCell = cells[gr][gc];
         if (valid) {
           ghostCell.classList.add('zn-ghost-valid');
-          ghostCell.style.background = hexToRgba(piece.color, 0.5);
+          ghostCell.style.background = hexToRgba(piece.color, 0.82);
         } else {
           ghostCell.classList.add('zn-ghost-invalid');
           ghostCell.style.background = 'rgba(220,50,50,0.4)';
@@ -634,19 +634,25 @@
   // ── Document-level drag handlers ──────────────────────────────────────────
   document.addEventListener('pointermove', function (e) {
     if (selectedIdx === null) return;
-    // Check if we've crossed the drag threshold
-    if (!dragMoved) {
+    // Start drag almost immediately (2px threshold)
+    if (!isDragging) {
       var dx = e.clientX - dragStartX;
       var dy = e.clientY - dragStartY;
-      if (dx * dx + dy * dy > 64) { // 8px threshold
-        dragMoved  = true;
+      if (dx * dx + dy * dy > 4) {
         isDragging = true;
-        showDragGhost(e.clientX, e.clientY);
+        dragMoved  = true;
       }
     }
     if (isDragging) {
-      moveDragGhost(e.clientX, e.clientY);
       ghostPos = calcGhostPosFromXY(e.clientX, e.clientY);
+      if (ghostPos !== null) {
+        // Over grid — snap piece into cells, hide floating ghost
+        hideDragGhost();
+      } else {
+        // Off grid — float ghost follows cursor
+        moveDragGhost(e.clientX, e.clientY);
+        showDragGhost(e.clientX, e.clientY);
+      }
       renderGhost();
     }
   });
