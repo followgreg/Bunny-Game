@@ -49,33 +49,40 @@
       visited.add(key);
 
       if (state === 'falling') {
-        var belowR = r + 1;
-        if (belowR >= ROWS) return { result: 'fail', path: path };
-        var below = grid[belowR][c];
+        var fallingBelowR = r + 1;
+        var fallingBelowC = c;
 
-        if (below === CELL.TARGET) {
-          path.push({ r: belowR, c: c, state: state });
+        if (fallingBelowR >= ROWS) return { result: 'fail', path: path };
+
+        var below = grid[fallingBelowR][fallingBelowC];
+
+        if (below === 'target') {
+          path.push({ r: fallingBelowR, c: fallingBelowC, state: state });
           return { result: 'win', path: path };
         }
-        if (below === CELL.EMPTY || below === CELL.SLOT) {
-          r = belowR;
+
+        if (below === 'empty' || below === 'slot') {
+          r = fallingBelowR;
           path.push({ r: r, c: c, state: state });
           continue;
         }
-        if (below === CELL.RAMP_RIGHT) {
-          var newC = c + 1;
-          if (newC >= COLS) return { result: 'fail', path: path };
-          r = belowR; c = newC; state = 'moving_right';
+
+        if (below === 'ramp_left') {
+          var rampLeftC = c - 1;
+          if (rampLeftC < 0) return { result: 'fail', path: path };
+          r = fallingBelowR; c = rampLeftC; state = 'moving_left';
           path.push({ r: r, c: c, state: state });
           continue;
         }
-        if (below === CELL.RAMP_LEFT) {
-          var newC = c - 1;
-          if (newC < 0) return { result: 'fail', path: path };
-          r = belowR; c = newC; state = 'moving_left';
+
+        if (below === 'ramp_right') {
+          var rampRightC = c + 1;
+          if (rampRightC >= COLS) return { result: 'fail', path: path };
+          r = fallingBelowR; c = rampRightC; state = 'moving_right';
           path.push({ r: r, c: c, state: state });
           continue;
         }
+
         // wall / platform / marble_start / anything else → fail
         return { result: 'fail', path: path };
       }
