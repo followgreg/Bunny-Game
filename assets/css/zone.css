@@ -287,6 +287,24 @@
   /* colour set inline as rgba(220,50,50,0.4) */
 }
 
+/* ── Drag ghost (floating piece preview that follows the cursor) ── */
+#zn-drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 5000;
+  display: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.88;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+}
+#zn-drag-ghost.zn-drag-active { display: block; }
+#zn-drag-ghost .zn-mini { gap: 3px; }
+#zn-drag-ghost .zn-mini-cell {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+}
+
 /* ── Zone clear animations ───────────────────────────────────────────────── */
 
 /* Shockwave ring */

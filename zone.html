@@ -97,6 +97,9 @@
 
 </div>
 
+<!-- Drag ghost: floating piece preview that follows the cursor -->
+<div id="zn-drag-ghost"><div class="zn-mini"></div></div>
+
 <!-- Game over overlay -->
 <div id="zn-gameover-overlay" class="zn-overlay zn-hidden">
   <div class="zn-overlay-box">
@@ -121,6 +124,14 @@
   var ghostPos = null; // { startRow, startCol, valid }
   var score = 0;
   var highScore = 0;
+
+  // Drag state
+  var isDragging   = false;
+  var dragMoved    = false;
+  var dragStartX   = 0;
+  var dragStartY   = 0;
+  var dragGhostEl  = document.getElementById('zn-drag-ghost');
+  var dragMiniEl   = dragGhostEl.querySelector('.zn-mini');
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   var gridEl  = document.getElementById('zn-grid');
@@ -247,12 +258,30 @@
 
       slotEl.appendChild(miniEl);
 
+      // Click to toggle select (only fires when no significant drag occurred)
       slotEl.addEventListener('click', function () {
+        if (dragMoved) return; // was a drag — click suppressed
         if (placedFlags[idx]) return;
         selectedIdx = (selectedIdx === idx) ? null : idx;
         ghostPos    = null;
         renderTray();
         renderGhost();
+      });
+
+      // Pointerdown starts drag tracking immediately
+      slotEl.addEventListener('pointerdown', function (e) {
+        if (placedFlags[idx]) return;
+        dragMoved  = false;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        isDragging = false;
+        // Select this piece right away so ghost can show on first move
+        if (selectedIdx !== idx) {
+          selectedIdx = idx;
+          ghostPos    = null;
+          renderTray();
+        }
+        buildDragGhost(currentPieces[idx]);
       });
 
       trayEl.appendChild(slotEl);
@@ -266,21 +295,57 @@
   }
 
   // ── Ghost position calculation ────────────────────────────────────────────
-  function calcGhostPos(e) {
+  function calcGhostPosFromXY(clientX, clientY) {
     if (selectedIdx === null) return null;
     var piece = currentPieces[selectedIdx];
     var rect  = gridEl.getBoundingClientRect();
-    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
+      return null;
+    }
     var x = clientX - rect.left;
     var y = clientY - rect.top;
-    var col = Math.floor(x / rect.width  * 9);
-    var row = Math.floor(y / rect.height * 9);
-    // Center piece on hovered cell
-    var startRow = row - Math.floor(piece.shape.length      / 2);
-    var startCol = col - Math.floor(piece.shape[0].length   / 2);
-    var valid = Zone.canPlace(grid, piece, startRow, startCol);
+    var col      = Math.floor(x / rect.width  * 9);
+    var row      = Math.floor(y / rect.height * 9);
+    var startRow = row - Math.floor(piece.shape.length    / 2);
+    var startCol = col - Math.floor(piece.shape[0].length / 2);
+    var valid    = Zone.canPlace(grid, piece, startRow, startCol);
     return { startRow: startRow, startCol: startCol, valid: valid };
+  }
+
+  function calcGhostPos(e) {
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return calcGhostPosFromXY(clientX, clientY);
+  }
+
+  // ── Drag ghost helpers ────────────────────────────────────────────────────
+  function buildDragGhost(piece) {
+    dragMiniEl.innerHTML = '';
+    dragMiniEl.style.gridTemplateColumns = 'repeat(' + piece.shape[0].length + ', 22px)';
+    dragMiniEl.style.gridTemplateRows    = 'repeat(' + piece.shape.length    + ', 22px)';
+    piece.shape.forEach(function (row) {
+      row.forEach(function (v) {
+        var mc = document.createElement('div');
+        mc.className = 'zn-mini-cell';
+        if (v) mc.style.background = piece.color;
+        dragMiniEl.appendChild(mc);
+      });
+    });
+  }
+
+  function showDragGhost(clientX, clientY) {
+    dragGhostEl.classList.add('zn-drag-active');
+    dragGhostEl.style.left = clientX + 'px';
+    dragGhostEl.style.top  = clientY + 'px';
+  }
+
+  function moveDragGhost(clientX, clientY) {
+    dragGhostEl.style.left = clientX + 'px';
+    dragGhostEl.style.top  = clientY + 'px';
+  }
+
+  function hideDragGhost() {
+    dragGhostEl.classList.remove('zn-drag-active');
   }
 
   // ── Animation helpers ─────────────────────────────────────────────────────
@@ -556,14 +621,51 @@
     showGame();
   }
 
-  // ── Grid event handlers ───────────────────────────────────────────────────
+  // ── Document-level drag handlers ──────────────────────────────────────────
+  document.addEventListener('pointermove', function (e) {
+    if (selectedIdx === null) return;
+    // Check if we've crossed the drag threshold
+    if (!dragMoved) {
+      var dx = e.clientX - dragStartX;
+      var dy = e.clientY - dragStartY;
+      if (dx * dx + dy * dy > 64) { // 8px threshold
+        dragMoved  = true;
+        isDragging = true;
+        showDragGhost(e.clientX, e.clientY);
+      }
+    }
+    if (isDragging) {
+      moveDragGhost(e.clientX, e.clientY);
+      ghostPos = calcGhostPosFromXY(e.clientX, e.clientY);
+      renderGhost();
+    }
+  });
+
+  document.addEventListener('pointerup', function (e) {
+    if (isDragging) {
+      hideDragGhost();
+      isDragging = false;
+      if (selectedIdx !== null && ghostPos !== null && ghostPos.valid) {
+        placePieceOnGrid();
+      } else {
+        // Dropped in invalid spot — keep selection but clear ghost
+        ghostPos = null;
+        renderGhost();
+      }
+    }
+    dragMoved = false;
+  });
+
+  // ── Grid event handlers (hover + click for mouse, touch for mobile) ───────
   gridEl.addEventListener('mousemove', function (e) {
+    if (isDragging) return; // handled by document pointermove
     if (selectedIdx === null) return;
     ghostPos = calcGhostPos(e);
     renderGhost();
   });
 
   gridEl.addEventListener('mouseleave', function () {
+    if (isDragging) return;
     ghostPos = null;
     renderGhost();
   });
@@ -573,10 +675,7 @@
     placePieceOnGrid();
   });
 
-  var touchMoved = false;
-
   gridEl.addEventListener('touchstart', function (e) {
-    touchMoved = false;
     if (selectedIdx === null) return;
     e.preventDefault();
     ghostPos = calcGhostPos(e);
@@ -584,7 +683,6 @@
   }, { passive: false });
 
   gridEl.addEventListener('touchmove', function (e) {
-    touchMoved = true;
     if (selectedIdx === null) return;
     e.preventDefault();
     ghostPos = calcGhostPos(e);
