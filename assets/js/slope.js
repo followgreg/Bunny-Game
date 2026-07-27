@@ -18,16 +18,24 @@
   var COLS = 8;
 
   // ── Marble simulation ─────────────────────────────────────────────────────
+  // Physics: marble moves ONLY vertically OR horizontally — never diagonally.
+  // Ramps deflect a FALLING marble to horizontal; a horizontal marble ignores ramps.
+  // Each horizontal step checks if cell below is empty — if so, marble starts falling.
   function simulateMarble(grid, startCol) {
     var r = 0;
     var c = startCol;
     var dr = 1;   // starts falling down
     var dc = 0;   // no horizontal movement
     var visited = new Set();
-    var path = [{ r: r, c: c }];
-    var MAX_STEPS = 200;
+    var path = [{ r: r, c: c, dr: dr, dc: dc }];
+    var MAX_STEPS = 500;
 
     for (var step = 0; step < MAX_STEPS; step++) {
+      // Cycle detection at start of each step (includes direction)
+      var key = r + ',' + c + ',' + dr + ',' + dc;
+      if (visited.has(key)) return { result: 'fail', path: path };
+      visited.add(key);
+
       var nextR = r + dr;
       var nextC = c + dc;
 
@@ -40,7 +48,7 @@
 
       // Win condition
       if (nextCell === CELL.TARGET) {
-        path.push({ r: nextR, c: nextC });
+        path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
         return { result: 'win', path: path };
       }
 
@@ -50,38 +58,53 @@
           // Moving horizontally — stop horizontal, resume falling
           dc = 0;
           dr = 1;
-          continue; // retry from same position
+          continue;
         } else {
           // Falling straight into a solid — stuck
           return { result: 'fail', path: path };
         }
       }
 
-      // Ramp right ◢ — deflect diagonal right+down
+      // Ramp right ◢ — only deflects a FALLING marble to move right
       if (nextCell === CELL.RAMP_RIGHT) {
-        path.push({ r: nextR, c: nextC });
+        path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
         r = nextR; c = nextC;
-        dr = 1; dc = 1;
+        if (dr === 1 && dc === 0) {
+          dr = 0; dc = 1; // falling → slide right
+        }
+        // horizontal marble passes over ramp unchanged
         continue;
       }
 
-      // Ramp left ◣ — deflect diagonal left+down
+      // Ramp left ◣ — only deflects a FALLING marble to move left
       if (nextCell === CELL.RAMP_LEFT) {
-        path.push({ r: nextR, c: nextC });
+        path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
         r = nextR; c = nextC;
-        dr = 1; dc = -1;
+        if (dr === 1 && dc === 0) {
+          dr = 0; dc = -1; // falling → slide left
+        }
+        // horizontal marble passes over ramp unchanged
         continue;
       }
 
       // Empty / slot / marble_start — marble passes through
-      path.push({ r: nextR, c: nextC });
+      path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
       r = nextR;
       c = nextC;
 
-      // Cycle detection
-      var key = r + ',' + c + ',' + dr + ',' + dc;
-      if (visited.has(key)) return { result: 'fail', path: path };
-      visited.add(key);
+      // Gravity check: horizontal marble drops into gaps (empty below)
+      if (dc !== 0) {
+        var belowR = r + 1;
+        if (belowR >= ROWS) {
+          return { result: 'fail', path: path };
+        }
+        var belowCell = grid[belowR][c];
+        if (belowCell === 'empty' || belowCell === 'slot' ||
+            belowCell === 'marble_start' || belowCell === 'target') {
+          dr = 1; dc = 0; // switch to falling
+        }
+        // wall / platform / ramp below → continue sliding
+      }
     }
 
     return { result: 'fail', path: path }; // exceeded MAX_STEPS

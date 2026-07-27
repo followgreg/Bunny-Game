@@ -3,11 +3,16 @@
 
 const ROWS = 8, COLS = 8;
 
-// ── Simulation engine ─────────────────────────────────────────────────────────
+// ── Simulation engine (orthogonal physics) ────────────────────────────────────
+// Ramps deflect a FALLING marble to horizontal only.
+// A horizontal marble ignores ramps and drops into gaps (empty below).
 function simulateMarble(grid, marbleStart) {
   let r = 0, c = marbleStart, dr = 1, dc = 0;
   const visited = new Set();
-  for (let step = 0; step < 200; step++) {
+  for (let step = 0; step < 500; step++) {
+    const key = `${r},${c},${dr},${dc}`;
+    if (visited.has(key)) return { result: 'fail' };
+    visited.add(key);
     const nr = r + dr, nc = c + dc;
     if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return { result: 'fail' };
     const cell = grid[nr][nc];
@@ -16,13 +21,27 @@ function simulateMarble(grid, marbleStart) {
       if (dc !== 0) { dc = 0; dr = 1; continue; }
       return { result: 'fail' };
     }
-    if (cell === 'ramp_right') { r = nr; c = nc; dr = 1; dc =  1; continue; }
-    if (cell === 'ramp_left')  { r = nr; c = nc; dr = 1; dc = -1; continue; }
-    // empty / marble_start — pass through
+    if (cell === 'ramp_right') {
+      r = nr; c = nc;
+      if (dr === 1 && dc === 0) { dr = 0; dc = 1; }
+      continue;
+    }
+    if (cell === 'ramp_left') {
+      r = nr; c = nc;
+      if (dr === 1 && dc === 0) { dr = 0; dc = -1; }
+      continue;
+    }
+    // empty / slot / marble_start — pass through
     r = nr; c = nc;
-    const key = `${r},${c},${dr},${dc}`;
-    if (visited.has(key)) return { result: 'fail' };
-    visited.add(key);
+    if (dc !== 0) {
+      const belowR = r + 1;
+      if (belowR >= ROWS) return { result: 'fail' };
+      const belowCell = grid[belowR][c];
+      if (belowCell === 'empty' || belowCell === 'slot' ||
+          belowCell === 'marble_start' || belowCell === 'target') {
+        dr = 1; dc = 0;
+      }
+    }
   }
   return { result: 'fail' };
 }
