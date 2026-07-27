@@ -3,52 +3,47 @@
 
 const ROWS = 8, COLS = 8;
 
-// ── Simulation engine (orthogonal physics) ────────────────────────────────────
-// Ramps deflect a FALLING marble to horizontal only.
-// A horizontal marble ignores ramps and drops into gaps (empty below).
+// ── Simulation engine — matches slope.js exactly ─────────────────────────────
+const SOLID = { wall: 1, platform: 1, ramp_left: 1, ramp_right: 1 };
+
 function simulateMarble(grid, marbleStart) {
-  let r = 0, c = marbleStart, dr = 1, dc = 0;
+  let r = 0, c = marbleStart, state = 'falling';
   const visited = new Set();
   for (let step = 0; step < 500; step++) {
-    const key = `${r},${c},${dr},${dc}`;
+    const key = `${r},${c},${state}`;
     if (visited.has(key)) return { result: 'fail' };
     visited.add(key);
-    const nr = r + dr, nc = c + dc;
-    if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return { result: 'fail' };
-    const cell = grid[nr][nc];
-    if (cell === 'target') return { result: 'win' };
-    if (cell === 'wall' || cell === 'platform') {
-      if (dc !== 0) {
-        const belowR = r + 1;
-        if (belowR >= ROWS) return { result: 'fail' };
-        const below = grid[belowR][c];
-        if (below === 'wall' || below === 'platform' ||
-            below === 'ramp_left' || below === 'ramp_right') return { result: 'fail' };
-        dc = 0; dr = 1; continue;
+
+    if (state === 'falling') {
+      const belowR = r + 1;
+      if (belowR >= ROWS) return { result: 'fail' };
+      const below = grid[belowR][c];
+      if (below === 'target') return { result: 'win' };
+      if (below === 'empty' || below === 'slot') { r = belowR; continue; }
+      if (below === 'ramp_right') {
+        const newC = c + 1;
+        if (newC >= COLS) return { result: 'fail' };
+        r = belowR; c = newC; state = 'moving_right'; continue;
+      }
+      if (below === 'ramp_left') {
+        const newC = c - 1;
+        if (newC < 0) return { result: 'fail' };
+        r = belowR; c = newC; state = 'moving_left'; continue;
       }
       return { result: 'fail' };
     }
-    if (cell === 'ramp_right') {
-      r = nr; c = nc;
-      if (dr === 1 && dc === 0) { dr = 0; dc = 1; }
-      continue;
-    }
-    if (cell === 'ramp_left') {
-      r = nr; c = nc;
-      if (dr === 1 && dc === 0) { dr = 0; dc = -1; }
-      continue;
-    }
-    // empty / slot / marble_start — pass through
-    r = nr; c = nc;
-    if (dc !== 0) {
-      const belowR = r + 1;
-      if (belowR >= ROWS) return { result: 'fail' };
-      const belowCell = grid[belowR][c];
-      if (belowCell === 'empty' || belowCell === 'slot' ||
-          belowCell === 'marble_start' || belowCell === 'target') {
-        dr = 1; dc = 0;
-      }
-    }
+
+    const dc = state === 'moving_right' ? 1 : -1;
+    const aheadC = c + dc;
+    if (aheadC < 0 || aheadC >= COLS) return { result: 'fail' };
+    const ahead = grid[r][aheadC];
+    if (ahead === 'target') return { result: 'win' };
+    if (ahead === 'ramp_left' || ahead === 'ramp_right' ||
+        ahead === 'wall'      || ahead === 'platform') return { result: 'fail' };
+    // ahead is empty/slot — check below current position
+    const belowR = r + 1;
+    if (belowR >= ROWS || !SOLID[grid[belowR][c]]) { state = 'falling'; continue; }
+    c = aheadC;
   }
   return { result: 'fail' };
 }

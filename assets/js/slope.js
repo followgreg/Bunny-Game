@@ -18,107 +18,95 @@
   var COLS = 8;
 
   // ── Marble simulation ─────────────────────────────────────────────────────
-  // Physics: marble moves ONLY vertically OR horizontally — never diagonally.
-  // Ramps deflect a FALLING marble to horizontal; a horizontal marble ignores ramps.
-  // Each horizontal step checks if cell below is empty — if so, marble starts falling.
+  // State machine: 'falling' | 'moving_left' | 'moving_right'
+  //
+  // Falling: check cell directly below.
+  //   empty/slot   → continue falling
+  //   ramp_right   → jump one cell right, enter moving_right
+  //   ramp_left    → jump one cell left,  enter moving_left
+  //   target       → win
+  //   anything else / grid edge → fail
+  //
+  // Horizontal: each step checks cell AHEAD and cell BELOW CURRENT position.
+  //   ahead = target              → win
+  //   ahead = ramp/wall/platform  → fail immediately
+  //   ahead = grid edge           → fail immediately
+  //   ahead = empty/slot:
+  //     below current is solid    → continue horizontal (move forward)
+  //     below current is not solid → switch to falling from CURRENT position
   function simulateMarble(grid, startCol) {
     var r = 0;
     var c = startCol;
-    var dr = 1;   // starts falling down
-    var dc = 0;   // no horizontal movement
+    var state = 'falling';
+    var path = [{ r: r, c: c, state: state }];
     var visited = new Set();
-    var path = [{ r: r, c: c, dr: dr, dc: dc }];
     var MAX_STEPS = 500;
+    var SOLID = { wall: 1, platform: 1, ramp_left: 1, ramp_right: 1 };
 
     for (var step = 0; step < MAX_STEPS; step++) {
-      // Cycle detection at start of each step (includes direction)
-      var key = r + ',' + c + ',' + dr + ',' + dc;
+      var key = r + ',' + c + ',' + state;
       if (visited.has(key)) return { result: 'fail', path: path };
       visited.add(key);
 
-      var nextR = r + dr;
-      var nextC = c + dc;
+      if (state === 'falling') {
+        var belowR = r + 1;
+        if (belowR >= ROWS) return { result: 'fail', path: path };
+        var below = grid[belowR][c];
 
-      // Out of bounds → fail
-      if (nextR < 0 || nextR >= ROWS || nextC < 0 || nextC >= COLS) {
+        if (below === CELL.TARGET) {
+          path.push({ r: belowR, c: c, state: state });
+          return { result: 'win', path: path };
+        }
+        if (below === CELL.EMPTY || below === CELL.SLOT) {
+          r = belowR;
+          path.push({ r: r, c: c, state: state });
+          continue;
+        }
+        if (below === CELL.RAMP_RIGHT) {
+          var newC = c + 1;
+          if (newC >= COLS) return { result: 'fail', path: path };
+          r = belowR; c = newC; state = 'moving_right';
+          path.push({ r: r, c: c, state: state });
+          continue;
+        }
+        if (below === CELL.RAMP_LEFT) {
+          var newC = c - 1;
+          if (newC < 0) return { result: 'fail', path: path };
+          r = belowR; c = newC; state = 'moving_left';
+          path.push({ r: r, c: c, state: state });
+          continue;
+        }
+        // wall / platform / marble_start / anything else → fail
         return { result: 'fail', path: path };
       }
 
-      var nextCell = grid[nextR][nextC];
+      // ── Horizontal ────────────────────────────────────────────────────────
+      var dc = (state === 'moving_right') ? 1 : -1;
+      var aheadC = c + dc;
 
-      // Win condition
-      if (nextCell === CELL.TARGET) {
-        path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
+      if (aheadC < 0 || aheadC >= COLS) return { result: 'fail', path: path };
+
+      var ahead = grid[r][aheadC];
+
+      if (ahead === CELL.TARGET) {
+        path.push({ r: r, c: aheadC, state: state });
         return { result: 'win', path: path };
       }
-
-      // Solid obstacle (wall or platform)
-      if (nextCell === CELL.WALL || nextCell === CELL.PLATFORM) {
-        if (dc !== 0) {
-          // Moving horizontally — blocked ahead.
-          // Check whether marble can fall from its current position.
-          var belowR = r + 1;
-          if (belowR >= ROWS) {
-            // At bottom row — can't fall, truly stuck
-            return { result: 'fail', path: path };
-          }
-          var belowCell = grid[belowR][c];
-          if (belowCell === CELL.WALL || belowCell === CELL.PLATFORM ||
-              belowCell === CELL.RAMP_LEFT || belowCell === CELL.RAMP_RIGHT) {
-            // Solid/ramp below current position — marble is on a supported
-            // surface, can't go forward and can't fall. Stuck.
-            return { result: 'fail', path: path };
-          }
-          // Empty below — marble can fall
-          dc = 0;
-          dr = 1;
-          continue;
-        } else {
-          // Falling straight into a solid — stuck
-          return { result: 'fail', path: path };
-        }
+      if (ahead === CELL.RAMP_LEFT || ahead === CELL.RAMP_RIGHT ||
+          ahead === CELL.WALL    || ahead === CELL.PLATFORM) {
+        return { result: 'fail', path: path };
       }
 
-      // Ramp right ◢ — only deflects a FALLING marble to move right
-      if (nextCell === CELL.RAMP_RIGHT) {
-        path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
-        r = nextR; c = nextC;
-        if (dr === 1 && dc === 0) {
-          dr = 0; dc = 1; // falling → slide right
-        }
-        // horizontal marble passes over ramp unchanged
+      // ahead is empty/slot — check below CURRENT position
+      var belowR = r + 1;
+      if (belowR >= ROWS || !SOLID[grid[belowR][c]]) {
+        // Nothing solid below — fall from current position (don't move forward)
+        state = 'falling';
         continue;
       }
-
-      // Ramp left ◣ — only deflects a FALLING marble to move left
-      if (nextCell === CELL.RAMP_LEFT) {
-        path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
-        r = nextR; c = nextC;
-        if (dr === 1 && dc === 0) {
-          dr = 0; dc = -1; // falling → slide left
-        }
-        // horizontal marble passes over ramp unchanged
-        continue;
-      }
-
-      // Empty / slot / marble_start — marble passes through
-      path.push({ r: nextR, c: nextC, dr: dr, dc: dc });
-      r = nextR;
-      c = nextC;
-
-      // Gravity check: horizontal marble drops into gaps (empty below)
-      if (dc !== 0) {
-        var belowR = r + 1;
-        if (belowR >= ROWS) {
-          return { result: 'fail', path: path };
-        }
-        var belowCell = grid[belowR][c];
-        if (belowCell === 'empty' || belowCell === 'slot' ||
-            belowCell === 'marble_start' || belowCell === 'target') {
-          dr = 1; dc = 0; // switch to falling
-        }
-        // wall / platform / ramp below → continue sliding
-      }
+      // Solid below — continue horizontal
+      c = aheadC;
+      path.push({ r: r, c: c, state: state });
     }
 
     return { result: 'fail', path: path }; // exceeded MAX_STEPS
