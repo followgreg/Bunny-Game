@@ -18,7 +18,14 @@ function simulateMarble(grid, marbleStart) {
     const cell = grid[nr][nc];
     if (cell === 'target') return { result: 'win' };
     if (cell === 'wall' || cell === 'platform') {
-      if (dc !== 0) { dc = 0; dr = 1; continue; }
+      if (dc !== 0) {
+        const belowR = r + 1;
+        if (belowR >= ROWS) return { result: 'fail' };
+        const below = grid[belowR][c];
+        if (below === 'wall' || below === 'platform' ||
+            below === 'ramp_left' || below === 'ramp_right') return { result: 'fail' };
+        dc = 0; dr = 1; continue;
+      }
       return { result: 'fail' };
     }
     if (cell === 'ramp_right') {

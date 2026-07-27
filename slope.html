@@ -330,16 +330,24 @@
 
   // ── Fail ──────────────────────────────────────────────────────────────────
   function handleFail() {
+    // 1. Flash red at stuck position (~200ms)
     marbleEl.classList.add('marble-flash-red');
+
     setTimeout(function() {
-      marbleEl.classList.add('marble-fade');
+      marbleEl.classList.remove('marble-flash-red', 'marble-bounce');
+
+      // 2. Animate marble back to start (~300ms) — slower ease for visibility
+      marbleEl.style.transition = 'top 0.3s ease-in-out, left 0.3s ease-in-out';
+      marbleEl.style.setProperty('--slp-marble-r', 0);
+      marbleEl.style.setProperty('--slp-marble-c', currentLevel.marbleStart);
+
+      // 3. Re-enable controls after return animation completes
       setTimeout(function() {
-        running  = false;
+        running = false;
         runBtn.disabled = false;
-        marbleEl.classList.remove('marble-flash-red', 'marble-fade', 'marble-bounce');
-        positionMarbleAtStart();
-      }, 300);
-    }, 250);
+        marbleEl.style.transition = ''; // restore CSS default (0.12s linear)
+      }, 320);
+    }, 200);
   }
 
   // ── Load level ─────────────────────────────────────────────────────────────

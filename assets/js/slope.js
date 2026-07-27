@@ -55,7 +55,21 @@
       // Solid obstacle (wall or platform)
       if (nextCell === CELL.WALL || nextCell === CELL.PLATFORM) {
         if (dc !== 0) {
-          // Moving horizontally — stop horizontal, resume falling
+          // Moving horizontally — blocked ahead.
+          // Check whether marble can fall from its current position.
+          var belowR = r + 1;
+          if (belowR >= ROWS) {
+            // At bottom row — can't fall, truly stuck
+            return { result: 'fail', path: path };
+          }
+          var belowCell = grid[belowR][c];
+          if (belowCell === CELL.WALL || belowCell === CELL.PLATFORM ||
+              belowCell === CELL.RAMP_LEFT || belowCell === CELL.RAMP_RIGHT) {
+            // Solid/ramp below current position — marble is on a supported
+            // surface, can't go forward and can't fall. Stuck.
+            return { result: 'fail', path: path };
+          }
+          // Empty below — marble can fall
           dc = 0;
           dr = 1;
           continue;
