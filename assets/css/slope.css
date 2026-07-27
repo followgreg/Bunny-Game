@@ -158,20 +158,21 @@ body {
 }
 .slp-cell:nth-child(8n) { border-right: none; }
 
-/* ── Slot ─────────────────────────────────────────────────────────────────── */
-.slp-cell.slot {
+/* ── Ramp-off (toggled to empty — marble passes straight through) ─────────── */
+.slp-cell.ramp-off {
   cursor: pointer;
+  background: #080808;
 }
-.slp-cell.slot::after {
+.slp-cell.ramp-off::before {
   content: '';
   position: absolute;
-  inset: 4px;
-  border: 2px dotted rgba(245, 240, 232, 0.32);
-  border-radius: 2px;
-  pointer-events: none;
-}
-.slp-cell[data-r]:not(.slot):not(.marble-start) {
-  cursor: pointer; /* ramp cells are also clickable */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(245, 240, 232, 0.2);
 }
 
 /* ── Wall ─────────────────────────────────────────────────────────────────── */

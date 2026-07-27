@@ -5,112 +5,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
           "marble_start",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
           "wall",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
           "target",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 3,
-          "col": 3,
-          "ramp": "ramp_right"
-        },
-        {
-          "row": 5,
-          "col": 4,
-          "ramp": "empty"
-        },
-        {
-          "row": 6,
-          "col": 4,
-          "ramp": "empty"
-        }
       ]
     },
     {
@@ -118,112 +91,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
           "marble_start",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
           "wall",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
           "target",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 3,
-          "col": 5,
-          "ramp": "ramp_left"
-        },
-        {
-          "row": 5,
-          "col": 4,
-          "ramp": "empty"
-        },
-        {
-          "row": 6,
-          "col": 4,
-          "ramp": "empty"
-        }
       ]
     },
     {
@@ -231,112 +177,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
           "marble_start",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
           "wall",
-          "empty"
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
           "target",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 4,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 4,
-          "ramp": "ramp_right"
-        },
-        {
-          "row": 4,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 5,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 6,
-          "col": 5,
-          "ramp": "empty"
-        }
       ]
     },
     {
@@ -344,112 +263,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
           "marble_start",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_left",
           "wall",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
           "target",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 4,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 4,
-          "ramp": "ramp_left"
-        },
-        {
-          "row": 4,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 5,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 6,
-          "col": 3,
-          "ramp": "empty"
-        }
       ]
     },
     {
@@ -457,112 +349,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
           "marble_start",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
           "wall",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
           "target",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 2,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 2,
-          "ramp": "empty"
-        },
-        {
-          "row": 3,
-          "col": 2,
-          "ramp": "empty"
-        },
-        {
-          "row": 4,
-          "col": 2,
-          "ramp": "ramp_right"
-        },
-        {
-          "row": 6,
-          "col": 3,
-          "ramp": "empty"
-        }
       ]
     },
     {
@@ -570,112 +435,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
           "marble_start",
-          "empty"
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
           "wall",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
           "target",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 6,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 6,
-          "ramp": "empty"
-        },
-        {
-          "row": 3,
-          "col": 6,
-          "ramp": "empty"
-        },
-        {
-          "row": 4,
-          "col": 6,
-          "ramp": "ramp_left"
-        },
-        {
-          "row": 6,
-          "col": 5,
-          "ramp": "empty"
-        }
       ]
     },
     {
@@ -683,112 +521,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
           "marble_start",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
           "target",
           "wall",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 3,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 4,
-          "col": 3,
-          "ramp": "empty"
-        },
-        {
-          "row": 5,
-          "col": 3,
-          "ramp": "ramp_right"
-        }
       ]
     },
     {
@@ -796,112 +607,85 @@
       "difficulty": "easy",
       "grid": [
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
           "marble_start",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "slot",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_right",
+          "ramp_left",
+          "ramp_right",
+          "ramp_left",
+          "ramp_left",
+          "ramp_left",
+          "ramp_right",
+          "ramp_right"
         ],
         [
-          "empty",
-          "empty",
-          "empty",
+          "ramp_right",
+          "ramp_right",
+          "ramp_left",
           "wall",
           "target",
-          "empty",
-          "empty",
-          "empty"
+          "ramp_left",
+          "ramp_left",
+          "ramp_right"
         ]
-      ],
-      "solution": [
-        {
-          "row": 1,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 2,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 3,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 4,
-          "col": 5,
-          "ramp": "empty"
-        },
-        {
-          "row": 5,
-          "col": 5,
-          "ramp": "ramp_left"
-        }
       ]
     }
   ]

@@ -54,7 +54,7 @@
 <div id="slp-splash">
   <div class="slp-splash-inner">
     <img src="assets/logos/slope_logo.svg" alt="Slope" class="slp-splash-logo">
-    <p class="slp-splash-dir">Slope gives you a grid, a marble, and five ramp pieces. The marble drops from the top and falls under gravity. Place your ramps in the available slots to guide it to the gold target. Click a slot to cycle through ramp directions. When you're ready, hit Drop and watch the marble fall. If it misses, adjust your ramps and try again — there's no penalty for retrying. Every level has exactly one correct arrangement. Think ahead, place carefully, and find the path.</p>
+    <p class="slp-splash-dir">Slope fills the grid with ramps. The marble drops from the top and follows gravity — ramps bend it diagonally, empty cells let it fall straight through. Tap any ramp to cycle its direction, or clear it so the marble passes through. Hit Drop when you're ready. If it misses, adjust and try again. Find any path that reaches the gold.</p>
     <div id="slp-splash-btns">
       <button id="slp-splash-play">Play</button>
       <button id="slp-splash-continue" class="hidden">Continue from Level <span id="slp-continue-num"></span></button>
@@ -90,8 +90,8 @@
     <img src="assets/logos/slope_logo.svg" alt="Slope" class="slp-dir-logo">
     <p class="slp-dir-heading">How to Play</p>
     <div class="slp-dir-body">
-      Slope gives you a grid, a marble, and five ramp pieces. The marble drops from the top and falls under gravity. Place your ramps in the available slots to guide it to the <span style="color:#FFD700;">gold target ●</span>.<br><br>
-      Click a slot to cycle through ramp directions — right ramp ◢, left ramp ◣, or clear. When you're ready, hit <strong>Drop</strong> and watch the marble fall. If it misses, adjust and try again — no penalty. Every level has exactly one correct arrangement.
+      The grid starts full of ramp pieces. The marble drops from the top and follows them — ramps bend it diagonally, empty cells let it fall straight through.<br><br>
+      Tap any ramp to cycle its state — right ramp ◢, left ramp ◣, or off (marble passes straight through). Figure out which ramps to set and which to clear to guide the marble to the <span style="color:#FFD700;">gold target ●</span>. Hit <strong>Drop</strong> to test your path — no penalty for retrying.
     </div>
     <button class="slp-dir-close" id="slp-dir-close-btn">Got It</button>
   </div>
@@ -135,7 +135,7 @@
   var currentLevel    = null;
   var baseGrid        = null;
   var running         = false;
-  var slotStates      = {}; // "r,c" → RAMP_RIGHT | RAMP_LEFT | EMPTY
+  var rampOverrides   = {}; // "r,c" → RAMP_RIGHT | RAMP_LEFT | EMPTY (player overrides)
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
   var splashEl        = document.getElementById('slp-splash');
@@ -173,9 +173,9 @@
   // ── Grid builder ──────────────────────────────────────────────────────────
   function buildPlayerGrid() {
     var g = baseGrid.map(function(row){ return row.slice(); });
-    Object.keys(slotStates).forEach(function(key) {
+    Object.keys(rampOverrides).forEach(function(key) {
       var p = key.split(',');
-      g[+p[0]][+p[1]] = slotStates[key];
+      g[+p[0]][+p[1]] = rampOverrides[key];
     });
     return g;
   }
@@ -210,32 +210,33 @@
       for (var c = 0; c < COLS; c++) {
         var cell = document.createElement('div');
         cell.className = 'slp-cell';
+        var baseCt = baseGrid[r][c];
         var ct = pg[r][c];
-        var isSlotOrigin = baseGrid[r][c] === C.SLOT;
 
-        if (ct === C.WALL) {
+        // Fixed cells
+        if (baseCt === C.WALL) {
           cell.classList.add('wall');
-        } else if (ct === C.PLATFORM) {
+        } else if (baseCt === C.PLATFORM) {
           cell.classList.add('platform');
-        } else if (ct === C.TARGET) {
+        } else if (baseCt === C.TARGET) {
           cell.classList.add('target');
-        } else if (ct === C.MARBLE_START) {
+        } else if (baseCt === C.MARBLE_START) {
           cell.classList.add('marble-start');
-        } else if (ct === C.RAMP_RIGHT) {
-          cell.classList.add('ramp-right');
-          cell.innerHTML = rampSVG(C.RAMP_RIGHT);
-        } else if (ct === C.RAMP_LEFT) {
-          cell.classList.add('ramp-left');
-          cell.innerHTML = rampSVG(C.RAMP_LEFT);
-        } else if (isSlotOrigin) {
-          cell.classList.add('slot');
-        }
-
-        // All slot-origin cells are clickable (whether showing ramp or empty)
-        if (isSlotOrigin) {
+        } else {
+          // Toggleable ramp cell — render current effective state
+          if (ct === C.RAMP_RIGHT) {
+            cell.classList.add('ramp-right');
+            cell.innerHTML = rampSVG(C.RAMP_RIGHT);
+          } else if (ct === C.RAMP_LEFT) {
+            cell.classList.add('ramp-left');
+            cell.innerHTML = rampSVG(C.RAMP_LEFT);
+          } else {
+            // EMPTY (toggled off) — marble passes straight through
+            cell.classList.add('ramp-off');
+          }
           cell.dataset.r = r;
           cell.dataset.c = c;
-          cell.addEventListener('click', onSlotClick);
+          cell.addEventListener('click', onRampClick);
         }
 
         gridEl.appendChild(cell);
@@ -246,16 +247,16 @@
     positionMarbleAtStart();
   }
 
-  // ── Slot click: cycle EMPTY → RAMP_RIGHT → RAMP_LEFT → EMPTY ─────────────
-  function onSlotClick(e) {
+  // ── Ramp click: cycle RAMP_RIGHT → RAMP_LEFT → EMPTY → RAMP_RIGHT ────────
+  function onRampClick(e) {
     if (running) return;
     var r = +e.currentTarget.dataset.r;
     var c = +e.currentTarget.dataset.c;
     var key = r + ',' + c;
-    var cur = slotStates[key] || C.EMPTY;
-    if      (cur === C.EMPTY)      slotStates[key] = C.RAMP_RIGHT;
-    else if (cur === C.RAMP_RIGHT) slotStates[key] = C.RAMP_LEFT;
-    else                           slotStates[key] = C.EMPTY;
+    var cur = rampOverrides.hasOwnProperty(key) ? rampOverrides[key] : baseGrid[r][c];
+    if      (cur === C.RAMP_RIGHT) rampOverrides[key] = C.RAMP_LEFT;
+    else if (cur === C.RAMP_LEFT)  rampOverrides[key] = C.EMPTY;
+    else                           rampOverrides[key] = C.RAMP_RIGHT;
     renderGrid();
   }
 
@@ -380,7 +381,7 @@
     currentLevelIdx = idx;
     currentLevel    = levels[idx];
     baseGrid        = currentLevel.grid;
-    slotStates      = {};
+    rampOverrides   = {};
     running         = false;
     runBtn.disabled = false;
     levelLabel.textContent = 'Level ' + currentLevel.id;
@@ -400,14 +401,14 @@
 
   resetBtn.addEventListener('click', function() {
     if (running) return;
-    slotStates = {};
+    rampOverrides = {};
     renderGrid();
   });
 
   newBtn.addEventListener('click', function() {
     if (running) return;
     winOverlay.classList.add('hidden');
-    slotStates = {};
+    rampOverrides = {};
     renderGrid();
   });
 

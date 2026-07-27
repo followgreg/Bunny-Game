@@ -8,283 +8,234 @@ const CELL = {
   PLATFORM:     'platform',
   RAMP_LEFT:    'ramp_left',
   RAMP_RIGHT:   'ramp_right',
-  SLOT:         'slot',
   TARGET:       'target',
   MARBLE_START: 'marble_start',
 };
 
-const ROWS = 8;
-const COLS = 8;
+const ROWS = 8, COLS = 8;
 
-// ── Simulation engine ─────────────────────────────────────────────────────────
+// ── Seeded LCG PRNG ───────────────────────────────────────────────────────────
+function makePRNG(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 0x100000000;
+  };
+}
+
+// ── Simulation engine (mirrors slope.js) ─────────────────────────────────────
 function simulateMarble(grid, startCol) {
   let r = 0, c = startCol, dr = 1, dc = 0;
   const visited = new Set();
   const path = [{ r, c }];
-  const MAX_STEPS = 200;
-
-  for (let step = 0; step < MAX_STEPS; step++) {
-    const nextR = r + dr;
-    const nextC = c + dc;
-
-    if (nextR < 0 || nextR >= ROWS || nextC < 0 || nextC >= COLS) {
+  for (let step = 0; step < 200; step++) {
+    const nr = r + dr, nc = c + dc;
+    if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS)
+      return { result: 'fail', path };
+    const cell = grid[nr][nc];
+    if (cell === CELL.TARGET) { path.push({ r: nr, c: nc }); return { result: 'win', path }; }
+    if (cell === CELL.WALL || cell === CELL.PLATFORM) {
+      if (dc !== 0) { dc = 0; dr = 1; continue; }
       return { result: 'fail', path };
     }
-
-    const nextCell = grid[nextR][nextC];
-
-    if (nextCell === CELL.TARGET) {
-      path.push({ r: nextR, c: nextC });
-      return { result: 'win', path };
+    if (cell === CELL.RAMP_RIGHT) {
+      path.push({ r: nr, c: nc }); r = nr; c = nc; dr = 1; dc = 1; continue;
     }
-
-    if (nextCell === CELL.WALL || nextCell === CELL.PLATFORM) {
-      if (dc !== 0) { dc = 0; dr = 1; continue; }
-      else { return { result: 'fail', path }; }
+    if (cell === CELL.RAMP_LEFT) {
+      path.push({ r: nr, c: nc }); r = nr; c = nc; dr = 1; dc = -1; continue;
     }
-
-    if (nextCell === CELL.RAMP_RIGHT) {
-      path.push({ r: nextR, c: nextC }); r = nextR; c = nextC;
-      dr = 1; dc = 1; continue;
-    }
-
-    if (nextCell === CELL.RAMP_LEFT) {
-      path.push({ r: nextR, c: nextC }); r = nextR; c = nextC;
-      dr = 1; dc = -1; continue;
-    }
-
-    path.push({ r: nextR, c: nextC }); r = nextR; c = nextC;
+    // EMPTY / MARBLE_START — pass through
+    path.push({ r: nr, c: nc }); r = nr; c = nc;
     const key = `${r},${c},${dr},${dc}`;
     if (visited.has(key)) return { result: 'fail', path };
     visited.add(key);
   }
-
   return { result: 'fail', path };
-}
-
-// ── Grid / slot helpers ───────────────────────────────────────────────────────
-function cloneGrid(grid) { return grid.map(row => row.slice()); }
-
-function findSlots(grid) {
-  const slots = [];
-  for (let r = 0; r < ROWS; r++)
-    for (let c = 0; c < COLS; c++)
-      if (grid[r][c] === CELL.SLOT) slots.push({ row: r, col: c });
-  return slots;
-}
-
-function findMarbleStart(grid) {
-  for (let c = 0; c < COLS; c++)
-    if (grid[0][c] === CELL.MARBLE_START) return c;
-  throw new Error('No MARBLE_START found in row 0');
-}
-
-const RAMP_CHOICES = [CELL.EMPTY, CELL.RAMP_LEFT, CELL.RAMP_RIGHT];
-
-function enumerateWinners(grid) {
-  const slots = findSlots(grid);
-  const startCol = findMarbleStart(grid);
-  const N = slots.length;
-  const total = Math.pow(3, N);
-  const winners = [];
-
-  for (let combo = 0; combo < total; combo++) {
-    const assignment = [];
-    let tmp = combo;
-    for (let i = 0; i < N; i++) {
-      assignment.push(RAMP_CHOICES[tmp % 3]);
-      tmp = Math.floor(tmp / 3);
-    }
-    const g = cloneGrid(grid);
-    const slotResult = slots.map((s, i) => ({ row: s.row, col: s.col, ramp: assignment[i] }));
-    slotResult.forEach(({ row, col, ramp }) => { g[row][col] = ramp; });
-    if (simulateMarble(g, startCol).result === 'win') winners.push(slotResult);
-  }
-
-  return winners;
-}
-
-function isUnique(grid) {
-  const winners = enumerateWinners(grid);
-  return { unique: winners.length === 1, count: winners.length, winners };
-}
-
-// ── Grid builder ──────────────────────────────────────────────────────────────
-// marble: [row, col], slots: [[r,c],...], walls: [[r,c],...], target: [row, col]
-function buildGrid(marble, slots, walls, target) {
-  const grid = [];
-  for (let r = 0; r < ROWS; r++) {
-    const row = [];
-    for (let c = 0; c < COLS; c++) row.push(CELL.EMPTY);
-    grid.push(row);
-  }
-  grid[marble[0]][marble[1]] = CELL.MARBLE_START;
-  slots.forEach(([r, c]) => { grid[r][c] = CELL.SLOT; });
-  walls.forEach(([r, c]) => { grid[r][c] = CELL.WALL; });
-  grid[target[0]][target[1]] = CELL.TARGET;
-  return grid;
 }
 
 // ── Level definitions ─────────────────────────────────────────────────────────
 //
-// Design pattern for easy levels: all 5 slots sit on straight-fall segments
-// (never on diagonal arcs). The one critical ramp slot forces a direction
-// change; every other slot must stay EMPTY or marble leaves the target column.
-//
-// Path notation:
-//   M(c)  = marble start col c
-//   S(r)  = straight fall through row r
-//   RR(r) = ramp_right fires at row r  → marble goes diag right (+col each step)
-//   RL(r) = ramp_left  fires at row r  → marble goes diag left  (-col each step)
-//   W(r,c)= wall at (r,c) stops horizontal motion, marble resumes straight fall
-//   T(r,c)= target
+// New mechanic: every non-fixed cell starts as a random ramp.
+// Player toggles: RAMP_RIGHT → RAMP_LEFT → EMPTY → RAMP_RIGHT.
+// Multiple solutions acceptable; we verify ONE designed solution exists.
 
 const levelDefs = [
 
-  // ── Easy 1 ───────────────────────────────────────────────────────────────
-  // M(3) → S(1) S(2) RR(3) → diag(4,4) → W(5,5) → S(5) S(6) T(7,4)
-  // Solution: slot(3,3)=ramp_right, all others empty
+  // ── Easy 1 ──────────────────────────────────────────────────────────────────
+  // marble(0,3) → fall (1-2,3) → RAMP_RIGHT(3,3) → diag (4,4)
+  //   → wall(5,5) stops → fall (5-6,4) → target(7,4)
   {
-    id: 1, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 3],
-      [[1,3],[2,3],[3,3],[5,4],[6,4]],
-      [[5,5]],
-      [7, 4]
-    )
+    id: 1, difficulty: 'easy', seed: 1001,
+    marbleStart: [0, 3], target: [7, 4], walls: [[5, 5]],
+    solution: [
+      { row: 1, col: 3, ramp: CELL.EMPTY },
+      { row: 2, col: 3, ramp: CELL.EMPTY },
+      { row: 3, col: 3, ramp: CELL.RAMP_RIGHT },
+      { row: 4, col: 4, ramp: CELL.EMPTY },
+      { row: 5, col: 4, ramp: CELL.EMPTY },
+      { row: 6, col: 4, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 2 ───────────────────────────────────────────────────────────────
-  // M(5) → S(1) S(2) RL(3) → diag(4,4) → W(5,3) → S(5) S(6) T(7,4)
-  // Solution: slot(3,5)=ramp_left, all others empty
+  // ── Easy 2 ──────────────────────────────────────────────────────────────────
+  // marble(0,5) → fall (1-2,5) → RAMP_LEFT(3,5) → diag (4,4)
+  //   → wall(5,3) stops → fall (5-6,4) → target(7,4)
   {
-    id: 2, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 5],
-      [[1,5],[2,5],[3,5],[5,4],[6,4]],
-      [[5,3]],
-      [7, 4]
-    )
+    id: 2, difficulty: 'easy', seed: 1002,
+    marbleStart: [0, 5], target: [7, 4], walls: [[5, 3]],
+    solution: [
+      { row: 1, col: 5, ramp: CELL.EMPTY },
+      { row: 2, col: 5, ramp: CELL.EMPTY },
+      { row: 3, col: 5, ramp: CELL.RAMP_LEFT },
+      { row: 4, col: 4, ramp: CELL.EMPTY },
+      { row: 5, col: 4, ramp: CELL.EMPTY },
+      { row: 6, col: 4, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 3 ───────────────────────────────────────────────────────────────
-  // M(4) → S(1) RR(2) → diag(3,5) → W(4,6) → S(4) S(5) S(6) T(7,5)
-  // Solution: slot(2,4)=ramp_right, all others empty
+  // ── Easy 3 ──────────────────────────────────────────────────────────────────
+  // marble(0,4) → fall (1,4) → RAMP_RIGHT(2,4) → diag (3,5)
+  //   → wall(4,6) stops → fall (4-6,5) → target(7,5)
   {
-    id: 3, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 4],
-      [[1,4],[2,4],[4,5],[5,5],[6,5]],
-      [[4,6]],
-      [7, 5]
-    )
+    id: 3, difficulty: 'easy', seed: 1003,
+    marbleStart: [0, 4], target: [7, 5], walls: [[4, 6]],
+    solution: [
+      { row: 1, col: 4, ramp: CELL.EMPTY },
+      { row: 2, col: 4, ramp: CELL.RAMP_RIGHT },
+      { row: 3, col: 5, ramp: CELL.EMPTY },
+      { row: 4, col: 5, ramp: CELL.EMPTY },
+      { row: 5, col: 5, ramp: CELL.EMPTY },
+      { row: 6, col: 5, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 4 ───────────────────────────────────────────────────────────────
-  // M(4) → S(1) RL(2) → diag(3,3) → W(4,2) → S(4) S(5) S(6) T(7,3)
-  // Solution: slot(2,4)=ramp_left, all others empty
+  // ── Easy 4 ──────────────────────────────────────────────────────────────────
+  // marble(0,4) → fall (1,4) → RAMP_LEFT(2,4) → diag (3,3)
+  //   → wall(4,2) stops → fall (4-6,3) → target(7,3)
   {
-    id: 4, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 4],
-      [[1,4],[2,4],[4,3],[5,3],[6,3]],
-      [[4,2]],
-      [7, 3]
-    )
+    id: 4, difficulty: 'easy', seed: 1004,
+    marbleStart: [0, 4], target: [7, 3], walls: [[4, 2]],
+    solution: [
+      { row: 1, col: 4, ramp: CELL.EMPTY },
+      { row: 2, col: 4, ramp: CELL.RAMP_LEFT },
+      { row: 3, col: 3, ramp: CELL.EMPTY },
+      { row: 4, col: 3, ramp: CELL.EMPTY },
+      { row: 5, col: 3, ramp: CELL.EMPTY },
+      { row: 6, col: 3, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 5 ───────────────────────────────────────────────────────────────
-  // M(2) → S(1) S(2) S(3) RR(4) → diag(5,3) → W(6,4) → S(6) T(7,3)
-  // Solution: slot(4,2)=ramp_right, all others empty
+  // ── Easy 5 ──────────────────────────────────────────────────────────────────
+  // marble(0,2) → fall (1-3,2) → RAMP_RIGHT(4,2) → diag (5,3)
+  //   → wall(6,4) stops → fall (6,3) → target(7,3)
   {
-    id: 5, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 2],
-      [[1,2],[2,2],[3,2],[4,2],[6,3]],
-      [[6,4]],
-      [7, 3]
-    )
+    id: 5, difficulty: 'easy', seed: 1005,
+    marbleStart: [0, 2], target: [7, 3], walls: [[6, 4]],
+    solution: [
+      { row: 1, col: 2, ramp: CELL.EMPTY },
+      { row: 2, col: 2, ramp: CELL.EMPTY },
+      { row: 3, col: 2, ramp: CELL.EMPTY },
+      { row: 4, col: 2, ramp: CELL.RAMP_RIGHT },
+      { row: 5, col: 3, ramp: CELL.EMPTY },
+      { row: 6, col: 3, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 6 ───────────────────────────────────────────────────────────────
-  // M(6) → S(1) S(2) S(3) RL(4) → diag(5,5) → W(6,4) → S(6) T(7,5)
-  // Solution: slot(4,6)=ramp_left, all others empty
+  // ── Easy 6 ──────────────────────────────────────────────────────────────────
+  // marble(0,6) → fall (1-3,6) → RAMP_LEFT(4,6) → diag (5,5)
+  //   → wall(6,4) stops → fall (6,5) → target(7,5)
   {
-    id: 6, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 6],
-      [[1,6],[2,6],[3,6],[4,6],[6,5]],
-      [[6,4]],
-      [7, 5]
-    )
+    id: 6, difficulty: 'easy', seed: 1006,
+    marbleStart: [0, 6], target: [7, 5], walls: [[6, 4]],
+    solution: [
+      { row: 1, col: 6, ramp: CELL.EMPTY },
+      { row: 2, col: 6, ramp: CELL.EMPTY },
+      { row: 3, col: 6, ramp: CELL.EMPTY },
+      { row: 4, col: 6, ramp: CELL.RAMP_LEFT },
+      { row: 5, col: 5, ramp: CELL.EMPTY },
+      { row: 6, col: 5, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 7 ───────────────────────────────────────────────────────────────
-  // M(3) → S(1) S(2) S(3) S(4) RR(5) → diag(6,4) → W(7,5) → T(7,4)
-  // Solution: slot(5,3)=ramp_right, all others empty
+  // ── Easy 7 ──────────────────────────────────────────────────────────────────
+  // marble(0,3) → fall (1-4,3) → RAMP_RIGHT(5,3) → diag (6,4)
+  //   → wall(7,5) stops → target(7,4)
   {
-    id: 7, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 3],
-      [[1,3],[2,3],[3,3],[4,3],[5,3]],
-      [[7,5]],
-      [7, 4]
-    )
+    id: 7, difficulty: 'easy', seed: 1009,
+    marbleStart: [0, 3], target: [7, 4], walls: [[7, 5]],
+    solution: [
+      { row: 1, col: 3, ramp: CELL.EMPTY },
+      { row: 2, col: 3, ramp: CELL.EMPTY },
+      { row: 3, col: 3, ramp: CELL.EMPTY },
+      { row: 4, col: 3, ramp: CELL.EMPTY },
+      { row: 5, col: 3, ramp: CELL.RAMP_RIGHT },
+      { row: 6, col: 4, ramp: CELL.EMPTY },
+    ],
   },
 
-  // ── Easy 8 ───────────────────────────────────────────────────────────────
-  // M(5) → S(1) S(2) S(3) S(4) RL(5) → diag(6,4) → W(7,3) → T(7,4)
-  // Solution: slot(5,5)=ramp_left, all others empty
+  // ── Easy 8 ──────────────────────────────────────────────────────────────────
+  // marble(0,5) → fall (1-4,5) → RAMP_LEFT(5,5) → diag (6,4)
+  //   → wall(7,3) stops → target(7,4)
   {
-    id: 8, difficulty: 'easy',
-    grid: buildGrid(
-      [0, 5],
-      [[1,5],[2,5],[3,5],[4,5],[5,5]],
-      [[7,3]],
-      [7, 4]
-    )
+    id: 8, difficulty: 'easy', seed: 1008,
+    marbleStart: [0, 5], target: [7, 4], walls: [[7, 3]],
+    solution: [
+      { row: 1, col: 5, ramp: CELL.EMPTY },
+      { row: 2, col: 5, ramp: CELL.EMPTY },
+      { row: 3, col: 5, ramp: CELL.EMPTY },
+      { row: 4, col: 5, ramp: CELL.EMPTY },
+      { row: 5, col: 5, ramp: CELL.RAMP_LEFT },
+      { row: 6, col: 4, ramp: CELL.EMPTY },
+    ],
   },
 
 ];
 
-// ── Runner ────────────────────────────────────────────────────────────────────
-function generateLevels(defs) {
-  console.log('=== Verifying easy levels 1-8 ===\n');
-  const verified = [];
-  let allPass = true;
+// ── Generator ─────────────────────────────────────────────────────────────────
+function generateLevel(def) {
+  const prng = makePRNG(def.seed);
 
-  defs.forEach(def => {
-    const { unique, count, winners } = isUnique(def.grid);
-    const status = unique ? 'UNIQUE ✓' : `NOT UNIQUE ✗ (${count} solutions)`;
-    console.log(`Level ${def.id}: ${count} winning combination(s) — ${status}`);
+  // Build base structure with fixed elements only
+  const base = Array.from({ length: ROWS }, () => Array(COLS).fill(CELL.EMPTY));
+  base[def.marbleStart[0]][def.marbleStart[1]] = CELL.MARBLE_START;
+  base[def.target[0]][def.target[1]] = CELL.TARGET;
+  (def.walls || []).forEach(([r, c]) => { base[r][c] = CELL.WALL; });
+  (def.platforms || []).forEach(([r, c]) => { base[r][c] = CELL.PLATFORM; });
 
-    if (!unique) {
-      allPass = false;
-      winners.slice(0, 3).forEach((w, i) => {
-        console.log(`  Solution ${i + 1}:`, w.map(s => `(${s.row},${s.col})=${s.ramp}`).join(', '));
-      });
-    } else {
-      const sol = winners[0];
-      const activRamps = sol.filter(s => s.ramp !== CELL.EMPTY);
-      console.log(`  Solution: ${activRamps.map(s => `(${s.row},${s.col})=${s.ramp}`).join(', ')}`);
-      verified.push({ id: def.id, difficulty: def.difficulty, grid: def.grid, solution: sol });
-    }
-  });
+  // Fill all EMPTY cells with random ramps (deterministic via seed)
+  const initialGrid = base.map(row =>
+    row.map(ct => ct === CELL.EMPTY
+      ? (prng() < 0.5 ? CELL.RAMP_RIGHT : CELL.RAMP_LEFT)
+      : ct)
+  );
 
-  console.log(`\n${verified.length}/${defs.length} levels verified unique`);
-  if (!allPass) {
-    console.error('\nSome levels failed uniqueness — fix their grid definitions before writing JSON.');
+  // Verify designed solution wins
+  const solutionGrid = initialGrid.map(row => row.slice());
+  def.solution.forEach(({ row, col, ramp }) => { solutionGrid[row][col] = ramp; });
+  const startCol = def.marbleStart[1];
+  const solResult = simulateMarble(solutionGrid, startCol);
+
+  // Check initial state (informational)
+  const initResult = simulateMarble(initialGrid, startCol);
+
+  console.log(`Level ${def.id}: solution=${solResult.result}, initial=${initResult.result}`);
+  if (solResult.result !== 'win') {
+    console.error(`  ✗ ERROR: designed solution does not win!`);
     process.exit(1);
   }
-  return verified;
+  console.log(`  ✓ Verified`);
+
+  return { id: def.id, difficulty: def.difficulty, grid: initialGrid };
 }
 
-const verified = generateLevels(levelDefs);
+// ── Run ───────────────────────────────────────────────────────────────────────
+console.log('=== Generating Slope levels (full-grid mechanic) ===\n');
+const levels = levelDefs.map(generateLevel);
 
 const fs = require('fs');
 const path = require('path');
 fs.writeFileSync(
   path.join(__dirname, 'slope-levels.json'),
-  JSON.stringify({ levels: verified }, null, 2)
+  JSON.stringify({ levels }, null, 2)
 );
 console.log('\nWrote slope-levels.json');
