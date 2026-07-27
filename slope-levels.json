@@ -1,692 +1,3091 @@
-{
-  "levels": [
-    {
-      "id": 1,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "marble_start",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "wall",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "target",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ]
-      ]
+[
+  {
+    "level": 1,
+    "marbleStart": 3,
+    "target": {
+      "row": 7,
+      "col": 6
     },
-    {
-      "id": 2,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "marble_start",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "wall",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "target",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ]
+    "fixedElements": [],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "marble_start",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "target",
+        "ramp_left"
       ]
+    ]
+  },
+  {
+    "level": 2,
+    "marbleStart": 2,
+    "target": {
+      "row": 7,
+      "col": 5
     },
-    {
-      "id": 3,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "marble_start",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "wall",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "target",
-          "ramp_left",
-          "ramp_right"
-        ]
+    "fixedElements": [
+      {
+        "row": 3,
+        "col": 4,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_left",
+        "marble_start",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "target",
+        "ramp_right",
+        "ramp_right"
       ]
+    ]
+  },
+  {
+    "level": 3,
+    "marbleStart": 5,
+    "target": {
+      "row": 7,
+      "col": 1
     },
-    {
-      "id": 4,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "marble_start",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "wall",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "target",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ]
+    "fixedElements": [
+      {
+        "row": 2,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 6,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "marble_start",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "target",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
       ]
+    ]
+  },
+  {
+    "level": 4,
+    "marbleStart": 4,
+    "target": {
+      "row": 6,
+      "col": 1
     },
-    {
-      "id": 5,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_right",
-          "marble_start",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "wall",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "target",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right"
-        ]
+    "fixedElements": [
+      {
+        "row": 4,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 2,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "marble_start",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "target",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
       ]
+    ]
+  },
+  {
+    "level": 5,
+    "marbleStart": 1,
+    "target": {
+      "row": 7,
+      "col": 4
     },
-    {
-      "id": 6,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "marble_start",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "wall",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "target",
-          "ramp_left",
-          "ramp_right"
-        ]
+    "fixedElements": [
+      {
+        "row": 3,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "marble_start",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "target",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
       ]
+    ]
+  },
+  {
+    "level": 6,
+    "marbleStart": 6,
+    "target": {
+      "row": 7,
+      "col": 2
     },
-    {
-      "id": 7,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "marble_start",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "target",
-          "wall",
-          "ramp_right",
-          "ramp_left"
-        ]
+    "fixedElements": [
+      {
+        "row": 2,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "marble_start",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "target",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
       ]
+    ]
+  },
+  {
+    "level": 7,
+    "marbleStart": 3,
+    "target": {
+      "row": 5,
+      "col": 7
     },
-    {
-      "id": 8,
-      "difficulty": "easy",
-      "grid": [
-        [
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "marble_start",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_left",
-          "ramp_right",
-          "ramp_left",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right",
-          "ramp_right"
-        ],
-        [
-          "ramp_right",
-          "ramp_right",
-          "ramp_left",
-          "wall",
-          "target",
-          "ramp_left",
-          "ramp_left",
-          "ramp_right"
-        ]
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 1,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "marble_start",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "target"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
       ]
-    }
-  ]
-}
+    ]
+  },
+  {
+    "level": 8,
+    "marbleStart": 5,
+    "target": {
+      "row": 7,
+      "col": 0
+    },
+    "fixedElements": [
+      {
+        "row": 2,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 3,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "marble_start",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "target",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 9,
+    "marbleStart": 2,
+    "target": {
+      "row": 6,
+      "col": 6
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 7,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_right",
+        "marble_start",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "target",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 10,
+    "marbleStart": 6,
+    "target": {
+      "row": 7,
+      "col": 3
+    },
+    "fixedElements": [
+      {
+        "row": 2,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 4,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "marble_start",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "target",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 11,
+    "marbleStart": 4,
+    "target": {
+      "row": 7,
+      "col": 1
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 2,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "marble_start",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "target",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 12,
+    "marbleStart": 1,
+    "target": {
+      "row": 6,
+      "col": 5
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 0,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "marble_start",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "target",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 13,
+    "marbleStart": 7,
+    "target": {
+      "row": 7,
+      "col": 3
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 6,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "marble_start"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "target",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 14,
+    "marbleStart": 0,
+    "target": {
+      "row": 7,
+      "col": 4
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 1,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "marble_start",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "target",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 15,
+    "marbleStart": 5,
+    "target": {
+      "row": 5,
+      "col": 2
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "marble_start",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "target",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 16,
+    "marbleStart": 3,
+    "target": {
+      "row": 7,
+      "col": 7
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 3,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "marble_start",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "target"
+      ]
+    ]
+  },
+  {
+    "level": 17,
+    "marbleStart": 6,
+    "target": {
+      "row": 6,
+      "col": 1
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 0,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "marble_start",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "wall",
+        "target",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 18,
+    "marbleStart": 2,
+    "target": {
+      "row": 7,
+      "col": 6
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_left",
+        "marble_start",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "target",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 19,
+    "marbleStart": 7,
+    "target": {
+      "row": 7,
+      "col": 2
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 4,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "marble_start"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "target",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 20,
+    "marbleStart": 1,
+    "target": {
+      "row": 6,
+      "col": 6
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 4,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "marble_start",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "target",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 21,
+    "marbleStart": 4,
+    "target": {
+      "row": 7,
+      "col": 0
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 6,
+        "col": 6,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "marble_start",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "target",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 22,
+    "marbleStart": 0,
+    "target": {
+      "row": 7,
+      "col": 5
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "marble_start",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "target",
+        "ramp_right",
+        "ramp_right"
+      ]
+    ]
+  },
+  {
+    "level": 23,
+    "marbleStart": 6,
+    "target": {
+      "row": 6,
+      "col": 3
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 5,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "marble_start",
+        "ramp_left"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "target",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ]
+    ]
+  },
+  {
+    "level": 24,
+    "marbleStart": 3,
+    "target": {
+      "row": 7,
+      "col": 7
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 3,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "marble_start",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "target"
+      ]
+    ]
+  },
+  {
+    "level": 25,
+    "marbleStart": 5,
+    "target": {
+      "row": 7,
+      "col": 1
+    },
+    "fixedElements": [
+      {
+        "row": 1,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 1,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 4,
+        "type": "wall"
+      },
+      {
+        "row": 2,
+        "col": 7,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 0,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 3,
+        "type": "wall"
+      },
+      {
+        "row": 3,
+        "col": 6,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 2,
+        "type": "wall"
+      },
+      {
+        "row": 4,
+        "col": 5,
+        "type": "wall"
+      },
+      {
+        "row": 5,
+        "col": 4,
+        "type": "wall"
+      }
+    ],
+    "grid": [
+      [
+        "ramp_right",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
+        "marble_start",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "wall"
+      ],
+      [
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_right"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_right"
+      ],
+      [
+        "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "wall",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left"
+      ],
+      [
+        "ramp_left",
+        "target",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
+        "ramp_left",
+        "ramp_left",
+        "ramp_right"
+      ]
+    ]
+  }
+]

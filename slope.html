@@ -129,13 +129,16 @@
   var COLS = Slope.COLS;
   var LS_KEY = 'slope_highestLevel';
 
+  // Fixed cell types — never toggled by player clicks
+  var FIXED = { wall: 1, platform: 1, target: 1, marble_start: 1 };
+
   // ── State ──────────────────────────────────────────────────────────────────
-  var levels          = [];
+  var levels          = [];   // flat array from slope-levels.json
   var currentLevelIdx = 0;
   var currentLevel    = null;
-  var baseGrid        = null;
+  var currentGrid     = null; // live mutable grid — mutated directly on click
+  var storedGrid      = null; // deep-copy of level's initial grid, used for reset
   var running         = false;
-  var rampOverrides   = {}; // "r,c" → RAMP_RIGHT | RAMP_LEFT | EMPTY (player overrides)
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
   var splashEl        = document.getElementById('slp-splash');
@@ -170,14 +173,9 @@
     try { localStorage.setItem(LS_KEY, idx); } catch(e) {}
   }
 
-  // ── Grid builder ──────────────────────────────────────────────────────────
-  function buildPlayerGrid() {
-    var g = baseGrid.map(function(row){ return row.slice(); });
-    Object.keys(rampOverrides).forEach(function(key) {
-      var p = key.split(',');
-      g[+p[0]][+p[1]] = rampOverrides[key];
-    });
-    return g;
+  // ── Deep-copy grid ────────────────────────────────────────────────────────
+  function deepCopy(grid) {
+    return grid.map(function(row) { return row.slice(); });
   }
 
   // ── Ramp SVG ──────────────────────────────────────────────────────────────
@@ -192,51 +190,37 @@
       hlPts = '100,0 100,100';
       shPts = '0,100 100,100';
     }
-    function pt(s,i){ var a=s.split(' ')[i].split(','); return {x:a[0],y:a[1]}; }
-    var h0=pt(hlPts,0), h1=pt(hlPts,1), s0=pt(shPts,0), s1=pt(shPts,1);
+    function pt(s, i) { var a = s.split(' ')[i].split(','); return { x: a[0], y: a[1] }; }
+    var h0 = pt(hlPts, 0), h1 = pt(hlPts, 1), s0 = pt(shPts, 0), s1 = pt(shPts, 1);
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">'
-      + '<polygon points="'+pts+'" fill="#E8DCC8"/>'
-      + '<line x1="'+h0.x+'" y1="'+h0.y+'" x2="'+h1.x+'" y2="'+h1.y+'" stroke="#FAFAF5" stroke-width="3"/>'
-      + '<line x1="'+s0.x+'" y1="'+s0.y+'" x2="'+s1.x+'" y2="'+s1.y+'" stroke="#C8C0B0" stroke-width="3"/>'
+      + '<polygon points="' + pts + '" fill="#E8DCC8"/>'
+      + '<line x1="' + h0.x + '" y1="' + h0.y + '" x2="' + h1.x + '" y2="' + h1.y + '" stroke="#FAFAF5" stroke-width="3"/>'
+      + '<line x1="' + s0.x + '" y1="' + s0.y + '" x2="' + s1.x + '" y2="' + s1.y + '" stroke="#C8C0B0" stroke-width="3"/>'
       + '</svg>';
   }
 
   // ── Render grid ───────────────────────────────────────────────────────────
   function renderGrid() {
     gridEl.innerHTML = '';
-    var pg = buildPlayerGrid();
 
     for (var r = 0; r < ROWS; r++) {
       for (var c = 0; c < COLS; c++) {
         var cell = document.createElement('div');
         cell.className = 'slp-cell';
-        var baseCt = baseGrid[r][c];
-        var ct = pg[r][c];
+        var ct = currentGrid[r][c];
 
-        // Fixed cells
-        if (baseCt === C.WALL) {
-          cell.classList.add('wall');
-        } else if (baseCt === C.PLATFORM) {
-          cell.classList.add('platform');
-        } else if (baseCt === C.TARGET) {
-          cell.classList.add('target');
-        } else if (baseCt === C.MARBLE_START) {
-          cell.classList.add('marble-start');
-        } else {
-          // Toggleable ramp cell — render current effective state
-          if (ct === C.RAMP_RIGHT) {
-            cell.classList.add('ramp-right');
-            cell.innerHTML = rampSVG(C.RAMP_RIGHT);
-          } else if (ct === C.RAMP_LEFT) {
-            cell.classList.add('ramp-left');
-            cell.innerHTML = rampSVG(C.RAMP_LEFT);
-          } else {
-            // EMPTY (toggled off) — marble passes straight through
-            cell.classList.add('ramp-off');
-          }
+        if      (ct === C.WALL)         { cell.classList.add('wall'); }
+        else if (ct === C.PLATFORM)     { cell.classList.add('platform'); }
+        else if (ct === C.TARGET)       { cell.classList.add('target'); }
+        else if (ct === C.MARBLE_START) { cell.classList.add('marble-start'); }
+        else if (ct === C.RAMP_RIGHT)   { cell.classList.add('ramp-right'); cell.innerHTML = rampSVG(C.RAMP_RIGHT); }
+        else if (ct === C.RAMP_LEFT)    { cell.classList.add('ramp-left');  cell.innerHTML = rampSVG(C.RAMP_LEFT); }
+        else                            { cell.classList.add('ramp-off'); } // EMPTY — marble passes through
+
+        if (!FIXED[ct]) {
           cell.dataset.r = r;
           cell.dataset.c = c;
-          cell.addEventListener('click', onRampClick);
+          cell.addEventListener('click', handleCellClick);
         }
 
         gridEl.appendChild(cell);
@@ -247,20 +231,20 @@
     positionMarbleAtStart();
   }
 
-  // ── Ramp click: cycle RAMP_RIGHT → RAMP_LEFT → EMPTY → RAMP_RIGHT ────────
-  function onRampClick(e) {
+  // ── Cell click: cycle ramp_right → ramp_left → empty → ramp_right ─────────
+  function handleCellClick(e) {
     if (running) return;
-    var r = +e.currentTarget.dataset.r;
-    var c = +e.currentTarget.dataset.c;
-    var key = r + ',' + c;
-    var cur = rampOverrides.hasOwnProperty(key) ? rampOverrides[key] : baseGrid[r][c];
-    if      (cur === C.RAMP_RIGHT) rampOverrides[key] = C.RAMP_LEFT;
-    else if (cur === C.RAMP_LEFT)  rampOverrides[key] = C.EMPTY;
-    else                           rampOverrides[key] = C.RAMP_RIGHT;
+    var r  = +e.currentTarget.dataset.r;
+    var c  = +e.currentTarget.dataset.c;
+    var ct = currentGrid[r][c];
+    if (FIXED[ct]) return;
+    if      (ct === C.RAMP_RIGHT) currentGrid[r][c] = C.RAMP_LEFT;
+    else if (ct === C.RAMP_LEFT)  currentGrid[r][c] = C.EMPTY;
+    else                          currentGrid[r][c] = C.RAMP_RIGHT;
     renderGrid();
   }
 
-  // ── Marble position via CSS custom props ───────────────────────────────────
+  // ── Marble positioning ────────────────────────────────────────────────────
   function setMarbleCell(r, c, animate) {
     if (!animate) marbleEl.style.transition = 'none';
     else          marbleEl.style.transition = '';
@@ -270,17 +254,8 @@
     marbleEl.classList.remove('marble-flash-red', 'marble-sink', 'marble-bounce');
   }
 
-  function findStartCol() {
-    for (var c = 0; c < COLS; c++) {
-      if (baseGrid[0][c] === C.MARBLE_START) return c;
-    }
-    return -1;
-  }
-
   function positionMarbleAtStart() {
-    var sc = findStartCol();
-    if (sc < 0) return;
-    setMarbleCell(0, sc, false);
+    setMarbleCell(0, currentLevel.marbleStart, false);
   }
 
   // ── Run marble ────────────────────────────────────────────────────────────
@@ -289,20 +264,17 @@
     running = true;
     runBtn.disabled = true;
 
-    var pg = buildPlayerGrid();
-    var startCol = findStartCol();
-    var sim = Slope.simulateMarble(pg, startCol);
+    var sim  = Slope.simulateMarble(currentGrid, currentLevel.marbleStart);
     var path = sim.path;
 
     if (path.length < 2) { handleFail(); return; }
 
     var stepMs = 150;
-    var idx = 0;
+    var idx    = 0;
 
-    // Pre-compute which path indices are ramp cells (for bounce)
     var rampIndices = {};
     path.forEach(function(pos, i) {
-      var ct = pg[pos.r][pos.c];
+      var ct = currentGrid[pos.r][pos.c];
       if (ct === C.RAMP_RIGHT || ct === C.RAMP_LEFT) rampIndices[i] = true;
     });
 
@@ -315,11 +287,10 @@
       var pos = path[idx];
       setMarbleCell(pos.r, pos.c, idx > 0);
 
-      // Ramp bounce: brief class flash ~50ms after arriving
       if (rampIndices[idx]) {
-        (function(el){ setTimeout(function(){
+        (function(el) { setTimeout(function() {
           el.classList.add('marble-bounce');
-          setTimeout(function(){ el.classList.remove('marble-bounce'); }, 120);
+          setTimeout(function() { el.classList.remove('marble-bounce'); }, 120);
         }, 30); }(marbleEl));
       }
 
@@ -332,13 +303,9 @@
 
   // ── Win ───────────────────────────────────────────────────────────────────
   function handleWin() {
-    // Target flash/expand then marble sinks
     var targetCell = gridEl.querySelector('.target');
     if (targetCell) targetCell.classList.add('target-flash');
-
     marbleEl.classList.add('marble-sink');
-
-    // Grid gold glow
     gridEl.classList.add('grid-glow');
 
     setTimeout(function() {
@@ -347,7 +314,6 @@
       gridEl.classList.remove('grid-glow');
       if (targetCell) targetCell.classList.remove('target-flash');
 
-      // Save progress
       var newHighest = Math.max(savedLevel(), currentLevelIdx + 1);
       saveProgress(newHighest);
 
@@ -355,7 +321,7 @@
       if (isLast) {
         completeOverlay.classList.remove('hidden');
       } else {
-        winTitle.textContent = 'Level ' + currentLevel.id + ' Clear!';
+        winTitle.textContent = 'Level ' + currentLevel.level + ' Clear!';
         winSub.textContent   = '';
         winOverlay.classList.remove('hidden');
       }
@@ -368,7 +334,7 @@
     setTimeout(function() {
       marbleEl.classList.add('marble-fade');
       setTimeout(function() {
-        running = false;
+        running  = false;
         runBtn.disabled = false;
         marbleEl.classList.remove('marble-flash-red', 'marble-fade', 'marble-bounce');
         positionMarbleAtStart();
@@ -378,18 +344,18 @@
 
   // ── Load level ─────────────────────────────────────────────────────────────
   function loadLevel(idx) {
-    currentLevelIdx = idx;
-    currentLevel    = levels[idx];
-    baseGrid        = currentLevel.grid;
-    rampOverrides   = {};
-    running         = false;
-    runBtn.disabled = false;
-    levelLabel.textContent = 'Level ' + currentLevel.id;
-    diffLabel.textContent  = currentLevel.difficulty;
+    currentLevelIdx        = idx;
+    currentLevel           = levels[idx];
+    storedGrid             = deepCopy(currentLevel.grid);
+    currentGrid            = deepCopy(currentLevel.grid);
+    running                = false;
+    runBtn.disabled        = false;
+    levelLabel.textContent = 'Level ' + currentLevel.level;
+    diffLabel.textContent  = '';
     renderGrid();
   }
 
-  // ── Splash ────────────────────────────────────────────────────────────────
+  // ── Show game ─────────────────────────────────────────────────────────────
   function showGame(startIdx) {
     splashEl.classList.add('hidden');
     wrapEl.classList.remove('hidden');
@@ -399,27 +365,22 @@
   // ── Controls ──────────────────────────────────────────────────────────────
   runBtn.addEventListener('click', runMarble);
 
+  // Reset returns currentGrid to the stored initial random configuration
   resetBtn.addEventListener('click', function() {
     if (running) return;
-    rampOverrides = {};
+    currentGrid = deepCopy(storedGrid);
     renderGrid();
   });
 
   newBtn.addEventListener('click', function() {
     if (running) return;
     winOverlay.classList.add('hidden');
-    rampOverrides = {};
+    currentGrid = deepCopy(storedGrid);
     renderGrid();
   });
 
-  helpBtn.addEventListener('click', function() {
-    dirOverlay.classList.remove('hidden');
-  });
-
-  dirCloseBtn.addEventListener('click', function() {
-    dirOverlay.classList.add('hidden');
-  });
-
+  helpBtn.addEventListener('click', function() { dirOverlay.classList.remove('hidden'); });
+  dirCloseBtn.addEventListener('click', function() { dirOverlay.classList.add('hidden'); });
   dirOverlay.addEventListener('click', function(e) {
     if (e.target === dirOverlay) dirOverlay.classList.add('hidden');
   });
@@ -441,11 +402,11 @@
   shareBtn.addEventListener('click', function() {
     var text = 'Slope — guided the marble through all 25 levels. Can you? https://www.thebunnygame.com/slope';
     if (navigator.share) {
-      navigator.share({ text: text }).catch(function(){});
+      navigator.share({ text: text }).catch(function() {});
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(function() {
         shareBtn.textContent = 'Copied!';
-        setTimeout(function(){ shareBtn.textContent = 'Share'; }, 2000);
+        setTimeout(function() { shareBtn.textContent = 'Share'; }, 2000);
       });
     }
   });
@@ -459,29 +420,26 @@
     if (e.target === completeOverlay) completeOverlay.classList.add('hidden');
   });
 
-  // ── Splash buttons ─────────────────────────────────────────────────────────
-  splashPlayBtn.addEventListener('click', function() {
-    showGame(0);
-  });
+  splashPlayBtn.addEventListener('click', function() { showGame(0); });
 
   splashContBtn.addEventListener('click', function() {
-    var saved = savedLevel();
+    var saved    = savedLevel();
     var startIdx = Math.min(saved, levels.length - 1);
     showGame(startIdx);
   });
 
   // ── Boot ───────────────────────────────────────────────────────────────────
   fetch('slope-levels.json')
-    .then(function(r){ return r.json(); })
+    .then(function(r) { return r.json(); })
     .then(function(data) {
-      levels = data.levels;
+      levels = data; // flat array
       var saved = savedLevel();
       if (saved > 0 && saved < levels.length) {
         continueNumEl.textContent = saved + 1;
         splashContBtn.classList.remove('hidden');
       }
     })
-    .catch(function(err){ console.error('slope-levels.json failed:', err); });
+    .catch(function(err) { console.error('slope-levels.json failed:', err); });
 
 }());
 </script>
