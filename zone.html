@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Zone — a block placement puzzle — Bunny Game</title>
+  <meta name="description" content="Fill the zones. Watch them explode. How long can you last?">
+  <meta property="og:title" content="Zone — a block placement puzzle — Bunny Game">
+  <meta property="og:description" content="Fill the zones. Watch them explode. How long can you last?">
+  <meta property="og:url" content="https://www.thebunnygame.com/zone">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/zone-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/zone-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/zone">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/zone.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="zn-help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="zn-new-btn">↺ New Game</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Mandatory splash (shown every page load) ───────────────────────────── -->
+<div id="zn-splash">
+  <div class="zn-splash-inner">
+    <img src="assets/logos/zone_logo.svg" alt="Zone" class="zn-splash-logo">
+    <p class="zn-splash-dir">Zone gives you a 9×9 grid split into nine 3×3 zones. Place pieces to fill zones — when all 9 cells of a zone are full, it explodes and clears. Three pieces at a time, always placeable somewhere. Pieces can span multiple zones but only complete zones clear. Clear multiple zones at once for a combo bonus. Empty the entire board for a mega bonus. Your progress saves automatically — come back anytime and pick up where you left off. The game ends when none of your three pieces fit anywhere on the board.</p>
+    <div id="zn-splash-btns">
+      <button id="zn-splash-play">Play</button>
+      <button id="zn-splash-continue" class="zn-hidden">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Directions overlay (via ? button) ─────────────────────────────────── -->
+<div id="zn-directions-overlay" class="zn-hidden">
+  <div class="zn-dir-modal">
+    <img src="assets/logos/zone_logo.svg" alt="Zone" class="zn-dir-logo">
+    <p class="zn-dir-heading">How to Play</p>
+    <div class="zn-dir-body">
+      Zone gives you a 9×9 grid split into nine 3×3 zones. Place pieces to fill zones — when all 9 cells of a zone are full, it explodes and clears.<br><br>
+      Three pieces at a time, always placeable somewhere. Pieces can span multiple zones but only complete zones clear.<br><br>
+      Clear multiple zones at once for a <strong style="color:#FFD700;">combo bonus</strong>. Empty the entire board for a <strong style="color:#FFD700;">mega bonus</strong>.<br><br>
+      The game ends when none of your three pieces fit anywhere on the board.
+    </div>
+    <button class="zn-dir-close" id="zn-dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<!-- ── Game ───────────────────────────────────────────────────────────────── -->
+<div id="zn-wrap" class="zn-hidden">
+
+  <div id="zn-score-bar">
+    <div id="zn-score">0</div>
+    <div id="zn-best">Best: 0</div>
+  </div>
+
+  <div id="zn-grid">
+    <!-- 9 zone divs injected by JS, each containing 9 cell divs -->
+  </div>
+
+  <div id="zn-tray">
+    <!-- 3 piece slots injected by JS -->
+  </div>
+
+</div>
+
+<!-- Game over overlay -->
+<div id="zn-gameover-overlay" class="zn-overlay zn-hidden">
+  <div class="zn-overlay-box">
+    <div class="zn-overlay-title">GAME OVER</div>
+    <div class="zn-overlay-score" id="zn-final-score">0</div>
+    <div class="zn-overlay-best" id="zn-final-best">Best: 0</div>
+    <button id="zn-share-btn" class="zn-overlay-btn zn-btn-primary">Share Result</button>
+    <button id="zn-newgame-over-btn" class="zn-overlay-btn zn-btn-secondary">New Game</button>
+  </div>
+</div>
+
+<script src="assets/js/zone.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var grid = Zone.makeGrid();
+  var currentPieces = [];
+  var placedFlags = [false, false, false];
+  var selectedIdx = null;
+  var ghostPos = null; // { startRow, startCol, valid }
+  var score = 0;
+  var highScore = 0;
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  var gridEl  = document.getElementById('zn-grid');
+  var trayEl  = document.getElementById('zn-tray');
+  var scoreEl = document.getElementById('zn-score');
+  var bestEl  = document.getElementById('zn-best');
+
+  // cells[r][c] = div element
+  var cells = Array.from({length: 9}, function () { return Array(9).fill(null); });
+
+  // ── Zone tint ─────────────────────────────────────────────────────────────
+  function zoneTint(r, c) {
+    var z  = Zone.getZone(r, c);
+    var zr = Math.floor(z / 3);
+    var zc = z % 3;
+    return (zr + zc) % 2 === 0 ? '#F8F8F8' : '#FFFFFF';
+  }
+
+  // ── Build grid DOM ────────────────────────────────────────────────────────
+  for (var z = 0; z < 9; z++) {
+    var zr       = Math.floor(z / 3);
+    var zc       = z % 3;
+    var startRow = zr * 3;
+    var startCol = zc * 3;
+
+    var zoneEl = document.createElement('div');
+    zoneEl.className = 'zn-zone';
+    zoneEl.dataset.zone = z;
+
+    for (var dr = 0; dr < 3; dr++) {
+      for (var dc = 0; dc < 3; dc++) {
+        var r      = startRow + dr;
+        var c      = startCol + dc;
+        var cellEl = document.createElement('div');
+        cellEl.className = 'zn-cell';
+        cellEl.dataset.r = r;
+        cellEl.dataset.c = c;
+        cells[r][c] = cellEl;
+        zoneEl.appendChild(cellEl);
+      }
+    }
+    gridEl.appendChild(zoneEl);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function hexToRgba(hex, alpha) {
+    var rv = parseInt(hex.slice(1, 3), 16);
+    var gv = parseInt(hex.slice(3, 5), 16);
+    var bv = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + rv + ',' + gv + ',' + bv + ',' + alpha + ')';
+  }
+
+  // ── Render grid ───────────────────────────────────────────────────────────
+  function renderGrid() {
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        var cell  = cells[r][c];
+        var color = grid[r][c];
+        cell.classList.remove('zn-ghost-valid', 'zn-ghost-invalid');
+        cell.style.background = color ? color : zoneTint(r, c);
+      }
+    }
+  }
+
+  // ── Render ghost ──────────────────────────────────────────────────────────
+  function renderGhost() {
+    // Reset all non-filled cells to zone tint
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        var cell = cells[r][c];
+        cell.classList.remove('zn-ghost-valid', 'zn-ghost-invalid');
+        if (!grid[r][c]) cell.style.background = zoneTint(r, c);
+      }
+    }
+
+    if (selectedIdx === null || ghostPos === null) return;
+
+    var piece    = currentPieces[selectedIdx];
+    var startRow = ghostPos.startRow;
+    var startCol = ghostPos.startCol;
+    var valid    = ghostPos.valid;
+
+    for (var dr = 0; dr < piece.shape.length; dr++) {
+      for (var dc = 0; dc < piece.shape[dr].length; dc++) {
+        if (!piece.shape[dr][dc]) continue;
+        var gr = startRow + dr;
+        var gc = startCol + dc;
+        if (gr < 0 || gr >= 9 || gc < 0 || gc >= 9) continue;
+        if (grid[gr][gc]) continue; // already filled — skip
+        var ghostCell = cells[gr][gc];
+        if (valid) {
+          ghostCell.classList.add('zn-ghost-valid');
+          ghostCell.style.background = hexToRgba(piece.color, 0.5);
+        } else {
+          ghostCell.classList.add('zn-ghost-invalid');
+          ghostCell.style.background = 'rgba(220,50,50,0.4)';
+        }
+      }
+    }
+  }
+
+  // ── Render tray ───────────────────────────────────────────────────────────
+  function renderTray() {
+    trayEl.innerHTML = '';
+    currentPieces.forEach(function (piece, idx) {
+      var slotEl = document.createElement('div');
+      slotEl.className = 'zn-slot';
+      if (placedFlags[idx]) slotEl.classList.add('zn-placed');
+      if (idx === selectedIdx) slotEl.classList.add('zn-selected');
+
+      var miniEl = document.createElement('div');
+      miniEl.className = 'zn-mini';
+      miniEl.style.gridTemplateColumns = 'repeat(' + piece.shape[0].length + ', 16px)';
+      miniEl.style.gridTemplateRows    = 'repeat(' + piece.shape.length + ', 16px)';
+
+      piece.shape.forEach(function (row) {
+        row.forEach(function (v) {
+          var mc = document.createElement('div');
+          mc.className = 'zn-mini-cell';
+          if (v) mc.style.background = piece.color;
+          miniEl.appendChild(mc);
+        });
+      });
+
+      slotEl.appendChild(miniEl);
+
+      slotEl.addEventListener('click', function () {
+        if (placedFlags[idx]) return;
+        selectedIdx = (selectedIdx === idx) ? null : idx;
+        ghostPos    = null;
+        renderTray();
+        renderGhost();
+      });
+
+      trayEl.appendChild(slotEl);
+    });
+  }
+
+  // ── Render score ──────────────────────────────────────────────────────────
+  function renderScore() {
+    scoreEl.textContent = score;
+    bestEl.textContent  = 'Best: ' + highScore;
+  }
+
+  // ── Ghost position calculation ────────────────────────────────────────────
+  function calcGhostPos(e) {
+    if (selectedIdx === null) return null;
+    var piece = currentPieces[selectedIdx];
+    var rect  = gridEl.getBoundingClientRect();
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    var x = clientX - rect.left;
+    var y = clientY - rect.top;
+    var col = Math.floor(x / rect.width  * 9);
+    var row = Math.floor(y / rect.height * 9);
+    // Center piece on hovered cell
+    var startRow = row - Math.floor(piece.shape.length      / 2);
+    var startCol = col - Math.floor(piece.shape[0].length   / 2);
+    var valid = Zone.canPlace(grid, piece, startRow, startCol);
+    return { startRow: startRow, startCol: startCol, valid: valid };
+  }
+
+  // ── Animation helpers ─────────────────────────────────────────────────────
+  function getZoneCells(zoneIndex) {
+    var sr = Math.floor(zoneIndex / 3) * 3;
+    var sc = (zoneIndex % 3) * 3;
+    var result = [];
+    for (var r = sr; r < sr + 3; r++) {
+      for (var c = sc; c < sc + 3; c++) {
+        result.push(cells[r][c]);
+      }
+    }
+    return result;
+  }
+
+  function getZoneCenter(zoneIndex) {
+    var el   = document.querySelector('[data-zone="' + zoneIndex + '"]');
+    var rect = el.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  }
+
+  function getGridCenter() {
+    var rect = gridEl.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  }
+
+  function getZoneClearColor(zoneIndex) {
+    var sr = Math.floor(zoneIndex / 3) * 3;
+    var sc = (zoneIndex % 3) * 3;
+    return grid[sr][sc] || '#FFD700';
+  }
+
+  function cleanupCells() {
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        cells[r][c].style.transition = '';
+        cells[r][c].style.opacity    = '';
+        cells[r][c].style.boxShadow  = '';
+      }
+    }
+  }
+
+  function createShockwave(cx, cy) {
+    var el   = document.createElement('div');
+    el.className = 'shockwave';
+    var size = 100;
+    el.style.width  = size + 'px';
+    el.style.height = size + 'px';
+    el.style.left   = (cx - size / 2) + 'px';
+    el.style.top    = (cy - size / 2) + 'px';
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 350);
+  }
+
+  function createParticleBurst(cx, cy, color, count) {
+    var n = count || 10;
+    for (var i = 0; i < n; i++) {
+      (function (idx) {
+        var angle = (idx / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+        var speed = 80 + Math.random() * 60;
+        var p     = document.createElement('div');
+        p.className = 'explosion-particle';
+        p.style.background = color;
+        p.style.left       = cx + 'px';
+        p.style.top        = cy + 'px';
+        p.animate([
+          { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+          { transform: 'translate(calc(-50% + ' + (Math.cos(angle) * speed) + 'px), calc(-50% + ' + (Math.sin(angle) * speed) + 'px)) scale(0)', opacity: 0 }
+        ], { duration: 400, easing: 'ease-out', fill: 'forwards' });
+        document.body.appendChild(p);
+        setTimeout(function () { p.remove(); }, 450);
+      }(i));
+    }
+  }
+
+  function showComboIndicator(count) {
+    var el   = document.createElement('div');
+    el.className = 'combo-indicator';
+    el.textContent = count + '× COMBO!';
+    var rect = gridEl.getBoundingClientRect();
+    el.style.left = (rect.left + rect.width / 2) + 'px';
+    el.style.top  = rect.top + 'px';
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 900);
+  }
+
+  function showMegaBonusText(cx, cy) {
+    var el   = document.createElement('div');
+    el.className = 'mega-bonus-text';
+    el.textContent = 'MEGA BONUS +500';
+    el.style.left = cx + 'px';
+    el.style.top  = cy + 'px';
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 1200);
+  }
+
+  function screenShake() {
+    var w = document.getElementById('zn-wrap');
+    w.classList.add('shaking');
+    setTimeout(function () { w.classList.remove('shaking'); }, 250);
+  }
+
+  // ── Zone clear animation sequence ─────────────────────────────────────────
+  function triggerZoneClearAnimations(clearedZones, megaBonus, callback) {
+    var isMega = clearedZones.length === 9;
+
+    // Step 1 — Flash (t=0, instant white burst)
+    clearedZones.forEach(function (z) {
+      getZoneCells(z).forEach(function (cell) {
+        cell.style.transition  = 'none';
+        cell.style.background  = '#FFFFFF';
+        cell.style.boxShadow   = '0 0 20px #FFFFFF, 0 0 40px #FFFFFF';
+        cell.style.opacity     = '1';
+      });
+    });
+
+    // Step 2 — Shockwave rings from each zone center (t=0)
+    clearedZones.forEach(function (z) {
+      var c = getZoneCenter(z);
+      createShockwave(c.x, c.y);
+    });
+
+    // Step 3 — Particle bursts from each zone center (t=0)
+    clearedZones.forEach(function (z) {
+      var c     = getZoneCenter(z);
+      var color = getZoneClearColor(z);
+      createParticleBurst(c.x, c.y, color, 10);
+    });
+
+    // Combo indicator for 2+ zones (t=0)
+    if (clearedZones.length >= 2 && !isMega) {
+      showComboIndicator(clearedZones.length);
+    }
+
+    // Mega-specific effects (t=0)
+    if (isMega) {
+      screenShake();
+      var gc = getGridCenter();
+      createShockwave(gc.x, gc.y);
+      createParticleBurst(gc.x, gc.y, '#FFD700', 30);
+      showMegaBonusText(gc.x, gc.y);
+    }
+
+    // Step 4 — End flash, begin cell fadeout (t=100ms)
+    setTimeout(function () {
+      clearedZones.forEach(function (z) {
+        getZoneCells(z).forEach(function (cell) {
+          cell.style.boxShadow  = '';
+          cell.style.transition = 'opacity 0.2s ease-out';
+          cell.style.opacity    = '0';
+        });
+      });
+    }, 100);
+
+    // Callback fires after all animations settle (t=500ms)
+    setTimeout(function () {
+      cleanupCells();
+      callback();
+    }, 500);
+  }
+
+  // ── Place piece on grid ───────────────────────────────────────────────────
+  function afterPlacement() {
+    if (placedFlags.every(function (f) { return f; })) {
+      var newPieces = Zone.generateThreePieces(grid);
+      if (!newPieces || Zone.isGameOver(grid, newPieces)) {
+        saveFullState();
+        handleGameOver();
+        return;
+      }
+      currentPieces = newPieces;
+      placedFlags   = [false, false, false];
+    }
+    saveFullState();
+    renderTray();
+  }
+
+  function placePieceOnGrid() {
+    var piece    = currentPieces[selectedIdx];
+    var startRow = ghostPos.startRow;
+    var startCol = ghostPos.startCol;
+
+    var gridWithPiece = Zone.placePiece(grid, piece, startRow, startCol);
+    placedFlags[selectedIdx] = true;
+    selectedIdx = null;
+    ghostPos    = null;
+
+    var result = Zone.clearFullZones(gridWithPiece);
+    score += result.score;
+    if (score > highScore) highScore = score;
+    renderScore();
+
+    if (result.clearedZones.length === 0) {
+      // No zones cleared — update immediately
+      grid = gridWithPiece;
+      renderGrid();
+      afterPlacement();
+      return;
+    }
+
+    // Show piece on grid first, then animate the zone clear
+    grid = gridWithPiece;
+    renderGrid();
+
+    triggerZoneClearAnimations(result.clearedZones, result.megaBonus, function () {
+      grid = result.newGrid;
+      renderGrid();
+      afterPlacement();
+    });
+  }
+
+  // ── Save / load ───────────────────────────────────────────────────────────
+  function saveFullState() {
+    localStorage.setItem('zone_gameState', JSON.stringify({
+      grid: grid,
+      pieces: currentPieces,
+      score: score,
+      highScore: highScore,
+      placed: placedFlags,
+      savedAt: Date.now(),
+    }));
+  }
+
+  function loadFullState() {
+    var raw = localStorage.getItem('zone_gameState');
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  // ── Share ─────────────────────────────────────────────────────────────────
+  function shareResult() {
+    var text = 'Zone — scored ' + score + ' points. Can you beat that? https://www.thebunnygame.com/zone';
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () {});
+    } else {
+      navigator.clipboard.writeText(text).then(function () {
+        var btn = document.getElementById('zn-share-btn');
+        var orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = orig; }, 2000);
+      }).catch(function () {
+        prompt('Copy this to share:', text);
+      });
+    }
+  }
+
+  // ── Game over ─────────────────────────────────────────────────────────────
+  function handleGameOver() {
+    if (score > highScore) highScore = score;
+    saveFullState();
+    document.getElementById('zn-final-score').textContent = score;
+    document.getElementById('zn-final-best').textContent  = 'Best: ' + highScore;
+    document.getElementById('zn-gameover-overlay').classList.remove('zn-hidden');
+  }
+
+  // ── Show game (hide splash, reveal wrap) ─────────────────────────────────
+  function showGame() {
+    document.getElementById('zn-splash').classList.add('zn-hidden');
+    document.getElementById('zn-wrap').classList.remove('zn-hidden');
+  }
+
+  // ── New game ──────────────────────────────────────────────────────────────
+  function startNewGame() {
+    grid          = Zone.makeGrid();
+    score         = 0;
+    selectedIdx   = null;
+    ghostPos      = null;
+    currentPieces = Zone.generateThreePieces(grid);
+    placedFlags   = [false, false, false];
+    saveFullState();
+    renderGrid();
+    renderScore();
+    renderTray();
+    showGame();
+  }
+
+  // ── Grid event handlers ───────────────────────────────────────────────────
+  gridEl.addEventListener('mousemove', function (e) {
+    if (selectedIdx === null) return;
+    ghostPos = calcGhostPos(e);
+    renderGhost();
+  });
+
+  gridEl.addEventListener('mouseleave', function () {
+    ghostPos = null;
+    renderGhost();
+  });
+
+  gridEl.addEventListener('click', function (e) {
+    if (selectedIdx === null || ghostPos === null || !ghostPos.valid) return;
+    placePieceOnGrid();
+  });
+
+  var touchMoved = false;
+
+  gridEl.addEventListener('touchstart', function (e) {
+    touchMoved = false;
+    if (selectedIdx === null) return;
+    e.preventDefault();
+    ghostPos = calcGhostPos(e);
+    renderGhost();
+  }, { passive: false });
+
+  gridEl.addEventListener('touchmove', function (e) {
+    touchMoved = true;
+    if (selectedIdx === null) return;
+    e.preventDefault();
+    ghostPos = calcGhostPos(e);
+    renderGhost();
+  }, { passive: false });
+
+  gridEl.addEventListener('touchend', function (e) {
+    if (selectedIdx === null || ghostPos === null || !ghostPos.valid) return;
+    e.preventDefault();
+    placePieceOnGrid();
+  });
+
+  // ── Header buttons ────────────────────────────────────────────────────────
+  document.getElementById('zn-help-btn').addEventListener('click', function () {
+    document.getElementById('zn-directions-overlay').classList.remove('zn-hidden');
+  });
+  document.getElementById('zn-new-btn').addEventListener('click', function () {
+    if (confirm('Start a new game? Current progress will be lost.')) {
+      startNewGame();
+    }
+  });
+
+  // ── Directions overlay close ───────────────────────────────────────────────
+  document.getElementById('zn-dir-close-btn').addEventListener('click', function () {
+    document.getElementById('zn-directions-overlay').classList.add('zn-hidden');
+  });
+
+  // ── Game over overlay buttons ─────────────────────────────────────────────
+  document.getElementById('zn-share-btn').addEventListener('click', shareResult);
+  document.getElementById('zn-newgame-over-btn').addEventListener('click', function () {
+    document.getElementById('zn-gameover-overlay').classList.add('zn-hidden');
+    startNewGame();
+  });
+
+  // ── Splash buttons ────────────────────────────────────────────────────────
+  document.getElementById('zn-splash-play').addEventListener('click', function () {
+    startNewGame();
+  });
+  document.getElementById('zn-splash-continue').addEventListener('click', function () {
+    showGame();
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  (function init() {
+    var saved = loadFullState();
+    highScore = saved ? (saved.highScore || 0) : 0;
+
+    if (saved && saved.grid && saved.pieces && saved.pieces.length === 3) {
+      grid          = saved.grid;
+      currentPieces = saved.pieces;
+      score         = saved.score  || 0;
+      placedFlags   = saved.placed || [false, false, false];
+      // Splash: swap Play for Continue + New Game
+      var continueBtn = document.getElementById('zn-splash-continue');
+      continueBtn.textContent = score > 0
+        ? 'Continue (Score: ' + score + ')'
+        : 'Continue';
+      document.getElementById('zn-splash-play').textContent = 'New Game';
+      continueBtn.classList.remove('zn-hidden');
+    } else {
+      grid          = Zone.makeGrid();
+      currentPieces = Zone.generateThreePieces(grid);
+      placedFlags   = [false, false, false];
+      score         = 0;
+    }
+    renderGrid();
+    renderScore();
+    renderTray();
+    // Splash is always shown — zn-wrap stays hidden until Play/Continue clicked
+  }());
+
+}());
+</script>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+</body>
+</html>
