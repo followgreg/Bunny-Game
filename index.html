@@ -180,6 +180,11 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Slope: piano black bg, ivory treatment */
+    .lc-slope { background: #0A0A0A; border-color: rgba(245,240,232,0.14); }
+    .lc-slope .lobby-card-desc { color: rgba(245,240,232,0.5); }
+    .lc-slope .lobby-card-logo img { filter: brightness(0) invert(1); }
+
     /* Numeral: white bg, black logo, blue accent */
     .lc-numeral { background: #ffffff; border-color: rgba(0,0,0,0.18); }
     .lc-numeral .lobby-card-desc { color: rgba(0,0,0,0.55); }
@@ -426,6 +431,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-slope" href="slope.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/slope_logo.svg" alt="Slope">
+        </div>
+        <p class="lobby-card-desc">Place the ramps. Drop the marble. Find the path.</p>
       </a>
 
       <a class="lobby-card lc-numeral" href="numeral.html">

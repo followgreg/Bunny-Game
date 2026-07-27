@@ -1,0 +1,908 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "wall",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "empty",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 3,
+          "col": 3,
+          "ramp": "ramp_right"
+        },
+        {
+          "row": 5,
+          "col": 4,
+          "ramp": "empty"
+        },
+        {
+          "row": 6,
+          "col": 4,
+          "ramp": "empty"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "wall",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "empty",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 3,
+          "col": 5,
+          "ramp": "ramp_left"
+        },
+        {
+          "row": 5,
+          "col": 4,
+          "ramp": "empty"
+        },
+        {
+          "row": 6,
+          "col": 4,
+          "ramp": "empty"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "wall",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 4,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "ramp": "ramp_right"
+        },
+        {
+          "row": 4,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 5,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 6,
+          "col": 5,
+          "ramp": "empty"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "wall",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 4,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "ramp": "ramp_left"
+        },
+        {
+          "row": 4,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 5,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 6,
+          "col": 3,
+          "ramp": "empty"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "wall",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 2,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 2,
+          "ramp": "empty"
+        },
+        {
+          "row": 3,
+          "col": 2,
+          "ramp": "empty"
+        },
+        {
+          "row": 4,
+          "col": 2,
+          "ramp": "ramp_right"
+        },
+        {
+          "row": 6,
+          "col": 3,
+          "ramp": "empty"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "wall",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 6,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 6,
+          "ramp": "empty"
+        },
+        {
+          "row": 3,
+          "col": 6,
+          "ramp": "empty"
+        },
+        {
+          "row": 4,
+          "col": 6,
+          "ramp": "ramp_left"
+        },
+        {
+          "row": 6,
+          "col": 5,
+          "ramp": "empty"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "target",
+          "wall",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 3,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 4,
+          "col": 3,
+          "ramp": "empty"
+        },
+        {
+          "row": 5,
+          "col": 3,
+          "ramp": "ramp_right"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "difficulty": "easy",
+      "grid": [
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "marble_start",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "slot",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        [
+          "empty",
+          "empty",
+          "empty",
+          "wall",
+          "target",
+          "empty",
+          "empty",
+          "empty"
+        ]
+      ],
+      "solution": [
+        {
+          "row": 1,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 3,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 4,
+          "col": 5,
+          "ramp": "empty"
+        },
+        {
+          "row": 5,
+          "col": 5,
+          "ramp": "ramp_left"
+        }
+      ]
+    }
+  ]
+}

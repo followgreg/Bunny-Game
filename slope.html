@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Slope — a marble ramp puzzle — Bunny Game</title>
+  <meta name="description" content="Place the ramps. Drop the marble. Find the one path that reaches the gold.">
+  <meta property="og:title" content="Slope — a marble ramp puzzle — Bunny Game">
+  <meta property="og:description" content="Place the ramps. Drop the marble. Find the one path that reaches the gold.">
+  <meta property="og:url" content="https://www.thebunnygame.com/slope">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/slope-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/slope-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/slope">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/slope.css">
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="slp-help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="slp-new-btn">↺ Reset</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Splash ─────────────────────────────────────────────────────────────── -->
+<div id="slp-splash">
+  <div class="slp-splash-inner">
+    <img src="assets/logos/slope_logo.svg" alt="Slope" class="slp-splash-logo">
+    <p class="slp-splash-dir">Slope gives you a grid, a marble, and five ramp pieces. The marble drops from the top and falls under gravity. Place your ramps in the available slots to guide it to the gold target. Click a slot to cycle through ramp directions. When you're ready, hit Drop and watch the marble fall. If it misses, adjust your ramps and try again — there's no penalty for retrying. Every level has exactly one correct arrangement. Think ahead, place carefully, and find the path.</p>
+    <div id="slp-splash-btns">
+      <button id="slp-splash-play">Play</button>
+      <button id="slp-splash-continue" class="hidden">Continue from Level <span id="slp-continue-num"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Game area ──────────────────────────────────────────────────────────── -->
+<div id="slp-wrap" class="hidden">
+
+  <div id="slp-status">
+    <span id="slp-level-label">Level 1</span>
+    <span id="slp-difficulty-label"></span>
+  </div>
+
+  <div id="slp-grid-wrap">
+    <div id="slp-grid">
+      <!-- cells injected by JS -->
+      <div id="slp-marble"></div>
+    </div>
+  </div>
+
+  <div id="slp-controls">
+    <button id="slp-reset-btn">Reset Ramps</button>
+    <button id="slp-run-btn">Drop</button>
+  </div>
+
+</div>
+
+<!-- ── Directions overlay ────────────────────────────────────────────────── -->
+<div id="slp-directions-overlay" class="hidden">
+  <div class="slp-dir-modal">
+    <img src="assets/logos/slope_logo.svg" alt="Slope" class="slp-dir-logo">
+    <p class="slp-dir-heading">How to Play</p>
+    <div class="slp-dir-body">
+      Slope gives you a grid, a marble, and five ramp pieces. The marble drops from the top and falls under gravity. Place your ramps in the available slots to guide it to the <span style="color:#FFD700;">gold target ●</span>.<br><br>
+      Click a slot to cycle through ramp directions — right ramp ◢, left ramp ◣, or clear. When you're ready, hit <strong>Drop</strong> and watch the marble fall. If it misses, adjust and try again — no penalty. Every level has exactly one correct arrangement.
+    </div>
+    <button class="slp-dir-close" id="slp-dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<!-- ── Win overlay ────────────────────────────────────────────────────────── -->
+<div id="slp-win-overlay" class="hidden">
+  <div class="slp-win-modal">
+    <div class="slp-win-title" id="slp-win-title">Level 1 Clear!</div>
+    <div class="slp-win-sub" id="slp-win-sub"></div>
+    <button class="slp-win-btn" id="slp-next-btn">Next Level →</button>
+    <button class="slp-win-btn slp-win-btn--secondary" id="slp-replay-btn">Replay</button>
+  </div>
+</div>
+
+<!-- ── Completion overlay (after all 25 levels) ───────────────────────────── -->
+<div id="slp-complete-overlay" class="hidden">
+  <div class="slp-win-modal">
+    <div class="slp-win-title">Slope Complete</div>
+    <div class="slp-win-sub">All 25 levels solved.</div>
+    <button class="slp-win-btn" id="slp-share-btn">Share</button>
+    <button class="slp-win-btn slp-win-btn--secondary" id="slp-again-btn">Play Again</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/slope.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var C    = Slope.CELL;
+  var ROWS = Slope.ROWS;
+  var COLS = Slope.COLS;
+  var LS_KEY = 'slope_highestLevel';
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  var levels          = [];
+  var currentLevelIdx = 0;
+  var currentLevel    = null;
+  var baseGrid        = null;
+  var running         = false;
+  var slotStates      = {}; // "r,c" → RAMP_RIGHT | RAMP_LEFT | EMPTY
+
+  // ── DOM refs ───────────────────────────────────────────────────────────────
+  var splashEl        = document.getElementById('slp-splash');
+  var splashPlayBtn   = document.getElementById('slp-splash-play');
+  var splashContBtn   = document.getElementById('slp-splash-continue');
+  var continueNumEl   = document.getElementById('slp-continue-num');
+  var wrapEl          = document.getElementById('slp-wrap');
+  var gridEl          = document.getElementById('slp-grid');
+  var marbleEl        = document.getElementById('slp-marble');
+  var runBtn          = document.getElementById('slp-run-btn');
+  var resetBtn        = document.getElementById('slp-reset-btn');
+  var levelLabel      = document.getElementById('slp-level-label');
+  var diffLabel       = document.getElementById('slp-difficulty-label');
+  var helpBtn         = document.getElementById('slp-help-btn');
+  var newBtn          = document.getElementById('slp-new-btn');
+  var dirOverlay      = document.getElementById('slp-directions-overlay');
+  var dirCloseBtn     = document.getElementById('slp-dir-close-btn');
+  var winOverlay      = document.getElementById('slp-win-overlay');
+  var winTitle        = document.getElementById('slp-win-title');
+  var winSub          = document.getElementById('slp-win-sub');
+  var nextBtn         = document.getElementById('slp-next-btn');
+  var replayBtn       = document.getElementById('slp-replay-btn');
+  var completeOverlay = document.getElementById('slp-complete-overlay');
+  var shareBtn        = document.getElementById('slp-share-btn');
+  var againBtn        = document.getElementById('slp-again-btn');
+
+  // ── Progress ───────────────────────────────────────────────────────────────
+  function savedLevel() {
+    try { return parseInt(localStorage.getItem(LS_KEY), 10) || 0; } catch(e) { return 0; }
+  }
+  function saveProgress(idx) {
+    try { localStorage.setItem(LS_KEY, idx); } catch(e) {}
+  }
+
+  // ── Grid builder ──────────────────────────────────────────────────────────
+  function buildPlayerGrid() {
+    var g = baseGrid.map(function(row){ return row.slice(); });
+    Object.keys(slotStates).forEach(function(key) {
+      var p = key.split(',');
+      g[+p[0]][+p[1]] = slotStates[key];
+    });
+    return g;
+  }
+
+  // ── Ramp SVG ──────────────────────────────────────────────────────────────
+  function rampSVG(type) {
+    var pts, hlPts, shPts;
+    if (type === C.RAMP_RIGHT) {
+      pts   = '0,0 0,100 100,100';
+      hlPts = '0,0 0,100';
+      shPts = '0,100 100,100';
+    } else {
+      pts   = '100,0 0,100 100,100';
+      hlPts = '100,0 100,100';
+      shPts = '0,100 100,100';
+    }
+    function pt(s,i){ var a=s.split(' ')[i].split(','); return {x:a[0],y:a[1]}; }
+    var h0=pt(hlPts,0), h1=pt(hlPts,1), s0=pt(shPts,0), s1=pt(shPts,1);
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">'
+      + '<polygon points="'+pts+'" fill="#E8DCC8"/>'
+      + '<line x1="'+h0.x+'" y1="'+h0.y+'" x2="'+h1.x+'" y2="'+h1.y+'" stroke="#FAFAF5" stroke-width="3"/>'
+      + '<line x1="'+s0.x+'" y1="'+s0.y+'" x2="'+s1.x+'" y2="'+s1.y+'" stroke="#C8C0B0" stroke-width="3"/>'
+      + '</svg>';
+  }
+
+  // ── Render grid ───────────────────────────────────────────────────────────
+  function renderGrid() {
+    gridEl.innerHTML = '';
+    var pg = buildPlayerGrid();
+
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var cell = document.createElement('div');
+        cell.className = 'slp-cell';
+        var ct = pg[r][c];
+        var isSlotOrigin = baseGrid[r][c] === C.SLOT;
+
+        if (ct === C.WALL) {
+          cell.classList.add('wall');
+        } else if (ct === C.PLATFORM) {
+          cell.classList.add('platform');
+        } else if (ct === C.TARGET) {
+          cell.classList.add('target');
+        } else if (ct === C.MARBLE_START) {
+          cell.classList.add('marble-start');
+        } else if (ct === C.RAMP_RIGHT) {
+          cell.classList.add('ramp-right');
+          cell.innerHTML = rampSVG(C.RAMP_RIGHT);
+        } else if (ct === C.RAMP_LEFT) {
+          cell.classList.add('ramp-left');
+          cell.innerHTML = rampSVG(C.RAMP_LEFT);
+        } else if (isSlotOrigin) {
+          cell.classList.add('slot');
+        }
+
+        // All slot-origin cells are clickable (whether showing ramp or empty)
+        if (isSlotOrigin) {
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          cell.addEventListener('click', onSlotClick);
+        }
+
+        gridEl.appendChild(cell);
+      }
+    }
+
+    gridEl.appendChild(marbleEl);
+    positionMarbleAtStart();
+  }
+
+  // ── Slot click: cycle EMPTY → RAMP_RIGHT → RAMP_LEFT → EMPTY ─────────────
+  function onSlotClick(e) {
+    if (running) return;
+    var r = +e.currentTarget.dataset.r;
+    var c = +e.currentTarget.dataset.c;
+    var key = r + ',' + c;
+    var cur = slotStates[key] || C.EMPTY;
+    if      (cur === C.EMPTY)      slotStates[key] = C.RAMP_RIGHT;
+    else if (cur === C.RAMP_RIGHT) slotStates[key] = C.RAMP_LEFT;
+    else                           slotStates[key] = C.EMPTY;
+    renderGrid();
+  }
+
+  // ── Marble position via CSS custom props ───────────────────────────────────
+  function setMarbleCell(r, c, animate) {
+    if (!animate) marbleEl.style.transition = 'none';
+    else          marbleEl.style.transition = '';
+    marbleEl.style.setProperty('--slp-marble-r', r);
+    marbleEl.style.setProperty('--slp-marble-c', c);
+    marbleEl.style.display = 'block';
+    marbleEl.classList.remove('marble-flash-red', 'marble-sink', 'marble-bounce');
+  }
+
+  function findStartCol() {
+    for (var c = 0; c < COLS; c++) {
+      if (baseGrid[0][c] === C.MARBLE_START) return c;
+    }
+    return -1;
+  }
+
+  function positionMarbleAtStart() {
+    var sc = findStartCol();
+    if (sc < 0) return;
+    setMarbleCell(0, sc, false);
+  }
+
+  // ── Run marble ────────────────────────────────────────────────────────────
+  function runMarble() {
+    if (running) return;
+    running = true;
+    runBtn.disabled = true;
+
+    var pg = buildPlayerGrid();
+    var startCol = findStartCol();
+    var sim = Slope.simulateMarble(pg, startCol);
+    var path = sim.path;
+
+    if (path.length < 2) { handleFail(); return; }
+
+    var stepMs = 150;
+    var idx = 0;
+
+    // Pre-compute which path indices are ramp cells (for bounce)
+    var rampIndices = {};
+    path.forEach(function(pos, i) {
+      var ct = pg[pos.r][pos.c];
+      if (ct === C.RAMP_RIGHT || ct === C.RAMP_LEFT) rampIndices[i] = true;
+    });
+
+    function step() {
+      if (idx >= path.length) {
+        if (sim.result === 'win') handleWin();
+        else                     handleFail();
+        return;
+      }
+      var pos = path[idx];
+      setMarbleCell(pos.r, pos.c, idx > 0);
+
+      // Ramp bounce: brief class flash ~50ms after arriving
+      if (rampIndices[idx]) {
+        (function(el){ setTimeout(function(){
+          el.classList.add('marble-bounce');
+          setTimeout(function(){ el.classList.remove('marble-bounce'); }, 120);
+        }, 30); }(marbleEl));
+      }
+
+      idx++;
+      setTimeout(step, stepMs);
+    }
+
+    step();
+  }
+
+  // ── Win ───────────────────────────────────────────────────────────────────
+  function handleWin() {
+    // Target flash/expand then marble sinks
+    var targetCell = gridEl.querySelector('.target');
+    if (targetCell) targetCell.classList.add('target-flash');
+
+    marbleEl.classList.add('marble-sink');
+
+    // Grid gold glow
+    gridEl.classList.add('grid-glow');
+
+    setTimeout(function() {
+      running = false;
+      runBtn.disabled = false;
+      gridEl.classList.remove('grid-glow');
+      if (targetCell) targetCell.classList.remove('target-flash');
+
+      // Save progress
+      var newHighest = Math.max(savedLevel(), currentLevelIdx + 1);
+      saveProgress(newHighest);
+
+      var isLast = currentLevelIdx + 1 >= levels.length;
+      if (isLast) {
+        completeOverlay.classList.remove('hidden');
+      } else {
+        winTitle.textContent = 'Level ' + currentLevel.id + ' Clear!';
+        winSub.textContent   = '';
+        winOverlay.classList.remove('hidden');
+      }
+    }, 600);
+  }
+
+  // ── Fail ──────────────────────────────────────────────────────────────────
+  function handleFail() {
+    marbleEl.classList.add('marble-flash-red');
+    setTimeout(function() {
+      marbleEl.classList.add('marble-fade');
+      setTimeout(function() {
+        running = false;
+        runBtn.disabled = false;
+        marbleEl.classList.remove('marble-flash-red', 'marble-fade', 'marble-bounce');
+        positionMarbleAtStart();
+      }, 300);
+    }, 250);
+  }
+
+  // ── Load level ─────────────────────────────────────────────────────────────
+  function loadLevel(idx) {
+    currentLevelIdx = idx;
+    currentLevel    = levels[idx];
+    baseGrid        = currentLevel.grid;
+    slotStates      = {};
+    running         = false;
+    runBtn.disabled = false;
+    levelLabel.textContent = 'Level ' + currentLevel.id;
+    diffLabel.textContent  = currentLevel.difficulty;
+    renderGrid();
+  }
+
+  // ── Splash ────────────────────────────────────────────────────────────────
+  function showGame(startIdx) {
+    splashEl.classList.add('hidden');
+    wrapEl.classList.remove('hidden');
+    loadLevel(startIdx);
+  }
+
+  // ── Controls ──────────────────────────────────────────────────────────────
+  runBtn.addEventListener('click', runMarble);
+
+  resetBtn.addEventListener('click', function() {
+    if (running) return;
+    slotStates = {};
+    renderGrid();
+  });
+
+  newBtn.addEventListener('click', function() {
+    if (running) return;
+    winOverlay.classList.add('hidden');
+    slotStates = {};
+    renderGrid();
+  });
+
+  helpBtn.addEventListener('click', function() {
+    dirOverlay.classList.remove('hidden');
+  });
+
+  dirCloseBtn.addEventListener('click', function() {
+    dirOverlay.classList.add('hidden');
+  });
+
+  dirOverlay.addEventListener('click', function(e) {
+    if (e.target === dirOverlay) dirOverlay.classList.add('hidden');
+  });
+
+  nextBtn.addEventListener('click', function() {
+    winOverlay.classList.add('hidden');
+    loadLevel(currentLevelIdx + 1);
+  });
+
+  replayBtn.addEventListener('click', function() {
+    winOverlay.classList.add('hidden');
+    loadLevel(currentLevelIdx);
+  });
+
+  winOverlay.addEventListener('click', function(e) {
+    if (e.target === winOverlay) winOverlay.classList.add('hidden');
+  });
+
+  shareBtn.addEventListener('click', function() {
+    var text = 'Slope — guided the marble through all 25 levels. Can you? https://www.thebunnygame.com/slope';
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function(){});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function() {
+        shareBtn.textContent = 'Copied!';
+        setTimeout(function(){ shareBtn.textContent = 'Share'; }, 2000);
+      });
+    }
+  });
+
+  againBtn.addEventListener('click', function() {
+    completeOverlay.classList.add('hidden');
+    loadLevel(0);
+  });
+
+  completeOverlay.addEventListener('click', function(e) {
+    if (e.target === completeOverlay) completeOverlay.classList.add('hidden');
+  });
+
+  // ── Splash buttons ─────────────────────────────────────────────────────────
+  splashPlayBtn.addEventListener('click', function() {
+    showGame(0);
+  });
+
+  splashContBtn.addEventListener('click', function() {
+    var saved = savedLevel();
+    var startIdx = Math.min(saved, levels.length - 1);
+    showGame(startIdx);
+  });
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  fetch('slope-levels.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      levels = data.levels;
+      var saved = savedLevel();
+      if (saved > 0 && saved < levels.length) {
+        continueNumEl.textContent = saved + 1;
+        splashContBtn.classList.remove('hidden');
+      }
+    })
+    .catch(function(err){ console.error('slope-levels.json failed:', err); });
+
+}());
+</script>
+</body>
+</html>
