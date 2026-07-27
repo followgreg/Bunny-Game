@@ -509,9 +509,19 @@
 
   // ── Place piece on grid ───────────────────────────────────────────────────
   function afterPlacement() {
+    // If any remaining unplaced piece can no longer fit, it's game over
+    var anyStuck = currentPieces.some(function (piece, idx) {
+      return !placedFlags[idx] && !Zone.isPiecePlaceable(grid, piece);
+    });
+    if (anyStuck) {
+      saveFullState();
+      handleGameOver();
+      return;
+    }
+
     if (placedFlags.every(function (f) { return f; })) {
       var newPieces = Zone.generateThreePieces(grid);
-      if (!newPieces || Zone.isGameOver(grid, newPieces)) {
+      if (!newPieces) {
         saveFullState();
         handleGameOver();
         return;
