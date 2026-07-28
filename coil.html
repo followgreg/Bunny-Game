@@ -168,7 +168,8 @@
   }
 
   // ── Render grid: position tiles and apply state ───────────────────────────
-  function renderGrid() {
+  // slideOpts: { tileId, fromRow, fromCol, toRow, toCol } — animates one tile sliding
+  function renderGrid(slideOpts) {
     state = Coil.getState();
 
     for (var r = 0; r < 5; r++) {
@@ -176,6 +177,10 @@
         var tileId = state.grid[r][c];
         var div    = tileDivs[tileId];
         var tile   = state.tiles[tileId];
+
+        // Clear any leftover slide transform instantly before repositioning
+        div.style.transition = 'none';
+        div.style.transform  = '';
 
         div.style.gridColumn = c + 1;
         div.style.gridRow    = r + 1;
@@ -188,6 +193,28 @@
           svg.style.transform = 'rotate(' + (tile.displayDeg !== undefined ? tile.displayDeg : tile.currentRotation * 90) + 'deg)';
         }
       }
+    }
+
+    // Slide animation: offset the moved tile back to its old visual position,
+    // then animate it forward to the new grid cell in one frame.
+    if (slideOpts) {
+      var slideDiv = tileDivs[slideOpts.tileId];
+      // Step size = (inner content width + one gap) / 5
+      var cellStep = (gridEl.clientWidth + 3) / 5;
+      var dx = (slideOpts.fromCol - slideOpts.toCol) * cellStep;
+      var dy = (slideOpts.fromRow - slideOpts.toRow) * cellStep;
+
+      // Place tile at its old visual position with no transition
+      slideDiv.style.transition = 'none';
+      slideDiv.style.transform  = 'translate(' + dx + 'px, ' + dy + 'px)';
+
+      // Next paint: animate to resting position (translate 0)
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          slideDiv.style.transition = 'transform 0.15s ease';
+          slideDiv.style.transform  = '';
+        });
+      });
     }
   }
 
@@ -284,9 +311,10 @@
         var needDirCol = blankCol - startCol;
 
         if (dragDirRow === needDirRow && dragDirCol === needDirCol) {
+          var slideTileId = state.grid[startRow][startCol];
           if (Coil.executeMove(startRow, startCol)) {
             state = Coil.getState();
-            renderGrid();
+            renderGrid({ tileId: slideTileId, fromRow: startRow, fromCol: startCol, toRow: blankRow, toCol: blankCol });
             if (Coil.checkWin()) triggerWin();
           }
         }

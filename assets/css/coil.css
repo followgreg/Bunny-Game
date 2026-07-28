@@ -196,6 +196,7 @@ body {
   width: min(150px, 48vw);
   height: auto;
   align-self: center;
+  filter: brightness(0) invert(1);
 }
 
 .cl-dir-body {
