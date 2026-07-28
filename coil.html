@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Coil — a rotating sliding puzzle — Bunny Game</title>
+  <meta name="description" content="Slide the tiles. Watch them spin. Lock them when they're right.">
+  <meta property="og:title" content="Coil — a rotating sliding puzzle — Bunny Game">
+  <meta property="og:description" content="Slide the tiles. Watch them spin. Lock them when they're right.">
+  <meta property="og:url" content="https://www.thebunnygame.com/coil">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/coil-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/coil-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/coil">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#16161A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/coil.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="cl-help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="cl-new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<!-- ── Splash (every page load) ── -->
+<div id="cl-splash">
+  <div class="cl-splash-inner">
+    <img src="assets/logos/coil_logo.svg" alt="Coil" class="cl-splash-logo">
+    <p class="cl-splash-dir">Coil is a sliding puzzle with a twist. Drag any tile toward the blank space to slide it — but every tile you haven't locked rotates 90° with every move. When a tile is in the right position and the right rotation, long-press it to lock it in place. Locked tiles stop rotating and can't be moved. Reconstruct the spiral one locked tile at a time.</p>
+    <button id="cl-splash-play">Play</button>
+  </div>
+</div>
+
+<!-- ── Game ── -->
+<div id="cl-wrap" class="cl-hidden">
+  <div id="cl-grid"></div>
+  <p id="cl-hint">Swipe tiles to slide &nbsp;·&nbsp; Hold to lock</p>
+</div>
+
+<!-- ── Directions overlay ── -->
+<div id="cl-dir-overlay" class="cl-hidden">
+  <div class="cl-dir-modal">
+    <img src="assets/logos/coil_logo.svg" alt="Coil" class="cl-dir-logo">
+    <div class="cl-dir-body">
+      <strong>Goal:</strong> Reassemble the Archimedean spiral.<br><br>
+      <strong>Swipe</strong> any tile toward the blank space to slide it in. Every unlocked tile rotates 90° clockwise on every move.<br><br>
+      <strong>Hold</strong> a tile for half a second to lock it (gold border). Locked tiles are immune to movement and rotation.<br><br>
+      A tile is solved when it's in the right position, right rotation, and locked. Lock all 24 to win.
+    </div>
+    <button class="cl-dir-close" id="cl-dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<!-- ── Win overlay ── -->
+<div id="cl-win-overlay" class="cl-hidden">
+  <div class="cl-win-box">
+    <div class="cl-win-spiral" id="cl-win-spiral-preview"></div>
+    <div class="cl-win-title">Coil Complete!</div>
+    <div class="cl-win-sub">The spiral is whole.</div>
+    <button class="cl-win-btn cl-win-share" id="cl-win-share">Share</button>
+    <button class="cl-win-btn cl-win-again" id="cl-win-play-again">Play Again</button>
+  </div>
+</div>
+
+<script src="assets/js/coil.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var GRID_SIZE = 500; // internal SVG coordinate space
+
+  var gridEl, tileDivs, state;
+  var longPressTimer = null;
+
+  var dragState = {
+    active:   false,
+    startRow: null,
+    startCol: null,
+    startX:   0,
+    startY:   0,
+    moved:    false,
+    threshold: 10
+  };
+
+  // ── Lock icon SVG ──────────────────────────────────────────────────────────
+  var LOCK_SVG =
+    '<svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">'
+    + '<rect x="2" y="12" width="20" height="14" rx="3" fill="#FFD700"/>'
+    + '<path d="M7 12V8.5a5 5 0 0 1 10 0V12" fill="none" stroke="#FFD700" stroke-width="2.8" stroke-linecap="round"/>'
+    + '<circle cx="12" cy="19" r="2.5" fill="#B8960A"/>'
+    + '</svg>';
+
+  // ── Find a tile's current grid position ───────────────────────────────────
+  function findPos(tileId) {
+    for (var r = 0; r < 5; r++)
+      for (var c = 0; c < 5; c++)
+        if (state.grid[r][c] === tileId) return { row: r, col: c };
+    return null;
+  }
+
+  // ── Build tile divs once (content never changes, only position / class) ──
+  function initTileDivs() {
+    gridEl = document.getElementById('cl-grid');
+    gridEl.innerHTML = '';
+    tileDivs = [];
+    state = Coil.getState();
+
+    for (var id = 0; id < 25; id++) {
+      var tile = state.tiles[id];
+      var div  = document.createElement('div');
+
+      if (id === 24) {
+        div.className = 'cl-tile cl-blank';
+      } else {
+        div.className = 'cl-tile';
+        div.innerHTML = tile.svgContent;
+        // Lock icon (hidden until tile gets cl-locked class)
+        var li = document.createElement('div');
+        li.className = 'cl-lock-icon';
+        li.innerHTML = LOCK_SVG;
+        div.appendChild(li);
+
+        // Pointer events — capture tileId in closure
+        (function (tileId) {
+          div.addEventListener('pointerdown', function (e) {
+            var pos = findPos(tileId);
+            if (pos) onPointerDown(e, pos.row, pos.col);
+          });
+        }(id));
+      }
+
+      tileDivs[id] = div;
+      gridEl.appendChild(div);
+    }
+
+    // Prevent context menu (mobile long-press default)
+    gridEl.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+
+  // ── Render grid: position tiles and apply state ───────────────────────────
+  function renderGrid() {
+    state = Coil.getState();
+
+    for (var r = 0; r < 5; r++) {
+      for (var c = 0; c < 5; c++) {
+        var tileId = state.grid[r][c];
+        var div    = tileDivs[tileId];
+        var tile   = state.tiles[tileId];
+
+        div.style.gridColumn = c + 1;
+        div.style.gridRow    = r + 1;
+
+        if (tileId === 24) {
+          div.className = 'cl-tile cl-blank';
+        } else {
+          div.className = 'cl-tile' + (tile.locked ? ' cl-locked' : '');
+          var svg = div.querySelector('svg');
+          svg.style.transform = 'rotate(' + (tile.displayDeg !== undefined ? tile.displayDeg : tile.currentRotation * 90) + 'deg)';
+        }
+      }
+    }
+  }
+
+  // ── New game / shuffle ────────────────────────────────────────────────────
+  function newGame() {
+    // Suppress rotation transitions during the reset
+    gridEl.classList.add('cl-no-transition');
+    Coil.shuffle();
+    state = Coil.getState();
+    renderGrid();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        gridEl.classList.remove('cl-no-transition');
+      });
+    });
+    document.getElementById('cl-win-overlay').classList.add('cl-hidden');
+  }
+
+  // ── Win ───────────────────────────────────────────────────────────────────
+  function triggerWin() {
+    if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+
+    // 300ms pause so the completed spiral is visible, then pulse all tiles
+    setTimeout(function () {
+      var contentTiles = Array.prototype.slice.call(
+        gridEl.querySelectorAll('.cl-tile:not(.cl-blank)')
+      );
+      contentTiles.forEach(function (t) { t.classList.add('cl-pulsing'); });
+
+      // After pulse animation (~500ms), show the overlay
+      setTimeout(function () {
+        contentTiles.forEach(function (t) { t.classList.remove('cl-pulsing'); });
+        document.getElementById('cl-win-spiral-preview').innerHTML = Coil.generateSpiralSVG(80);
+        document.getElementById('cl-win-overlay').classList.remove('cl-hidden');
+      }, 500);
+    }, 300);
+  }
+
+  // ── Drag / long-press ─────────────────────────────────────────────────────
+  function onPointerDown(e, row, col) {
+    var tileId = state.grid[row][col];
+    if (tileId === 24) return;
+
+    dragState.active   = true;
+    dragState.startRow = row;
+    dragState.startCol = col;
+    dragState.startX   = e.clientX;
+    dragState.startY   = e.clientY;
+    dragState.moved    = false;
+
+    longPressTimer = setTimeout(function () {
+      if (!dragState.moved) {
+        Coil.toggleLock(row, col);
+        if (navigator.vibrate) navigator.vibrate(30);
+        renderGrid();
+        dragState.active = false;
+        if (Coil.checkWin()) triggerWin();
+      }
+    }, 500);
+  }
+
+  document.addEventListener('pointermove', function (e) {
+    if (!dragState.active) return;
+    var dx = e.clientX - dragState.startX;
+    var dy = e.clientY - dragState.startY;
+    if (Math.sqrt(dx * dx + dy * dy) > dragState.threshold) {
+      dragState.moved = true;
+      clearTimeout(longPressTimer);
+    }
+  });
+
+  document.addEventListener('pointerup', function (e) {
+    if (!dragState.active) return;
+    clearTimeout(longPressTimer);
+
+    if (dragState.moved && dragState.startRow !== null) {
+      var dx = e.clientX - dragState.startX;
+      var dy = e.clientY - dragState.startY;
+      var startRow = dragState.startRow;
+      var startCol = dragState.startCol;
+      var blankRow = state.blankPos.row;
+      var blankCol = state.blankPos.col;
+
+      // Only valid if tile is adjacent to blank
+      var dr = Math.abs(startRow - blankRow);
+      var dc = Math.abs(startCol - blankCol);
+      var isAdj = (dr === 1 && dc === 0) || (dr === 0 && dc === 1);
+
+      if (isAdj) {
+        // Determine dominant drag axis and compare to direction toward blank
+        var dragDirRow = Math.abs(dy) > Math.abs(dx) ? (dy > 0 ? 1 : -1) : 0;
+        var dragDirCol = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : 0;
+        var needDirRow = blankRow - startRow;
+        var needDirCol = blankCol - startCol;
+
+        if (dragDirRow === needDirRow && dragDirCol === needDirCol) {
+          if (Coil.executeMove(startRow, startCol)) {
+            state = Coil.getState();
+            renderGrid();
+            if (Coil.checkWin()) triggerWin();
+          }
+        }
+      }
+    }
+
+    dragState.active   = false;
+    dragState.startRow = null;
+    dragState.moved    = false;
+  });
+
+  // Cancel drag on pointer cancel (e.g. interrupted touch)
+  document.addEventListener('pointercancel', function () {
+    clearTimeout(longPressTimer);
+    dragState.active   = false;
+    dragState.startRow = null;
+    dragState.moved    = false;
+  });
+
+  // ── Button wiring ─────────────────────────────────────────────────────────
+  document.getElementById('cl-splash-play').addEventListener('click', function () {
+    document.getElementById('cl-splash').classList.add('cl-hidden');
+    document.getElementById('cl-wrap').classList.remove('cl-hidden');
+  });
+
+  document.getElementById('cl-help-btn').addEventListener('click', function () {
+    document.getElementById('cl-dir-overlay').classList.remove('cl-hidden');
+  });
+  document.getElementById('cl-dir-close-btn').addEventListener('click', function () {
+    document.getElementById('cl-dir-overlay').classList.add('cl-hidden');
+  });
+  document.getElementById('cl-new-btn').addEventListener('click', newGame);
+  document.getElementById('cl-win-play-again').addEventListener('click', newGame);
+
+  document.getElementById('cl-win-share').addEventListener('click', function () {
+    var text = 'Coil — uncoiled the spiral. Can you? https://www.thebunnygame.com/coil';
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () {});
+    } else {
+      navigator.clipboard.writeText(text).then(function () {
+        var btn = document.getElementById('cl-win-share');
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = 'Share'; }, 2000);
+      }).catch(function () {});
+    }
+  });
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  Coil.initState(GRID_SIZE);
+  Coil.shuffle();
+  initTileDivs();
+  renderGrid();
+
+}());
+</script>
+
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/nav.js"></script>
+</body>
+</html>
