@@ -9,7 +9,7 @@ const SOLID = { wall: 1, platform: 1, ramp_left: 1, ramp_right: 1 };
 function simulateMarble(grid, marbleStart) {
   let r = 0, c = marbleStart, state = 'falling';
   const visited = new Set();
-  for (let step = 0; step < 500; step++) {
+  for (let step = 0; step < 300; step++) {
     const key = `${r},${c},${state}`;
     if (visited.has(key)) return { result: 'fail' };
     visited.add(key);
@@ -21,29 +21,29 @@ function simulateMarble(grid, marbleStart) {
       if (below === 'target') return { result: 'win' };
       if (below === 'empty' || below === 'slot') { r = belowR; continue; }
       if (below === 'ramp_right') {
-        const newC = c + 1;
-        if (newC >= COLS) return { result: 'fail' };
-        r = belowR; c = newC; state = 'moving_right'; continue;
+        if (c + 1 >= COLS) return { result: 'fail' };
+        r = belowR; c = c + 1; state = 'moving_right'; continue;
       }
       if (below === 'ramp_left') {
-        const newC = c - 1;
-        if (newC < 0) return { result: 'fail' };
-        r = belowR; c = newC; state = 'moving_left'; continue;
+        if (c - 1 < 0) return { result: 'fail' };
+        r = belowR; c = c - 1; state = 'moving_left'; continue;
       }
       return { result: 'fail' };
     }
 
+    // Horizontal — support below CURRENT position is checked FIRST
     const dc = state === 'moving_right' ? 1 : -1;
     const aheadC = c + dc;
+    const belowR = r + 1;
+
+    if (belowR >= ROWS) return { result: 'fail' };
+    if (!SOLID[grid[belowR][c]]) { state = 'falling'; continue; }
+
     if (aheadC < 0 || aheadC >= COLS) return { result: 'fail' };
     const ahead = grid[r][aheadC];
     if (ahead === 'target') return { result: 'win' };
-    if (ahead === 'ramp_left' || ahead === 'ramp_right' ||
-        ahead === 'wall'      || ahead === 'platform') return { result: 'fail' };
-    // ahead is empty/slot — check below current position
-    const belowR = r + 1;
-    if (belowR >= ROWS || !SOLID[grid[belowR][c]]) { state = 'falling'; continue; }
-    c = aheadC;
+    if (ahead === 'empty' || ahead === 'slot') { c = aheadC; continue; }
+    return { result: 'fail' }; // ramp / wall / platform ahead
   }
   return { result: 'fail' };
 }
