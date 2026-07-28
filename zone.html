@@ -130,6 +130,8 @@
   var dragMoved    = false;
   var dragStartX   = 0;
   var dragStartY   = 0;
+  var grabOffsetRow = 0; // which row of the piece the user grabbed
+  var grabOffsetCol = 0; // which col of the piece the user grabbed
   var dragGhostEl  = document.getElementById('zn-drag-ghost');
   var dragMiniEl   = dragGhostEl.querySelector('.zn-mini');
 
@@ -271,6 +273,17 @@
       // Pointerdown starts drag tracking immediately
       slotEl.addEventListener('pointerdown', function (e) {
         if (placedFlags[idx]) return;
+        // Record which cell of the mini piece the user grabbed
+        var mini = slotEl.querySelector('.zn-mini');
+        if (mini) {
+          var mr       = mini.getBoundingClientRect();
+          var STEP     = 18; // 16px cell + 2px gap
+          var piece    = currentPieces[idx];
+          var dc       = Math.floor((e.clientX - mr.left) / STEP);
+          var dr       = Math.floor((e.clientY - mr.top)  / STEP);
+          grabOffsetRow = Math.max(0, Math.min(dr, piece.shape.length    - 1));
+          grabOffsetCol = Math.max(0, Math.min(dc, piece.shape[0].length - 1));
+        }
         dragMoved  = false;
         dragStartX = e.clientX;
         dragStartY = e.clientY;
@@ -282,6 +295,8 @@
           renderTray();
         }
         buildDragGhost(currentPieces[idx]);
+        // Capture pointer — all subsequent events route directly here, no DOM hit-testing
+        slotEl.setPointerCapture(e.pointerId);
       });
 
       trayEl.appendChild(slotEl);
@@ -306,8 +321,9 @@
     var y = clientY - rect.top;
     var col      = Math.floor(x / rect.width  * 9);
     var row      = Math.floor(y / rect.height * 9);
-    var startRow = row - Math.floor(piece.shape.length    / 2);
-    var startCol = col - Math.floor(piece.shape[0].length / 2);
+    // Use grab offset so piece sticks to where the user picked it up
+    var startRow = row - grabOffsetRow;
+    var startCol = col - grabOffsetCol;
     var valid    = Zone.canPlace(grid, piece, startRow, startCol);
     return { startRow: startRow, startCol: startCol, valid: valid };
   }
