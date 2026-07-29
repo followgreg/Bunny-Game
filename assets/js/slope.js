@@ -80,26 +80,32 @@
           continue;
         }
 
-        if (below === CELL.RAMP_RIGHT) {
-          if (c + 1 >= COLS_N) return { result: 'fail', path: path };
-          // Step 1: enter the ramp cell
-          r = nextR;
-          path.push({ r: r, c: c, state: state });
-          // Step 2: move one cell right, now travelling horizontally
-          c = c + 1;
-          state = 'moving_right';
-          path.push({ r: r, c: c, state: state });
-          continue;
-        }
+        if (below === CELL.RAMP_RIGHT || below === CELL.RAMP_LEFT) {
+          var rampDir  = (below === CELL.RAMP_RIGHT) ? 1 : -1;
+          var destC    = c + rampDir;
+          var destSt   = (rampDir === 1) ? 'moving_right' : 'moving_left';
 
-        if (below === CELL.RAMP_LEFT) {
-          if (c - 1 < 0) return { result: 'fail', path: path };
-          // Step 1: enter the ramp cell
+          if (destC < 0 || destC >= COLS_N) return { result: 'fail', path: path };
+
+          // Step 1: enter the ramp cell itself
           r = nextR;
           path.push({ r: r, c: c, state: state });
-          // Step 2: move one cell left, now travelling horizontally
-          c = c - 1;
-          state = 'moving_left';
+
+          // Step 2: evaluate the destination before moving into it
+          var dest = grid[r][destC];
+
+          if (dest === CELL.TARGET) {
+            path.push({ r: r, c: destC, state: destSt });
+            return { result: 'win', path: path };
+          }
+
+          // Anything solid blocks the marble — it cannot move into that cell
+          if (dest !== CELL.EMPTY && dest !== CELL.SLOT) {
+            return { result: 'fail', path: path };
+          }
+
+          c = destC;
+          state = destSt;
           path.push({ r: r, c: c, state: state });
           continue;
         }

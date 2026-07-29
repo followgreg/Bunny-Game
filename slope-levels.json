@@ -2791,7 +2791,7 @@
   },
   {
     "level": 24,
-    "marbleStart": 3,
+    "marbleStart": 5,
     "target": {
       "row": 7,
       "col": 7
@@ -2855,47 +2855,47 @@
     ],
     "grid": [
       [
+        "ramp_right",
+        "ramp_right",
         "ramp_left",
         "ramp_right",
         "ramp_left",
         "marble_start",
         "ramp_right",
-        "ramp_left",
-        "ramp_left",
         "ramp_right"
       ],
       [
         "ramp_right",
         "wall",
+        "ramp_right",
+        "ramp_right",
+        "wall",
+        "ramp_right",
+        "ramp_right",
+        "ramp_right"
+      ],
+      [
+        "wall",
         "ramp_left",
         "ramp_left",
         "wall",
         "ramp_left",
         "ramp_left",
+        "wall",
         "ramp_left"
       ],
       [
-        "wall",
+        "ramp_right",
         "ramp_left",
+        "wall",
+        "ramp_right",
         "ramp_left",
-        "wall",
-        "ramp_left",
-        "ramp_right",
-        "wall",
-        "ramp_right"
-      ],
-      [
-        "ramp_right",
-        "ramp_right",
-        "wall",
-        "ramp_right",
-        "ramp_right",
         "wall",
         "ramp_right",
         "ramp_right"
       ],
       [
-        "ramp_left",
+        "ramp_right",
         "wall",
         "ramp_right",
         "ramp_right",
@@ -2909,36 +2909,36 @@
         "ramp_left",
         "ramp_right",
         "wall",
-        "ramp_left",
         "ramp_right",
         "ramp_left",
+        "ramp_right",
         "ramp_left"
       ],
       [
         "ramp_right",
         "ramp_right",
+        "ramp_right",
         "ramp_left",
         "ramp_left",
         "ramp_right",
         "ramp_right",
-        "ramp_right",
-        "ramp_left"
+        "ramp_right"
       ],
       [
         "ramp_right",
         "ramp_left",
-        "ramp_left",
-        "ramp_left",
         "ramp_right",
         "ramp_left",
         "ramp_right",
+        "ramp_right",
+        "ramp_left",
         "target"
       ]
     ]
   },
   {
     "level": 25,
-    "marbleStart": 5,
+    "marbleStart": 4,
     "target": {
       "row": 7,
       "col": 1
@@ -2962,11 +2962,6 @@
       {
         "row": 2,
         "col": 1,
-        "type": "wall"
-      },
-      {
-        "row": 2,
-        "col": 4,
         "type": "wall"
       },
       {
@@ -3011,8 +3006,8 @@
         "ramp_right",
         "ramp_left",
         "ramp_left",
-        "ramp_right",
         "marble_start",
+        "ramp_left",
         "ramp_right",
         "ramp_left"
       ],
@@ -3020,26 +3015,26 @@
         "wall",
         "ramp_left",
         "wall",
-        "ramp_right",
-        "ramp_right",
+        "ramp_left",
+        "ramp_left",
         "wall",
         "ramp_right",
-        "ramp_right"
+        "ramp_left"
       ],
       [
-        "ramp_left",
-        "wall",
-        "ramp_left",
-        "ramp_left",
-        "wall",
         "ramp_right",
+        "wall",
+        "ramp_left",
+        "ramp_right",
+        "ramp_right",
+        "ramp_left",
         "ramp_left",
         "wall"
       ],
       [
         "wall",
-        "ramp_right",
-        "ramp_right",
+        "ramp_left",
+        "ramp_left",
         "wall",
         "ramp_right",
         "ramp_right",
@@ -3047,32 +3042,32 @@
         "ramp_right"
       ],
       [
+        "ramp_left",
+        "ramp_right",
+        "wall",
         "ramp_right",
         "ramp_right",
         "wall",
         "ramp_left",
+        "ramp_left"
+      ],
+      [
         "ramp_left",
+        "ramp_right",
+        "ramp_left",
+        "ramp_right",
         "wall",
-        "ramp_left",
-        "ramp_right"
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
       ],
       [
         "ramp_right",
-        "ramp_right",
-        "ramp_right",
-        "ramp_right",
-        "wall",
-        "ramp_left",
-        "ramp_left",
-        "ramp_right"
-      ],
-      [
-        "ramp_right",
         "ramp_left",
         "ramp_left",
         "ramp_left",
-        "ramp_right",
-        "ramp_right",
+        "ramp_left",
+        "ramp_left",
         "ramp_right",
         "ramp_right"
       ],
@@ -3080,11 +3075,11 @@
         "ramp_right",
         "target",
         "ramp_right",
-        "ramp_left",
-        "ramp_left",
         "ramp_right",
         "ramp_right",
-        "ramp_right"
+        "ramp_right",
+        "ramp_right",
+        "ramp_left"
       ]
     ]
   }

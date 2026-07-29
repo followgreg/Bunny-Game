@@ -48,11 +48,96 @@ function simulateMarble(grid, marbleStart) {
   return { result: 'fail' };
 }
 
+// ── Solvability ───────────────────────────────────────────────────────────────
+// A level is solvable iff SOME assignment of the toggleable cells lets the
+// marble reach the target. Only marbleStart / target / fixedElements matter:
+// the player can cycle every other cell through ramp_right | ramp_left | empty,
+// so the shipped ramp orientations are irrelevant here.
+//
+// Exhaustive DFS over marble states, branching on each toggleable cell the
+// moment its value is first consulted.
+function isSolvable({ marbleStart, target, fixedElements }) {
+  const OPTIONS = ['ramp_right', 'ramp_left', 'empty'];
+  const base = Array.from({ length: ROWS }, () => Array(COLS).fill('__free'));
+  base[0][marbleStart] = 'marble_start';
+  base[target.row][target.col] = 'target';
+  fixedElements.forEach(({ row, col, type }) => { base[row][col] = type; });
+
+  let found = false, nodes = 0;
+  const LIMIT = 4_000_000;
+  const opts = (r, c, a) => a.has(`${r},${c}`) ? [a.get(`${r},${c}`)]
+                          : (base[r][c] === '__free' ? OPTIONS : [base[r][c]]);
+  const put = (a, r, c, v) => {
+    if (base[r][c] !== '__free') return a;
+    const n = new Map(a); n.set(`${r},${c}`, v); return n;
+  };
+
+  function dfs(r, c, state, a, seen) {
+    if (found || nodes++ > LIMIT) return;
+    const key = `${r},${c},${state}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    if (state === 'falling') {
+      const nr = r + 1;
+      if (nr >= ROWS) return;
+      for (const v of opts(nr, c, a)) {
+        const a2 = put(a, nr, c, v);
+        if (v === 'target') { found = true; return; }
+        if (v === 'empty' || v === 'slot') dfs(nr, c, 'falling', a2, new Set(seen));
+        else if (v === 'ramp_right' || v === 'ramp_left') {
+          const d = v === 'ramp_right' ? 1 : -1;
+          const dc2 = c + d, st = d === 1 ? 'moving_right' : 'moving_left';
+          if (dc2 >= 0 && dc2 < COLS) {
+            for (const dv of opts(nr, dc2, a2)) {
+              const a3 = put(a2, nr, dc2, dv);
+              if (dv === 'target') { found = true; return; }
+              if (dv === 'empty' || dv === 'slot') dfs(nr, dc2, st, a3, new Set(seen));
+              if (found) return;
+            }
+          }
+        }
+        if (found) return;
+      }
+      return;
+    }
+
+    const d = state === 'moving_right' ? 1 : -1;
+    const nc = c + d, br = r + 1;
+    if (br >= ROWS) return;
+    for (const bv of opts(br, c, a)) {
+      const a2 = put(a, br, c, bv);
+      if (!SOLID[bv]) dfs(r, c, 'falling', a2, new Set(seen));
+      else {
+        if (nc < 0 || nc >= COLS) continue;
+        for (const av of opts(r, nc, a2)) {
+          const a3 = put(a2, r, nc, av);
+          if (av === 'target') { found = true; return; }
+          if (av === 'empty' || av === 'slot') dfs(r, nc, state, a3, new Set(seen));
+          if (found) return;
+        }
+      }
+      if (found) return;
+    }
+  }
+
+  dfs(0, marbleStart, 'falling', new Map(), new Set());
+  return found;
+}
+
 // ── Level generator ────────────────────────────────────────────────────────────
 function generateLevel(config) {
   const { level, marbleStart, target, fixedElements } = config;
-  let attempts = 0;
 
+  // Validate the board itself BEFORE burning attempts on ramp fills. Levels 24
+  // and 25 once shipped unsolvable because this check did not exist.
+  if (fixedElements.some(f => f.row === 1 && f.col === marbleStart))
+    throw new Error(`Level ${level}: fixed element directly below the marble start (col ${marbleStart}) — unwinnable`);
+
+  if (!isSolvable(config))
+    throw new Error(`Level ${level}: no ramp configuration can reach the target — unwinnable`);
+
+  let attempts = 0;
   while (attempts < 10000) {
     attempts++;
 
@@ -363,7 +448,7 @@ const LEVEL_CONFIGS = [
     ]
   },
   {
-    level: 24, marbleStart: 3,
+    level: 24, marbleStart: 5,
     target: { row: 7, col: 7 },
     fixedElements: [
       { row: 1, col: 1, type: 'wall' },
@@ -380,14 +465,13 @@ const LEVEL_CONFIGS = [
     ]
   },
   {
-    level: 25, marbleStart: 5,
+    level: 25, marbleStart: 4,
     target: { row: 7, col: 1 },
     fixedElements: [
       { row: 1, col: 0, type: 'wall' },
       { row: 1, col: 2, type: 'wall' },
       { row: 1, col: 5, type: 'wall' },
       { row: 2, col: 1, type: 'wall' },
-      { row: 2, col: 4, type: 'wall' },
       { row: 2, col: 7, type: 'wall' },
       { row: 3, col: 0, type: 'wall' },
       { row: 3, col: 3, type: 'wall' },
