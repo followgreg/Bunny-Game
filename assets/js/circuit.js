@@ -117,12 +117,29 @@
     hub.classList.add('ct-hub');
     pipes.appendChild(hub);
 
-    // Cumulative degrees so rotation always travels clockwise, never snapping back
-    pipes.style.transform = 'rotate(' + (opts.displayDeg || 0) + 'deg)';
-
     g.appendChild(pipes);
     parent.appendChild(g);
+
+    // Rotation must pivot on the tile centre, which is local (0,0) here because
+    // the parent <g> is translated there. With `transform-box: fill-box` the
+    // origin is measured from the bounding box's top-left corner, and that box
+    // is not centred on (0,0) for an asymmetric piece — a single stub pointing
+    // east, say. Left as `center` it pivots on the bbox centre instead and the
+    // pipes land off the hex edges, so the network renders disconnected.
+    // Offsetting by -bbox.x/-bbox.y puts the pivot back on the tile centre.
+    setPipeOrigin(pipes);
+
+    // Cumulative degrees so rotation always travels clockwise, never snapping back
+    pipes.style.transform = 'rotate(' + (opts.displayDeg || 0) + 'deg)';
     return g;
+  }
+
+  function setPipeOrigin(pipes) {
+    if (!pipes) return;
+    var bb;
+    try { bb = pipes.getBBox(); } catch (e) { return; }   // not rendered yet
+    if (!bb || (!bb.width && !bb.height)) return;
+    pipes.style.transformOrigin = (-bb.x) + 'px ' + (-bb.y) + 'px';
   }
 
   // ── Connectivity (same graph property as Honey) ──────────────────────────────
@@ -222,8 +239,10 @@
       svg.classList.add('ct-shelf-piece');
       svg.setAttribute('viewBox', (-span) + ' ' + (-s - 4) + ' ' + (span * 2) + ' ' + ((s + 4) * 2));
       svg.dataset.pieceId = p.id;
-      drawTile(svg, 0, 0, p.edges, s, { displayDeg: p.displayDeg });
+      // Attach before drawing: drawTile measures getBBox() to place the rotation
+      // pivot, and an element outside the document measures as zero.
       shelf.appendChild(svg);
+      drawTile(svg, 0, 0, p.edges, s, { displayDeg: p.displayDeg });
     });
 
     var label = document.getElementById('ct-shelf-label');
@@ -331,8 +350,9 @@
     var svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('id', 'ct-drag-ghost');
     svg.setAttribute('viewBox', (-span) + ' ' + (-s - 4) + ' ' + (span * 2) + ' ' + ((s + 4) * 2));
-    drawTile(svg, 0, 0, piece.edges, s, { displayDeg: piece.displayDeg });
+    // Attach before drawing, so getBBox() can place the rotation pivot
     document.body.appendChild(svg);
+    drawTile(svg, 0, 0, piece.edges, s, { displayDeg: piece.displayDeg });
     return svg;
   }
 
