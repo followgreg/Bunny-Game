@@ -379,6 +379,14 @@
     .lc-warren .lobby-card-logo img { filter: brightness(0) invert(1); }
     .lc-warren .lobby-card-desc { color: rgba(200,195,220,0.7); }
 
+    /* Circuit: black bg, white logo with an electric-blue glow */
+    .lc-circuit { background: #0A0A0A; border-color: rgba(0,191,255,0.38); }
+    .lc-circuit .lobby-card-name { color: #f1f5f9; }
+    .lc-circuit .lobby-card-desc { color: rgba(0,191,255,0.6); }
+    .lc-circuit .lobby-card-logo img {
+      filter: brightness(0) invert(1) drop-shadow(0 0 7px rgba(0,191,255,0.85));
+    }
+
     /* Coil: warm off-white plastic tile aesthetic, dark logo + spiral accent */
     .lc-coil { background: #E8E8E8; border-color: rgba(26,37,90,0.22); }
     .lc-coil .lobby-card-name { color: #111111; }
@@ -443,6 +451,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-circuit" href="circuit.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/circuit_logo.svg" alt="Circuit">
+        </div>
+        <p class="lobby-card-desc">Place the missing pieces. Complete the circuit.</p>
       </a>
 
       <a class="lobby-card lc-coil" href="coil.html">

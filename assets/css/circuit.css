@@ -1,0 +1,454 @@
+/* ── Circuit — electric hex-pipe placement puzzle ─────────────────────────── */
+
+:root {
+  --circuit-bg:          #0A0A0A;
+  --circuit-blue:        #00BFFF;
+  --circuit-blue-dim:    #005580;
+  --circuit-blue-glow:   rgba(0,191,255,0.4);
+  --circuit-cell-bg:     #0D1117;
+  --circuit-cell-border: #1A2A3A;
+  --circuit-pipe:        #00BFFF;
+  --circuit-pipe-dim:    #003344;
+  --circuit-white:       #FFFFFF;
+}
+
+body { background: var(--circuit-bg); }
+
+#canvas-wrap {
+  background: var(--circuit-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: auto;
+}
+
+.ct-hide { display: none !important; }
+
+/* ── Screen wrapper ───────────────────────────────────────────────────────── */
+
+.ct-screen {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+}
+
+/* ── Start screen ─────────────────────────────────────────────────────────── */
+
+#ct-start {
+  justify-content: center;
+  padding: 40px 24px 48px;
+}
+
+.ct-start-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.ct-start-logo {
+  display: block;
+  width: 200px;
+  max-width: 80%;
+  margin: 0 auto 18px;
+  filter: brightness(0) invert(1) drop-shadow(0 0 18px var(--circuit-blue-glow));
+}
+
+.ct-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: rgba(0, 191, 255, 0.5);
+  line-height: 1.68;
+  margin: 0 0 28px;
+  text-align: left;
+}
+
+.ct-start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── HUD ──────────────────────────────────────────────────────────────────── */
+
+.ct-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 18px 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(0, 191, 255, 0.45);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── Game screen / board ──────────────────────────────────────────────────── */
+
+#ct-game { justify-content: flex-start; }
+
+.ct-board-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 12px 8px;
+  box-sizing: border-box;
+  min-height: 0;
+  position: relative;
+}
+
+.ct-svg {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* ── Hex cells ────────────────────────────────────────────────────────────── */
+
+.ct-hex {
+  fill: var(--circuit-cell-bg);
+  stroke: var(--circuit-white);
+  stroke-opacity: 0.30;
+  stroke-width: 1.4;
+  transition: fill 0.12s, stroke-opacity 0.12s;
+}
+
+/* Blank cell — a piece belongs here */
+.ct-tile.ct-blank .ct-hex {
+  fill: #080C10;
+  stroke: var(--circuit-blue);
+  stroke-opacity: 0.65;
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+}
+
+/* ── Pipes ────────────────────────────────────────────────────────────────── */
+/* The pipe group carries the rotation so it can animate about the tile centre. */
+
+/* Only transform is transitioned. The win pulse drives `filter` per frame from
+   requestAnimationFrame, and a CSS transition on it would smear the wavefront. */
+.ct-pipes {
+  transition: transform 150ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ct-no-anim .ct-pipes { transition: none !important; }
+
+.ct-pipe-glow {
+  stroke: var(--circuit-blue);
+  stroke-opacity: 0.25;
+  stroke-linecap: round;
+}
+
+.ct-pipe-core {
+  stroke: var(--circuit-pipe);
+  stroke-linecap: round;
+}
+
+.ct-hub-glow { fill: var(--circuit-blue); fill-opacity: 0.25; }
+.ct-hub      { fill: var(--circuit-pipe); }
+
+/* ── Drag affordances ─────────────────────────────────────────────────────── */
+
+.ct-svg { touch-action: none; }
+
+/* Player-placed pieces can be picked up again; scaffold cannot. */
+.ct-tile.ct-movable { cursor: grab; }
+.ct-tile.ct-movable:active { cursor: grabbing; }
+.ct-tile.ct-movable .ct-hex {
+  stroke: var(--circuit-blue);
+  stroke-opacity: 0.45;
+}
+.ct-tile.ct-locked { cursor: default; }
+
+/* Cell under the dragged piece */
+.ct-tile.ct-drop-target .ct-hex {
+  fill: #10202E;
+  stroke: var(--circuit-blue);
+  stroke-opacity: 1;
+  stroke-width: 2.4;
+  stroke-dasharray: none;
+}
+
+/* Shelf lit up as a drop zone */
+.ct-shelf.ct-drop-active {
+  border-color: var(--circuit-blue);
+  background: rgba(0, 191, 255, 0.09);
+  box-shadow: inset 0 0 18px rgba(0, 191, 255, 0.18);
+}
+
+/* Ghost tile following the pointer */
+#ct-drag-ghost {
+  position: fixed;
+  width: 58px;
+  height: 58px;
+  margin-left: -29px;
+  margin-top: -29px;
+  pointer-events: none;
+  z-index: 5000;
+  overflow: visible;
+  filter: drop-shadow(0 0 14px rgba(0, 191, 255, 0.85));
+}
+
+#ct-drag-ghost .ct-hex {
+  fill: #0B1420;
+  stroke: var(--circuit-blue);
+  stroke-opacity: 0.9;
+  stroke-width: 1.8;
+}
+
+/* Snapped over a valid cell — read as locked-in */
+#ct-drag-ghost.ct-snapped {
+  filter: drop-shadow(0 0 20px rgba(0, 191, 255, 1));
+}
+
+/* ── Win sequence ─────────────────────────────────────────────────────────── */
+
+/* Interaction is locked for the whole animation */
+.ct-no-interact { pointer-events: none !important; }
+
+/* Step 1 — brief white flash across every connection */
+.ct-svg.ct-white-flash .ct-pipe-core,
+.ct-svg.ct-white-flash .ct-hub {
+  stroke: var(--circuit-white);
+  fill: var(--circuit-white);
+}
+.ct-svg.ct-white-flash .ct-pipe-core { fill: none; }
+.ct-svg.ct-white-flash {
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.9));
+}
+
+/* Junction spark — an SVG circle so it stays pinned to the junction centre
+   at any board scale, unlike an absolutely-positioned element. */
+.ct-spark {
+  fill: var(--circuit-white);
+  filter: drop-shadow(0 0 6px var(--circuit-blue)) drop-shadow(0 0 12px var(--circuit-blue));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ct-electric-spark 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ct-electric-spark {
+  0%   { opacity: 0; transform: scale(0); }
+  30%  { opacity: 1; transform: scale(1.5); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+
+/* Step 3 — settled, permanently powered */
+.ct-svg.ct-powered .ct-pipe-core {
+  filter: drop-shadow(0 0 6px rgba(0, 191, 255, 0.9));
+}
+.ct-svg.ct-powered .ct-hub {
+  filter: drop-shadow(0 0 5px rgba(0, 191, 255, 0.9));
+}
+.ct-svg.ct-powered .ct-hex {
+  stroke: var(--circuit-blue);
+  stroke-opacity: 0.55;
+}
+
+/* ── Level complete overlay ───────────────────────────────────────────────── */
+
+.ct-congrats-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: rgba(0, 191, 255, 0.55);
+  margin: -16px 0 0;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ── Shelf ────────────────────────────────────────────────────────────────── */
+
+.ct-shelf-wrap {
+  width: 100%;
+  padding: 4px 12px 20px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.ct-shelf-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(0, 191, 255, 0.38);
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+.ct-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 64px;
+  padding: 10px 8px;
+  border: 1px solid var(--circuit-cell-border);
+  border-radius: 12px;
+  background: rgba(0, 191, 255, 0.03);
+}
+
+.ct-shelf-piece {
+  width: 56px;
+  height: 56px;
+  display: block;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: visible;
+  filter: drop-shadow(0 0 6px rgba(0, 191, 255, 0.35));
+  transition: filter 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.ct-shelf-piece:hover {
+  filter: drop-shadow(0 0 12px rgba(0, 191, 255, 0.7));
+}
+
+.ct-shelf-piece:active { transform: scale(0.94); }
+
+/* Shelf tiles read as "loose parts" — brighter rim than board cells */
+.ct-shelf-piece .ct-hex {
+  fill: #0B1420;
+  stroke: var(--circuit-blue);
+  stroke-opacity: 0.5;
+  stroke-width: 1.6;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.ct-btn-primary {
+  display: block;
+  width: 100%;
+  background: var(--circuit-blue);
+  color: #04121A;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #0077A3, 0 6px 18px rgba(0, 191, 255, 0.25);
+  transition: transform 0.07s, box-shadow 0.07s, background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.ct-btn-primary:hover  { background: #33CDFF; }
+.ct-btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #0077A3; }
+
+.ct-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(0, 191, 255, 0.28);
+  color: rgba(0, 191, 255, 0.55);
+  padding: 14px 0;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ct-btn-ghost:hover { border-color: rgba(0, 191, 255, 0.6); color: rgba(0, 191, 255, 0.85); }
+
+/* ── Win screen ───────────────────────────────────────────────────────────── */
+
+#ct-win {
+  justify-content: center;
+  padding: 40px 24px 48px;
+}
+
+.ct-win-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.ct-win-logo {
+  width: 200px;
+  max-width: 70%;
+  margin: 0 0 14px;
+  filter: brightness(0) invert(1) drop-shadow(0 0 22px var(--circuit-blue-glow));
+}
+
+.ct-win-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  color: var(--circuit-blue);
+  margin: 0 0 12px;
+  text-shadow: 0 0 24px var(--circuit-blue-glow);
+}
+
+.ct-win-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(0, 191, 255, 0.55);
+  margin: 0 0 36px;
+}
+
+.ct-win-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 280px;
+  width: 100%;
+}
+
+/* ── Congratulations overlay ─────────────────────────────────────────────── */
+
+.ct-congrats {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: rgba(10, 10, 10, 0.92);
+  z-index: 20;
+  padding: 40px 32px;
+  box-sizing: border-box;
+}
+
+.ct-congrats-head {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  color: var(--circuit-blue);
+  margin: 0;
+  text-align: center;
+  text-shadow: 0 0 32px var(--circuit-blue-glow);
+}
+
+#ct-next-level { max-width: 240px; width: 100%; }
+
+/* ── Directions popup logo (white on the dark modal) ──────────────────────── */
+
+.ct-dir-logo {
+  display: block;
+  width: 150px;
+  max-width: 55%;
+  margin: 0 auto 14px;
+  filter: brightness(0) invert(1);
+}
