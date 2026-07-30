@@ -103,6 +103,54 @@
       margin-bottom: 12px;
     }
 
+    /* ── Category filter ── */
+    .lobby-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .lobby-filter-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    #categoryFilter {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      background: #1a2540;
+      border: 1px solid #2d4060;
+      border-radius: 8px;
+      padding: 8px 30px 8px 11px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      /* chevron, inlined so the strict CSP has nothing external to block */
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%2394a3b8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+      transition: border-color 0.13s, background-color 0.13s;
+    }
+
+    #categoryFilter:hover  { border-color: #47618c; }
+    #categoryFilter:focus  { outline: none; border-color: #7c9cd0; }
+    #categoryFilter option { background: #1a2540; color: #f1f5f9; }
+
+    .lobby-filter-count {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-left: auto;
+    }
+
     .lobby-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -456,255 +504,284 @@
   </div>
 
   <div class="lobby-section">
+
+    <div class="lobby-filter">
+      <label class="lobby-filter-label" for="categoryFilter">Filter</label>
+      <select id="categoryFilter" aria-label="Filter games by category">
+        <option value="all">All Games</option>
+        <option value="arcade">Arcade</option>
+        <option value="art">Art</option>
+        <option value="audio">Audio</option>
+        <option value="bunny">Bunny</option>
+        <option value="color">Color</option>
+        <option value="daily">Daily</option>
+        <option value="geography">Geography</option>
+        <option value="logic">Logic</option>
+        <option value="matching">Matching</option>
+        <option value="math">Math</option>
+        <option value="memory">Memory</option>
+        <option value="puzzle">Puzzle</option>
+        <option value="sequence">Sequence</option>
+        <option value="sorting">Sorting</option>
+        <option value="sports">Sports</option>
+        <option value="strategy">Strategy</option>
+        <option value="target">Target</option>
+        <option value="timed">Timed</option>
+        <option value="trivia">Trivia</option>
+        <option value="word">Word</option>
+      </select>
+      <span class="lobby-filter-count" id="lobbyFilterCount"></span>
+    </div>
+
     <div class="lobby-grid">
 
-      <a class="lobby-card lc-classic" href="classic.html">
+      <a class="lobby-card lc-classic" data-categories="bunny,logic,matching" data-date="2026-06-01" href="classic.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
       </a>
 
-      <a class="lobby-card lc-excerpt" href="excerpt.html">
+      <a class="lobby-card lc-excerpt" data-categories="daily,word" data-date="2026-07-30" href="excerpt.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/excerpt_logo.svg" alt="Excerpt">
         </div>
         <p class="lobby-card-desc">Three words. Can you name the work?</p>
       </a>
 
-      <a class="lobby-card lc-spell" href="spell.html">
+      <a class="lobby-card lc-spell" data-categories="puzzle,word" data-date="2026-07-29" href="spell.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/spell_logo.svg" alt="Spell">
         </div>
         <p class="lobby-card-desc">Trace the path. Spell the word.</p>
       </a>
 
-      <a class="lobby-card lc-circuit" href="circuit.html">
+      <a class="lobby-card lc-circuit" data-categories="logic,puzzle" data-date="2026-07-28" href="circuit.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/circuit_logo.svg" alt="Circuit">
         </div>
         <p class="lobby-card-desc">Place the missing pieces. Complete the circuit.</p>
       </a>
 
-      <a class="lobby-card lc-coil" href="coil.html">
+      <a class="lobby-card lc-coil" data-categories="logic,puzzle" data-date="2026-07-28" href="coil.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/coil_logo.svg" alt="Coil">
         </div>
         <p class="lobby-card-desc">Slide the tiles. Watch them spin. Lock them when they're right.</p>
       </a>
 
-      <a class="lobby-card lc-zone" href="zone.html">
+      <a class="lobby-card lc-zone" data-categories="logic,strategy" data-date="2026-07-27" href="zone.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/zone_logo.svg" alt="Zone">
         </div>
         <p class="lobby-card-desc">Fill the zones. Watch them explode.</p>
       </a>
 
-      <a class="lobby-card lc-slope" href="slope.html">
+      <a class="lobby-card lc-slope" data-categories="logic,puzzle" data-date="2026-07-27" href="slope.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/slope_logo.svg" alt="Slope">
         </div>
         <p class="lobby-card-desc">Place the ramps. Drop the marble. Find the path.</p>
       </a>
 
-      <a class="lobby-card lc-numeral" href="numeral.html">
+      <a class="lobby-card lc-numeral" data-categories="logic,math" data-date="2026-07-25" href="numeral.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/numeral_logo.svg" alt="Numeral">
         </div>
         <p class="lobby-card-desc">Match numbers or add to 10. Clear the grid.</p>
       </a>
 
-      <a class="lobby-card lc-sounddestroyer" href="sounddestroyer.html">
+      <a class="lobby-card lc-sounddestroyer" data-categories="arcade,audio" data-date="2026-07-24" href="sounddestroyer.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/sounddestroyer_logo.svg" alt="Sound Destroyer">
         </div>
         <p class="lobby-card-desc">Match the frequency. Fire the laser. Destroy them all.</p>
       </a>
 
-      <a class="lobby-card lc-pitch" href="pitch.html">
+      <a class="lobby-card lc-pitch" data-categories="audio,matching" data-date="2026-07-24" href="pitch.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/pitch_logo.svg" alt="Pitch">
         </div>
         <p class="lobby-card-desc">Hear the tone. Match it. Trust your ears.</p>
       </a>
 
-      <a class="lobby-card lc-proof" href="proof.html">
+      <a class="lobby-card lc-proof" data-categories="word,timed,daily" data-date="2026-07-23" href="proof.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/proof_logo.svg" alt="Proof">
         </div>
         <p class="lobby-card-desc">Find the one deliberate typo hidden in today's literary passage.</p>
       </a>
 
-      <a class="lobby-card lc-lexi" href="lexi.html">
+      <a class="lobby-card lc-lexi" data-categories="word,trivia" data-date="2026-07-23" href="lexi.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/lexi_logo.svg" alt="Lexi" style="filter:brightness(0);">
         </div>
         <p class="lobby-card-desc">100 obscure words. One wrong answer ends the run.</p>
       </a>
 
-      <a class="lobby-card lc-lava" href="lava.html">
+      <a class="lobby-card lc-lava" data-categories="bunny,puzzle,logic" data-date="2026-07-22" href="lava.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/lava_logo.svg" alt="Lava">
         </div>
         <p class="lobby-card-desc">Remove a block. Choose your rotation. Keep the bunny safe.</p>
       </a>
 
-      <a class="lobby-card lc-sixty" href="sixty.html">
+      <a class="lobby-card lc-sixty" data-categories="color,audio,sequence" data-date="2026-07-22" href="sixty.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/sixty_logo.svg" alt="Sixty">
         </div>
         <p class="lobby-card-desc">Six buttons. One growing sequence. Can you reach sixty?</p>
       </a>
 
-      <a class="lobby-card lc-warren" href="warren.html">
+      <a class="lobby-card lc-warren" data-categories="bunny,logic,puzzle" data-date="2026-07-21" href="warren.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/warren_logo.svg" alt="Warren">
         </div>
         <p class="lobby-card-desc">Place one bunny in each colored region. One per row, one per column, none touching.</p>
       </a>
 
-      <a class="lobby-card lc-tonal" href="tonal.html">
+      <a class="lobby-card lc-tonal" data-categories="color,audio,memory" data-date="2026-07-01" href="tonal.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/tonal_logo.svg" alt="Tonal">
         </div>
         <p class="lobby-card-desc">See the colors. Hear the chord. Remember both.</p>
       </a>
 
-      <a class="lobby-card lc-recall" href="recall.html">
+      <a class="lobby-card lc-recall" data-categories="color,memory" data-date="2026-07-01" href="recall.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/RECALL_LOGO.svg" alt="Recall">
         </div>
         <p class="lobby-card-desc">See the color. Remember it. Match it.</p>
       </a>
 
-      <a class="lobby-card lc-spectrum" href="spectrum.html">
+      <a class="lobby-card lc-spectrum" data-categories="sorting,color" data-date="2026-06-30" href="spectrum.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/spectrum_logo.svg" alt="Spectrum">
         </div>
         <p class="lobby-card-desc">25 tiles. 5 clues. One correct arrangement.</p>
       </a>
 
-      <a class="lobby-card lc-shaded" href="shaded.html">
+      <a class="lobby-card lc-shaded" data-categories="sorting,color" data-date="2026-06-29" href="shaded.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/shaded_logo.svg" alt="Shaded">
         </div>
         <p class="lobby-card-desc">Five shades. One order. Lightest to darkest.</p>
       </a>
 
-      <a class="lobby-card lc-threaded" href="threaded.html">
+      <a class="lobby-card lc-threaded" data-categories="target" data-date="2026-06-29" href="threaded.html">
         <div class="lobby-card-logo"><img src="assets/logos/threaded_logo.svg" alt="Threaded"></div>
         <p class="lobby-card-desc">Thread the needle through every moving circle, one shot at a time.</p>
       </a>
 
-      <a class="lobby-card lc-wordup" href="wordup.html">
+      <a class="lobby-card lc-wordup" data-categories="daily,word" data-date="2026-06-28" href="wordup.html">
         <div class="lobby-card-logo"><img src="assets/logos/wordup_logo.svg" alt="Word Up!"></div>
         <p class="lobby-card-desc">Same nine letters. Sixty seconds. Beat today's best.</p>
       </a>
 
-      <a class="lobby-card lc-niner" href="niner.html">
+      <a class="lobby-card lc-niner" data-categories="word" data-date="2026-06-27" href="niner.html">
         <div class="lobby-card-logo"><img src="assets/logos/niner_logo.svg" alt="Niner"></div>
         <p class="lobby-card-desc">Nine letters. One word. Trace the path.</p>
       </a>
 
-      <a class="lobby-card lc-colorbomb" href="colorbomb-start.html">
+      <a class="lobby-card lc-colorbomb" data-categories="puzzle,logic,color" data-date="2026-06-27" href="colorbomb-start.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/colorbomb_logo.svg" alt="Color Bomb">
         </div>
         <p class="lobby-card-desc">Minesweeper, but the numbers are colors — and you don't know which is which.</p>
       </a>
 
-      <a class="lobby-card lc-colorblind" href="colorblind.html">
+      <a class="lobby-card lc-colorblind" data-categories="color" data-date="2026-06-27" href="colorblind.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/colorblind_logo.svg" alt="Color Blind">
         </div>
         <p class="lobby-card-desc">One square is different. Can you find it?</p>
       </a>
 
-      <a class="lobby-card lc-solo" href="solo.html">
+      <a class="lobby-card lc-solo" data-categories="puzzle,logic" data-date="2026-06-26" href="solo.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/solo_logo.svg" alt="Solo">
         </div>
         <p class="lobby-card-desc">Five shapes. Five stars. None of them touching.</p>
       </a>
 
-      <a class="lobby-card lc-honey" href="honey.html">
+      <a class="lobby-card lc-honey" data-categories="puzzle,logic" data-date="2026-06-26" href="honey.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/honey_logo.svg" alt="Honey">
         </div>
         <p class="lobby-card-desc">Rotate the hive. Connect every cell. Watch the honey flow.</p>
       </a>
 
-      <a class="lobby-card lc-next" href="next.html">
+      <a class="lobby-card lc-next" data-categories="sequence,color" data-date="2026-06-25" href="next.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/next_logo.svg" alt="Next">
         </div>
         <p class="lobby-card-desc">Read the sequence. Find the rule. Pick the next color.</p>
       </a>
 
-      <a class="lobby-card lc-fuse" href="fuse.html">
+      <a class="lobby-card lc-fuse" data-categories="logic,puzzle" data-date="2026-06-24" href="fuse.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/fuse_logo.svg" alt="Fuse">
         </div>
         <p class="lobby-card-desc">Trace every cell. Land the final step exactly on the spark.</p>
       </a>
 
-      <a class="lobby-card lc-race-to-zero" href="race-to-zero.html">
+      <a class="lobby-card lc-race-to-zero" data-categories="logic,matching,math" data-date="2026-06-24" href="race-to-zero.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/racetozero_logo.svg" alt="Race to Zero">
         </div>
         <p class="lobby-card-desc">Clear matching digits. Hit exactly zero. Don't overshoot.</p>
       </a>
 
-      <a class="lobby-card lc-cubrick" href="cubrick.html">
+      <a class="lobby-card lc-cubrick" data-categories="puzzle" data-date="2026-06-16" href="cubrick.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/cubrick_logo.svg" alt="Cubrick">
         </div>
         <p class="lobby-card-desc">Fill the board. Build the cube. Eight puzzle levels.</p>
       </a>
 
-      <a class="lobby-card lc-hexflip" href="hexflip.html">
+      <a class="lobby-card lc-hexflip" data-categories="puzzle" data-date="2026-06-10" href="hexflip.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/Hexflip_Logo.svg" alt="HexFlip">
         </div>
         <p class="lobby-card-desc">Click exactly 3 hexes to turn the whole board black.</p>
       </a>
 
-      <a class="lobby-card lc-cropped" href="cropped.html">
+      <a class="lobby-card lc-cropped" data-categories="daily,art" data-date="2026-06-17" href="cropped.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/cropped_logo.svg" alt="Cropped">
         </div>
         <p class="lobby-card-desc">One painting. One crop. One guess.</p>
       </a>
 
-      <a class="lobby-card lc-flagged" href="flagged.html">
+      <a class="lobby-card lc-flagged" data-categories="geography,trivia" data-date="2026-06-18" href="flagged.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/flagged_logo.svg" alt="Flagged">
         </div>
         <p class="lobby-card-desc">Eight flags. Two capitals sit closest. Find them and streak.</p>
       </a>
 
-      <a class="lobby-card lc-wave" href="wave.html">
+      <a class="lobby-card lc-wave" data-categories="geography,trivia" data-date="2026-06-19" href="wave.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/wave_logo.svg" alt="Wave">
         </div>
         <p class="lobby-card-desc">One flag. One sweep. Four guesses. How far can you get?</p>
       </a>
 
-      <a class="lobby-card lc-mascot-wave" href="mascot-wave.html">
+      <a class="lobby-card lc-mascot-wave" data-categories="trivia,sports" data-date="2026-06-20" href="mascot-wave.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/mascot_logo.svg" alt="Mascot">
         </div>
         <p class="lobby-card-desc">One logo. One sweep. Four guesses. Name the school.</p>
       </a>
 
-      <a class="lobby-card lc-pickler" href="pickler.html">
+      <a class="lobby-card lc-pickler" data-categories="target" data-date="2026-06-21" href="pickler.html">
         <div class="lobby-card-logo">
           <img src="assets/logos/pickler_logo.svg" alt="Pickler">
         </div>
         <p class="lobby-card-desc">Time the launch. Stick the nostril. How many rounds can you clear?</p>
       </a>
 
-      <a class="lobby-card lc-noon" href="https://www.noonwords.com" target="_blank" rel="noopener noreferrer">
+      <a class="lobby-card lc-noon" data-categories="daily,word" data-date="2026-06-08" href="https://www.noonwords.com" target="_blank" rel="noopener noreferrer">
         <div class="lobby-card-logo">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="151 240 396 112">
             <path d="M215.411,245.198h23.371v101.505h-25.307l-33.189-59.188v59.188h-23.371v-101.229h25.445l33.051,59.05v-59.327Z"/>
@@ -716,7 +793,7 @@
         <p class="lobby-card-desc">A daily word puzzle every day at 12PM.</p>
       </a>
 
-      <a class="lobby-card lc-scramble" href="https://noonwords.com/scramble/" target="_blank" rel="noopener noreferrer">
+      <a class="lobby-card lc-scramble" data-categories="word,timed" data-date="2026-06-09" href="https://noonwords.com/scramble/" target="_blank" rel="noopener noreferrer">
         <div class="lobby-card-logo">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114.309 16.76">
             <path d="M2.904,11.155c.033.292.129.556.289.791.159.236.37.437.632.602.262.166.568.293.92.383.352.09.739.134,1.164.134.391,0,.749-.044,1.074-.134.325-.089.605-.215.84-.378.235-.162.419-.356.552-.582.133-.225.199-.474.199-.746,0-.225-.046-.431-.139-.617-.093-.186-.239-.351-.438-.497-.199-.146-.456-.277-.771-.393-.315-.116-.691-.22-1.129-.313l-1.87-.397C1.628,8.463.328,7.096.328,4.908c0-.676.131-1.29.393-1.84.262-.551.631-1.023,1.109-1.417s1.055-.698,1.731-.91c.676-.212,1.429-.318,2.258-.318.789,0,1.516.106,2.179.318.663.212,1.237.509,1.721.89s.866.837,1.144,1.368c.278.531.428,1.114.448,1.75h-2.825c-.033-.285-.123-.543-.269-.776-.146-.232-.333-.431-.562-.597-.229-.166-.498-.293-.806-.383-.309-.09-.645-.134-1.01-.134-.378,0-.72.042-1.024.124-.305.083-.567.203-.786.358-.219.156-.388.345-.507.567-.12.222-.179.469-.179.741,0,.444.184.802.552,1.074.368.272.973.497,1.815.676l1.731.368c.723.152,1.344.347,1.865.582.521.235.948.519,1.283.85.334.332.582.716.741,1.154.159.438.239.935.239,1.492,0,.723-.134,1.373-.403,1.95-.269.577-.655,1.066-1.159,1.467-.504.401-1.114.709-1.83.925-.716.215-1.525.323-2.427.323-.855,0-1.631-.101-2.328-.304-.696-.202-1.293-.492-1.791-.87-.498-.378-.887-.835-1.169-1.373-.282-.538-.436-1.141-.462-1.811h2.904Z"/>
@@ -732,7 +809,7 @@
         <p class="lobby-card-desc">Unscramble the letters before time runs out.</p>
       </a>
 
-      <a class="lobby-card lc-snek" href="snek.html">
+      <a class="lobby-card lc-snek" data-categories="logic,puzzle" data-date="2026-06-22" href="snek.html">
         <div class="lobby-card-logo">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 79.587 30.132">
             <path class="st0" d="M8.52,10.522c1.289.893,2.548,1.767,3.775,2.622,1.228.855,2.412,1.804,3.552,2.845.893.77,1.568,1.668,2.027,2.696.458,1.029.694,2.083.707,3.162.012,1.078-.192,2.133-.613,3.161-.422,1.029-1.054,1.928-1.897,2.696-.72.67-1.506,1.203-2.362,1.6s-1.724.65-2.604.763c-.88.111-1.767.08-2.659-.094s-1.736-.495-2.529-.967c-.967-.57-1.835-1.228-2.604-1.971-.769-.744-1.476-1.574-2.12-2.492C.474,23.527.078,22.374.003,21.085c-.05-1.314.458-2.182,1.525-2.604.496-.198.991-.229,1.488-.093.496.137.917.478,1.265,1.022.347.521.818,1.036,1.413,1.544s1.24.936,1.934,1.283c.694.347,1.407.582,2.139.706.731.125,1.407.074,2.027-.148.669-.248,1.072-.619,1.209-1.116.136-.495.124-1.01-.037-1.543-.162-.533-.428-1.042-.8-1.525s-.72-.837-1.042-1.06c-.446-.347-.905-.67-1.376-.967-.472-.297-.955-.582-1.451-.855-.496-.272-.992-.526-1.488-.762-.496-.235-.979-.489-1.451-.763-.422-.272-.85-.563-1.283-.874-.435-.31-.837-.638-1.209-.985-.794-.769-1.352-1.605-1.674-2.511-.322-.905-.434-1.822-.334-2.752.099-.93.409-1.834.93-2.715.521-.88,1.252-1.655,2.194-2.325.868-.645,1.841-1.109,2.92-1.395s2.163-.391,3.254-.316c1.091.074,2.138.316,3.143.725,1.004.409,1.854.986,2.548,1.729.719.72,1.233,1.506,1.543,2.362.31.855.44,1.792.391,2.808-.025.223-.056.453-.093.688-.037.236-.093.465-.167.688-.199.471-.453.88-.763,1.227-.31.348-.75.583-1.32.707-1.066.148-1.86-.198-2.38-1.042-.297-.496-.657-.905-1.079-1.228-.422-.322-.905-.62-1.451-.893-.545-.248-1.079-.354-1.599-.316-.521.037-.924.18-1.209.427-.285.249-.39.577-.316.986s.446.85,1.116,1.32Z"/>
@@ -744,7 +821,7 @@
         <p class="lobby-card-desc">Trace every cell. Don't box yourself in.</p>
       </a>
 
-      <a class="lobby-card lc-mobi" href="mobi.html">
+      <a class="lobby-card lc-mobi" data-categories="logic,puzzle" data-date="2026-06-23" href="mobi.html">
         <div class="lobby-card-logo">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 94.806 23.85">
             <path d="M27.915,2.814c-2.983,0-4.871.944-6.362,3.105h-.061c-.761-2.131-2.496-3.105-5.449-3.105s-4.87.974-6.21,3.105h-.061l-.213-2.496H0v18.874h10.015v-11.689c.396-.183.64-.274.974-.274.761,0,1.035.457,1.035,1.644v10.32h10.015v-11.689c.274-.183.609-.274.944-.274.792,0,1.065.426,1.065,1.644v10.32h10.015v-11.872c0-5.51-1.674-7.61-6.149-7.61Z"/>
@@ -757,7 +834,7 @@
         <p class="lobby-card-desc">Rotate the pieces. Discover the picture.</p>
       </a>
 
-      <a class="lobby-card lc-poise" href="https://followgreg.github.io/poise-game/" target="_blank" rel="noopener noreferrer">
+      <a class="lobby-card lc-poise" data-categories="puzzle" data-date="2026-06-23" href="https://followgreg.github.io/poise-game/" target="_blank" rel="noopener noreferrer">
         <div class="lobby-card-logo">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="65 230 550 122">
             <path d="M195.433,260.545c-2.527-1.97-5.504-3.511-8.928-4.625-3.426-1.112-7.065-1.67-10.919-1.67v.003l-100.586-.129v3.469c4.709,0,8.778,1.094,12.204,3.282,3.425,2.188,6.379,5.082,8.864,8.683v58.286c-2.485,3.517-5.44,6.391-8.864,8.621-3.426,2.23-7.495,3.344-12.204,3.344v3.468h97.4v-3.468c-4.797,0-8.886-1.112-12.268-3.34-3.384-2.226-19.317-5.094-21.8-8.607v-25.436h37.254c3.853,0,7.492-.578,10.919-1.734,3.425-1.157,6.401-2.698,8.928-4.625,2.525-1.928,4.538-4.196,6.038-6.809,1.497-2.612,2.248-5.416,2.248-8.415v-5.01c0-2.998-.751-5.801-2.248-8.415-1.499-2.612-3.513-4.902-6.038-6.873ZM157.987,284.81c-.857,2.027-2.055,3.817-3.597,5.371-1.542,1.554-3.321,2.762-5.332,3.625-2.013.863-4.175,1.295-6.487,1.295l-4.239.128v-33.786h4.239c2.312,0,4.474.431,6.487,1.294,2.012.863,3.79,2.071,5.332,3.625,1.542,1.554,2.74,3.347,3.597,5.374.855,2.028,1.285,4.206,1.285,6.536s-.43,4.511-1.285,6.538Z"/>
@@ -769,37 +846,37 @@
         <p class="lobby-card-desc">A puzzle game about balance.</p>
       </a>
 
-      <a class="lobby-card lc-hare-trigger" href="hare-trigger.html">
+      <a class="lobby-card lc-hare-trigger" data-categories="bunny,logic,matching,timed" data-date="2026-06-12" href="hare-trigger.html">
         <div class="lobby-card-logo"><img src="assets/logos/haretrigger_logo.svg" alt="Hare Trigger"></div>
         <p class="lobby-card-desc">Clear connected characters before the board shifts under you.</p>
       </a>
 
-      <a class="lobby-card lc-hare-brain" href="hare-brain.html">
+      <a class="lobby-card lc-hare-brain" data-categories="bunny,logic,matching,timed,math" data-date="2026-06-13" href="hare-brain.html">
         <div class="lobby-card-logo"><img src="assets/logos/harebrain_logo.svg" alt="Hare Brain"></div>
         <p class="lobby-card-desc">Solve the math before the board fills up.</p>
       </a>
 
-      <a class="lobby-card lc-bomb" href="bomb-mode.html">
+      <a class="lobby-card lc-bomb" data-categories="bunny,logic,matching" data-date="2026-06-02" href="bomb-mode.html">
         <div class="lobby-card-logo"><img src="assets/logos/bombmode_logo.svg" alt="Bomb Mode"></div>
         <p class="lobby-card-desc">Guide the bomb to the bottom row.</p>
       </a>
 
-      <a class="lobby-card lc-86bunnies" href="86-bunnies.html">
+      <a class="lobby-card lc-86bunnies" data-categories="bunny,logic,matching" data-date="2026-06-03" href="86-bunnies.html">
         <div class="lobby-card-logo"><img src="assets/logos/86bunnies_logo.svg" alt="86 Bunnies"></div>
         <p class="lobby-card-desc">Clear everything to bring the blue bunnies together.</p>
       </a>
 
-      <a class="lobby-card lc-hareline" href="hare-line.html">
+      <a class="lobby-card lc-hareline" data-categories="bunny,logic,matching" data-date="2026-06-04" href="hare-line.html">
         <div class="lobby-card-logo"><img src="assets/logos/hareline_logo.svg" alt="Hare Line"></div>
         <p class="lobby-card-desc">Slide tiles to line up all five red bunnies.</p>
       </a>
 
-      <a class="lobby-card lc-shroom" href="shroom-mode.html">
+      <a class="lobby-card lc-shroom" data-categories="bunny,logic,matching" data-date="2026-06-05" href="shroom-mode.html">
         <div class="lobby-card-logo"><img src="assets/logos/shroommode_logo.svg" alt="Shroom Mode"></div>
         <p class="lobby-card-desc">Match tiles as the board pulses with color.</p>
       </a>
 
-      <a class="lobby-card lc-bunnyhop" href="bunny-hop.html">
+      <a class="lobby-card lc-bunnyhop" data-categories="bunny,logic,matching" data-date="2026-06-06" href="bunny-hop.html">
         <div class="lobby-card-logo"><svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92.986 28.404">
           <defs><style>.st0 { fill: #231f20; }</style></defs>
           <g>
@@ -817,7 +894,7 @@
         <p class="lobby-card-desc">Jump bunnies to end with exactly one.</p>
       </a>
 
-      <a class="lobby-card lc-cabbagdrop" href="cabbage-drop.html">
+      <a class="lobby-card lc-cabbagdrop" data-categories="bunny,logic,matching,arcade" data-date="2026-06-07" href="cabbage-drop.html">
         <div class="lobby-card-logo"><svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 95.13 13.018">
           <defs><style>.st0 { fill: #231f20; }</style></defs>
           <path class="st0" d="M.339,3.145c.288-.971.864-1.751,1.655-2.327C4.021-.645,6.659.123,7.835,2.114c.18.288.132.516-.096.756-.503.503-1.007.983-1.499,1.475-.252.216-.372.204-.504-.108-.156-.372-.443-.66-.803-.828-.899-.456-1.283.671-1.379,1.307-.06.408,0,.815.024,1.224,0,.072.012.132.024.204.18.852.816,1.115,1.547.648.18-.132.336-.276.516-.42.276-.24.42-.252.66.036.456.527.912,1.103,1.355,1.691.288.372.264.552-.048.912-1.583,1.775-4.222,2.099-5.937.516C.603,8.602.075,7.403.027,5.964c-.012-.096-.012-.204-.024-.324v-.276c-.024-.768.096-1.5.335-2.219Z"/>
@@ -835,7 +912,7 @@
         <p class="lobby-card-desc">60 seconds. Full board. Race the clock.</p>
       </a>
 
-      <a class="lobby-card lc-whiskers" href="whiskers.html">
+      <a class="lobby-card lc-whiskers" data-categories="bunny,logic,matching" data-date="2026-06-14" href="whiskers.html">
         <div class="lobby-card-logo"><svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110.964 16.257">
           <polygon points="22.521 9.772 19.426 1.736 16.293 9.817 13.775 1.736 11.91 1.736 16.122 15.251 19.422 6.709 22.692 15.262 26.887 1.736 25.004 1.736 22.521 9.772"/>
           <polygon points="35.656 6.989 29.978 6.989 29.978 1.736 28.178 1.736 28.178 14.041 29.978 14.041 29.978 8.789 35.656 8.789 35.656 14.041 37.439 14.041 37.439 1.736 35.656 1.736 35.656 6.989"/>
@@ -869,5 +946,70 @@
 
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
+
+<script>
+// ── Lobby category filter ───────────────────────────────────────────────────
+// Default view is the hand-ordered lobby (Classic first, Bunny variations last).
+// Picking a category shows only matching cards, newest first; "All Games" puts
+// the original order back exactly.
+(function () {
+  'use strict';
+
+  var container = document.querySelector('.lobby-grid');
+  var select    = document.getElementById('categoryFilter');
+  var countEl   = document.getElementById('lobbyFilterCount');
+  if (!container || !select) return;
+
+  // Captured before anything reorders the DOM
+  var originalOrder = [].slice.call(container.querySelectorAll('.lobby-card'));
+
+  function categoriesOf(card) {
+    // Guard the split: a card added later without data-categories would
+    // otherwise throw and take the whole filter down with it.
+    var raw = card.getAttribute('data-categories') || '';
+    return raw.split(',').map(function (c) { return c.trim(); }).filter(Boolean);
+  }
+
+  function apply(selected) {
+    if (selected === 'all') {
+      originalOrder.forEach(function (card) {
+        card.style.display = '';
+        container.appendChild(card);
+      });
+      countEl.textContent = originalOrder.length + ' games';
+      return;
+    }
+
+    var matching = [], nonMatching = [];
+    originalOrder.forEach(function (card) {
+      (categoriesOf(card).indexOf(selected) !== -1 ? matching : nonMatching).push(card);
+    });
+
+    // Newest first. Ties keep their original relative order, since Array.sort
+    // is stable in every engine we target.
+    matching.sort(function (a, b) {
+      return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+    });
+
+    nonMatching.forEach(function (card) { card.style.display = 'none'; });
+    matching.forEach(function (card) {
+      card.style.display = '';
+      container.appendChild(card);
+    });
+
+    countEl.textContent = matching.length + (matching.length === 1 ? ' game' : ' games');
+  }
+
+  select.addEventListener('change', function () { apply(this.value); });
+  apply('all');
+
+  // Exposed for verification
+  window.LobbyFilter = {
+    apply: apply,
+    originalOrder: originalOrder,
+    categoriesOf: categoriesOf,
+  };
+}());
+</script>
 </body>
 </html>
