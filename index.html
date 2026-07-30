@@ -793,7 +793,7 @@
         <p class="lobby-card-desc">A daily word puzzle every day at 12PM.</p>
       </a>
 
-      <a class="lobby-card lc-scramble" data-categories="word,timed" data-date="2026-06-09" href="https://noonwords.com/scramble/" target="_blank" rel="noopener noreferrer">
+      <a class="lobby-card lc-scramble" data-categories="daily,word,timed" data-date="2026-06-09" href="https://noonwords.com/scramble/" target="_blank" rel="noopener noreferrer">
         <div class="lobby-card-logo">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114.309 16.76">
             <path d="M2.904,11.155c.033.292.129.556.289.791.159.236.37.437.632.602.262.166.568.293.92.383.352.09.739.134,1.164.134.391,0,.749-.044,1.074-.134.325-.089.605-.215.84-.378.235-.162.419-.356.552-.582.133-.225.199-.474.199-.746,0-.225-.046-.431-.139-.617-.093-.186-.239-.351-.438-.497-.199-.146-.456-.277-.771-.393-.315-.116-.691-.22-1.129-.313l-1.87-.397C1.628,8.463.328,7.096.328,4.908c0-.676.131-1.29.393-1.84.262-.551.631-1.023,1.109-1.417s1.055-.698,1.731-.91c.676-.212,1.429-.318,2.258-.318.789,0,1.516.106,2.179.318.663.212,1.237.509,1.721.89s.866.837,1.144,1.368c.278.531.428,1.114.448,1.75h-2.825c-.033-.285-.123-.543-.269-.776-.146-.232-.333-.431-.562-.597-.229-.166-.498-.293-.806-.383-.309-.09-.645-.134-1.01-.134-.378,0-.72.042-1.024.124-.305.083-.567.203-.786.358-.219.156-.388.345-.507.567-.12.222-.179.469-.179.741,0,.444.184.802.552,1.074.368.272.973.497,1.815.676l1.731.368c.723.152,1.344.347,1.865.582.521.235.948.519,1.283.85.334.332.582.716.741,1.154.159.438.239.935.239,1.492,0,.723-.134,1.373-.403,1.95-.269.577-.655,1.066-1.159,1.467-.504.401-1.114.709-1.83.925-.716.215-1.525.323-2.427.323-.855,0-1.631-.101-2.328-.304-.696-.202-1.293-.492-1.791-.87-.498-.378-.887-.835-1.169-1.373-.282-.538-.436-1.141-.462-1.811h2.904Z"/>
@@ -955,6 +955,9 @@
 (function () {
   'use strict';
 
+  // Categories that lead with a specific card instead of the newest one
+  var PINNED_FIRST = { bunny: 'lc-classic' };
+
   var container = document.querySelector('.lobby-grid');
   var select    = document.getElementById('categoryFilter');
   var countEl   = document.getElementById('lobbyFilterCount');
@@ -990,6 +993,14 @@
     matching.sort(function (a, b) {
       return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
     });
+
+    // Bunny leads with Classic, the original game, rather than burying it last
+    // as the oldest entry.
+    var pin = PINNED_FIRST[selected];
+    if (pin) {
+      var i = matching.findIndex(function (c) { return c.classList.contains(pin); });
+      if (i > 0) matching.unshift(matching.splice(i, 1)[0]);
+    }
 
     nonMatching.forEach(function (card) { card.style.display = 'none'; });
     matching.forEach(function (card) {
