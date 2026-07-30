@@ -1,0 +1,526 @@
+/* ── SPELL — word path puzzle styles ──
+   Visual conventions carried over from SNEK (assets/css/snek.css) unchanged:
+   page/board palette, cell radius + borders, trail/head fills, d-pad, overlays,
+   buttons, start/win screens. Spell-only additions are marked below. */
+
+#canvas-wrap {
+  background: #0f172a;
+  align-items: stretch;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.sp-hide { display: none !important; }
+
+/* Spell accent — used by the logo and the path line */
+:root {
+  --sp-accent: #60a5fa;
+  --sp-accent-dim: #3b82f6;
+}
+
+/* ── Splash (shown on every page load) ── */
+#sp-splash {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sp-splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 340px;
+  width: 100%;
+}
+
+.sp-splash-logo {
+  margin: 0;
+}
+
+.sp-splash-logo svg {
+  width: min(220px, 62vw);
+  height: auto;
+}
+
+.sp-splash-dir {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.68;
+  color: rgba(241, 245, 249, 0.55);
+  text-align: left;
+  margin: 0;
+}
+
+.sp-splash-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── Shared screen wrapper ── */
+.sp-screen {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+}
+
+/* ── Start screen ── */
+#sp-start {
+  justify-content: center;
+  padding: 40px 24px 48px;
+}
+
+.sp-start-inner {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.sp-logo {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 16px;
+}
+
+.sp-logo svg {
+  height: 52px;
+  width: auto;
+}
+
+.sp-logo svg path {
+  fill: var(--sp-accent);
+}
+
+.sp-logo-win {
+  margin: 0 0 8px;
+}
+
+.sp-logo-win svg {
+  height: 44px;
+}
+
+.sp-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(148, 163, 184, 0.9);
+  line-height: 1.6;
+  margin: 0 0 36px;
+}
+
+.sp-start-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Game screen ── */
+#sp-game {
+  justify-content: flex-start;
+  padding: 0 0 24px;
+  position: relative;
+}
+
+/* ── HUD ── */
+.sp-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 18px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Blanks row — Spell only ──
+   One fixed-width slot per letter, underscored Hangman-style. Slots fill left
+   to right as the player traces. */
+.sp-blanks {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px 14px;
+  min-height: 52px;
+}
+
+.sp-blank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 34px;
+  border-bottom: 3px solid #334155;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #e2e8f0;
+  letter-spacing: 0;
+  flex: 0 0 auto;
+}
+
+.sp-blank-full {
+  border-bottom-color: var(--sp-accent);
+}
+
+/* Fill animation, per spec */
+@keyframes letterBounce {
+  0%   { transform: scale(1.5); opacity: 0; }
+  60%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+
+.blank-filled {
+  animation: letterBounce 0.2s ease-out forwards;
+}
+
+/* ── Board wrap ── */
+.sp-board-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  position: relative;
+  width: 100%;
+}
+
+/* Sized by JS to the exact grid box so the path SVG can overlay it */
+.sp-board-stage {
+  position: relative;
+}
+
+/* ── Grid ── */
+.sp-board {
+  display: grid;
+  /* columns + gap set by JS */
+}
+
+/* ── Path line — Spell only ──
+   Sits above the cell backgrounds (which paint in normal flow) and below the
+   letters, which are lifted to z-index 3. .sp-cell deliberately has no
+   z-index, so it creates no stacking context to trap the letter beneath. */
+.sp-path-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.sp-path-line {
+  fill: none;
+  stroke: var(--sp-accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+/* ── Cells ── */
+.sp-cell {
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* width/height set by JS */
+}
+
+/* Letter on an active cell — Spell only. Lifted above the path line. */
+.sp-letter {
+  position: relative;
+  z-index: 3;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  user-select: none;
+  pointer-events: none;
+  /* font-size set by JS to ~55% of cell height */
+}
+
+/* Empty shape cell (unvisited) */
+.sp-cell-empty {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+}
+
+.sp-cell-empty .sp-letter { color: #e2e8f0; }
+
+/* Start cell marker (before any move) */
+.sp-cell-start {
+  background: #1e293b;
+  border: 2px solid #4ade80;
+}
+
+.sp-cell-start .sp-letter { color: #e2e8f0; }
+
+/* Visited trail */
+.sp-cell-trail {
+  background: #166534;
+  border: 1.5px solid #22c55e;
+}
+
+.sp-cell-trail .sp-letter { color: #dcfce7; }
+
+/* Current head */
+.sp-cell-head {
+  background: #22c55e;
+  border: 2px solid #86efac;
+}
+
+/* Dark letter on the bright head fill */
+.sp-cell-head .sp-letter { color: #0f172a; }
+
+/* Legal next move — subtle affordance for tap targets */
+.sp-cell-next {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sp-cell-next:active {
+  border-color: var(--sp-accent);
+}
+
+/* Non-shape cell — invisible placeholder to maintain grid layout */
+.sp-cell-void {
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
+
+/* ── Complete flash ── */
+@keyframes sp-complete-flash {
+  0%   { background: #166534; border-color: #22c55e; }
+  40%  { background: #15803d; border-color: #4ade80; box-shadow: 0 0 0 2px #4ade80, 0 0 10px rgba(74,222,128,0.5); }
+  100% { background: #166534; border-color: #22c55e; }
+}
+
+.sp-cell-flash {
+  animation: sp-complete-flash 0.5s ease-out forwards;
+}
+
+/* ── Fail flash — Spell only ──
+   Marks the cell that broke the trace: the wrong cell on a bad letter or a
+   revisit, the current cell on a dead end. */
+@keyframes sp-fail-flash {
+  0%   { background: #ff4444; border-color: #ff8080; }
+  70%  { background: #ff4444; border-color: #ff8080; box-shadow: 0 0 0 2px rgba(255,68,68,0.5); }
+  100% { background: #ff4444; border-color: #ff8080; }
+}
+
+.sp-cell-fail {
+  animation: sp-fail-flash 0.3s ease-out forwards;
+}
+
+.sp-cell-fail .sp-letter { color: #450a0a; }
+
+/* ── Reveal button (inline in HUD) ── */
+.sp-reveal-btn {
+  background: transparent;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #475569;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.1s, color 0.1s;
+}
+
+.sp-reveal-btn:hover  { border-color: var(--sp-accent); color: var(--sp-accent); }
+.sp-reveal-btn:active { background: rgba(96,165,250,0.08); }
+.sp-reveal-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── D-pad ── */
+.sp-dpad {
+  display: grid;
+  grid-template-areas:
+    ".    up   ."
+    "left down right";
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 56px 56px;
+  gap: 6px;
+  margin: 12px auto 4px;
+}
+
+.sp-dir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background 0.08s, transform 0.06s;
+}
+
+.sp-dir:active {
+  background: #2d4a6e;
+  transform: scale(0.92);
+}
+
+.sp-up    { grid-area: up; }
+.sp-left  { grid-area: left; }
+.sp-down  { grid-area: down; }
+.sp-right { grid-area: right; }
+
+/* ── Level-complete overlay ── */
+.sp-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 20;
+  border-radius: 4px;
+  padding: 24px;
+}
+
+/* Keep the overlay's button from stretching the full viewport on wide screens */
+.sp-overlay .sp-btn-primary {
+  width: 100%;
+  max-width: 280px;
+}
+
+/* Level-complete: small "LEVEL X" eyebrow over the completed word, large */
+.sp-complete-level {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 0;
+  animation: sp-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.sp-complete-word {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  color: #4ade80;
+  margin: 0 0 4px;
+  text-align: center;
+  letter-spacing: 0.02em;
+  word-break: break-word;
+  animation: sp-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes sp-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ── Win screen ── */
+#sp-win {
+  justify-content: center;
+  padding: 40px 24px 48px;
+}
+
+.sp-win-inner {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.sp-win-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.8rem;
+  color: #4ade80;
+  margin: 0 0 12px;
+}
+
+.sp-win-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: rgba(148,163,184,0.9);
+  margin: 0 0 36px;
+  line-height: 1.6;
+}
+
+.sp-end-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* ── Buttons ── */
+.sp-btn-primary {
+  display: block;
+  width: 100%;
+  background: #16a34a;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #14532d, 0 6px 16px rgba(0,0,0,0.45);
+  transition: transform 0.07s, box-shadow 0.07s, background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.sp-btn-primary:hover  { background: #22c55e; }
+.sp-btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #14532d, 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.sp-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #64748b;
+  padding: 14px 0;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sp-btn-ghost:hover  { border-color: #64748b; color: #94a3b8; }
+.sp-btn-ghost:active { background: rgba(255,255,255,0.04); }

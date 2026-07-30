@@ -180,6 +180,13 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Spell: dark slate bg, blue accent — matches the game page */
+    .lc-spell { background: #0f172a; border-color: rgba(96,165,250,0.24); }
+    .lc-spell .lobby-card-desc { color: rgba(241,245,249,0.5); }
+    .lc-spell .lobby-card-logo img {
+      filter: brightness(0) saturate(100%) invert(66%) sepia(38%) saturate(1352%) hue-rotate(191deg) brightness(101%) contrast(96%);
+    }
+
     /* Slope: piano black bg, ivory treatment */
     .lc-slope { background: #0A0A0A; border-color: rgba(245,240,232,0.14); }
     .lc-slope .lobby-card-desc { color: rgba(245,240,232,0.5); }
@@ -451,6 +458,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-spell" href="spell.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/spell_logo.svg" alt="Spell">
+        </div>
+        <p class="lobby-card-desc">Trace the path. Spell the word.</p>
       </a>
 
       <a class="lobby-card lc-circuit" href="circuit.html">

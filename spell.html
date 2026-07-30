@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Spell — a word path puzzle — Bunny Game</title>
+  <meta name="description" content="Trace the path. Spell the word. Visit every cell exactly once.">
+  <meta property="og:title" content="Spell — a word path puzzle — Bunny Game">
+  <meta property="og:description" content="Trace the path. Spell the word. Visit every cell exactly once.">
+  <meta property="og:url" content="https://www.thebunnygame.com/spell">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/spell-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/spell-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/spell">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/spell.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- ── Splash (every page load) ── -->
+  <div id="sp-splash">
+    <div class="sp-splash-inner">
+      <div class="sp-logo sp-splash-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98.388 25.686" role="img" aria-label="Spell">
+          <path d="M90.04,19.906L92.787.356h-5.494l-2.512,17.944c-2.14,1.394-4.332,1.606-6.192,1.606h-6.992L74.344.356h-5.494l-2.516,17.968c-2.127,1.372-4.303,1.582-6.152,1.582h-9.454l.571-3.995h7.991l1.462-5.423h-8.704l.678-4.709h7.955l1.463-5.423h-14.163l-2.516,17.975c-2.133,1.403-4.375,2.004-6.223,2.004h-10.167l.428-2.997h1.677c5.815,0,10.381-4.281,10.381-9.454,0-4.209-2.782-7.527-7.634-7.527h-7.528l-2.516,17.973c-1.77,1.134-4.214,2.362-6.116,2.362-.357,0-.749-.036-1.177-.107.428-1.034.678-2.247.678-3.603,0-7.599-9.632-6.244-9.632-9.276,0-1.57,1.677-2.426,3.247-2.426,1.748,0,3.282.571,5.708,1.784l1.748-5.244c-2.319-1.32-4.709-1.819-7.242-1.819C6.457,0,1.926,2.925,1.926,8.705c0,7.634,9.632,6.243,9.632,9.311,0,1.534-1.784,2.391-3.282,2.391-2.176,0-4.103-.714-6.528-2.283l-1.748,5.244c2.283,1.641,5.173,2.318,8.098,2.318,1.391,0,2.818-.285,4.067-.82,1.427.571,2.89.82,4.424.82,2.226,0,4.504-.662,6.502-1.704l-.189,1.348h15.233c2.235,0,4.43-.339,6.541-1.369l-.192,1.369h14.52c2.235,0,4.43-.339,6.541-1.369l-.192,1.369h13.129v-.036c1.892-.102,3.728-.488,5.51-1.363l-.196,1.4h13.128l1.463-5.423h-8.348ZM31.143,5.779h2.14c1.677,0,2.426.999,2.426,2.533,0,1.927-1.605,3.603-3.639,3.603h-1.784l.856-6.136Z"/>
+        </svg>
+      </div>
+      <p class="sp-splash-dir" id="sp-splash-dir"><!-- filled by JS from DIRECTIONS_TEXT --></p>
+      <div class="sp-splash-btns" id="sp-splash-btns">
+        <button class="sp-btn-primary" id="sp-splash-play">Play</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start screen — reached from the splash when there is progress to resume -->
+  <div id="sp-start" class="sp-screen sp-hide">
+    <div class="sp-start-inner">
+      <div class="sp-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98.388 25.686" role="img" aria-label="Spell">
+          <path d="M90.04,19.906L92.787.356h-5.494l-2.512,17.944c-2.14,1.394-4.332,1.606-6.192,1.606h-6.992L74.344.356h-5.494l-2.516,17.968c-2.127,1.372-4.303,1.582-6.152,1.582h-9.454l.571-3.995h7.991l1.462-5.423h-8.704l.678-4.709h7.955l1.463-5.423h-14.163l-2.516,17.975c-2.133,1.403-4.375,2.004-6.223,2.004h-10.167l.428-2.997h1.677c5.815,0,10.381-4.281,10.381-9.454,0-4.209-2.782-7.527-7.634-7.527h-7.528l-2.516,17.973c-1.77,1.134-4.214,2.362-6.116,2.362-.357,0-.749-.036-1.177-.107.428-1.034.678-2.247.678-3.603,0-7.599-9.632-6.244-9.632-9.276,0-1.57,1.677-2.426,3.247-2.426,1.748,0,3.282.571,5.708,1.784l1.748-5.244c-2.319-1.32-4.709-1.819-7.242-1.819C6.457,0,1.926,2.925,1.926,8.705c0,7.634,9.632,6.243,9.632,9.311,0,1.534-1.784,2.391-3.282,2.391-2.176,0-4.103-.714-6.528-2.283l-1.748,5.244c2.283,1.641,5.173,2.318,8.098,2.318,1.391,0,2.818-.285,4.067-.82,1.427.571,2.89.82,4.424.82,2.226,0,4.504-.662,6.502-1.704l-.189,1.348h15.233c2.235,0,4.43-.339,6.541-1.369l-.192,1.369h14.52c2.235,0,4.43-.339,6.541-1.369l-.192,1.369h13.129v-.036c1.892-.102,3.728-.488,5.51-1.363l-.196,1.4h13.128l1.463-5.423h-8.348ZM31.143,5.779h2.14c1.677,0,2.426.999,2.426,2.533,0,1.927-1.605,3.603-3.639,3.603h-1.784l.856-6.136Z"/>
+        </svg>
+      </div>
+      <p class="sp-sub">Trace every cell. Spell the word.</p>
+      <div class="sp-start-btns" id="sp-start-btns">
+        <!-- Populated by JS: Continue / Start from 1 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="sp-game" class="sp-screen sp-hide">
+    <div class="sp-hud" id="sp-hud">
+      <span id="sp-level-label">Level 1</span>
+      <button class="sp-reveal-btn" id="sp-reveal">Reveal</button>
+      <span id="sp-furthest-label">Furthest: 1</span>
+    </div>
+
+    <!-- Hangman-style blanks — one slot per letter -->
+    <div class="sp-blanks" id="sp-blanks"></div>
+
+    <div class="sp-board-wrap" id="sp-board-wrap">
+      <div class="sp-board-stage" id="sp-board-stage">
+        <svg class="sp-path-svg" id="sp-path" aria-hidden="true"></svg>
+        <div class="sp-board" id="sp-board"></div>
+      </div>
+    </div>
+
+    <div class="sp-dpad" id="sp-dpad">
+      <button class="sp-dir sp-up"    id="sp-up"    aria-label="Move up">▲</button>
+      <button class="sp-dir sp-left"  id="sp-left"  aria-label="Move left">◀</button>
+      <button class="sp-dir sp-down"  id="sp-down"  aria-label="Move down">▼</button>
+      <button class="sp-dir sp-right" id="sp-right" aria-label="Move right">▶</button>
+    </div>
+  </div>
+
+  <!-- Level-complete overlay. There is no "stuck" overlay: a failed trace
+       flashes red and resets itself, so there is nothing to dismiss. -->
+  <div id="sp-complete" class="sp-overlay sp-hide">
+    <p class="sp-complete-level" id="sp-complete-level"></p>
+    <p class="sp-complete-word"  id="sp-complete-word"></p>
+    <button class="sp-btn-primary" id="sp-next">Next Level</button>
+  </div>
+
+  <!-- Full-complete (all 50) screen -->
+  <div id="sp-win" class="sp-screen sp-hide">
+    <div class="sp-win-inner">
+      <div class="sp-logo sp-logo-win">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98.388 25.686" role="img" aria-label="Spell">
+          <path d="M90.04,19.906L92.787.356h-5.494l-2.512,17.944c-2.14,1.394-4.332,1.606-6.192,1.606h-6.992L74.344.356h-5.494l-2.516,17.968c-2.127,1.372-4.303,1.582-6.152,1.582h-9.454l.571-3.995h7.991l1.462-5.423h-8.704l.678-4.709h7.955l1.463-5.423h-14.163l-2.516,17.975c-2.133,1.403-4.375,2.004-6.223,2.004h-10.167l.428-2.997h1.677c5.815,0,10.381-4.281,10.381-9.454,0-4.209-2.782-7.527-7.634-7.527h-7.528l-2.516,17.973c-1.77,1.134-4.214,2.362-6.116,2.362-.357,0-.749-.036-1.177-.107.428-1.034.678-2.247.678-3.603,0-7.599-9.632-6.244-9.632-9.276,0-1.57,1.677-2.426,3.247-2.426,1.748,0,3.282.571,5.708,1.784l1.748-5.244c-2.319-1.32-4.709-1.819-7.242-1.819C6.457,0,1.926,2.925,1.926,8.705c0,7.634,9.632,6.243,9.632,9.311,0,1.534-1.784,2.391-3.282,2.391-2.176,0-4.103-.714-6.528-2.283l-1.748,5.244c2.283,1.641,5.173,2.318,8.098,2.318,1.391,0,2.818-.285,4.067-.82,1.427.571,2.89.82,4.424.82,2.226,0,4.504-.662,6.502-1.704l-.189,1.348h15.233c2.235,0,4.43-.339,6.541-1.369l-.192,1.369h14.52c2.235,0,4.43-.339,6.541-1.369l-.192,1.369h13.129v-.036c1.892-.102,3.728-.488,5.51-1.363l-.196,1.4h13.128l1.463-5.423h-8.348ZM31.143,5.779h2.14c1.677,0,2.426.999,2.426,2.533,0,1.927-1.605,3.603-3.639,3.603h-1.784l.856-6.136Z"/>
+        </svg>
+      </div>
+      <h2 class="sp-win-headline">Complete</h2>
+      <p class="sp-win-sub">All 50 words traced.</p>
+      <div class="sp-end-btns">
+        <button class="sp-btn-primary" id="sp-share">Share</button>
+        <button class="sp-btn-ghost"   id="sp-play-again">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to play</p>
+    <p class="dir-pane" id="directions-text"></p>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/spell.js"></script>
+</body>
+</html>
