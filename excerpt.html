@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Excerpt — identify the literary passage — Bunny Game</title>
+  <meta name="description" content="Three words. One sentence. Two sentences. Full paragraph. Can you identify the passage?">
+  <meta property="og:title" content="Excerpt — identify the literary passage — Bunny Game">
+  <meta property="og:description" content="Three words. One sentence. Two sentences. Full paragraph. Can you identify the passage?">
+  <meta property="og:url" content="https://www.thebunnygame.com/excerpt">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/excerpt-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/excerpt-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/excerpt">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#F4EFE4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/excerpt.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Loading -->
+  <div id="ex-loading" class="ex-screen">
+    <div class="ex-status">
+      <p class="ex-status-title">Opening today’s book…</p>
+      <p>One moment.</p>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="ex-error" class="ex-screen ex-hide">
+    <div class="ex-status">
+      <p class="ex-status-title">Couldn’t load today’s passage</p>
+      <p id="ex-error-msg">Check your connection and try again.</p>
+      <div style="max-width:240px;margin:22px auto 0;">
+        <button class="ex-btn-primary" id="ex-retry-btn">Try again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game — the entry point; there is no splash, same as Proof -->
+  <div id="ex-game" class="ex-screen ex-hide">
+    <img src="assets/logos/excerpt_logo.svg" alt="Excerpt" class="ex-wordmark">
+    <div class="ex-hud">
+      <span id="ex-date-label"></span>
+      <span id="ex-stage-count"></span>
+    </div>
+
+    <div class="ex-passage-card">
+      <p class="ex-passage" id="ex-passage"></p>
+    </div>
+
+    <div class="ex-stage-row">
+      <div class="ex-pips" id="ex-pips"></div>
+      <span class="ex-stage-label" id="ex-stage-label"></span>
+    </div>
+
+    <p class="ex-prompt">Which work is this from?</p>
+    <div class="ex-options" id="ex-options"></div>
+
+    <button class="ex-btn-ghost" id="ex-reveal-btn">Reveal more</button>
+  </div>
+
+  <!-- Result -->
+  <div id="ex-result" class="ex-screen ex-hide">
+    <img src="assets/logos/excerpt_logo.svg" alt="Excerpt" class="ex-wordmark">
+    <div class="ex-hud">
+      <span id="ex-result-date"></span>
+      <span id="ex-result-stagecount"></span>
+    </div>
+
+    <p class="ex-verdict" id="ex-verdict"></p>
+    <p class="ex-verdict-sub" id="ex-verdict-sub"></p>
+
+    <div class="ex-passage-card ex-result-card">
+      <p class="ex-passage ex-stage-4" id="ex-result-passage"></p>
+    </div>
+    <p class="ex-source" id="ex-result-source"></p>
+
+    <div class="ex-answer-lines" id="ex-answer-lines"></div>
+
+    <div class="ex-result-btns">
+      <button class="ex-btn-primary" id="ex-share-btn">Share</button>
+    </div>
+    <p class="ex-tomorrow">A new passage tomorrow.</p>
+  </div>
+
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <img src="assets/logos/excerpt_logo.svg" alt="Excerpt" class="ex-dir-logo">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/excerpt.js"></script>
+</body>
+</html>

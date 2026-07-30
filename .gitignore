@@ -1,2 +1,5 @@
 .claude/
 .DS_Store
+
+# Gutenberg source texts cached by generate-excerpt-index.js (~35MB, refetchable)
+.gutenberg-cache/

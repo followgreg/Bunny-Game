@@ -1,0 +1,349 @@
+/* ── Excerpt — daily literary identification ──────────────────────────────── */
+
+:root {
+  --ex-bg:        #F4EFE4;   /* parchment */
+  --ex-page:      #FBF8F1;   /* passage card */
+  --ex-ink:       #1E1A16;
+  --ex-ink-mid:   rgba(30, 26, 22, 0.62);
+  --ex-ink-soft:  rgba(30, 26, 22, 0.40);
+  --ex-rule:      rgba(30, 26, 22, 0.14);
+  --ex-accent:    #8B2F1F;   /* book red */
+  --ex-correct:   #2F6B3A;
+  --ex-wrong:     #A32A17;
+}
+
+body { background: var(--ex-bg); }
+
+/* shared.css sets a near-white body colour for the dark-themed games, so any
+   Excerpt element without its own colour would vanish into the parchment. The
+   ink is scoped to #canvas-wrap rather than body on purpose: .directions-modal
+   declares no colour and inherits from body, so darkening body would make the
+   shared how-to-play text unreadable on its navy background. */
+#canvas-wrap {
+  background: var(--ex-bg);
+  color: var(--ex-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ex-hide { display: none !important; }
+
+.ex-screen {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 20px 18px 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Loading / error ──────────────────────────────────────────────────────── */
+
+.ex-status {
+  text-align: center;
+  padding: 60px 20px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ex-ink-mid);
+}
+
+.ex-status-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  color: var(--ex-ink);
+  margin: 0 0 8px;
+}
+
+/* ── HUD ──────────────────────────────────────────────────────────────────── */
+
+.ex-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ex-ink-soft);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ex-rule);
+  margin-bottom: 18px;
+}
+
+/* ── Passage card ─────────────────────────────────────────────────────────── */
+
+.ex-passage-card {
+  background: var(--ex-page);
+  border: 1px solid var(--ex-rule);
+  border-radius: 4px;
+  padding: 26px 24px;
+  box-shadow: 0 1px 2px rgba(30,26,22,0.05), 0 8px 24px rgba(30,26,22,0.06);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ex-passage {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.12rem;
+  line-height: 1.72;
+  color: var(--ex-ink);
+  margin: 0;
+  width: 100%;
+}
+
+/* Stage 1 is only three words — give it presence */
+.ex-passage.ex-stage-1 {
+  font-size: 1.9rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.ex-passage .ex-new {
+  background: linear-gradient(transparent 62%, rgba(139, 47, 31, 0.16) 62%);
+}
+
+/* ── Stage indicator ──────────────────────────────────────────────────────── */
+
+.ex-stage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 22px;
+}
+
+.ex-pips { display: flex; gap: 6px; }
+
+.ex-pip {
+  width: 26px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ex-rule);
+  transition: background 0.2s;
+}
+.ex-pip.ex-on { background: var(--ex-accent); }
+
+.ex-stage-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ex-ink-soft);
+  white-space: nowrap;
+}
+
+/* ── Options ──────────────────────────────────────────────────────────────── */
+
+.ex-prompt {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ex-ink-soft);
+  margin: 0 0 10px;
+}
+
+.ex-options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.ex-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--ex-page);
+  border: 1px solid var(--ex-rule);
+  border-radius: 4px;
+  padding: 14px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--ex-ink);
+  cursor: pointer;
+  transition: border-color 0.13s, background 0.13s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ex-option:hover:not(:disabled) {
+  border-color: rgba(30, 26, 22, 0.42);
+  background: #fff;
+}
+.ex-option:active:not(:disabled) { transform: translateY(1px); }
+
+.ex-option .ex-opt-title  { font-weight: 600; }
+.ex-option .ex-opt-author { color: var(--ex-ink-mid); }
+
+/* ── Guess feedback ───────────────────────────────────────────────────────── */
+
+.ex-option:disabled { cursor: default; }
+
+/* Dim the options the player didn't pick once the round is locked */
+.ex-options.ex-locked .ex-option { opacity: 0.45; }
+
+.ex-options.ex-locked .ex-option.ex-picked-right,
+.ex-options.ex-locked .ex-option.ex-picked-wrong,
+.ex-options.ex-locked .ex-option.ex-was-right { opacity: 1; }
+
+.ex-option.ex-picked-right,
+.ex-option.ex-was-right {
+  border-color: var(--ex-correct);
+  background: rgba(47, 107, 58, 0.10);
+  box-shadow: inset 3px 0 0 var(--ex-correct);
+}
+
+.ex-option.ex-picked-wrong {
+  border-color: var(--ex-wrong);
+  background: rgba(163, 42, 23, 0.10);
+  box-shadow: inset 3px 0 0 var(--ex-wrong);
+}
+
+.ex-option-mark {
+  float: right;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ex-picked-right .ex-option-mark,
+.ex-was-right .ex-option-mark { color: var(--ex-correct); }
+.ex-picked-wrong .ex-option-mark { color: var(--ex-wrong); }
+
+/* ── Result screen ────────────────────────────────────────────────────────── */
+
+.ex-verdict {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 6px 0 6px;
+  color: var(--ex-ink);
+}
+.ex-verdict.ex-is-right { color: var(--ex-correct); }
+.ex-verdict.ex-is-wrong { color: var(--ex-wrong); }
+
+.ex-verdict-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ex-ink-mid);
+  margin: 0 0 20px;
+}
+
+.ex-result-card { align-items: flex-start; }
+
+.ex-source {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ex-ink-mid);
+  text-align: right;
+  margin: 10px 0 22px;
+  font-style: italic;
+}
+
+.ex-answer-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.ex-answer-line {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  padding: 11px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--ex-rule);
+  background: var(--ex-page);
+}
+.ex-answer-line .ex-al-label {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ex-ink-soft);
+  margin-bottom: 3px;
+}
+.ex-answer-line.ex-al-right { border-color: var(--ex-correct); }
+.ex-answer-line.ex-al-right .ex-al-label { color: var(--ex-correct); }
+.ex-answer-line.ex-al-wrong { border-color: var(--ex-wrong); }
+.ex-answer-line.ex-al-wrong .ex-al-label { color: var(--ex-wrong); }
+
+.ex-result-btns { max-width: 280px; width: 100%; margin: 0 auto; }
+
+.ex-tomorrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  color: var(--ex-ink-soft);
+  text-align: center;
+  margin: 18px 0 0;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.ex-btn-primary {
+  display: block;
+  width: 100%;
+  background: var(--ex-ink);
+  color: var(--ex-bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  padding: 15px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ex-btn-primary:hover  { opacity: 0.88; }
+.ex-btn-primary:disabled { opacity: 0.35; cursor: default; }
+
+.ex-btn-ghost {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--ex-rule);
+  color: var(--ex-ink-mid);
+  padding: 14px 0;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ex-btn-ghost:hover { border-color: rgba(30,26,22,0.4); color: var(--ex-ink); }
+
+/* ── Wordmark ─────────────────────────────────────────────────────────────── */
+/* There is no splash — the passage is the entry point — so the wordmark sits on
+   the game itself, otherwise nothing on the page names the game. */
+
+.ex-wordmark {
+  display: block;
+  width: 132px;
+  max-width: 46%;
+  margin: 4px auto 18px;
+}
+
+/* ── Directions popup logo (white on the dark shared modal) ───────────────── */
+
+.ex-dir-logo {
+  display: block;
+  width: 145px;
+  max-width: 55%;
+  margin: 0 auto 14px;
+  filter: brightness(0) invert(1);
+}
