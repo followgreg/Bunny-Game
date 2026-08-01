@@ -10,7 +10,6 @@
 
   --rl-tile:      #FDFBF6;
   --rl-tile-edge: rgba(31, 26, 20, 0.20);
-  --rl-wall:      #CFC7B6;
 
   --rl-sel:       #E9B93C;   /* warm gold, current path */
   --rl-sel-deep:  #C8912A;
@@ -188,17 +187,8 @@ body { background: var(--rl-bg); }
   transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.08s;
 }
 
-.rl-cell:hover:not(.rl-wall):not(.rl-locked) { border-color: rgba(31,26,20,0.42); }
-.rl-cell:active:not(.rl-wall):not(.rl-locked) { transform: scale(0.96); }
-
-/* wall */
-.rl-cell.rl-wall {
-  background: var(--rl-wall);
-  border-color: rgba(31,26,20,0.14);
-  box-shadow: none;
-  cursor: default;
-  color: transparent;
-}
+.rl-cell:hover:not(.rl-locked) { border-color: rgba(31,26,20,0.42); }
+.rl-cell:active:not(.rl-locked) { transform: scale(0.96); }
 
 /* in the current path */
 .rl-cell.rl-sel {

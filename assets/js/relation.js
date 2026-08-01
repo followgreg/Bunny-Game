@@ -6,8 +6,9 @@
   var DIRECTIONS_TEXT =
     'Relation gives you a theme and a grid of letters. Four words related to ' +
     'the theme are hidden inside, winding through adjacent tiles — up, down, ' +
-    'left, or right, never diagonal. Every letter tile is used exactly once ' +
-    'across all four words. Click tiles to trace a path. Click the last tile ' +
+    'left, or right, never diagonal. Every real letter is used exactly once ' +
+    'across all four words — but not every letter on the grid belongs to a ' +
+    'word. Click tiles to trace a path. Click the last tile ' +
     "again to backtrack. Click a tile that isn't adjacent to cancel and " +
     'start over, or use the Clear button. Find all four words to complete the ' +
     'puzzle. A new theme drops every day.';
@@ -107,7 +108,10 @@
   var adjacent = function (a, b) {
     return Math.abs(rOf(a) - rOf(b)) + Math.abs(cOf(a) - cOf(b)) === 1;
   };
-  var letterAt = function (i) { return puzzle.grid[rOf(i)][cOf(i)]; };
+  // Every cell carries a letter now — the 7 the words don't use are decoys, and
+  // nothing in the runtime may treat them differently or the disguise is lost.
+  var cellAt   = function (i) { return puzzle.grid[rOf(i)][cOf(i)]; };
+  var letterAt = function (i) { return cellAt(i).letter; };
 
   // ── DOM ──────────────────────────────────────────────────────────────────────
   var loadingEl = document.getElementById('rl-loading');
@@ -129,13 +133,13 @@
 
     for (var r = 0; r < N; r++) {
       for (var c = 0; c < N; c++) {
-        var i  = idx(r, c);
-        var ch = puzzle.grid[r][c];
-        var d  = document.createElement('div');
-        d.className = 'rl-cell' + (ch === null ? ' rl-wall' : '');
-        d.dataset.i = i;
-        d.textContent = ch === null ? '' : ch;
-        if (ch === null) d.setAttribute('aria-hidden', 'true');
+        var i = idx(r, c);
+        var d = document.createElement('div');
+        // Identical markup for real and decoy cells. No class, no data
+        // attribute, nothing a curious player could read off the DOM.
+        d.className   = 'rl-cell';
+        d.dataset.i   = i;
+        d.textContent = puzzle.grid[r][c].letter;
         grid.appendChild(d);
         cellEls[i] = d;
       }
@@ -172,7 +176,7 @@
 
   function renderCells() {
     cellEls.forEach(function (el, i) {
-      if (!el || el.classList.contains('rl-wall')) return;
+      if (!el) return;
       el.classList.toggle('rl-locked', !!locked[i]);
       var at = pathSel.indexOf(i);
       el.classList.toggle('rl-sel',  at !== -1);
@@ -204,8 +208,7 @@
 
   function onCellClick(i) {
     if (rejecting) return;                 // ignore clicks during the red flash
-    if (locked[i]) return;
-    if (letterAt(i) === null) return;
+    if (locked[i]) return;                 // decoys stay clickable; only found cells lock
 
     if (!pathSel.length) { pathSel = [i]; renderCells(); return; }
 
@@ -425,7 +428,7 @@
 
     document.getElementById('rl-grid').addEventListener('click', function (e) {
       var cell = e.target.closest && e.target.closest('.rl-cell');
-      if (!cell || cell.classList.contains('rl-wall')) return;
+      if (!cell) return;
       onCellClick(+cell.dataset.i);
     });
 
