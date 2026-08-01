@@ -13,7 +13,11 @@
     'start over, or use the Clear button. Find all four words to complete the ' +
     'puzzle. A new theme drops every day.';
 
-  var PUZZLES_URL      = 'assets/data/relation-puzzles.json';
+  // Versioned so a returning player can never pair this JS with a cached copy of
+  // the previous data file. The grid changed from plain letters to
+  // {letter,isDecoy}; the old shape read through this code renders every cell
+  // as undefined. Bump this whenever the puzzle format changes.
+  var PUZZLES_URL      = 'assets/data/relation-puzzles.json?v=2';
   var LS_PREFIX        = 'relation_result_';
   var SHARE_URL        = 'https://www.thebunnygame.com/relation';
   var FETCH_TIMEOUT_MS = 5000;
