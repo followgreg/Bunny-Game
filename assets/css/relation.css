@@ -1,0 +1,442 @@
+/* ── Relation — daily word-path puzzle ────────────────────────────────────── */
+
+:root {
+  --rl-bg:        #F2ECDF;   /* parchment */
+  --rl-card:      #FBF8F1;
+  --rl-ink:       #1F1A14;
+  --rl-ink-mid:   rgba(31, 26, 20, 0.60);
+  --rl-ink-soft:  rgba(31, 26, 20, 0.38);
+  --rl-rule:      rgba(31, 26, 20, 0.16);
+
+  --rl-tile:      #FDFBF6;
+  --rl-tile-edge: rgba(31, 26, 20, 0.20);
+  --rl-wall:      #CFC7B6;
+
+  --rl-sel:       #E9B93C;   /* warm gold, current path */
+  --rl-sel-deep:  #C8912A;
+  --rl-found:     #35704A;   /* locked green */
+  --rl-wrong:     #B03A22;
+}
+
+body { background: var(--rl-bg); }
+
+/* shared.css sets a near-white body colour for the dark games. Relation is a
+   light page, so ink is scoped to the wrapper — NOT to body, because the shared
+   how-to-play modal inherits from body and would turn unreadable on its navy. */
+#canvas-wrap {
+  background: var(--rl-bg);
+  color: var(--rl-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* shared.css sets justify-content:center. In a column flex container that
+     centres the content vertically, and anything taller than the viewport then
+     overflows off the TOP where scrolling cannot reach it — the wordmark ends up
+     tucked behind the header. flex-start keeps the overflow at the bottom, which
+     is where the scrollbar can actually get to it. */
+  justify-content: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rl-hide { display: none !important; }
+
+.rl-screen {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 16px 18px 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Status / error ───────────────────────────────────────────────────────── */
+
+.rl-status {
+  text-align: center;
+  padding: 60px 20px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--rl-ink-mid);
+}
+.rl-status-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  color: var(--rl-ink);
+  margin: 0 0 8px;
+}
+
+/* ── Header row ───────────────────────────────────────────────────────────── */
+
+.rl-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--rl-ink-soft);
+  margin-bottom: 10px;
+}
+
+/* ── Theme ────────────────────────────────────────────────────────────────── */
+
+.rl-theme {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.72rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--rl-ink);
+  text-align: center;
+  margin: 2px 0 20px;
+}
+
+/* ── Word-length slots ────────────────────────────────────────────────────── */
+
+.rl-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-self: flex-start;
+  margin-bottom: 22px;
+  padding-left: 2px;
+}
+
+.rl-slot-row { display: flex; gap: 6px; }
+
+.rl-slot {
+  width: 22px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--rl-found);
+  border-bottom: 2px solid var(--rl-rule);
+  transition: border-color 0.2s;
+}
+
+.rl-slot-row.rl-done .rl-slot { border-bottom-color: var(--rl-found); }
+
+/* filled letter drops in with a short bounce, staggered per letter */
+@keyframes rl-pop {
+  0%   { transform: translateY(-8px) scale(0.7); opacity: 0; }
+  60%  { transform: translateY(2px)  scale(1.12); opacity: 1; }
+  100% { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+.rl-slot.rl-filled { animation: rl-pop 0.34s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* ── Grid ─────────────────────────────────────────────────────────────────── */
+
+.rl-board {
+  position: relative;
+  width: min(340px, calc(100vw - 44px));
+  aspect-ratio: 1;
+  margin-bottom: 18px;
+  touch-action: manipulation;
+}
+
+.rl-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 6px;
+}
+
+/* SVG overlay that draws the current path — sits above tiles, ignores clicks */
+.rl-path-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+.rl-path-line {
+  fill: none;
+  stroke: var(--rl-sel-deep);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+
+.rl-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(1.15rem, 6.4vw, 1.6rem);
+  font-weight: 700;
+  color: var(--rl-ink);
+  background: var(--rl-tile);
+  border: 1px solid var(--rl-tile-edge);
+  box-shadow: 0 1px 0 rgba(31,26,20,0.06);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.08s;
+}
+
+.rl-cell:hover:not(.rl-wall):not(.rl-locked) { border-color: rgba(31,26,20,0.42); }
+.rl-cell:active:not(.rl-wall):not(.rl-locked) { transform: scale(0.96); }
+
+/* wall */
+.rl-cell.rl-wall {
+  background: var(--rl-wall);
+  border-color: rgba(31,26,20,0.14);
+  box-shadow: none;
+  cursor: default;
+  color: transparent;
+}
+
+/* in the current path */
+.rl-cell.rl-sel {
+  background: var(--rl-sel);
+  border-color: var(--rl-sel-deep);
+  color: #2A2008;
+  z-index: 3;
+}
+
+/* the most recent tile — the one a click would backtrack from */
+.rl-cell.rl-head {
+  box-shadow: 0 0 0 3px rgba(200, 145, 42, 0.45);
+}
+
+/* found and locked */
+.rl-cell.rl-locked {
+  background: var(--rl-found);
+  border-color: var(--rl-found);
+  color: #fff;
+  cursor: default;
+}
+
+/* brief red flash on a rejected attempt */
+@keyframes rl-shake {
+  0%,100% { transform: translateX(0); }
+  25%     { transform: translateX(-3px); }
+  75%     { transform: translateX(3px); }
+}
+.rl-cell.rl-bad {
+  border-color: var(--rl-wrong);
+  box-shadow: 0 0 0 2px rgba(176, 58, 34, 0.5);
+  animation: rl-shake 0.22s ease-in-out;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────────── */
+
+.rl-controls {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.rl-btn {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 13px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s, border-color 0.12s, color 0.12s;
+  background: transparent;
+  border: 1px solid var(--rl-rule);
+  color: var(--rl-ink-mid);
+}
+.rl-btn:hover { border-color: rgba(31,26,20,0.42); color: var(--rl-ink); }
+.rl-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Splash ───────────────────────────────────────────────────────────────── */
+
+#rl-splash { justify-content: center; min-height: 58vh; }
+
+.rl-splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.rl-splash-logo {
+  display: block;
+  width: 210px;
+  max-width: 76%;
+  margin: 0 auto 22px;
+}
+
+.rl-splash-dir {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.72;
+  color: var(--rl-ink-mid);
+  margin: 0 0 26px;
+  text-align: left;
+}
+
+#rl-play-btn { width: 100%; }
+
+/* ── Win sequence ─────────────────────────────────────────────────────────── */
+
+/* every found cell glows in turn, staggered by index from the JS */
+@keyframes rl-glow {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(53,112,74,0.0); }
+  40%  { transform: scale(1.09); box-shadow: 0 0 0 7px rgba(53,112,74,0.30); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(53,112,74,0.0); }
+}
+.rl-cell.rl-celebrate { animation: rl-glow 0.62s ease-out both; }
+
+.rl-win {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: rgba(242, 236, 223, 0.94);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.rl-win-box {
+  width: 100%;
+  max-width: 360px;
+  background: var(--rl-card);
+  border: 1px solid var(--rl-rule);
+  border-radius: 10px;
+  padding: 30px 26px 22px;
+  box-shadow: 0 10px 40px rgba(31,26,20,0.14);
+  text-align: center;
+}
+
+.rl-win-kicker {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rl-found);
+  margin: 0 0 8px;
+}
+
+.rl-win-theme {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.62rem;
+  line-height: 1.22;
+  color: var(--rl-ink);
+  margin: 0 0 18px;
+}
+
+.rl-win-words {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rl-win-words li {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--rl-found);
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(53,112,74,0.18);
+}
+.rl-win-words li:last-child { border-bottom: none; }
+
+.rl-btn-primary {
+  background: var(--rl-found);
+  border-color: var(--rl-found);
+  color: #fff;
+  width: 100%;
+}
+.rl-btn-primary:hover { background: #2C5E3E; border-color: #2C5E3E; color: #fff; }
+
+.rl-win-tomorrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: var(--rl-ink-soft);
+  margin: 14px 0 0;
+}
+
+.rl-win-close {
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--rl-ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  margin-top: 12px;
+  padding: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.rl-win-close:hover { color: var(--rl-ink); }
+
+/* small banner offering the overlay again once it has been dismissed */
+.rl-done-bar {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid rgba(53,112,74,0.35);
+  background: rgba(53,112,74,0.08);
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: var(--rl-found);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.rl-done-bar button {
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--rl-found);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+/* ── Directions popup logo (white on the shared dark modal) ───────────────── */
+
+.rl-dir-logo {
+  display: block;
+  width: 150px;
+  max-width: 55%;
+  margin: 0 auto 14px;
+  filter: brightness(0) invert(1);
+}
+
+.rl-wordmark {
+  display: block;
+  width: 140px;
+  max-width: 48%;
+  margin: 2px auto 14px;
+}

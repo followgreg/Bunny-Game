@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Relation — a daily word path puzzle — Bunny Game</title>
+  <meta name="description" content="Four words. One theme. Winding paths through the grid. A new puzzle every day.">
+  <meta property="og:title" content="Relation — a daily word path puzzle — Bunny Game">
+  <meta property="og:description" content="Four words. One theme. Winding paths through the grid. A new puzzle every day.">
+  <meta property="og:url" content="https://www.thebunnygame.com/relation">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/relation-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/relation-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/relation">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#F2ECDF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/relation.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Loading -->
+  <div id="rl-loading" class="rl-screen">
+    <div class="rl-status">
+      <p class="rl-status-title">Setting out today&rsquo;s grid&hellip;</p>
+      <p>One moment.</p>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="rl-error" class="rl-screen rl-hide">
+    <div class="rl-status">
+      <p class="rl-status-title">Couldn&rsquo;t load today&rsquo;s puzzle</p>
+      <p id="rl-error-msg">Check your connection and try again.</p>
+      <div style="max-width:240px;margin:22px auto 0;">
+        <button class="rl-btn" id="rl-retry-btn">Try again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Splash — shown on every page load -->
+  <div id="rl-splash" class="rl-screen rl-hide">
+    <div class="rl-splash-inner">
+      <img src="assets/logos/relation_logo.svg" alt="Relation" class="rl-splash-logo">
+      <p class="rl-splash-dir" id="rl-splash-dir"></p>
+      <button class="rl-btn rl-btn-primary" id="rl-play-btn">Play</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="rl-game" class="rl-screen rl-hide">
+    <img src="assets/logos/relation_logo.svg" alt="Relation" class="rl-wordmark">
+
+    <div class="rl-hud">
+      <span id="rl-date-label"></span>
+      <span id="rl-progress-label"></span>
+    </div>
+
+    <p class="rl-theme" id="rl-theme"></p>
+
+    <div class="rl-done-bar rl-hide" id="rl-done-bar">
+      <span>Today&rsquo;s grid is complete.</span>
+      <button type="button" id="rl-reopen-win">See result</button>
+    </div>
+
+    <div class="rl-slots" id="rl-slots"></div>
+
+    <div class="rl-board" id="rl-board">
+      <div class="rl-grid" id="rl-grid"></div>
+      <svg class="rl-path-layer" id="rl-path-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polyline class="rl-path-line" id="rl-path-line" points=""></polyline>
+      </svg>
+    </div>
+
+    <div class="rl-controls">
+      <button class="rl-btn" id="rl-clear-btn">Clear</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Win overlay -->
+<div id="rl-win" class="rl-win rl-hide">
+  <div class="rl-win-box">
+    <p class="rl-win-kicker">Solved</p>
+    <p class="rl-win-theme" id="rl-win-theme"></p>
+    <ul class="rl-win-words" id="rl-win-words"></ul>
+    <button class="rl-btn rl-btn-primary" id="rl-share-btn">Share</button>
+    <p class="rl-win-tomorrow">A new grid tomorrow.</p>
+    <button class="rl-win-close" id="rl-win-close">View the grid</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <img src="assets/logos/relation_logo.svg" alt="Relation" class="rl-dir-logo">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/relation.js"></script>
+</body>
+</html>

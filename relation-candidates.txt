@@ -1,0 +1,1930 @@
+RELATION - CANDIDATE PUZZLES FOR REVIEW
+========================================================================
+
+Every figure below is computed from the words themselves.
+
+CONSTRAINT USED
+  The brief gives two incompatible rules: "no two words share a letter",
+  and "ideally no letter appears more than twice". The brief's own
+  examples follow the second, not the first:
+    FOG/HAIL/SLEET/SHOWER  is labelled "Duplicate letters: None" but runs
+                           O2 H2 L2 S2 E3 - it breaks even the looser rule
+    HAY/BARN/FENCE/TROUGH  is labelled "None" but has five letters twice
+  So the rule enforced here is: NO LETTER MORE THAN TWICE across the 18
+  tiles. A set reaching 18 entirely distinct letters is marked
+  ZERO-DUPLICATE and is the strongest candidate for a clean grid.
+
+  Grid path solvability is NOT checked here, as instructed.
+
+  Duplicate tiles needed = the count of letters listed on the Duplicate
+  line. A set with 3 duplicated letters needs 3 repeated tiles in the grid.
+
+  Themes attempted   : 221
+  Sets resolved      : 201
+  Included below     : 200
+  Zero-duplicate     : 0
+
+========================================================================
+
+PUZZLE 1
+Theme: Types of weather
+Words: FOG (3) / RAIN (4) / SLEET (5) / CLOUDY (6)
+Letters used: A,C,D,E,F,G,I,L,N,O,R,S,T,U,Y (15 unique, 18 tiles)
+Duplicate letters: E x2, L x2, O x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 2
+Theme: Things on a farm
+Words: HAY (3) / MILK (4) / FENCE (5) / TROUGH (6)
+Letters used: A,C,E,F,G,H,I,K,L,M,N,O,R,T,U,Y (16 unique, 18 tiles)
+Duplicate letters: E x2, H x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 3
+Theme: Kitchen tools
+Words: CUP (3) / OVEN (4) / WHISK (5) / GRATER (6)
+Letters used: A,C,E,G,H,I,K,N,O,P,R,S,T,U,V,W (16 unique, 18 tiles)
+Duplicate letters: E x2, R x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 4
+Theme: Things in the sea
+Words: COD (3) / TUNA (4) / WHALE (5) / SHRIMP (6)
+Letters used: A,C,D,E,H,I,L,M,N,O,P,R,S,T,U,W (16 unique, 18 tiles)
+Duplicate letters: A x2, H x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 5
+Theme: Musical instruments
+Words: SAX (3) / DRUM (4) / FLUTE (5) / VIOLIN (6)
+Letters used: A,D,E,F,I,L,M,N,O,R,S,T,U,V,X (15 unique, 18 tiles)
+Duplicate letters: I x2, L x2, U x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 6
+Theme: Parts of a house
+Words: DEN (3) / WALL (4) / PORCH (5) / PANTRY (6)
+Letters used: A,C,D,E,H,L,N,O,P,R,T,W,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, L x2, N x2, P x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 7
+Theme: Breakfast foods
+Words: JAM (3) / OATS (4) / CREPE (5) / MUFFIN (6)
+Letters used: A,C,E,F,I,J,M,N,O,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, F x2, M x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 8
+Theme: Things in a garden
+Words: BUD (3) / VINE (4) / MULCH (5) / FLOWER (6)
+Letters used: B,C,D,E,F,H,I,L,M,N,O,R,U,V,W (15 unique, 18 tiles)
+Duplicate letters: E x2, L x2, U x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 9
+Theme: Winter clothing
+Words: HAT (3) / BOOT (4) / SCARF (5) / JUMPER (6)
+Letters used: A,B,C,E,F,H,J,M,O,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, O x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 10
+Theme: Camping equipment
+Words: AXE (3) / BIVY (4) / FLASK (5) / GROUND (6)
+Letters used: A,B,D,E,F,G,I,K,L,N,O,R,S,U,V,X,Y (17 unique, 18 tiles)
+Duplicate letters: A x2  (1 duplicate tile needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 11
+Theme: Desert things
+Words: SUN (3) / HEAT (4) / SCRUB (5) / LIZARD (6)
+Letters used: A,B,C,D,E,H,I,L,N,R,S,T,U,Z (14 unique, 18 tiles)
+Duplicate letters: A x2, R x2, S x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 12
+Theme: Office supplies
+Words: PAD (3) / CLIP (4) / TONER (5) / BINDER (6)
+Letters used: A,B,C,D,E,I,L,N,O,P,R,T (12 unique, 18 tiles)
+Duplicate letters: D x2, E x2, I x2, N x2, P x2, R x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 13
+Theme: Things in a toolbox
+Words: SAW (3) / FILE (4) / CLAMP (5) / WRENCH (6)
+Letters used: A,C,E,F,H,I,L,M,N,P,R,S,W (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, L x2, W x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 14
+Theme: Bodies of water
+Words: BAY (3) / POND (4) / CREEK (5) / STRAIT (6)
+Letters used: A,B,C,D,E,I,K,N,O,P,R,S,T,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 15
+Theme: Pirate things
+Words: RUM (3) / GOLD (4) / CHEST (5) / ANCHOR (6)
+Letters used: A,C,D,E,G,H,L,M,N,O,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: C x2, H x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 16
+Theme: Things in a bathroom
+Words: TUB (3) / COMB (4) / DRAIN (5) / SPONGE (6)
+Letters used: A,B,C,D,E,G,I,M,N,O,P,R,S,T,U (15 unique, 18 tiles)
+Duplicate letters: B x2, N x2, O x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 17
+Theme: Bird species
+Words: OWL (3) / DOVE (4) / FINCH (5) / MAGPIE (6)
+Letters used: A,C,D,E,F,G,H,I,L,M,N,O,P,V,W (15 unique, 18 tiles)
+Duplicate letters: E x2, I x2, O x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 18
+Theme: Types of rock and mineral
+Words: ORE (3) / COAL (4) / FLINT (5) / GYPSUM (6)
+Letters used: A,C,E,F,G,I,L,M,N,O,P,R,S,T,U,Y (16 unique, 18 tiles)
+Duplicate letters: L x2, O x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 19
+Theme: Things at the beach
+Words: SUN (3) / SAND (4) / TOWEL (5) / BUCKET (6)
+Letters used: A,B,C,D,E,K,L,N,O,S,T,U,W (13 unique, 18 tiles)
+Duplicate letters: E x2, N x2, S x2, T x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 20
+Theme: Jungle animals
+Words: BAT (3) / WASP (4) / TIGER (5) / MONKEY (6)
+Letters used: A,B,E,G,I,K,M,N,O,P,R,S,T,W,Y (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, T x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 21
+Theme: Objects in space
+Words: SUN (3) / MARS (4) / ORBIT (5) / PLANET (6)
+Letters used: A,B,E,I,L,M,N,O,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, N x2, R x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 22
+Theme: Medieval weapons
+Words: BOW (3) / PIKE (4) / LANCE (5) / ARMOUR (6)
+Letters used: A,B,C,E,I,K,L,M,N,O,P,R,U,W (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 23
+Theme: Parts of a tree
+Words: SAP (3) / LEAF (4) / BOUGH (5) / TIMBER (6)
+Letters used: A,B,E,F,G,H,I,L,M,O,P,R,S,T,U (15 unique, 18 tiles)
+Duplicate letters: A x2, B x2, E x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 24
+Theme: Things that are round
+Words: ORB (3) / DISC (4) / WHEEL (5) / BUTTON (6)
+Letters used: B,C,D,E,H,I,L,N,O,R,S,T,U,W (14 unique, 18 tiles)
+Duplicate letters: B x2, E x2, O x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 25
+Theme: Fishing gear
+Words: ROD (3) / BAIT (4) / FLOAT (5) / SINKER (6)
+Letters used: A,B,D,E,F,I,K,L,N,O,R,S,T (13 unique, 18 tiles)
+Duplicate letters: A x2, I x2, O x2, R x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 26
+Theme: Precious stones
+Words: GEM (3) / RUBY (4) / TOPAZ (5) / SPINEL (6)
+Letters used: A,B,E,G,I,L,M,N,O,P,R,S,T,U,Y,Z (16 unique, 18 tiles)
+Duplicate letters: E x2, P x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 27
+Theme: Things in a car
+Words: FOB (3) / DASH (4) / WIPER (5) / CLUTCH (6)
+Letters used: A,B,C,D,E,F,H,I,L,O,P,R,S,T,U,W (16 unique, 18 tiles)
+Duplicate letters: C x2, H x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 28
+Theme: Things a chef does
+Words: MIX (3) / CHOP (4) / BLEND (5) / SAUTES (6)
+Letters used: A,B,C,D,E,H,I,L,M,N,O,P,S,T,U,X (16 unique, 18 tiles)
+Duplicate letters: E x2, S x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 29
+Theme: Mountain features
+Words: CAP (3) / PEAK (4) / RIDGE (5) / SUMMIT (6)
+Letters used: A,C,D,E,G,I,K,M,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, M x2, P x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 30
+Theme: Things in a stable
+Words: OAT (3) / COLT (4) / REINS (5) / BRIDLE (6)
+Letters used: A,B,C,D,E,I,L,N,O,R,S,T (12 unique, 18 tiles)
+Duplicate letters: E x2, I x2, L x2, O x2, R x2, T x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 31
+Theme: Things in a forest
+Words: FIR (3) / MOSS (4) / GLADE (5) / CANOPY (6)
+Letters used: A,C,D,E,F,G,I,L,M,N,O,P,R,S,Y (15 unique, 18 tiles)
+Duplicate letters: A x2, O x2, S x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 32
+Theme: Things in the sky
+Words: JET (3) / BIRD (4) / CLOUD (5) / ROCKET (6)
+Letters used: B,C,D,E,I,J,K,L,O,R,T,U (12 unique, 18 tiles)
+Duplicate letters: C x2, D x2, E x2, O x2, R x2, T x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 33
+Theme: Spices and seasonings
+Words: BAY (3) / SALT (4) / CUMIN (5) / GINGER (6)
+Letters used: A,B,C,E,G,I,L,M,N,R,S,T,U,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, G x2, I x2, N x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 34
+Theme: Things with a handle
+Words: MUG (3) / PAIL (4) / BROOM (5) / KETTLE (6)
+Letters used: A,B,E,G,I,K,L,M,O,P,R,T,U (13 unique, 18 tiles)
+Duplicate letters: E x2, L x2, M x2, O x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 35
+Theme: Occupations
+Words: VET (3) / MONK (4) / PILOT (5) / FARMER (6)
+Letters used: A,E,F,I,K,L,M,N,O,P,R,T,V (13 unique, 18 tiles)
+Duplicate letters: E x2, M x2, O x2, R x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 36
+Theme: Things on a desk
+Words: PEN (3) / LAMP (4) / DIARY (5) / FOLDER (6)
+Letters used: A,D,E,F,I,L,M,N,O,P,R,Y (12 unique, 18 tiles)
+Duplicate letters: A x2, D x2, E x2, L x2, P x2, R x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 37
+Theme: Parts of a bicycle
+Words: HUB (3) / FORK (4) / CHAIN (5) / PEDALS (6)
+Letters used: A,B,C,D,E,F,H,I,K,L,N,O,P,R,S,U (16 unique, 18 tiles)
+Duplicate letters: A x2, H x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 38
+Theme: Insects
+Words: BEE (3) / GNAT (4) / APHID (5) / LOCUST (6)
+Letters used: A,B,C,D,E,G,H,I,L,N,O,P,S,T,U (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, T x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 39
+Theme: Colours of paint
+Words: TAN (3) / TEAL (4) / UMBER (5) / INDIGO (6)
+Letters used: A,B,D,E,G,I,L,M,N,O,R,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, N x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 40
+Theme: Things that fly
+Words: BAT (3) / KITE (4) / DRONE (5) / FALCON (6)
+Letters used: A,B,C,D,E,F,I,K,L,N,O,R,T (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, N x2, O x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 41
+Theme: Types of soup
+Words: PHO (3) / BEAN (4) / STOCK (5) / BARLEY (6)
+Letters used: A,B,C,E,H,K,L,N,O,P,R,S,T,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, B x2, E x2, O x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 42
+Theme: Winter sports
+Words: BOB (3) / LUGE (4) / SKATE (5) / NORDIC (6)
+Letters used: A,B,C,D,E,G,I,K,L,N,O,R,S,T,U (15 unique, 18 tiles)
+Duplicate letters: B x2, E x2, O x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 43
+Theme: Volcano words
+Words: ASH (3) / FLOW (4) / CRUST (5) / PUMICE (6)
+Letters used: A,C,E,F,H,I,L,M,O,P,R,S,T,U,W (15 unique, 18 tiles)
+Duplicate letters: C x2, S x2, U x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 44
+Theme: Things in a gym
+Words: MAT (3) / BIKE (4) / SQUAT (5) / LOCKER (6)
+Letters used: A,B,C,E,I,K,L,M,O,Q,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, K x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 45
+Theme: Things in a museum
+Words: URN (3) / CASE (4) / RELIC (5) / PLINTH (6)
+Letters used: A,C,E,H,I,L,N,P,R,S,T,U (12 unique, 18 tiles)
+Duplicate letters: C x2, E x2, I x2, L x2, N x2, R x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 46
+Theme: Parts of a shoe
+Words: TOE (3) / VAMP (4) / SHANK (5) / BUCKLE (6)
+Letters used: A,B,C,E,H,K,L,M,N,O,P,S,T,U,V (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, K x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 47
+Theme: Types of fabric
+Words: NET (3) / SILK (4) / GAUZE (5) / MOHAIR (6)
+Letters used: A,E,G,H,I,K,L,M,N,O,R,S,T,U,Z (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 48
+Theme: Things in a bank
+Words: PIN (3) / CASH (4) / VAULT (5) / LEDGER (6)
+Letters used: A,C,D,E,G,H,I,L,N,P,R,S,T,U,V (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 49
+Theme: Things that grow
+Words: IVY (3) / FERN (4) / MOULD (5) / SPROUT (6)
+Letters used: D,E,F,I,L,M,N,O,P,R,S,T,U,V,Y (15 unique, 18 tiles)
+Duplicate letters: O x2, R x2, U x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 50
+Theme: Sailing words
+Words: JIB (3) / MAST (4) / BOOMS (5) / RUDDER (6)
+Letters used: A,B,D,E,I,J,M,O,R,S,T,U (12 unique, 18 tiles)
+Duplicate letters: B x2, D x2, M x2, O x2, R x2, S x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 51
+Theme: Things in a snowstorm
+Words: ICE (3) / SNOW (4) / DRIFT (5) / SHOVEL (6)
+Letters used: C,D,E,F,H,I,L,N,O,R,S,T,V,W (14 unique, 18 tiles)
+Duplicate letters: E x2, I x2, O x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 52
+Theme: Parts of a flower
+Words: BUD (3) / STEM (4) / STALK (5) / CARPEL (6)
+Letters used: A,B,C,D,E,K,L,M,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2. OBSCURITY: CARPEL, SEPAL and ANTHER are botanical terms — fine for a botany-leaning theme, less so for a casual daily
+
+---
+
+PUZZLE 53
+Theme: Mail and post
+Words: BOX (3) / NOTE (4) / STAMP (5) / PARCEL (6)
+Letters used: A,B,C,E,L,M,N,O,P,R,S,T,X (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, O x2, P x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 54
+Theme: Things in a toy box
+Words: KIT (3) / DRUM (4) / BLOCK (5) / PUZZLE (6)
+Letters used: B,C,D,E,I,K,L,M,O,P,R,T,U,Z (14 unique, 18 tiles)
+Duplicate letters: K x2, L x2, U x2, Z x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 55
+Theme: Things underground
+Words: BUG (3) / MOLE (4) / CRYPT (5) / CAVERN (6)
+Letters used: A,B,C,E,G,L,M,N,O,P,R,T,U,V,Y (15 unique, 18 tiles)
+Duplicate letters: C x2, E x2, R x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 56
+Theme: Types of hat
+Words: FEZ (3) / HOOD (4) / DERBY (5) / TURBAN (6)
+Letters used: A,B,D,E,F,H,N,O,R,T,U,Y,Z (13 unique, 18 tiles)
+Duplicate letters: B x2, D x2, E x2, O x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 57
+Theme: Things at a picnic
+Words: RUG (3) / CUPS (4) / FLASK (5) / HAMPER (6)
+Letters used: A,C,E,F,G,H,K,L,M,P,R,S,U (13 unique, 18 tiles)
+Duplicate letters: A x2, P x2, R x2, S x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 58
+Theme: Coastal features
+Words: BAY (3) / DUNE (4) / CLIFF (5) / LAGOON (6)
+Letters used: A,B,C,D,E,F,G,I,L,N,O,U,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, F x2, L x2, N x2, O x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 59
+Theme: Things a dog does
+Words: DIG (3) / BARK (4) / FETCH (5) / GROWLS (6)
+Letters used: A,B,C,D,E,F,G,H,I,K,L,O,R,S,T,W (16 unique, 18 tiles)
+Duplicate letters: G x2, R x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2. THEME STRETCH: mixing verb tenses reads slightly uneven if the set lands on WAGS or HOWLED
+
+---
+
+PUZZLE 60
+Theme: Chess
+Words: END (3) / MATE (4) / BLACK (5) / BISHOP (6)
+Letters used: A,B,C,D,E,H,I,K,L,M,N,O,P,S,T (15 unique, 18 tiles)
+Duplicate letters: A x2, B x2, E x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 61
+Theme: Citrus fruits
+Words: PIP (3) / YUZU (4) / WEDGE (5) / CITRON (6)
+Letters used: C,D,E,G,I,N,O,P,R,T,U,W,Y,Z (14 unique, 18 tiles)
+Duplicate letters: E x2, I x2, P x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 62
+Theme: Berries
+Words: BOG (3) / HULL (4) / BERRY (5) / DAMSON (6)
+Letters used: A,B,D,E,G,H,L,M,N,O,R,S,U,Y (14 unique, 18 tiles)
+Duplicate letters: B x2, L x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 63
+Theme: Things in a salad
+Words: NUT (3) / CORN (4) / OLIVE (5) / RADISH (6)
+Letters used: A,C,D,E,H,I,L,N,O,R,S,T,U,V (14 unique, 18 tiles)
+Duplicate letters: I x2, N x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 64
+Theme: Things on a cheeseboard
+Words: FIG (3) / CURD (4) / COLBY (5) / PANEER (6)
+Letters used: A,B,C,D,E,F,G,I,L,N,O,P,R,U,Y (15 unique, 18 tiles)
+Duplicate letters: C x2, E x2, R x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 65
+Theme: Things in a bakery
+Words: BUN (3) / LOAF (4) / ICING (5) / PASTRY (6)
+Letters used: A,B,C,F,G,I,L,N,O,P,R,S,T,U,Y (15 unique, 18 tiles)
+Duplicate letters: A x2, I x2, N x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 66
+Theme: Hot drinks
+Words: TEA (3) / CHAI (4) / BROTH (5) / MULLED (6)
+Letters used: A,B,C,D,E,H,I,L,M,O,R,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, H x2, L x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 67
+Theme: Things on a barbecue
+Words: GAS (3) / TONG (4) / APRON (5) / SKEWER (6)
+Letters used: A,E,G,K,N,O,P,R,S,T,W (11 unique, 18 tiles)
+Duplicate letters: A x2, E x2, G x2, N x2, O x2, R x2, S x2  (7 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 68
+Theme: Sweet things
+Words: JAM (3) / MINT (4) / SYRUP (5) / TOFFEE (6)
+Letters used: A,E,F,I,J,M,N,O,P,R,S,T,U,Y (14 unique, 18 tiles)
+Duplicate letters: E x2, F x2, M x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 69
+Theme: Things in a jar
+Words: LID (3) / BALM (4) / HONEY (5) / CAPERS (6)
+Letters used: A,B,C,D,E,H,I,L,M,N,O,P,R,S,Y (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 70
+Theme: Cuts of meat
+Words: RIB (3) / RUMP (4) / FLANK (5) / CUTLET (6)
+Letters used: A,B,C,E,F,I,K,L,M,N,P,R,T,U (14 unique, 18 tiles)
+Duplicate letters: L x2, R x2, T x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 71
+Theme: Types of potato dish
+Words: PIE (3) / MASH (4) / ROSTI (5) / JACKET (6)
+Letters used: A,C,E,H,I,J,K,M,O,P,R,S,T (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 72
+Theme: Things in a curry
+Words: POT (3) / GHEE (4) / CUMIN (5) / GARLIC (6)
+Letters used: A,C,E,G,H,I,L,M,N,O,P,R,T,U (14 unique, 18 tiles)
+Duplicate letters: C x2, E x2, G x2, I x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 73
+Theme: Ice cream flavours
+Words: RUM (3) / MINT (4) / PEACH (5) / SORBET (6)
+Letters used: A,B,C,E,H,I,M,N,O,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: E x2, M x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 74
+Theme: Things at a market
+Words: BAG (3) / TILL (4) / CRATE (5) / VENDOR (6)
+Letters used: A,B,C,D,E,G,I,L,N,O,R,T,V (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, R x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 75
+Theme: Types of nut
+Words: NUT (3) / PINE (4) / HAZEL (5) / BRAZIL (6)
+Letters used: A,B,E,H,I,L,N,P,R,T,U,Z (12 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, L x2, N x2, Z x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 76
+Theme: Things in a lunchbox
+Words: JAM (3) / WRAP (4) / JUICE (5) / YOGURT (6)
+Letters used: A,C,E,G,I,J,M,O,P,R,T,U,W,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, J x2, R x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 77
+Theme: Condiments
+Words: OIL (3) / MAYO (4) / SAUCE (5) / RELISH (6)
+Letters used: A,C,E,H,I,L,M,O,R,S,U,Y (12 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, L x2, O x2, S x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 78
+Theme: Things you can pour
+Words: OIL (3) / WINE (4) / GRAVY (5) / BATTER (6)
+Letters used: A,B,E,G,I,L,N,O,R,T,V,W,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, R x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 79
+Theme: Seafood
+Words: ROE (3) / CLAM (4) / SQUID (5) / OYSTER (6)
+Letters used: A,C,D,E,I,L,M,O,Q,R,S,T,U,Y (14 unique, 18 tiles)
+Duplicate letters: E x2, O x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 80
+Theme: Types of mushroom
+Words: CEP (3) / GILL (4) / SPORE (5) / BUTTON (6)
+Letters used: B,C,E,G,I,L,N,O,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: E x2, L x2, O x2, P x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 81
+Theme: Things in a meadow
+Words: HAY (3) / MOTH (4) / DAISY (5) / CLOVER (6)
+Letters used: A,C,D,E,H,I,L,M,O,R,S,T,V,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, H x2, O x2, Y x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 82
+Theme: Things in a swamp
+Words: MUD (3) / FROG (4) / MARSH (5) / SLUDGE (6)
+Letters used: A,D,E,F,G,H,L,M,O,R,S,U (12 unique, 18 tiles)
+Duplicate letters: D x2, G x2, M x2, R x2, S x2, U x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 83
+Theme: Arctic things
+Words: HUT (3) / SEAL (4) / IGLOO (5) / TUNDRA (6)
+Letters used: A,D,E,G,H,I,L,N,O,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, L x2, O x2, T x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 84
+Theme: Things in a cave
+Words: BAT (3) / DRIP (4) / CHASM (5) / TUNNEL (6)
+Letters used: A,B,C,D,E,H,I,L,M,N,P,R,S,T,U (15 unique, 18 tiles)
+Duplicate letters: A x2, N x2, T x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 85
+Theme: Riverside things
+Words: MUD (3) / SILT (4) / HERON (5) / ANGLER (6)
+Letters used: A,D,E,G,H,I,L,M,N,O,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: E x2, L x2, N x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 86
+Theme: Things in a rainforest
+Words: APE (3) / FERN (4) / HUMID (5) / TOUCAN (6)
+Letters used: A,C,D,E,F,H,I,M,N,O,P,R,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, N x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 87
+Theme: Types of soil
+Words: BOG (3) / DIRT (4) / HUMUS (5) / GRAVEL (6)
+Letters used: A,B,D,E,G,H,I,L,M,O,R,S,T,U,V (15 unique, 18 tiles)
+Duplicate letters: G x2, R x2, U x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 88
+Theme: Things at dawn
+Words: DEW (3) / MIST (4) / LIGHT (5) / CHORUS (6)
+Letters used: C,D,E,G,H,I,L,M,O,R,S,T,U,W (14 unique, 18 tiles)
+Duplicate letters: H x2, I x2, S x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 89
+Theme: Things in a storm
+Words: SKY (3) / WIND (4) / FLASH (5) / DELUGE (6)
+Letters used: A,D,E,F,G,H,I,K,L,N,S,U,W,Y (14 unique, 18 tiles)
+Duplicate letters: D x2, E x2, L x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 90
+Theme: Autumn things
+Words: SAP (3) / MIST (4) / CIDER (5) / CONKER (6)
+Letters used: A,C,D,E,I,K,M,N,O,P,R,S,T (13 unique, 18 tiles)
+Duplicate letters: C x2, E x2, I x2, R x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 91
+Theme: Spring things
+Words: EGG (3) / LAMB (4) / TULIP (5) / SHOWER (6)
+Letters used: A,B,E,G,H,I,L,M,O,P,R,S,T,U,W (15 unique, 18 tiles)
+Duplicate letters: E x2, G x2, L x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 92
+Theme: Things in a rockpool
+Words: SEA (3) / CRAB (4) / WHELK (5) / SHRIMP (6)
+Letters used: A,B,C,E,H,I,K,L,M,P,R,S,W (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, H x2, R x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 93
+Theme: Things in a pond
+Words: KOI (3) / FROG (4) / ALGAE (5) / RIPPLE (6)
+Letters used: A,E,F,G,I,K,L,O,P,R (10 unique, 18 tiles)
+Duplicate letters: A x2, E x2, G x2, I x2, L x2, O x2, P x2, R x2  (8 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 94
+Theme: Types of tree
+Words: OAK (3) / PINE (4) / BIRCH (5) / SPRUCE (6)
+Letters used: A,B,C,E,H,I,K,N,O,P,R,S,U (13 unique, 18 tiles)
+Duplicate letters: C x2, E x2, I x2, P x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 95
+Theme: Things in a canyon
+Words: RIM (3) / ARCH (4) / BUTTE (5) / SHADOW (6)
+Letters used: A,B,C,D,E,H,I,M,O,R,S,T,U,W (14 unique, 18 tiles)
+Duplicate letters: A x2, H x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 96
+Theme: Things that erode
+Words: MUD (3) / ROCK (4) / GULLY (5) / CANYON (6)
+Letters used: A,C,D,G,K,L,M,N,O,R,U,Y (12 unique, 18 tiles)
+Duplicate letters: C x2, L x2, N x2, O x2, U x2, Y x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 97
+Theme: Night sky sights
+Words: ARC (3) / DUST (4) / ORION (5) / ZENITH (6)
+Letters used: A,C,D,E,H,I,N,O,R,S,T,U,Z (13 unique, 18 tiles)
+Duplicate letters: I x2, N x2, O x2, R x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 98
+Theme: Things in a field
+Words: COW (3) / CROP (4) / WHEAT (5) / BARLEY (6)
+Letters used: A,B,C,E,H,L,O,P,R,T,W,Y (12 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, O x2, R x2, W x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 99
+Theme: Farm animals
+Words: SOW (3) / LAMB (4) / HORSE (5) / TURKEY (6)
+Letters used: A,B,E,H,K,L,M,O,R,S,T,U,W,Y (14 unique, 18 tiles)
+Duplicate letters: E x2, O x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 100
+Theme: Pets
+Words: CAT (3) / FISH (4) / HORSE (5) / GERBIL (6)
+Letters used: A,B,C,E,F,G,H,I,L,O,R,S,T (13 unique, 18 tiles)
+Duplicate letters: E x2, H x2, I x2, R x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 101
+Theme: Big cats
+Words: CUB (3) / LYNX (4) / TIGER (5) / JAGUAR (6)
+Letters used: A,B,C,E,G,I,J,L,N,R,T,U,X,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, G x2, R x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 102
+Theme: Reptiles
+Words: ASP (3) / CROC (4) / SKINK (5) / PYTHON (6)
+Letters used: A,C,H,I,K,N,O,P,R,S,T,Y (12 unique, 18 tiles)
+Duplicate letters: C x2, K x2, N x2, O x2, P x2, S x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2. OBSCURITY: CROC is informal shorthand — swap for CAIMAN if that reads better
+
+---
+
+PUZZLE 103
+Theme: Sea creatures
+Words: EEL (3) / ORCA (4) / SQUID (5) / DUGONG (6)
+Letters used: A,C,D,E,G,I,L,N,O,Q,R,S,U (13 unique, 18 tiles)
+Duplicate letters: D x2, E x2, G x2, O x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 104
+Theme: Baby animals
+Words: PUP (3) / FOAL (4) / CHICK (5) / KITTEN (6)
+Letters used: A,C,E,F,H,I,K,L,N,O,P,T,U (13 unique, 18 tiles)
+Duplicate letters: C x2, I x2, K x2, P x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 105
+Theme: Animal homes
+Words: DEN (3) / LAIR (4) / ROOST (5) / STABLE (6)
+Letters used: A,B,D,E,I,L,N,O,R,S,T (11 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, O x2, R x2, S x2, T x2  (7 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 106
+Theme: Animal sounds
+Words: MOO (3) / BRAY (4) / CHIRP (5) / SQUEAK (6)
+Letters used: A,B,C,E,H,I,K,M,O,P,Q,R,S,U,Y (15 unique, 18 tiles)
+Duplicate letters: A x2, O x2, R x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 107
+Theme: Amphibians and pond life
+Words: KOI (3) / NEWT (4) / GILLS (5) / CROAKS (6)
+Letters used: A,C,E,G,I,K,L,N,O,R,S,T,W (13 unique, 18 tiles)
+Duplicate letters: I x2, K x2, L x2, O x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 108
+Theme: Things with shells
+Words: EGG (3) / CLAM (4) / SNAIL (5) / OYSTER (6)
+Letters used: A,C,E,G,I,L,M,N,O,R,S,T,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, G x2, L x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 109
+Theme: Animals that migrate
+Words: ELK (3) / TERN (4) / SWIFT (5) / SALMON (6)
+Letters used: A,E,F,I,K,L,M,N,O,R,S,T,W (13 unique, 18 tiles)
+Duplicate letters: E x2, L x2, N x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 110
+Theme: Nocturnal creatures
+Words: FOX (3) / MOTH (4) / LEMUR (5) / BADGER (6)
+Letters used: A,B,D,E,F,G,H,L,M,O,R,T,U,X (14 unique, 18 tiles)
+Duplicate letters: E x2, M x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 111
+Theme: Things in a beehive
+Words: WAX (3) / COMB (4) / HONEY (5) / NECTAR (6)
+Letters used: A,B,C,E,H,M,N,O,R,T,W,X,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, N x2, O x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 112
+Theme: Dog breeds
+Words: PUG (3) / CHOW (4) / HUSKY (5) / BEAGLE (6)
+Letters used: A,B,C,E,G,H,K,L,O,P,S,U,W,Y (14 unique, 18 tiles)
+Duplicate letters: E x2, G x2, H x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 113
+Theme: Things in a living room
+Words: RUG (3) / SOFA (4) / CLOCK (5) / MANTEL (6)
+Letters used: A,C,E,F,G,K,L,M,N,O,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, C x2, L x2, O x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 114
+Theme: Things in a bedroom
+Words: BED (3) / LAMP (4) / QUILT (5) / DRAWER (6)
+Letters used: A,B,D,E,I,L,M,P,Q,R,T,U,W (13 unique, 18 tiles)
+Duplicate letters: A x2, D x2, E x2, L x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 115
+Theme: Cleaning supplies
+Words: RAG (3) / SOAP (4) / CLOTH (5) / DUSTER (6)
+Letters used: A,C,D,E,G,H,L,O,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, O x2, R x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 116
+Theme: Things in a shed
+Words: HOE (3) / CANS (4) / PAINT (5) / TROWEL (6)
+Letters used: A,C,E,H,I,L,N,O,P,R,S,T,W (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, N x2, O x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 117
+Theme: Things on a wall
+Words: ART (3) / HOOK (4) / SHELF (5) / PLAQUE (6)
+Letters used: A,E,F,H,K,L,O,P,Q,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, H x2, L x2, O x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 118
+Theme: Things with a screen
+Words: GPS (3) / TILL (4) / PHONE (5) / CAMERA (6)
+Letters used: A,C,E,G,H,I,L,M,N,O,P,R,S,T (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, P x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 119
+Theme: Things in a fridge
+Words: EGG (3) / MILK (4) / SALAD (5) / BUTTER (6)
+Letters used: A,B,D,E,G,I,K,L,M,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, G x2, L x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 120
+Theme: Things that lock
+Words: BOX (3) / BOLT (4) / LATCH (5) / DRAWER (6)
+Letters used: A,B,C,D,E,H,L,O,R,T,W,X (12 unique, 18 tiles)
+Duplicate letters: A x2, B x2, L x2, O x2, R x2, T x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 121
+Theme: Things made of glass
+Words: JAR (3) / BULB (4) / PRISM (5) / WINDOW (6)
+Letters used: A,B,D,I,J,L,M,N,O,P,R,S,U,W (14 unique, 18 tiles)
+Duplicate letters: B x2, I x2, R x2, W x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 122
+Theme: Things that hang
+Words: BAT (3) / COAT (4) / CHIME (5) / MOBILE (6)
+Letters used: A,B,C,E,H,I,L,M,O,T (10 unique, 18 tiles)
+Duplicate letters: A x2, B x2, C x2, E x2, I x2, M x2, O x2, T x2  (8 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 123
+Theme: Things in a cupboard
+Words: TIN (3) / MUGS (4) / BOWLS (5) / CEREAL (6)
+Letters used: A,B,C,E,G,I,L,M,N,O,R,S,T,U,W (15 unique, 18 tiles)
+Duplicate letters: E x2, L x2, S x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 124
+Theme: Things with buttons
+Words: FOB (3) / LIFT (4) / ALARM (5) / REMOTE (6)
+Letters used: A,B,E,F,I,L,M,O,R,T (10 unique, 18 tiles)
+Duplicate letters: A x2, E x2, F x2, L x2, M x2, O x2, R x2, T x2  (8 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 125
+Theme: Things in a loft
+Words: BOX (3) / BEAM (4) / JOIST (5) / RAFTER (6)
+Letters used: A,B,E,F,I,J,M,O,R,S,T,X (12 unique, 18 tiles)
+Duplicate letters: A x2, B x2, E x2, O x2, R x2, T x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 126
+Theme: Bedding
+Words: BED (3) / CASE (4) / THROW (5) / PILLOW (6)
+Letters used: A,B,C,D,E,H,I,L,O,P,R,S,T,W (14 unique, 18 tiles)
+Duplicate letters: E x2, L x2, O x2, W x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 127
+Theme: Things you plug in
+Words: FAN (3) / IRON (4) / RADIO (5) / KETTLE (6)
+Letters used: A,D,E,F,I,K,L,N,O,R,T (11 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, N x2, O x2, R x2, T x2  (7 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 128
+Theme: Things in a hallway
+Words: MAT (3) / COAT (4) / SHOES (5) / RUNNER (6)
+Letters used: A,C,E,H,M,N,O,R,S,T,U (11 unique, 18 tiles)
+Duplicate letters: A x2, E x2, N x2, O x2, R x2, S x2, T x2  (7 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 129
+Theme: Things that spin
+Words: FAN (3) / GYRO (4) / DRILL (5) / DYNAMO (6)
+Letters used: A,D,F,G,I,L,M,N,O,R,Y (11 unique, 18 tiles)
+Duplicate letters: A x2, D x2, L x2, N x2, O x2, R x2, Y x2  (7 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 130
+Theme: Things in a nursery
+Words: COT (3) / CRIB (4) / NAPPY (5) / MOBILE (6)
+Letters used: A,B,C,E,I,L,M,N,O,P,R,T,Y (13 unique, 18 tiles)
+Duplicate letters: B x2, C x2, I x2, O x2, P x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 131
+Theme: Things on a tennis court
+Words: SET (3) / BALL (4) / COURT (5) / UMPIRE (6)
+Letters used: A,B,C,E,I,L,M,O,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: E x2, L x2, R x2, T x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 132
+Theme: Football words
+Words: REF (3) / GOAL (4) / PITCH (5) / TACKLE (6)
+Letters used: A,C,E,F,G,H,I,K,L,O,P,R,T (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, L x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 133
+Theme: Cricket words
+Words: RUN (3) / OVER (4) / BAILS (5) / WICKET (6)
+Letters used: A,B,C,E,I,K,L,N,O,R,S,T,U,V,W (15 unique, 18 tiles)
+Duplicate letters: E x2, I x2, R x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 134
+Theme: Athletics events
+Words: RUN (3) / DASH (4) / VAULT (5) / SPRINT (6)
+Letters used: A,D,H,I,L,N,P,R,S,T,U,V (12 unique, 18 tiles)
+Duplicate letters: A x2, N x2, R x2, S x2, T x2, U x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 135
+Theme: Boxing words
+Words: JAB (3) / BOUT (4) / FIGHT (5) / CORNER (6)
+Letters used: A,B,C,E,F,G,H,I,J,N,O,R,T,U (14 unique, 18 tiles)
+Duplicate letters: B x2, O x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 136
+Theme: Swimming words
+Words: LAP (3) / DIVE (4) / CRAWL (5) / STROKE (6)
+Letters used: A,C,D,E,I,K,L,O,P,R,S,T,V,W (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 137
+Theme: Cycling words
+Words: HUB (3) / GEAR (4) / SPOKE (5) / SPRINT (6)
+Letters used: A,B,E,G,H,I,K,N,O,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: E x2, P x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 138
+Theme: Board game bits
+Words: DIE (3) / PAWN (4) / CHIPS (5) / MARKER (6)
+Letters used: A,C,D,E,H,I,K,M,N,P,R,S,W (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, P x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 139
+Theme: Racing words
+Words: PIT (3) / FLAG (4) / TRACK (5) / PODIUM (6)
+Letters used: A,C,D,F,G,I,K,L,M,O,P,R,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, I x2, P x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 140
+Theme: Archery words
+Words: AIM (3) / NOCK (4) / ARROW (5) / FLETCH (6)
+Letters used: A,C,E,F,H,I,K,L,M,N,O,R,T,W (14 unique, 18 tiles)
+Duplicate letters: A x2, C x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 141
+Theme: Gymnastics
+Words: BAR (3) / FLIP (4) / RINGS (5) / TUMBLE (6)
+Letters used: A,B,E,F,G,I,L,M,N,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: B x2, I x2, L x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 142
+Theme: Things a referee has
+Words: KIT (3) / COIN (4) / RULES (5) / BADGES (6)
+Letters used: A,B,C,D,E,G,I,K,L,N,O,R,S,T,U (15 unique, 18 tiles)
+Duplicate letters: E x2, I x2, S x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 143
+Theme: Sailing race words
+Words: JIB (3) / HELM (4) / START (5) / COURSE (6)
+Letters used: A,B,C,E,H,I,J,L,M,O,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: E x2, R x2, S x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 144
+Theme: Skateboarding
+Words: AIR (3) / BAIL (4) / TRUCK (5) / WHEELS (6)
+Letters used: A,B,C,E,H,I,K,L,R,S,T,U,W (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, L x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 145
+Theme: Things a doctor uses
+Words: PEN (3) / XRAY (4) / CHART (5) / GLOVES (6)
+Letters used: A,C,E,G,H,L,N,O,P,R,S,T,V,X,Y (15 unique, 18 tiles)
+Duplicate letters: A x2, E x2, R x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 146
+Theme: Things a builder uses
+Words: HOD (3) / NAIL (4) / BRICK (5) / CEMENT (6)
+Letters used: A,B,C,D,E,H,I,K,L,M,N,O,R,T (14 unique, 18 tiles)
+Duplicate letters: C x2, E x2, I x2, N x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 147
+Theme: Things a barber uses
+Words: GEL (3) / CAPE (4) / BRUSH (5) / TALCUM (6)
+Letters used: A,B,C,E,G,H,L,M,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, L x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 148
+Theme: Things a painter uses
+Words: INK (3) / PAIL (4) / TURPS (5) / SKETCH (6)
+Letters used: A,C,E,H,I,K,L,N,P,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: I x2, K x2, P x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 149
+Theme: Things a tailor uses
+Words: CUT (3) / SEAM (4) / CHALK (5) / LINING (6)
+Letters used: A,C,E,G,H,I,K,L,M,N,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, I x2, L x2, N x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 150
+Theme: Things a judge has
+Words: WIG (3) / JURY (4) / GAVEL (5) / DOCKET (6)
+Letters used: A,C,D,E,G,I,J,K,L,O,R,T,U,V,W,Y (16 unique, 18 tiles)
+Duplicate letters: E x2, G x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 151
+Theme: Things a plumber uses
+Words: TAP (3) / FLUX (4) / VALVE (5) / WRENCH (6)
+Letters used: A,C,E,F,H,L,N,P,R,T,U,V,W,X (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, V x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 152
+Theme: Things a librarian does
+Words: TAG (3) / SCAN (4) / INDEX (5) / BORROW (6)
+Letters used: A,B,C,D,E,G,I,N,O,R,S,T,W,X (14 unique, 18 tiles)
+Duplicate letters: A x2, N x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 153
+Theme: Things a baker uses
+Words: TIN (3) / OVEN (4) / WHISK (5) / PROVER (6)
+Letters used: E,H,I,K,N,O,P,R,S,T,V,W (12 unique, 18 tiles)
+Duplicate letters: E x2, I x2, N x2, O x2, R x2, V x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 154
+Theme: Things at a train station
+Words: MAP (3) / RAIL (4) / KIOSK (5) / BUFFER (6)
+Letters used: A,B,E,F,I,K,L,M,O,P,R,S,U (13 unique, 18 tiles)
+Duplicate letters: A x2, F x2, I x2, K x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 155
+Theme: Things in a hotel
+Words: KEY (3) / LIFT (4) / LOBBY (5) / PORTER (6)
+Letters used: B,E,F,I,K,L,O,P,R,T,Y (11 unique, 18 tiles)
+Duplicate letters: B x2, E x2, L x2, O x2, R x2, T x2, Y x2  (7 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 156
+Theme: Things in a city
+Words: CAB (3) / MALL (4) / TOWER (5) / BRIDGE (6)
+Letters used: A,B,C,D,E,G,I,L,M,O,R,T,W (13 unique, 18 tiles)
+Duplicate letters: A x2, B x2, E x2, L x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 157
+Theme: Things in a village
+Words: PUB (3) / POND (4) / FORGE (5) / SQUARE (6)
+Letters used: A,B,D,E,F,G,N,O,P,Q,R,S,U (13 unique, 18 tiles)
+Duplicate letters: E x2, O x2, P x2, R x2, U x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 158
+Theme: Parts of a bridge
+Words: BAR (3) / DECK (4) / PYLON (5) / ANCHOR (6)
+Letters used: A,B,C,D,E,H,K,L,N,O,P,R,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, N x2, O x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 159
+Theme: Things at a harbour
+Words: TUG (3) / TIDE (4) / WHARF (5) / ANCHOR (6)
+Letters used: A,C,D,E,F,G,H,I,N,O,R,T,U,W (14 unique, 18 tiles)
+Duplicate letters: A x2, H x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 160
+Theme: Things in a desert town
+Words: SUN (3) / WELL (4) / ADOBE (5) / CACTUS (6)
+Letters used: A,B,C,D,E,L,N,O,S,T,U,W (12 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, L x2, S x2, U x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 161
+Theme: Types of accommodation
+Words: INN (3) / ROOM (4) / SUITE (5) / CHALET (6)
+Letters used: A,C,E,H,I,L,M,N,O,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: E x2, I x2, N x2, O x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 162
+Theme: Map features
+Words: KEY (3) / GRID (4) / SCALE (5) / SYMBOL (6)
+Letters used: A,B,C,D,E,G,I,K,L,M,O,R,S,Y (14 unique, 18 tiles)
+Duplicate letters: E x2, L x2, S x2, Y x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 163
+Theme: Things in a subway
+Words: MAP (3) / RAIL (4) / TOKEN (5) / BUSKER (6)
+Letters used: A,B,E,I,K,L,M,N,O,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, K x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 164
+Theme: Things at a campsite
+Words: PEG (3) / WOOD (4) / PITCH (5) / MALLET (6)
+Letters used: A,C,D,E,G,H,I,L,M,O,P,T,W (13 unique, 18 tiles)
+Duplicate letters: E x2, L x2, O x2, P x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 165
+Theme: Things in a garden centre
+Words: POT (3) / BULB (4) / TWINE (5) / SHEARS (6)
+Letters used: A,B,E,H,I,L,N,O,P,R,S,T,U,W (14 unique, 18 tiles)
+Duplicate letters: B x2, E x2, S x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 166
+Theme: Things in a theatre
+Words: ACT (3) / WING (4) / USHER (5) / SCRIPT (6)
+Letters used: A,C,E,G,H,I,N,P,R,S,T,U,W (13 unique, 18 tiles)
+Duplicate letters: C x2, I x2, R x2, S x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 167
+Theme: Painting terms
+Words: DAB (3) / FORM (4) / GLAZE (5) / SKETCH (6)
+Letters used: A,B,C,D,E,F,G,H,K,L,M,O,R,S,T,Z (16 unique, 18 tiles)
+Duplicate letters: A x2, E x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 168
+Theme: Poetry terms
+Words: ODE (3) / IAMB (4) / HAIKU (5) / SONNET (6)
+Letters used: A,B,D,E,H,I,K,M,N,O,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, N x2, O x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 169
+Theme: Types of film
+Words: SPY (3) / NOIR (4) / DRAMA (5) / SEQUEL (6)
+Letters used: A,D,E,I,L,M,N,O,P,Q,R,S,U,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 170
+Theme: Things in a photograph
+Words: SUN (3) / LENS (4) / FRAME (5) / TRIPOD (6)
+Letters used: A,D,E,F,I,L,M,N,O,P,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: E x2, N x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 171
+Theme: Dance styles
+Words: JIG (3) / JIVE (4) / WALTZ (5) / BOLERO (6)
+Letters used: A,B,E,G,I,J,L,O,R,T,V,W,Z (13 unique, 18 tiles)
+Duplicate letters: E x2, I x2, J x2, L x2, O x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 172
+Theme: Parts of a book
+Words: TIP (3) / PAGE (4) / COVER (5) / MARGIN (6)
+Letters used: A,C,E,G,I,M,N,O,P,R,T,V (12 unique, 18 tiles)
+Duplicate letters: A x2, E x2, G x2, I x2, P x2, R x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 173
+Theme: Things in a sculpture studio
+Words: JIG (3) / CLAY (4) / STONE (5) / BRONZE (6)
+Letters used: A,B,C,E,G,I,J,L,N,O,R,S,T,Y,Z (15 unique, 18 tiles)
+Duplicate letters: E x2, N x2, O x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 174
+Theme: Circus acts
+Words: ACT (3) / RING (4) / CLOWN (5) / TUMBLE (6)
+Letters used: A,B,C,E,G,I,L,M,N,O,R,T,U,W (14 unique, 18 tiles)
+Duplicate letters: C x2, L x2, N x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 175
+Theme: Things in a comic
+Words: BAM (3) / HERO (4) / INKER (5) / SPLASH (6)
+Letters used: A,B,E,H,I,K,L,M,N,O,P,R,S (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, H x2, R x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 176
+Theme: Types of song
+Words: POP (3) / FOLK (4) / DIRGE (5) / SHANTY (6)
+Letters used: A,D,E,F,G,H,I,K,L,N,O,P,R,S,T,Y (16 unique, 18 tiles)
+Duplicate letters: O x2, P x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 177
+Theme: Things in a laboratory
+Words: VAT (3) / VIAL (4) / TONGS (5) / BURNER (6)
+Letters used: A,B,E,G,I,L,N,O,R,S,T,U,V (13 unique, 18 tiles)
+Duplicate letters: A x2, N x2, R x2, T x2, V x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 178
+Theme: States of matter
+Words: GAS (3) / MELT (4) / FLUID (5) / VAPOUR (6)
+Letters used: A,D,E,F,G,I,L,M,O,P,R,S,T,U,V (15 unique, 18 tiles)
+Duplicate letters: A x2, L x2, U x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 179
+Theme: Parts of an atom
+Words: ION (3) / MASS (4) / FIELD (5) / CHARGE (6)
+Letters used: A,C,D,E,F,G,H,I,L,M,N,O,R,S (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 180
+Theme: Things in a circuit
+Words: AMP (3) / FUSE (4) / BOARD (5) / SWITCH (6)
+Letters used: A,B,C,D,E,F,H,I,M,O,P,R,S,T,U,W (16 unique, 18 tiles)
+Duplicate letters: A x2, S x2  (2 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 181
+Theme: Things a computer has
+Words: CPU (3) / DISK (4) / CABLE (5) / MEMORY (6)
+Letters used: A,B,C,D,E,I,K,L,M,O,P,R,S,U,Y (15 unique, 18 tiles)
+Duplicate letters: C x2, E x2, M x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 182
+Theme: Simple machines
+Words: COG (3) / RAMP (4) / SCREW (5) / PULLEY (6)
+Letters used: A,C,E,G,L,M,O,P,R,S,U,W,Y (13 unique, 18 tiles)
+Duplicate letters: C x2, E x2, L x2, P x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 183
+Theme: Parts of a flowerbed
+Words: BED (3) / SOIL (4) / MULCH (5) / EDGING (6)
+Letters used: B,C,D,E,G,H,I,L,M,N,O,S,U (13 unique, 18 tiles)
+Duplicate letters: D x2, E x2, G x2, I x2, L x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 184
+Theme: Units of measurement
+Words: TON (3) / GRAM (4) / LITRE (5) / SECOND (6)
+Letters used: A,C,D,E,G,I,L,M,N,O,R,S,T (13 unique, 18 tiles)
+Duplicate letters: E x2, N x2, O x2, R x2, T x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 185
+Theme: Things in a telescope view
+Words: ARC (3) / RING (4) / COMET (5) / NEBULA (6)
+Letters used: A,B,C,E,G,I,L,M,N,O,R,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, C x2, E x2, N x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 186
+Theme: Types of energy
+Words: GAS (3) / WIND (4) / SOUND (5) / ATOMIC (6)
+Letters used: A,C,D,G,I,M,N,O,S,T,U,W (12 unique, 18 tiles)
+Duplicate letters: A x2, D x2, I x2, N x2, O x2, S x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 187
+Theme: Things in a first aid kit
+Words: PIN (3) / SWAB (4) / GAUZE (5) / SPLINT (6)
+Letters used: A,B,E,G,I,L,N,P,S,T,U,W,Z (13 unique, 18 tiles)
+Duplicate letters: A x2, I x2, N x2, P x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 188
+Theme: Things that are sticky
+Words: SAP (3) / GLUE (4) / SYRUP (5) / VELCRO (6)
+Letters used: A,C,E,G,L,O,P,R,S,U,V,Y (12 unique, 18 tiles)
+Duplicate letters: E x2, L x2, P x2, R x2, S x2, U x2  (6 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 189
+Theme: Things you wind up
+Words: TOY (3) / REEL (4) / WATCH (5) / SPRING (6)
+Letters used: A,C,E,G,H,I,L,N,O,P,R,S,T,W,Y (15 unique, 18 tiles)
+Duplicate letters: E x2, R x2, T x2  (3 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 190
+Theme: Things that are hollow
+Words: LOG (3) / TUBE (4) / STRAW (5) / CAVERN (6)
+Letters used: A,B,C,E,G,L,N,O,R,S,T,U,V,W (14 unique, 18 tiles)
+Duplicate letters: A x2, E x2, R x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 191
+Theme: Things in a pocket
+Words: FOB (3) / LINT (4) / CANDY (5) / TISSUE (6)
+Letters used: A,B,C,D,E,F,I,L,N,O,S,T,U,Y (14 unique, 18 tiles)
+Duplicate letters: I x2, N x2, S x2, T x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 192
+Theme: Things you can climb
+Words: BAR (3) / DUNE (4) / CLIFF (5) / STAIRS (6)
+Letters used: A,B,C,D,E,F,I,L,N,R,S,T,U (13 unique, 18 tiles)
+Duplicate letters: A x2, F x2, I x2, R x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 193
+Theme: Things that are woven
+Words: MAT (3) / MESH (4) / BRAID (5) / WICKER (6)
+Letters used: A,B,C,D,E,H,I,K,M,R,S,T,W (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, I x2, M x2, R x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 194
+Theme: Things that are frozen
+Words: ICE (3) / BERG (4) / SLUSH (5) / TUNDRA (6)
+Letters used: A,B,C,D,E,G,H,I,L,N,R,S,T,U (14 unique, 18 tiles)
+Duplicate letters: E x2, R x2, S x2, U x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 195
+Theme: Things with teeth
+Words: SAW (3) / COMB (4) / SHARK (5) / ZIPPER (6)
+Letters used: A,B,C,E,H,I,K,M,O,P,R,S,W,Z (14 unique, 18 tiles)
+Duplicate letters: A x2, P x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 196
+Theme: Things that leak
+Words: TAP (3) / ROOF (4) / VALVE (5) / BUCKET (6)
+Letters used: A,B,C,E,F,K,L,O,P,R,T,U,V (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, O x2, T x2, V x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 197
+Theme: Things that are wound
+Words: BOW (3) / YARN (4) / CLOCK (5) / THREAD (6)
+Letters used: A,B,C,D,E,H,K,L,N,O,R,T,W,Y (14 unique, 18 tiles)
+Duplicate letters: A x2, C x2, O x2, R x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 198
+Theme: Things in a snow globe
+Words: FIR (3) / DOME (4) / GLASS (5) / WINTER (6)
+Letters used: A,D,E,F,G,I,L,M,N,O,R,S,T,W (14 unique, 18 tiles)
+Duplicate letters: E x2, I x2, R x2, S x2  (4 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 199
+Theme: Things that echo
+Words: PIT (3) / CAVE (4) / SHOUT (5) / VALLEY (6)
+Letters used: A,C,E,H,I,L,O,P,S,T,U,V,Y (13 unique, 18 tiles)
+Duplicate letters: A x2, E x2, L x2, T x2, V x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2
+
+---
+
+PUZZLE 200
+Theme: Things you can strike
+Words: OIL (3) / POSE (4) / MATCH (5) / ANVILS (6)
+Letters used: A,C,E,H,I,L,M,N,O,P,S,T,V (13 unique, 18 tiles)
+Duplicate letters: A x2, I x2, L x2, O x2, S x2  (5 duplicate tiles needed)
+Notes: max any letter appears: 2. THEME STRETCH: this leans on multiple senses of "strike" - a lateral set rather than a literal one
+
+---
+
+========================================================================
+SUMMARY FOR REVIEW
+========================================================================
+
+Duplicate tiles required:
+  1 duplicate tile: 1 puzzle
+  2 duplicate tiles: 13 puzzles
+  3 duplicate tiles: 32 puzzles
+  4 duplicate tiles: 59 puzzles
+  5 duplicate tiles: 66 puzzles
+  6 duplicate tiles: 20 puzzles
+  7 duplicate tiles: 6 puzzles
+  8 duplicate tiles: 3 puzzles
+  unique letters per puzzle: 10 to 17, mean 13.6 of 18
+
+  No set reached 18 entirely distinct letters. Constraining four themed
+  words to exactly 3/4/5/6 letters leaves little room to also avoid every
+  repeat, so each puzzle needs a handful of duplicate tiles. The lower the
+  count, the cleaner the grid will be to lay out.
+
+Word reuse:
+  684 distinct words across 800 slots
+    used 1x: 587 words
+    used 2x: 81 words
+    used 3x: 14 words
+    used 4x: 1 word
+    used 5x: 1 word
+
+  The search actively avoids words already spent on an earlier puzzle,
+  weighting a repeat about ten times heavier than an extra duplicate
+  tile. What remains is where a pool was simply too narrow to dodge it.
+
+  Worth a look - words appearing three times or more:
+    SUN (5) - Desert things; Things at the beach; Objects in space; Things in a desert town; Things in a photograph
+    BAT (4) - Jungle animals; Things that fly; Things in a cave; Things that hang
+    JAM (3) - Breakfast foods; Sweet things; Things in a lunchbox
+    BAY (3) - Bodies of water; Spices and seasonings; Coastal features
+    ANCHOR (3) - Pirate things; Parts of a bridge; Things at a harbour
+    COMB (3) - Things in a bathroom; Things in a beehive; Things with teeth
+    SAP (3) - Parts of a tree; Autumn things; Things that are sticky
+    FOB (3) - Things in a car; Things with buttons; Things in a pocket
+    MAT (3) - Things in a gym; Things in a hallway; Things that are woven
+    BOX (3) - Mail and post; Things that lock; Things in a loft
+    GAS (3) - Things on a barbecue; States of matter; Types of energy
+    OIL (3) - Condiments; Things you can pour; Things you can strike
+    MUD (3) - Things in a swamp; Riverside things; Things that erode
+    EGG (3) - Spring things; Things with shells; Things in a fridge
+    BED (3) - Things in a bedroom; Bedding; Parts of a flowerbed
+    BAR (3) - Gymnastics; Parts of a bridge; Things you can climb
+
+  Words appearing exactly twice:
+    ACT, ARC, BARLEY, BOG, BOW, BUCKET
+    BUD, BULB, BUTTON, CASE, CAVERN, CLAM
+    CLIFF, CLOCK, COAT, CUMIN, DASH, DEN
+    DRAWER, DRUM, DUNE, FAN, FERN, FIR
+    FLASK, FROG, GAUZE, HAY, HONEY, HORSE
+    HUB, ICE, JIB, JIG, KETTLE, KEY
+    KIT, KOI, LAMB, LAMP, LIFT, MAP
+    MILK, MINT, MIST, MOBILE, MOTH, MULCH
+    NUT, OVEN, OYSTER, PAIL, PEN, PIN
+    PINE, PIT, PITCH, POND, POT, RAIL
+    RING, RUG, RUM, RUN, SAW, SHRIMP
+    SKETCH, SPRINT, SQUID, SYRUP, TAP, TIGER
+    TILL, TIN, TUMBLE, TUNDRA, VALVE, VAULT
+    WHISK, WIND, WRENCH
+
+  None of this is wrong, since the themes differ - but for a daily you
+  may not want a player meeting the same word twice in a year.
+
+Flagged for a second look: 4
+  Parts of a flower - CARPEL, SEPAL and ANTHER are botanical terms — fine for a botany-leaning theme, less so for a casual daily
+  Things a dog does - mixing verb tenses reads slightly uneven if the set lands on WAGS or HOWLED
+  Reptiles - CROC is informal shorthand — swap for CAIMAN if that reads better
+  Things you can strike - this leans on multiple senses of "strike" - a lateral set rather than a literal one
+
+========================================================================
+THEMES THAT DID NOT RESOLVE - pool needs more options
+========================================================================
+
+  Things in a hedgerow: no combination keeps every letter to 2 or fewer
+  Grassland animals: no combination keeps every letter to 2 or fewer
+  Birds of prey: no combination keeps every letter to 2 or fewer
+  Things you fold: no combination keeps every letter to 2 or fewer
+  Things that ring: no combination keeps every letter to 2 or fewer
+  Playground games: no combination keeps every letter to 2 or fewer
+  Things a farmer uses: no combination keeps every letter to 2 or fewer
+  Things a pilot uses: no combination keeps every letter to 2 or fewer
+  Things a teacher uses: no combination keeps every letter to 2 or fewer
+  Things at an airport: no combination keeps every letter to 2 or fewer
+  Things on a road: no combination keeps every letter to 2 or fewer
+  Things you pack: no combination keeps every letter to 2 or fewer
+  Things in an orchestra: no combination keeps every letter to 2 or fewer
+  Weather instruments: no combination keeps every letter to 2 or fewer
+  Things that float: no combination keeps every letter to 2 or fewer
+  Things that are sharp: no combination keeps every letter to 2 or fewer
+  Things that come in pairs: no combination keeps every letter to 2 or fewer
+  Things that glow: no combination keeps every letter to 2 or fewer
+  Things you can shuffle: no combination keeps every letter to 2 or fewer
+  Things that are folded: no combination keeps every letter to 2 or fewer
+
+  These are not failures of the theme, only of the word pool I gave it.
+  Widening the pool would very likely resolve them.
