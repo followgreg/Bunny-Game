@@ -17,7 +17,7 @@
   --mo-back-line: rgba(247, 243, 230, 0.16);
 
   --mo-gold:      #D9A441;   /* peeks, selection */
-  --mo-live:      #5FD3A0;   /* the next rank a nest wants */
+  --mo-live:      #5FD3A0;   /* completed nests, primary buttons, peek top card */
   --mo-dim:       rgba(247, 243, 230, 0.55);
   --mo-dimmer:    rgba(247, 243, 230, 0.34);
 
@@ -173,20 +173,10 @@ body { background: var(--mo-felt); }
   color: var(--mo-card);
 }
 
-/* The nest that can take a card right now. Phase 3 asked for a subtle pull
-   rather than a flash — this breathes instead of blinking. */
-.mo-nest-live {
-  border-style: solid;
-  border-color: var(--mo-live);
-  background: rgba(95, 211, 160, 0.12);
-  animation: mo-breathe 2.1s ease-in-out infinite;
-}
-.mo-nest-live .mo-nest-rank { color: var(--mo-live); }
-
-@keyframes mo-breathe {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(95, 211, 160, 0.00); }
-  50%      { box-shadow: 0 0 0 4px rgba(95, 211, 160, 0.16); }
-}
+/* An untouched nest: dashed outline, its suit, and no rank. The rank slot still
+   reserves its line so the pile does not resize the moment a card lands. */
+.mo-nest-empty .mo-nest-suit { opacity: 0.5; }
+.mo-nest-rank:empty::after { content: '\00a0'; }
 
 .mo-nest-full {
   border-style: solid;
@@ -312,11 +302,9 @@ body { background: var(--mo-felt); }
   transition: transform 0.12s;
 }
 
-.mo-stack-target .mo-card {
-  outline: 2px dashed var(--mo-live);
-  outline-offset: 1px;
-}
-.mo-stack-target .mo-empty { background: rgba(95, 211, 160, 0.12); }
+/* No .mo-stack-target rule by design: picking a card up marks that card and
+   nothing else. The only remaining outline is peek mode, below, which flags
+   stacks with something buried to look at — not legal moves. */
 
 .mo-stack-peekable .mo-face { outline: 2px solid var(--mo-gold); outline-offset: 1px; }
 
@@ -608,20 +596,6 @@ body { background: var(--mo-felt); }
   border-radius: 99px;
 }
 
-/* ── First-move hint ──────────────────────────────────────────────────────── */
-/* One stack pulses on a player's first ever deal, until they touch anything. */
-
-.mo-hint .mo-face {
-  outline: 2px solid var(--mo-live);
-  outline-offset: 1px;
-  animation: mo-hint-pulse 1.7s ease-in-out infinite;
-}
-
-@keyframes mo-hint-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(95, 211, 160, 0.00), 0 2px 5px rgba(0, 0, 0, 0.34); }
-  50%      { box-shadow: 0 0 0 7px rgba(95, 211, 160, 0.15), 0 2px 5px rgba(0, 0, 0, 0.34); }
-}
-
 @media (min-width: 720px) {
   .mo-tut-box { max-width: 470px; padding: 44px 30px 24px; }
   .mo-tut-stage { --mo-cw: 62px; min-height: 148px; }
@@ -784,15 +758,10 @@ body { background: var(--mo-felt); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mo-nest-live,
   .mo-just-placed .mo-face,
   .mo-just-placed .mo-edge:first-child,
   #mo-peek-cards .mo-face,
   .mo-nested-pop,
-  #mo-hand.mo-hand-live .mo-face,
-  .mo-hint .mo-face { animation: none !important; }
-  /* The hint still has to read as a hint with the pulse switched off, so the
-     static outline stays and only the motion goes. */
-  .mo-hint .mo-face { outline-color: var(--mo-live); }
+  #mo-hand.mo-hand-live .mo-face { animation: none !important; }
   #mo-peek-bar.mo-peek-run { animation: mo-drain 3s linear forwards; }
 }

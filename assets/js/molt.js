@@ -313,7 +313,10 @@
 
   var DIRECTIONS_TEXT =
     'Molt deals you a grid of face-up cards and a draw pile. Build all four ' +
-    'suits into the nests at the top, ace through king, in order. Tap a card ' +
+    'suits into the nests at the top, ace through king, in order. A nest shows ' +
+    'only the card on top of it and never the rank it wants next, so keeping ' +
+    'track of where each suit has got to is on you. Nothing on the board ' +
+    'highlights a legal move either. Tap a card ' +
     'to pick it up, then tap where it goes. A card can go to its nest if it is ' +
     'the next rank that nest needs, or onto the next rank UP of its own suit ' +
     '(the six of spades onto the seven of spades) — or onto an empty slot. ' +
@@ -352,8 +355,6 @@
   // one cell that changed rather than by transitioning a surviving element.
   var justPlaced = null;
   var justNested = null;
-  // Grid stack pulsing as the opening nudge on a player's very first deal.
-  var hintIndex  = null;
   var el = {};
 
   function q(id) { return document.getElementById(id); }
@@ -437,26 +438,24 @@
            '</div>';
   }
 
+  // A nest shows the card sitting on top of it and nothing else. It used to
+  // announce the rank it wanted next and glow when that card was reachable,
+  // which did the player's bookkeeping for them — in a game about holding a
+  // sequence in your head, that is the wrong thing to hand over. An empty nest
+  // is a dashed placeholder with its suit and no rank at all.
   function renderNests() {
     if (!el.nests) return;
     el.nests.innerHTML = SUITS.map(function (s) {
-      var have  = state.nests[s];
-      var needs = have + 1;
-      var full  = have === 13;
-      var live  = !full && (
-        (state.hand && state.hand.s === s && state.hand.r === needs) ||
-        (!state.hand && state.grid.some(function (_, i) {
-          var t = topOf(state, i);
-          return t && t.s === s && t.r === needs;
-        }))
-      );
+      var have = state.nests[s];
+      var full = have === 13;
       return '<button type="button" class="mo-nest' + (full ? ' mo-nest-full' : '') +
-             (live ? ' mo-nest-live' : '') + (justNested === s ? ' mo-nested-pop' : '') +
+             (have === 0 ? ' mo-nest-empty' : '') +
+             (justNested === s ? ' mo-nested-pop' : '') +
              (RED[s] ? ' mo-red' : '') +
              '" data-nest="' + s + '" aria-label="' + SUIT_NAME[s] + ' nest, ' +
-             (full ? 'complete' : 'needs ' + RANK_LABEL[needs]) + '">' +
+             (have === 0 ? 'empty' : 'showing ' + RANK_LABEL[have]) + '">' +
              '<span class="mo-nest-suit">' + SUIT_GLYPH[s] + '</span>' +
-             '<span class="mo-nest-rank">' + (full ? '✓' : RANK_LABEL[needs]) + '</span>' +
+             '<span class="mo-nest-rank">' + (have === 0 ? '' : RANK_LABEL[have]) + '</span>' +
              '</button>';
     }).join('');
   }
@@ -470,18 +469,10 @@
     if (!el.grid) return;
     el.grid.style.setProperty('--mo-cols', state.cols);
 
-    // A held card is legal on every stack, so highlighting all sixteen would say
-    // nothing. Only the constructive landings are marked — a clean same-suit
-    // build or an empty slot. Dumping anywhere else still works, it just isn't
-    // advertised as a good idea.
-    var handTargets = [];
-    if (state.hand) {
-      for (var h = 0; h < state.grid.length; h++) {
-        if (canStackOn(state.hand, topOf(state, h))) handTargets.push(h);
-      }
-    }
-    var moveTargets = (!state.hand && selected !== null) ? legalGridTargets(state, selected) : [];
-
+    // Nothing on this board advertises a legal move. Picking a card up lifts and
+    // outlines THAT card and changes nothing else — working out where it can go
+    // is the game. The only other mark is the peek-mode outline, which flags
+    // which stacks have anything buried to look at, not which moves are legal.
     var html = '';
     for (var i = 0; i < state.grid.length; i++) {
       var st     = state.grid[i];
@@ -492,12 +483,8 @@
       var cls = 'mo-stack';
       if (st.length === 0) cls += ' mo-stack-empty';
       if (selected === i)  cls += ' mo-stack-sel';
-      if (state.hand ? handTargets.indexOf(i) !== -1 : moveTargets.indexOf(i) !== -1) {
-        cls += ' mo-stack-target';
-      }
       if (peekArmed && buried > 0) cls += ' mo-stack-peekable';
       if (justPlaced === i) cls += ' mo-just-placed';
-      if (hintIndex === i) cls += ' mo-hint';
 
       var edgeHTML = '';
       for (var e = 0; e < edges; e++) {
@@ -626,28 +613,6 @@
 
   // ── Interaction ──────────────────────────────────────────────────────────────
 
-  // The opening nudge earns its keep once. Any deliberate interaction retires it,
-  // whether or not that interaction was the move being pointed at.
-  function dismissHint() {
-    if (hintIndex === null) return;
-    hintIndex = null;
-    render();
-  }
-
-  // The clearest possible opening: a card that can go straight to a nest. Failing
-  // that, any card with a legal move on the board.
-  function firstHintIndex(s) {
-    var i;
-    for (i = 0; i < s.grid.length; i++) {
-      var t = topOf(s, i);
-      if (t && canNest(s, t)) return i;
-    }
-    for (i = 0; i < s.grid.length; i++) {
-      if (topOf(s, i) && legalGridTargets(s, i).length) return i;
-    }
-    return null;
-  }
-
   function afterMove() {
     selected = null;
     render();
@@ -659,7 +624,6 @@
 
   function onStackTap(i) {
     if (state.status !== 'playing') return;
-    dismissHint();
 
     if (peekArmed) {
       if (usePeek(state, i)) { peekArmed = false; showPeek(i); render(); }
@@ -686,7 +650,6 @@
 
   function onNestTap(suit) {
     if (state.status !== 'playing' || peekArmed) return;
-    dismissHint();
     if (state.hand) {
       if (state.hand.s === suit && nestFromHand(state)) { justNested = suit; afterMove(); }
       return;
@@ -698,13 +661,11 @@
 
   function onDraw() {
     if (state.status !== 'playing' || state.hand || peekArmed) return;
-    dismissHint();
     if (drawCard(state)) { selected = null; render(); }
   }
 
   function onPeekBtn() {
     if (state.peeks <= 0 || state.status !== 'playing') return;
-    dismissHint();
     peekArmed = !peekArmed;
     if (peekArmed) selected = null;
     render();
@@ -782,11 +743,13 @@
            html + cardFaceHTML(top, 'mo-top') + '</div></div>';
   }
 
-  function demoNest(suit, needs, live) {
-    return '<div class="mo-nest' + (live ? ' mo-nest-live' : '') +
+  // rank is the card currently on top of the nest, or 0 for an empty one
+  function demoNest(suit, rank) {
+    return '<div class="mo-nest' + (rank === 0 ? ' mo-nest-empty' : '') +
            (RED[suit] ? ' mo-red' : '') + '">' +
            '<span class="mo-nest-suit">' + SUIT_GLYPH[suit] + '</span>' +
-           '<span class="mo-nest-rank">' + RANK_LABEL[needs] + '</span></div>';
+           '<span class="mo-nest-rank">' + (rank === 0 ? '' : RANK_LABEL[rank]) +
+           '</span></div>';
   }
 
   function demoArrow() { return '<span class="mo-tut-arrow" aria-hidden="true">&rarr;</span>'; }
@@ -807,13 +770,15 @@
       },
     },
     {
-      title: 'Build the nests',
-      copy:  'Send a card to its nest when that nest wants its rank — aces first, then up to the king. Nested cards are locked in for good.',
+      title: 'The nests',
+      copy:  'Four nests, one per suit, each built ace up to king. A nest shows only the card on top of it — never what it wants next. Keeping track of where each suit has got to is your job.',
       build: function () {
         return '<div class="mo-tut-row">' +
-          demoStack([C('S', 1)]) + demoArrow() + demoNest('S', 1, true) +
+          demoNest('S', 0) + demoArrow() + demoNest('S', 1) +
+          demoArrow() + demoNest('S', 2) +
           '</div><div class="mo-tut-row mo-tut-labels">' +
-            demoNote('ace of spades') + demoNote('') + demoNote('spade nest wants an ace') +
+            demoNote('starts empty') + demoNote('') + demoNote('ace on top') +
+            demoNote('') + demoNote('now the two') +
           '</div>';
       },
     },
@@ -954,10 +919,9 @@
     selected  = null;
     state = deal(getTodayKey());
 
+    // Drives the legend strip only. Nothing on the board is ever highlighted,
+    // on this deal or any other.
     var played = bumpGamesPlayed();
-    // Only the very first deal gets the opening nudge; the legend hangs around
-    // for three, by which point the three verbs are muscle memory.
-    hintIndex = played === 1 ? firstHintIndex(state) : null;
     if (el.legend) el.legend.classList.toggle('mo-hide', played > LEGEND_GAMES);
 
     show('game');
@@ -1122,9 +1086,7 @@
     TUTORIAL_KEY: TUTORIAL_KEY, GAMES_KEY: GAMES_KEY, LEGEND_GAMES: LEGEND_GAMES,
     TUTORIAL: TUTORIAL, tutorialSeen: tutorialSeen, gamesPlayed: gamesPlayed,
     showTutorial: showTutorial, closeTutorial: closeTutorial, gotoStep: gotoStep,
-    firstHintIndex: firstHintIndex,
     getTutStep: function () { return tutStep; },
-    getHintIndex: function () { return hintIndex; },
   };
 
 }(typeof window !== 'undefined' ? window : globalThis));
