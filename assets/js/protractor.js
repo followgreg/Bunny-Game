@@ -162,6 +162,9 @@
 
   // ── Per-round feedback band ──────────────────────────────────────────────────
   function scoreBand(score) {
+    // An exact hit is its own band — calling a dead-on guess "nearly" perfect
+    // takes the win away from the one result that earned it outright.
+    if (score === 0) return { label: 'Perfect!',         color: '#2ECC71', key: 'perfect' };
     if (score <= 3)  return { label: 'Nearly perfect!',  color: '#2ECC71', key: 'great' };
     if (score <= 10) return { label: 'Great eye!',       color: '#3498DB', key: 'good' };
     if (score <= 20) return { label: 'Not bad!',         color: '#F39C12', key: 'ok'   };
