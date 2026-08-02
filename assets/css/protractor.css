@@ -1,0 +1,427 @@
+/* ── Protractor — guess the angle ─────────────────────────────────────────── */
+
+:root {
+  --proto-bg: #FFFFFF;
+  --proto-primary: #FF6B35;   /* orange -- angle arc, accents */
+  --proto-blue: #3498DB;      /* blue -- angled ray */
+  --proto-dark: #2C3E50;      /* dark navy -- horizontal ray, text */
+  --proto-green: #2ECC71;     /* correct/good */
+  --proto-yellow: #F39C12;    /* mid score */
+  --proto-red: #E74C3C;       /* bad score */
+
+  --proto-ink-mid:  rgba(44, 62, 80, 0.62);
+  --proto-ink-soft: rgba(44, 62, 80, 0.42);
+  --proto-rule:     rgba(44, 62, 80, 0.16);
+}
+
+/* shared.css paints body dark for the arcade games. Protractor is a light page,
+   but ink is scoped to the wrapper rather than body — the shared how-to-play
+   modal sits on navy and inherits from body, so darkening body would make it
+   unreadable. */
+#canvas-wrap {
+  background: var(--proto-bg);
+  color: var(--proto-dark);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  /* A column flex container that centres vertically pushes anything taller than
+     the viewport off the TOP, where scrolling can't reach it. Plain block +
+     min-height on the screen centres short content and still scrolls from the
+     top once the on-screen keyboard shrinks the viewport. */
+  display: block;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0;
+}
+
+.pt-hide { display: none !important; }
+
+.pt-screen {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 20px 20px 44px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.pt-btn {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 14px 0;
+  width: 100%;
+  max-width: 300px;
+  border: 1.5px solid var(--proto-rule);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--proto-dark);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pt-btn:hover:not(:disabled) { border-color: var(--proto-ink-soft); }
+.pt-btn:disabled { opacity: 0.4; cursor: default; }
+
+.pt-btn-primary {
+  background: var(--proto-primary);
+  border-color: var(--proto-primary);
+  color: #fff;
+}
+.pt-btn-primary:hover:not(:disabled) { background: #E85A26; border-color: #E85A26; }
+.pt-btn-primary:active:not(:disabled) { background: #D24E1C; border-color: #D24E1C; }
+
+/* ── Splash ───────────────────────────────────────────────────────────────── */
+
+.pt-splash-logo {
+  display: block;
+  width: 250px;
+  max-width: 80%;
+  margin: 0 auto 24px;
+}
+
+/* Carries the full directions, so it is a paragraph rather than a one-liner */
+.pt-splash-dir {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--proto-ink-mid);
+  max-width: 380px;
+  margin: 0 auto 26px;
+  text-wrap: pretty;
+}
+
+/* ── Round ────────────────────────────────────────────────────────────────── */
+
+.pt-round-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--proto-primary);
+  margin: 0 0 14px;
+}
+
+.pt-diagram-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.pt-diagram {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+
+/* ── Guess input ──────────────────────────────────────────────────────────── */
+
+.pt-guess {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.pt-input {
+  width: 100%;
+  max-width: 300px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--proto-dark);
+  background: #fff;
+  border: 2px solid var(--proto-rule);
+  border-radius: 8px;
+  padding: 14px 12px;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.12s;
+}
+.pt-input::placeholder {
+  /* The placeholder is a whole sentence — at the input's own 1.5rem it wraps
+     and clips. It gets its own, smaller size. */
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--proto-ink-soft);
+}
+.pt-input:focus {
+  outline: none;
+  border-color: var(--proto-blue);
+}
+.pt-input.pt-input-bad { border-color: var(--proto-red); }
+
+.pt-error {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--proto-red);
+  margin: -4px 0 0;
+  min-height: 1em;
+}
+
+/* ── Round result ─────────────────────────────────────────────────────────── */
+
+.pt-result {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pt-compare {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 0 18px;
+}
+
+.pt-compare-cell {
+  flex: 1;
+  border: 1.5px solid var(--proto-rule);
+  border-radius: 8px;
+  padding: 10px 6px;
+}
+.pt-compare-cell dt {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--proto-ink-soft);
+  margin-bottom: 4px;
+}
+.pt-compare-cell dd {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--proto-dark);
+}
+.pt-compare-cell:last-child dd { color: var(--proto-primary); }
+
+.pt-off {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 0 4px;
+  color: var(--proto-dark);   /* overridden per band from JS */
+}
+
+.pt-band {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--proto-ink-mid);
+  margin: 0 0 24px;
+}
+
+/* ── Badge reveal ─────────────────────────────────────────────────────────── */
+
+/* The scrim dims the whole page for the hand-out, then lifts. The reveal card
+   is opaque white and sits above it, so when the scrim leaves the card is
+   already on the page's own background — nothing repaints or jumps. */
+.pt-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 28, 38, 0.72);
+  z-index: 300;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+/* Only catches taps while lit — that tap skips the rest of the sequence */
+.pt-scrim.pt-scrim-on { opacity: 1; pointer-events: auto; }
+
+.pt-reveal {
+  width: 100%;
+  background: var(--proto-bg);
+  border-radius: 14px;
+  padding: 26px 20px 24px;
+}
+
+/* Raised above the scrim only while the reveal is running — otherwise the card
+   would sit over the header on an ordinary results screen. */
+#pt-results.pt-revealing .pt-reveal {
+  position: relative;
+  z-index: 301;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.pt-total-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--proto-ink-soft);
+  margin: 0 0 2px;
+}
+
+.pt-total {
+  font-size: 3.2rem;
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0 0 18px;
+  color: var(--proto-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-badge { margin: 0 0 20px; }
+
+.pt-badge-emoji {
+  display: block;
+  font-size: 3.4rem;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.pt-badge-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--proto-dark);   /* replaced by the tier colour from JS */
+}
+
+/* Title slams in from oversize and settles. transform-origin is the centre so
+   it grows out of where it lands, not out of the corner. */
+@keyframes badgeReveal {
+  0%   { transform: scale(3); opacity: 0; }
+  60%  { transform: scale(0.9); opacity: 1; }
+  80%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.pt-badge-title.pt-anim {
+  animation: badgeReveal 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes badgeBounce {
+  0%   { transform: translateY(-18px) scale(0.4); opacity: 0; }
+  55%  { transform: translateY(4px) scale(1.12); opacity: 1; }
+  78%  { transform: translateY(-3px) scale(0.96); }
+  100% { transform: translateY(0) scale(1); }
+}
+.pt-badge-emoji.pt-anim {
+  animation: badgeBounce 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* The badge block un-hides for the title's slam, ~300ms before the emoji's
+   bounce is due. Without this the emoji would simply appear in that gap.
+   Scoped to the reveal so it can't strand the emoji hidden afterwards. */
+#pt-results.pt-revealing .pt-badge-emoji:not(.pt-anim) { opacity: 0; }
+
+/* The tail (best / recap / buttons) is held back until the badge has landed.
+   The resting state carries NO transition on purpose: a throttled animation
+   clock (backgrounded tab, low-power mode) can leave a transition parked at its
+   start value, and that would strand Share and Play again at opacity 0 with no
+   way to reach them. Dropping .pt-revealing snaps them visible whatever the
+   clock is doing; the fade is only ever a bonus on the way in. */
+.pt-tail { opacity: 1; }
+
+#pt-results.pt-revealing .pt-tail {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+}
+#pt-results.pt-revealing.pt-tail-in .pt-tail {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Results detail ───────────────────────────────────────────────────────── */
+
+.pt-best {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--proto-ink-mid);
+  margin: 0 0 16px;
+}
+.pt-best .pt-best-new {
+  color: var(--proto-green);
+  font-weight: 700;
+}
+
+.pt-recap {
+  list-style: none;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto 24px;
+  padding: 0;
+}
+.pt-recap li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--proto-rule);
+  font-size: 0.88rem;
+}
+.pt-recap li:last-child { border-bottom: none; }
+.pt-recap .pt-recap-round {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--proto-ink-soft);
+  white-space: nowrap;
+}
+.pt-recap .pt-recap-detail {
+  color: var(--proto-ink-mid);
+  font-variant-numeric: tabular-nums;
+}
+.pt-recap .pt-recap-score {
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.pt-actions .pt-btn { flex: 1; max-width: none; }
+
+/* Players who ask for less motion get the finished screen, not the show. */
+@media (prefers-reduced-motion: reduce) {
+  .pt-scrim { transition: none; }
+  .pt-badge-title.pt-anim,
+  .pt-badge-emoji.pt-anim { animation: none; }
+  .pt-tail { transition: none; }
+}
+
+/* ── How to play ──────────────────────────────────────────────────────────── */
+
+.pt-dir-logo {
+  display: block;
+  width: 170px;
+  max-width: 60%;
+  margin: 0 auto 14px;
+  /* the modal is navy — the wordmark ships black */
+  filter: brightness(0) invert(1);
+}
+
+#directions-text {
+  font-size: 0.88rem;
+  line-height: 1.72;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+/* ── Small screens ────────────────────────────────────────────────────────── */
+
+@media (max-height: 700px) {
+  .pt-screen { padding-top: 14px; padding-bottom: 28px; }
+  .pt-diagram { max-width: 330px; }
+  .pt-off { font-size: 2rem; }
+}

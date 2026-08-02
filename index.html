@@ -228,6 +228,11 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Protractor: white bg, orange accent — matches the game page */
+    .lc-protractor { background: #ffffff; border-color: rgba(255,107,53,0.30); }
+    .lc-protractor .lobby-card-name { color: #2C3E50; }
+    .lc-protractor .lobby-card-desc { color: rgba(44,62,80,0.58); }
+
     /* Spell: dark slate bg, blue accent — matches the game page */
     .lc-spell { background: #0f172a; border-color: rgba(96,165,250,0.24); }
     .lc-spell .lobby-card-desc { color: rgba(241,245,249,0.5); }
@@ -545,6 +550,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-protractor" data-categories="math" data-date="2026-08-01" href="protractor.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/protractor_logo.svg" alt="Protractor">
+        </div>
+        <p class="lobby-card-desc">Estimate the angle. Earn your title.</p>
       </a>
 
       <a class="lobby-card lc-relation" data-categories="daily,word,puzzle" data-date="2026-07-31" href="relation.html">

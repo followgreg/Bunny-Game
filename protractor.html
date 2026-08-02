@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Protractor — an angle guessing game — Bunny Game</title>
+  <meta name="description" content="Two rays. One angle. How close can you get? Three rounds of pure geometry.">
+  <meta property="og:title" content="Protractor — an angle guessing game — Bunny Game">
+  <meta property="og:description" content="Two rays. One angle. How close can you get? Three rounds of pure geometry.">
+  <meta property="og:url" content="https://www.thebunnygame.com/protractor">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/protractor-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/protractor-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/protractor">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/protractor.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Splash -->
+  <section id="pt-splash" class="pt-screen">
+    <img src="assets/logos/protractor_logo.svg" alt="Protractor" class="pt-splash-logo">
+    <p class="pt-splash-dir" id="pt-splash-dir"></p>
+    <button type="button" class="pt-btn pt-btn-primary" id="pt-start-btn">Play</button>
+  </section>
+
+  <!-- Round -->
+  <section id="pt-round" class="pt-screen pt-hide">
+    <p class="pt-round-label" id="pt-round-label">Round 1 of 3</p>
+
+    <div class="pt-diagram-wrap" id="pt-diagram"></div>
+
+    <!-- Guess: shown while the round is live -->
+    <form class="pt-guess" id="pt-guess" autocomplete="off" novalidate>
+      <input type="text"
+             id="pt-input"
+             class="pt-input"
+             inputmode="numeric"
+             pattern="[0-9]*"
+             maxlength="3"
+             aria-label="Your guess in degrees"
+             aria-describedby="pt-error"
+             placeholder="Your guess in degrees">
+      <p class="pt-error pt-hide" id="pt-error" role="alert"></p>
+      <button type="submit" class="pt-btn pt-btn-primary" id="pt-submit-btn">Submit</button>
+    </form>
+
+    <!-- Result: replaces the guess form once submitted -->
+    <div class="pt-result pt-hide" id="pt-result">
+      <dl class="pt-compare">
+        <div class="pt-compare-cell">
+          <dt>Your guess</dt>
+          <dd id="pt-your-guess">&mdash;</dd>
+        </div>
+        <div class="pt-compare-cell">
+          <dt>Actual</dt>
+          <dd id="pt-actual">&mdash;</dd>
+        </div>
+      </dl>
+      <p class="pt-off" id="pt-off">Off by 0&deg;</p>
+      <p class="pt-band" id="pt-band">&nbsp;</p>
+      <button type="button" class="pt-btn pt-btn-primary" id="pt-next-btn">Next Round</button>
+    </div>
+  </section>
+
+  <!-- Results / badge reveal -->
+  <section id="pt-results" class="pt-screen pt-hide">
+    <div class="pt-reveal" id="pt-reveal">
+      <p class="pt-total-label">Total score</p>
+      <p class="pt-total" id="pt-total">0&deg;</p>
+
+      <div class="pt-badge pt-hide" id="pt-badge">
+        <span class="pt-badge-emoji" id="pt-badge-emoji" aria-hidden="true"></span>
+        <p class="pt-badge-title" id="pt-badge-title"></p>
+      </div>
+
+      <div class="pt-tail" id="pt-tail">
+        <p class="pt-best" id="pt-best"></p>
+        <ul class="pt-recap" id="pt-recap"></ul>
+        <div class="pt-actions">
+          <button type="button" class="pt-btn pt-btn-primary" id="pt-share-btn">Share</button>
+          <button type="button" class="pt-btn" id="pt-again-btn">Play again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Reveal scrim — dims the page while the badge is handed out -->
+<div id="pt-scrim" class="pt-scrim pt-hide"></div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <img src="assets/logos/protractor_logo.svg" alt="Protractor" class="pt-dir-logo">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/protractor.js"></script>
+</body>
+</html>
