@@ -345,6 +345,11 @@
     .lc-whiskers .lobby-card-name { color: #e0e7ff; }
     .lc-whiskers .lobby-card-desc { color: rgba(148,163,184,0.8); }
 
+    /* MOLT: card-table felt, cream logo */
+    .lc-molt { background: #12352A; border-color: rgba(255,255,255,0.14); }
+    .lc-molt .lobby-card-logo img { filter: brightness(0) invert(1); }
+    .lc-molt .lobby-card-desc { color: rgba(247,243,230,0.62); }
+
     /* NOON: near-black, yellow logo fill */
     .lc-noon { background: #231f20; border-color: rgba(255,255,255,0.12); }
     .lc-noon .lobby-card-logo svg path { fill: #f5c518; }
@@ -523,6 +528,7 @@
         <option value="art">Art</option>
         <option value="audio">Audio</option>
         <option value="bunny">Bunny</option>
+        <option value="cards">Cards</option>
         <option value="color">Color</option>
         <option value="daily">Daily</option>
         <option value="geography">Geography</option>
@@ -550,6 +556,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-molt" data-categories="memory,daily,puzzle,cards" data-date="2026-08-02" href="molt.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/molt_logo.svg" alt="Molt">
+        </div>
+        <p class="lobby-card-desc">Build the nests. Every card you cover molts.</p>
       </a>
 
       <a class="lobby-card lc-protractor" data-categories="math" data-date="2026-08-01" href="protractor.html">

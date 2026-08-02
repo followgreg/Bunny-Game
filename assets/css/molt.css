@@ -1,0 +1,609 @@
+/* ── Molt — daily memory solitaire ───────────────────────────────────────────
+   Card sizing is driven by --mo-cw, which molt.js measures from the space the
+   board actually has. Everything else is expressed as a ratio of it, so the
+   whole board scales as one piece from a small phone to a wide desktop.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --mo-felt:      #12352A;   /* table */
+  --mo-felt-hi:   #17402F;
+  --mo-rule:      rgba(255, 255, 255, 0.10);
+  --mo-rule-soft: rgba(255, 255, 255, 0.05);
+
+  --mo-card:      #F7F3E6;   /* card face */
+  --mo-ink:       #1B1712;
+  --mo-red:       #C0392B;
+  --mo-back:      #2C5F4C;   /* molted / face-down */
+  --mo-back-line: rgba(247, 243, 230, 0.16);
+
+  --mo-gold:      #D9A441;   /* peeks, selection */
+  --mo-live:      #5FD3A0;   /* the next rank a nest wants */
+  --mo-dim:       rgba(247, 243, 230, 0.55);
+  --mo-dimmer:    rgba(247, 243, 230, 0.34);
+
+  --mo-cw:  70px;            /* card width — molt.js overwrites this */
+  --mo-gap: 7px;
+  /* How far each molted card peeks out from under the one above it. At 0.028 the
+     sliver measured 2px and the fan was invisible; 0.045 costs about 4px of card
+     width and makes stack depth readable at a glance, which is the point of it.
+     fitBoard() reserves 5 x this, so the two must move together. */
+  --mo-eo:  calc(var(--mo-cw) * 0.045);
+}
+
+body { background: var(--mo-felt); }
+
+#canvas-wrap {
+  background:
+    radial-gradient(ellipse at 50% 12%, var(--mo-felt-hi) 0%, var(--mo-felt) 62%);
+  color: var(--mo-card);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mo-hide { display: none !important; }
+
+/* ── Splash ───────────────────────────────────────────────────────────────── */
+
+#mo-splash {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 22px 40px;
+}
+
+/* The wordmark ships as near-black ink for print and for the parchment games.
+   Every surface it appears on here is dark, so it is knocked out to cream. */
+.mo-splash-logo,
+.mo-wordmark,
+.mo-dir-logo { filter: brightness(0) invert(1); }
+
+.mo-splash-logo { width: min(260px, 68vw); margin-bottom: 20px; }
+
+.mo-splash-dir {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.62;
+  color: var(--mo-dim);
+  max-width: 430px;
+  margin-bottom: 22px;
+}
+
+.mo-splash-note {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
+  color: var(--mo-gold);
+  margin-bottom: 18px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.mo-btn {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--mo-card);
+  background: transparent;
+  border: 1px solid var(--mo-rule);
+  border-radius: 9px;
+  padding: 11px 22px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.mo-btn:hover:not(:disabled) { background: rgba(247, 243, 230, 0.07); }
+.mo-btn:disabled { opacity: 0.34; cursor: not-allowed; }
+
+.mo-btn-primary {
+  background: var(--mo-live);
+  border-color: var(--mo-live);
+  color: #0C2A20;
+  padding: 13px 40px;
+  font-size: 0.95rem;
+}
+.mo-btn-primary:hover:not(:disabled) { background: #79E0B4; border-color: #79E0B4; }
+
+/* ── Game shell ───────────────────────────────────────────────────────────── */
+
+#mo-game {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 8px 10px;
+  gap: 7px;
+}
+
+.mo-wordmark { height: 20px; opacity: 0.82; flex-shrink: 0; }
+
+.mo-hud {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mo-dimmer);
+  flex-shrink: 0;
+}
+.mo-hud strong { color: var(--mo-card); font-size: 0.74rem; margin-left: 5px; }
+
+/* ── Nests ────────────────────────────────────────────────────────────────── */
+
+#mo-nests {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mo-nest {
+  width: calc(var(--mo-cw) * 0.82);
+  aspect-ratio: 0.7;
+  border-radius: calc(var(--mo-cw) * 0.09);
+  border: 1px dashed var(--mo-rule);
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--mo-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.mo-nest.mo-red { color: #E08A80; }
+.mo-nest-suit { font-size: calc(var(--mo-cw) * 0.30); line-height: 1; }
+.mo-nest-rank {
+  font-size: calc(var(--mo-cw) * 0.24);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--mo-card);
+}
+
+/* The nest that can take a card right now. Phase 3 asked for a subtle pull
+   rather than a flash — this breathes instead of blinking. */
+.mo-nest-live {
+  border-style: solid;
+  border-color: var(--mo-live);
+  background: rgba(95, 211, 160, 0.12);
+  animation: mo-breathe 2.1s ease-in-out infinite;
+}
+.mo-nest-live .mo-nest-rank { color: var(--mo-live); }
+
+@keyframes mo-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(95, 211, 160, 0.00); }
+  50%      { box-shadow: 0 0 0 4px rgba(95, 211, 160, 0.16); }
+}
+
+.mo-nest-full {
+  border-style: solid;
+  border-color: rgba(95, 211, 160, 0.45);
+  background: rgba(95, 211, 160, 0.10);
+}
+.mo-nest-full .mo-nest-rank { color: var(--mo-live); }
+
+/* ── Board ────────────────────────────────────────────────────────────────── */
+
+.mo-play-area {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#mo-board {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#mo-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--mo-cols, 4), var(--mo-cw));
+  gap: var(--mo-gap);
+  justify-content: center;
+  align-content: center;
+}
+
+.mo-stack {
+  position: relative;
+  padding-top: calc(var(--mo-eo) * 5);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mo-stack-inner { position: relative; }
+
+/* ── Cards ────────────────────────────────────────────────────────────────── */
+
+.mo-card {
+  width: var(--mo-cw);
+  aspect-ratio: 0.7;
+  border-radius: calc(var(--mo-cw) * 0.09);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--mo-cw) * 0.02);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  user-select: none;
+}
+
+.mo-face {
+  background: var(--mo-card);
+  color: var(--mo-ink);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.34);
+  position: relative;
+  z-index: 1;
+}
+.mo-face.mo-red { color: var(--mo-red); }
+.mo-rank { font-size: calc(var(--mo-cw) * 0.36); font-weight: 700; line-height: 1; }
+.mo-suit { font-size: calc(var(--mo-cw) * 0.30); line-height: 1; }
+
+.mo-empty {
+  background: rgba(0, 0, 0, 0.20);
+  border: 1px dashed var(--mo-rule);
+}
+
+.mo-back {
+  background:
+    repeating-linear-gradient(45deg,
+      var(--mo-back) 0 calc(var(--mo-cw) * 0.07),
+      #26523F calc(var(--mo-cw) * 0.07) calc(var(--mo-cw) * 0.14));
+  border: 1px solid var(--mo-back-line);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.34);
+}
+
+/* The visible sliver of each molted card, fanned upward behind the top card so
+   stack depth reads without changing the cell's footprint. */
+.mo-edge {
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  top: calc(var(--mo-e) * var(--mo-eo) * -1);
+  height: calc(var(--mo-cw) / 0.7);
+  border-radius: calc(var(--mo-cw) * 0.09);
+  background: var(--mo-back);
+  border: 1px solid var(--mo-back-line);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.26);
+  z-index: 0;
+}
+
+/* Past the fan cap the count takes over, so a very deep stack still reads. */
+.mo-depth {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: calc(var(--mo-cw) * 0.17);
+  font-weight: 700;
+  color: var(--mo-felt);
+  background: var(--mo-gold);
+  border-radius: 99px;
+  padding: 1px calc(var(--mo-cw) * 0.10);
+  z-index: 2;
+}
+
+/* ── Stack states ─────────────────────────────────────────────────────────── */
+
+.mo-stack-sel .mo-face {
+  outline: 2px solid var(--mo-gold);
+  outline-offset: 1px;
+  transform: translateY(calc(var(--mo-cw) * -0.06));
+  transition: transform 0.12s;
+}
+
+.mo-stack-target .mo-card {
+  outline: 2px dashed var(--mo-live);
+  outline-offset: 1px;
+}
+.mo-stack-target .mo-empty { background: rgba(95, 211, 160, 0.12); }
+
+.mo-stack-peekable .mo-face { outline: 2px solid var(--mo-gold); outline-offset: 1px; }
+
+/* Phase 3 — the molt itself. The card that just landed drops onto the stack and
+   the fan grows under it, so a burial is something you watch happen. */
+.mo-just-placed .mo-face { animation: mo-drop 0.24s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.mo-just-placed .mo-edge:first-child { animation: mo-flip 0.30s ease-out; }
+
+@keyframes mo-drop {
+  0%   { transform: translateY(calc(var(--mo-cw) * -0.30)) scale(1.05); opacity: 0.4; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes mo-flip {
+  0%   { transform: rotateX(76deg); opacity: 0.25; }
+  100% { transform: rotateX(0); opacity: 1; }
+}
+
+.mo-nested-pop { animation: mo-pop 0.30s ease-out; }
+@keyframes mo-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.13); }
+  100% { transform: scale(1); }
+}
+
+/* ── Stuck bar ────────────────────────────────────────────────────────────── */
+
+#mo-stuck {
+  width: 100%;
+  max-width: 520px;
+  flex-shrink: 0;
+  background: rgba(217, 164, 65, 0.13);
+  border: 1px solid rgba(217, 164, 65, 0.42);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #F2D9A6;
+}
+#mo-stuck-msg { flex: 1 1 190px; min-width: 0; }
+#mo-stuck .mo-btn { padding: 8px 14px; font-size: 0.76rem; }
+#mo-rescue-btn { border-color: var(--mo-gold); color: var(--mo-gold); }
+#mo-rescue-btn:hover { background: rgba(217, 164, 65, 0.16); }
+
+/* ── Tray ─────────────────────────────────────────────────────────────────── */
+
+.mo-tray {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.mo-tray-piles { display: flex; align-items: center; gap: 14px; }
+
+#mo-draw, #mo-hand { position: relative; cursor: pointer; }
+#mo-hand { cursor: default; }
+
+#mo-draw.mo-draw-live .mo-back {
+  box-shadow: 0 0 0 2px rgba(217, 164, 65, 0.55), 0 2px 5px rgba(0, 0, 0, 0.34);
+}
+
+.mo-draw-count {
+  position: absolute;
+  bottom: calc(var(--mo-cw) * -0.02);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: calc(var(--mo-cw) * 0.17);
+  font-weight: 700;
+  color: var(--mo-felt);
+  background: var(--mo-card);
+  border-radius: 99px;
+  padding: 1px calc(var(--mo-cw) * 0.11);
+}
+
+#mo-hand.mo-hand-live .mo-face {
+  outline: 2px solid var(--mo-gold);
+  outline-offset: 2px;
+  animation: mo-drop 0.24s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.mo-tray-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: flex-start;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+#mo-hand-hint {
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--mo-dim);
+  max-width: 148px;
+}
+
+.mo-peek-row { display: flex; align-items: center; gap: 7px; }
+
+#mo-peek-btn {
+  padding: 7px 13px;
+  font-size: 0.74rem;
+  border-color: rgba(217, 164, 65, 0.5);
+  color: var(--mo-gold);
+}
+#mo-peek-btn:hover:not(:disabled) { background: rgba(217, 164, 65, 0.14); }
+#mo-peek-btn.mo-peek-armed {
+  background: var(--mo-gold);
+  border-color: var(--mo-gold);
+  color: #2A1E06;
+}
+
+.mo-peek-dots { display: flex; gap: 4px; }
+.mo-peek-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--mo-gold);
+  transition: background 0.2s, opacity 0.2s;
+}
+.mo-peek-dot.mo-peek-spent { background: transparent; box-shadow: inset 0 0 0 1px var(--mo-rule); }
+
+/* ── Peek overlay ─────────────────────────────────────────────────────────── */
+
+#mo-peek {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  /* Near-opaque on purpose: the board behind is a grid of cards and at 0.86 it
+     read straight through the revealed hand, which is the one thing that has to
+     be unambiguous in the three seconds it is up. */
+  background: rgba(6, 20, 15, 0.955);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px;
+}
+
+#mo-peek-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 460px;
+}
+#mo-peek-cards .mo-face { animation: mo-flip 0.32s ease-out backwards; }
+#mo-peek-cards .mo-face:nth-child(2) { animation-delay: 0.05s; }
+#mo-peek-cards .mo-face:nth-child(3) { animation-delay: 0.10s; }
+#mo-peek-cards .mo-face:nth-child(4) { animation-delay: 0.15s; }
+#mo-peek-cards .mo-face:nth-child(n+5) { animation-delay: 0.20s; }
+#mo-peek-cards .mo-peek-top { outline: 2px solid var(--mo-live); outline-offset: 2px; }
+
+#mo-peek-label {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--mo-dim);
+}
+
+.mo-peek-track {
+  width: min(260px, 70vw);
+  height: 3px;
+  border-radius: 99px;
+  background: var(--mo-rule);
+  overflow: hidden;
+}
+#mo-peek-bar { height: 100%; width: 100%; background: var(--mo-gold); transform-origin: left; }
+#mo-peek-bar.mo-peek-run { animation: mo-drain 3s linear forwards; }
+@keyframes mo-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* ── End overlay ──────────────────────────────────────────────────────────── */
+
+#mo-end {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(6, 20, 15, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+.mo-end-box {
+  width: 100%;
+  max-width: 360px;
+  background: var(--mo-felt-hi);
+  border: 1px solid var(--mo-rule);
+  border-radius: 16px;
+  padding: 26px 24px 22px;
+  text-align: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.mo-end-kicker {
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mo-dimmer);
+  margin-bottom: 8px;
+}
+
+.mo-end-grade {
+  font-size: 1.62rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 18px;
+}
+
+#mo-end-stats {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+  font-size: 0.86rem;
+}
+#mo-end-stats li {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--mo-rule-soft);
+  color: var(--mo-dim);
+}
+#mo-end-stats strong { color: var(--mo-card); }
+
+.mo-end-tomorrow { font-size: 0.76rem; color: var(--mo-dimmer); margin-top: 14px; }
+
+.mo-end-close {
+  background: none;
+  border: none;
+  color: var(--mo-dimmer);
+  font-family: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+/* ── Directions modal logo ────────────────────────────────────────────────── */
+.mo-dir-logo { width: 150px; display: block; margin: 0 auto 14px; }
+
+/* ── Desktop ──────────────────────────────────────────────────────────────── */
+/* Same 16-stack board, more room around it. Card size still comes from --mo-cw,
+   so this only relaxes the chrome. */
+@media (min-width: 720px) {
+  #mo-game { padding: 14px 16px 18px; gap: 12px; }
+  .mo-wordmark { height: 26px; }
+  .mo-hud { font-size: 0.66rem; gap: 22px; }
+  #mo-nests { gap: 11px; }
+  #mo-hand-hint { font-size: 0.78rem; max-width: 190px; }
+
+  /* Tray moves alongside the board. A four-column grid is narrow, so the width
+     was going spare anyway, and handing the tray's ~110px of height back to the
+     board is what lets the cards grow. */
+  .mo-play-area {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 34px;
+  }
+  /* A definite width matters: fitBoard() sizes the cards from this box, so
+     letting it shrink-wrap the grid it is measuring would be circular. */
+  #mo-board { flex: 1 1 auto; max-width: 540px; }
+  .mo-tray {
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: center;
+    gap: 20px;
+    padding-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-nest-live,
+  .mo-just-placed .mo-face,
+  .mo-just-placed .mo-edge:first-child,
+  #mo-peek-cards .mo-face,
+  .mo-nested-pop,
+  #mo-hand.mo-hand-live .mo-face { animation: none !important; }
+  #mo-peek-bar.mo-peek-run { animation: mo-drain 3s linear forwards; }
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Molt — a daily memory solitaire — Bunny Game</title>
+  <meta name="description" content="Build four suits into the nests, ace to king. Every card you cover molts face down. Remember what you buried. A new deal every day.">
+  <meta property="og:title" content="Molt — a daily memory solitaire — Bunny Game">
+  <meta property="og:description" content="Build four suits into the nests, ace to king. Every card you cover molts face down. Remember what you buried.">
+  <meta property="og:url" content="https://www.thebunnygame.com/molt">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/molt-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/molt-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/molt">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#12352A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/molt.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Splash — shown on every page load -->
+  <div id="mo-splash">
+    <img src="assets/logos/molt_logo.svg" alt="Molt" class="mo-splash-logo">
+    <p class="mo-splash-dir" id="mo-splash-dir"></p>
+    <p class="mo-splash-note mo-hide" id="mo-splash-note"></p>
+    <button class="mo-btn mo-btn-primary" id="mo-play-btn">Play</button>
+  </div>
+
+  <!-- Game -->
+  <div id="mo-game" class="mo-hide">
+    <img src="assets/logos/molt_logo.svg" alt="Molt" class="mo-wordmark">
+
+    <div class="mo-hud">
+      <span>Nested <strong id="mo-nested">0/52</strong></span>
+      <span>Moves <strong id="mo-moves">0</strong></span>
+      <span>Molts <strong id="mo-molts">0</strong></span>
+    </div>
+
+    <div id="mo-nests"></div>
+
+    <div id="mo-stuck" class="mo-hide">
+      <span id="mo-stuck-msg"></span>
+      <button type="button" class="mo-btn" id="mo-rescue-btn">Shed the board</button>
+      <button type="button" class="mo-btn" id="mo-giveup-btn">Give up</button>
+    </div>
+
+    <!-- Board and tray stack on a phone and sit side by side on a desktop, which
+         is what gives the board back the vertical room the tray was taking. -->
+    <div class="mo-play-area">
+      <div id="mo-board">
+        <div id="mo-grid"></div>
+      </div>
+
+      <div class="mo-tray">
+        <div class="mo-tray-piles">
+          <div id="mo-draw" role="button" tabindex="0" aria-label="Draw pile"></div>
+          <div id="mo-hand" aria-live="polite"></div>
+        </div>
+        <div class="mo-tray-mid">
+          <p id="mo-hand-hint"></p>
+          <div class="mo-peek-row">
+            <button type="button" class="mo-btn" id="mo-peek-btn">Peek</button>
+            <div class="mo-peek-dots">
+              <span class="mo-peek-dot"></span>
+              <span class="mo-peek-dot"></span>
+              <span class="mo-peek-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Peek overlay -->
+<div id="mo-peek" class="mo-hide">
+  <div id="mo-peek-cards"></div>
+  <p id="mo-peek-label"></p>
+  <div class="mo-peek-track"><div id="mo-peek-bar"></div></div>
+</div>
+
+<!-- End overlay -->
+<div id="mo-end" class="mo-hide">
+  <div class="mo-end-box">
+    <p class="mo-end-kicker" id="mo-end-kicker"></p>
+    <p class="mo-end-grade" id="mo-end-grade"></p>
+    <ul id="mo-end-stats"></ul>
+    <button class="mo-btn mo-btn-primary" id="mo-share-btn">Share</button>
+    <p class="mo-end-tomorrow">A new deal tomorrow.</p>
+    <button class="mo-end-close" id="mo-end-close">View the board</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <img src="assets/logos/molt_logo.svg" alt="Molt" class="mo-dir-logo">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/molt.js"></script>
+</body>
+</html>
