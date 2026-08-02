@@ -444,6 +444,191 @@ body { background: var(--mo-felt); }
 }
 .mo-peek-dot.mo-peek-spent { background: transparent; box-shadow: inset 0 0 0 1px var(--mo-rule); }
 
+/* ── Legend strip ─────────────────────────────────────────────────────────── */
+/* Shown under the tray for a player's first three deals, then never again. */
+
+.mo-legend {
+  flex-shrink: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--mo-dimmer);
+  text-align: center;
+  padding: 2px 8px 0;
+  line-height: 1.4;
+}
+.mo-legend span { color: rgba(247, 243, 230, 0.22); padding: 0 3px; }
+
+/* ── Tutorial ─────────────────────────────────────────────────────────────── */
+
+#mo-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(6, 20, 15, 0.965);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mo-tut-box {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  background: var(--mo-felt-hi);
+  border: 1px solid var(--mo-rule);
+  border-radius: 16px;
+  padding: 40px 22px 20px;
+  text-align: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.mo-tut-skip {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--mo-dimmer);
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.mo-tut-skip:hover { color: var(--mo-card); }
+
+.mo-tut-title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.34rem;
+  color: var(--mo-card);
+  margin-bottom: 16px;
+}
+
+/* The examples are real board components, so the stage pins --mo-cw rather than
+   inheriting whatever size fitBoard() last gave the live grid. */
+.mo-tut-stage {
+  --mo-cw: 54px;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.mo-tut-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.mo-tut-row .mo-stack { padding-top: calc(var(--mo-eo) * 5); cursor: default; }
+
+/* The label row mirrors the visual row column for column, so the arrow and the
+   blank label that stands in for it must be the SAME fixed width — sizing the
+   arrow by font-size left every caption a few pixels left of its card. */
+.mo-tut-arrow {
+  width: 18px;
+  flex: 0 0 18px;
+  text-align: center;
+  color: var(--mo-dimmer);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.mo-tut-labels { gap: 10px; margin-top: 2px; }
+.mo-tut-note {
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: var(--mo-dimmer);
+  width: var(--mo-cw);
+  flex: 0 0 var(--mo-cw);
+  line-height: 1.25;
+}
+.mo-tut-note:empty { width: 18px; flex: 0 0 18px; }
+
+.mo-tut-reveal { display: flex; gap: 5px; }
+.mo-tut-reveal .mo-card { --mo-cw: 42px; }
+/* The "this is the card you can actually play" marker, same as the peek overlay. */
+.mo-tut-reveal .mo-peek-top { outline: 2px solid var(--mo-live); outline-offset: 2px; }
+
+.mo-tut-peeks { gap: 5px; margin-top: 10px; }
+/* This caption is prose, not a column label, so it has to escape both the
+   card-width and the flex-basis the label rule pins on .mo-tut-note. */
+.mo-tut-peeks .mo-tut-note { width: auto; flex: 0 1 auto; margin-left: 7px; }
+
+.mo-tut-copy {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--mo-dim);
+  min-height: 4.8em;
+  margin-bottom: 14px;
+}
+
+.mo-tut-dots {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.mo-tut-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  box-shadow: inset 0 0 0 1px var(--mo-rule);
+  transition: background 0.2s;
+}
+.mo-tut-dot-on { background: var(--mo-live); box-shadow: none; }
+
+.mo-tut-nav { display: flex; gap: 10px; justify-content: center; }
+.mo-tut-nav .mo-btn { min-width: 104px; }
+
+.mo-tut-rules {
+  background: none;
+  border: none;
+  color: var(--mo-dimmer);
+  font-family: inherit;
+  font-size: 0.74rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 14px;
+}
+.mo-tut-rules:hover { color: var(--mo-card); }
+
+/* The "?" reads better as a circle than as a pill of text. */
+.mo-help {
+  width: 30px;
+  padding: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 99px;
+}
+
+/* ── First-move hint ──────────────────────────────────────────────────────── */
+/* One stack pulses on a player's first ever deal, until they touch anything. */
+
+.mo-hint .mo-face {
+  outline: 2px solid var(--mo-live);
+  outline-offset: 1px;
+  animation: mo-hint-pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes mo-hint-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(95, 211, 160, 0.00), 0 2px 5px rgba(0, 0, 0, 0.34); }
+  50%      { box-shadow: 0 0 0 7px rgba(95, 211, 160, 0.15), 0 2px 5px rgba(0, 0, 0, 0.34); }
+}
+
+@media (min-width: 720px) {
+  .mo-tut-box { max-width: 470px; padding: 44px 30px 24px; }
+  .mo-tut-stage { --mo-cw: 62px; min-height: 148px; }
+  .mo-tut-copy { font-size: 0.95rem; }
+  .mo-legend { font-size: 0.72rem; }
+}
+
 /* ── Peek overlay ─────────────────────────────────────────────────────────── */
 
 #mo-peek {
@@ -604,6 +789,10 @@ body { background: var(--mo-felt); }
   .mo-just-placed .mo-edge:first-child,
   #mo-peek-cards .mo-face,
   .mo-nested-pop,
-  #mo-hand.mo-hand-live .mo-face { animation: none !important; }
+  #mo-hand.mo-hand-live .mo-face,
+  .mo-hint .mo-face { animation: none !important; }
+  /* The hint still has to read as a hint with the pulse switched off, so the
+     static outline stays and only the motion goes. */
+  .mo-hint .mo-face { outline-color: var(--mo-live); }
   #mo-peek-bar.mo-peek-run { animation: mo-drain 3s linear forwards; }
 }

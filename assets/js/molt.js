@@ -325,8 +325,22 @@
     'never come apart. Three peeks let you look inside one stack for three ' +
     'seconds. A new deal every day.';
 
+  // The splash used to carry the whole of DIRECTIONS_TEXT. Teaching the rules is
+  // the tutorial's job now, and leaving a 200-word wall in front of the Play
+  // button would only give a new player two things to not read. The full prose
+  // is still one tap away, from the tutorial's last screen.
+  var SPLASH_TAGLINE =
+    'Build four suits into the nests, ace to king. Cover a card and it molts — ' +
+    'face down, and only you remember what it was.';
+
   var SHARE_URL = 'https://www.thebunnygame.com/molt';
   var LS_PREFIX = 'molt_result_';
+
+  // Onboarding. TUTORIAL_KEY follows the shape Poise uses for the same job
+  // (poise_instructions_seen): set once, checked on boot, never cleared.
+  var TUTORIAL_KEY = 'molt_tutorial_seen';
+  var GAMES_KEY    = 'molt_games_played';
+  var LEGEND_GAMES = 3;      // the legend strip retires after this many deals
 
   var state    = null;
   var selected = null;    // grid index the player has picked up, or null
@@ -338,6 +352,8 @@
   // one cell that changed rather than by transitioning a surviving element.
   var justPlaced = null;
   var justNested = null;
+  // Grid stack pulsing as the opening nudge on a player's very first deal.
+  var hintIndex  = null;
   var el = {};
 
   function q(id) { return document.getElementById(id); }
@@ -360,6 +376,30 @@
         peeks:  PEEKS_START - state.peeks,
       }));
     } catch (e) {}
+  }
+
+  function tutorialSeen() {
+    try { return !!localStorage.getItem(TUTORIAL_KEY); } catch (e) { return false; }
+  }
+
+  function markTutorialSeen() {
+    try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch (e) {}
+  }
+
+  // Deals started, ever. Drives the first-move hint (game 1) and the legend
+  // strip (games 1-3). A corrupt or missing value reads as a brand new player,
+  // which shows more help rather than less — the safe way to be wrong.
+  function gamesPlayed() {
+    try {
+      var n = parseInt(localStorage.getItem(GAMES_KEY), 10);
+      return (isFinite(n) && n >= 0) ? n : 0;
+    } catch (e) { return 0; }
+  }
+
+  function bumpGamesPlayed() {
+    var n = gamesPlayed() + 1;
+    try { localStorage.setItem(GAMES_KEY, String(n)); } catch (e) {}
+    return n;
   }
 
   function cleanupStale() {
@@ -457,6 +497,7 @@
       }
       if (peekArmed && buried > 0) cls += ' mo-stack-peekable';
       if (justPlaced === i) cls += ' mo-just-placed';
+      if (hintIndex === i) cls += ' mo-hint';
 
       var edgeHTML = '';
       for (var e = 0; e < edges; e++) {
@@ -585,6 +626,28 @@
 
   // ── Interaction ──────────────────────────────────────────────────────────────
 
+  // The opening nudge earns its keep once. Any deliberate interaction retires it,
+  // whether or not that interaction was the move being pointed at.
+  function dismissHint() {
+    if (hintIndex === null) return;
+    hintIndex = null;
+    render();
+  }
+
+  // The clearest possible opening: a card that can go straight to a nest. Failing
+  // that, any card with a legal move on the board.
+  function firstHintIndex(s) {
+    var i;
+    for (i = 0; i < s.grid.length; i++) {
+      var t = topOf(s, i);
+      if (t && canNest(s, t)) return i;
+    }
+    for (i = 0; i < s.grid.length; i++) {
+      if (topOf(s, i) && legalGridTargets(s, i).length) return i;
+    }
+    return null;
+  }
+
   function afterMove() {
     selected = null;
     render();
@@ -596,6 +659,7 @@
 
   function onStackTap(i) {
     if (state.status !== 'playing') return;
+    dismissHint();
 
     if (peekArmed) {
       if (usePeek(state, i)) { peekArmed = false; showPeek(i); render(); }
@@ -622,6 +686,7 @@
 
   function onNestTap(suit) {
     if (state.status !== 'playing' || peekArmed) return;
+    dismissHint();
     if (state.hand) {
       if (state.hand.s === suit && nestFromHand(state)) { justNested = suit; afterMove(); }
       return;
@@ -633,11 +698,13 @@
 
   function onDraw() {
     if (state.status !== 'playing' || state.hand || peekArmed) return;
+    dismissHint();
     if (drawCard(state)) { selected = null; render(); }
   }
 
   function onPeekBtn() {
     if (state.peeks <= 0 || state.status !== 'playing') return;
+    dismissHint();
     peekArmed = !peekArmed;
     if (peekArmed) selected = null;
     render();
@@ -693,6 +760,141 @@
   }
 
   function onDragEnd() { dragFrom = null; selected = null; render(); }
+
+  // ── Tutorial ─────────────────────────────────────────────────────────────────
+  // Every example below is built from the same .mo-card / .mo-stack / .mo-nest
+  // markup the board renders, so a player is looking at the exact components
+  // they are about to touch. No bespoke art, and the examples cannot drift out
+  // of step with the game's styling.
+
+  function C(s, r) { return { s: s, r: r, id: s + r }; }
+
+  // cards run bottom -> top, matching a real grid stack
+  function demoStack(cards) {
+    var top    = cards[cards.length - 1];
+    var buried = cards.length - 1;
+    var edges  = Math.min(buried, MAX_EDGES);
+    var html   = '';
+    for (var e = 0; e < edges; e++) {
+      html += '<div class="mo-edge" style="--mo-e:' + (edges - e) + '"></div>';
+    }
+    return '<div class="mo-stack mo-demo-stack"><div class="mo-stack-inner">' +
+           html + cardFaceHTML(top, 'mo-top') + '</div></div>';
+  }
+
+  function demoNest(suit, needs, live) {
+    return '<div class="mo-nest' + (live ? ' mo-nest-live' : '') +
+           (RED[suit] ? ' mo-red' : '') + '">' +
+           '<span class="mo-nest-suit">' + SUIT_GLYPH[suit] + '</span>' +
+           '<span class="mo-nest-rank">' + RANK_LABEL[needs] + '</span></div>';
+  }
+
+  function demoArrow() { return '<span class="mo-tut-arrow" aria-hidden="true">&rarr;</span>'; }
+  function demoNote(t)  { return '<span class="mo-tut-note">' + t + '</span>'; }
+
+  var TUTORIAL = [
+    {
+      title: 'The grid',
+      copy:  'Sixteen stacks, but only the top card of each one is face up — that is the only card you can pick up.',
+      build: function () {
+        return '<div class="mo-tut-row">' +
+          demoStack([C('C', 5)]) +
+          demoStack([C('D', 2), C('S', 11)]) +
+          demoStack([C('H', 4), C('C', 8), C('H', 9)]) +
+          '</div><div class="mo-tut-row mo-tut-labels">' +
+            demoNote('1 card') + demoNote('2 cards') + demoNote('3 cards') +
+          '</div>';
+      },
+    },
+    {
+      title: 'Build the nests',
+      copy:  'Send a card to its nest when that nest wants its rank — aces first, then up to the king. Nested cards are locked in for good.',
+      build: function () {
+        return '<div class="mo-tut-row">' +
+          demoStack([C('S', 1)]) + demoArrow() + demoNest('S', 1, true) +
+          '</div><div class="mo-tut-row mo-tut-labels">' +
+            demoNote('ace of spades') + demoNote('') + demoNote('spade nest wants an ace') +
+          '</div>';
+      },
+    },
+    {
+      title: 'Molting',
+      copy:  'You can also drop a card on the next rank UP of its own suit. The card underneath molts — it flips face down and stays hidden until the card on top of it leaves.',
+      build: function () {
+        return '<div class="mo-tut-row">' +
+          demoStack([C('S', 6)]) + demoArrow() + demoStack([C('S', 7)]) +
+          demoArrow() + demoStack([C('S', 7), C('S', 6)]) +
+          '</div><div class="mo-tut-row mo-tut-labels">' +
+            demoNote('six') + demoNote('') + demoNote('onto the seven') +
+            demoNote('') + demoNote('seven is molted') +
+          '</div>';
+      },
+    },
+    {
+      title: 'Peeks',
+      copy:  'Three peeks a day. Spend one to see every card in a molted stack for three seconds — save them for when you have lost track.',
+      build: function () {
+        return '<div class="mo-tut-row">' +
+          demoStack([C('D', 10), C('C', 3), C('H', 7)]) + demoArrow() +
+          '<span class="mo-tut-reveal">' +
+            cardFaceHTML(C('D', 10)) + cardFaceHTML(C('C', 3)) + cardFaceHTML(C('H', 7), 'mo-peek-top') +
+          '</span></div>' +
+          '<div class="mo-tut-row mo-tut-peeks">' +
+            '<span class="mo-peek-dot"></span><span class="mo-peek-dot"></span>' +
+            '<span class="mo-peek-dot"></span>' +
+            demoNote('three peeks, then no more') +
+          '</div>';
+      },
+    },
+  ];
+
+  var tutStep     = 0;
+  var tutFromHelp = false;
+
+  function renderTutorial() {
+    var s = TUTORIAL[tutStep];
+    el.tutTitle.textContent  = s.title;
+    el.tutCopy.textContent   = s.copy;
+    el.tutVisual.innerHTML   = s.build();
+
+    el.tutDots.innerHTML = TUTORIAL.map(function (_, i) {
+      return '<span class="mo-tut-dot' + (i === tutStep ? ' mo-tut-dot-on' : '') + '"></span>';
+    }).join('');
+    el.tutDots.setAttribute('aria-label', 'Step ' + (tutStep + 1) + ' of ' + TUTORIAL.length);
+
+    el.tutBack.disabled    = tutStep === 0;
+    var last = tutStep === TUTORIAL.length - 1;
+    // Opened from the header the tutorial is a reference, so it closes; on the
+    // first run it is the way in to the game, so the last button starts it.
+    el.tutNext.textContent = last ? (tutFromHelp ? 'Got it' : 'Play') : 'Next';
+  }
+
+  function gotoStep(n) {
+    if (n < 0 || n >= TUTORIAL.length) return;
+    tutStep = n;
+    renderTutorial();
+  }
+
+  function showTutorial(fromHelp) {
+    tutFromHelp = !!fromHelp;
+    tutStep = 0;
+    renderTutorial();
+    el.tutorial.classList.remove('mo-hide');
+  }
+
+  // Closing always records the tutorial as seen, whether it was read through or
+  // skipped — a player who skipped has made their choice and should not be shown
+  // it again unprompted.
+  function closeTutorial(startGame) {
+    el.tutorial.classList.add('mo-hide');
+    markTutorialSeen();
+    if (startGame) begin();
+  }
+
+  function onTutNext() {
+    if (tutStep < TUTORIAL.length - 1) { gotoStep(tutStep + 1); return; }
+    closeTutorial(!tutFromHelp);
+  }
 
   // ── Screens ──────────────────────────────────────────────────────────────────
 
@@ -751,6 +953,13 @@
     peekArmed = false;
     selected  = null;
     state = deal(getTodayKey());
+
+    var played = bumpGamesPlayed();
+    // Only the very first deal gets the opening nudge; the legend hangs around
+    // for three, by which point the three verbs are muscle memory.
+    hintIndex = played === 1 ? firstHintIndex(state) : null;
+    if (el.legend) el.legend.classList.toggle('mo-hide', played > LEGEND_GAMES);
+
     show('game');
     render();
     fitBoard();
@@ -768,7 +977,10 @@
       hand:      q('mo-hand'),
       handHint:  q('mo-hand-hint'),
       peekBtn:   q('mo-peek-btn'),
-      peekDots:  [].slice.call(document.querySelectorAll('.mo-peek-dot')),
+      // Scoped to the tray on purpose: the tutorial's peek screen renders dots
+      // with the same class, and an unscoped selector would let the token
+      // counter start writing "spent" into the tutorial artwork.
+      peekDots:  [].slice.call(document.querySelectorAll('.mo-tray .mo-peek-dot')),
       peek:      q('mo-peek'),
       peekCards: q('mo-peek-cards'),
       peekLabel: q('mo-peek-label'),
@@ -784,6 +996,14 @@
       endKicker: q('mo-end-kicker'),
       endGrade:  q('mo-end-grade'),
       endStats:  q('mo-end-stats'),
+      legend:    q('mo-legend'),
+      tutorial:  q('mo-tutorial'),
+      tutTitle:  q('mo-tut-title'),
+      tutCopy:   q('mo-tut-copy'),
+      tutVisual: q('mo-tut-visual'),
+      tutDots:   q('mo-tut-dots'),
+      tutBack:   q('mo-tut-back'),
+      tutNext:   q('mo-tut-next'),
     };
     if (!el.grid || !el.nests) return;          // not the game page
 
@@ -821,12 +1041,42 @@
 
     global.addEventListener('resize', function () { if (state) { fitBoard(); } });
 
-    var splashDir = q('mo-splash-dir');
-    if (splashDir) splashDir.textContent = DIRECTIONS_TEXT;
-    var help = q('help-btn');
-    if (help && typeof openDirections === 'function') {
-      help.addEventListener('click', function () { openDirections(DIRECTIONS_TEXT); });
+    // ── Tutorial wiring ──
+    el.tutBack.addEventListener('click', function () { gotoStep(tutStep - 1); });
+    el.tutNext.addEventListener('click', onTutNext);
+    q('mo-tut-skip').addEventListener('click', function () { closeTutorial(false); });
+
+    // The full prose rules stay reachable for anyone who wants the detail the
+    // four screens deliberately leave out.
+    var fullRules = q('mo-tut-rules');
+    if (fullRules && typeof openDirections === 'function') {
+      fullRules.addEventListener('click', function () { openDirections(DIRECTIONS_TEXT); });
     }
+
+    // Swipe between screens, and arrow keys for a desktop keyboard.
+    var swipeX = null;
+    el.tutorial.addEventListener('touchstart', function (e) {
+      swipeX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    el.tutorial.addEventListener('touchend', function (e) {
+      if (swipeX === null) return;
+      var dx = e.changedTouches[0].clientX - swipeX;
+      swipeX = null;
+      if (Math.abs(dx) < 45) return;                 // a tap, not a swipe
+      if (dx < 0 && tutStep < TUTORIAL.length - 1) gotoStep(tutStep + 1);
+      else if (dx > 0) gotoStep(tutStep - 1);
+    }, { passive: true });
+    document.addEventListener('keydown', function (e) {
+      if (el.tutorial.classList.contains('mo-hide')) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); onTutNext(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); gotoStep(tutStep - 1); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeTutorial(false); }
+    });
+
+    var splashDir = q('mo-splash-dir');
+    if (splashDir) splashDir.textContent = SPLASH_TAGLINE;
+    var help = q('help-btn');
+    if (help) help.addEventListener('click', function () { showTutorial(true); });
 
     cleanupStale();
     var prior = loadStored();
@@ -839,6 +1089,11 @@
     }
 
     show('splash');
+
+    // First ever visit: the tutorial comes up over the splash, unasked. Same
+    // trigger Poise uses. Every later visit lands straight on the splash, with
+    // the header's "?" as the way back in.
+    if (!tutorialSeen()) showTutorial(false);
   }
 
   if (typeof document !== 'undefined') {
@@ -863,6 +1118,13 @@
     // page controller, exposed for verification
     begin: begin, render: render, getState: function () { return state; },
     onStackTap: onStackTap, onNestTap: onNestTap, onDraw: onDraw,
+    // onboarding
+    TUTORIAL_KEY: TUTORIAL_KEY, GAMES_KEY: GAMES_KEY, LEGEND_GAMES: LEGEND_GAMES,
+    TUTORIAL: TUTORIAL, tutorialSeen: tutorialSeen, gamesPlayed: gamesPlayed,
+    showTutorial: showTutorial, closeTutorial: closeTutorial, gotoStep: gotoStep,
+    firstHintIndex: firstHintIndex,
+    getTutStep: function () { return tutStep; },
+    getHintIndex: function () { return hintIndex; },
   };
 
 }(typeof window !== 'undefined' ? window : globalThis));

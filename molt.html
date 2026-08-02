@@ -45,7 +45,9 @@
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
-    <button class="icon-btn" id="help-btn">How to play</button>
+    <!-- Matches Poise: a "?" that reopens the walkthrough at any time. Short
+         label also stops the header crowding once nav.js injects "All Games". -->
+    <button class="icon-btn mo-help" id="help-btn" aria-label="How to play">?</button>
   </div>
 </div>
 
@@ -104,8 +106,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Retires itself after three deals (molt_games_played) -->
+    <p id="mo-legend" class="mo-legend mo-hide">
+      Tap = select <span>&middot;</span> Same-suit +1 = molt <span>&middot;</span> Nest = lock in
+    </p>
   </div>
 
+</div>
+
+<!-- Tutorial — full-screen, shown unasked on a first visit, reopened by "?" -->
+<div id="mo-tutorial" class="mo-hide" role="dialog" aria-modal="true" aria-label="How to play Molt">
+  <div class="mo-tut-box">
+    <button type="button" class="mo-tut-skip" id="mo-tut-skip">Skip</button>
+    <p class="mo-tut-title" id="mo-tut-title"></p>
+    <div class="mo-tut-stage" id="mo-tut-visual"></div>
+    <p class="mo-tut-copy" id="mo-tut-copy"></p>
+    <div class="mo-tut-dots" id="mo-tut-dots" role="img"></div>
+    <div class="mo-tut-nav">
+      <button type="button" class="mo-btn" id="mo-tut-back">Back</button>
+      <button type="button" class="mo-btn mo-btn-primary" id="mo-tut-next">Next</button>
+    </div>
+    <button type="button" class="mo-tut-rules" id="mo-tut-rules">Full rules</button>
+  </div>
 </div>
 
 <!-- Peek overlay -->
