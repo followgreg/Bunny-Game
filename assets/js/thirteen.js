@@ -281,30 +281,20 @@
     state.streak  = 0;
   }
 
-  // ── Grade ────────────────────────────────────────────────────────────────────
-  // Cards cleared carries the rating, because clearing the whole deck is a real
-  // but rare result and a deal that ends at 44 deserves to read differently from
-  // one that ends at 18. Bands come from the measured spread of 1,500 simulated
-  // deals — p25 28, median 34, p75 38, p90 42, p97 46 — rather than from round
-  // numbers, which would have put almost everyone in one band. As set, they land
-  // 9% / 25% / 40% / 15% / 12% from the top down, so "Cut It Fine" stays worth
-  // something and the bottom band means the deal really did die early.
+  // ── Result ───────────────────────────────────────────────────────────────────
+  // The result is the number and nothing else: "30 of 52 cleared". There is no
+  // rating band and no title on top of it.
   //
-  // Clean Sweep sits above all of it and is close to unreachable: the simulated
-  // player cleared all 52 roughly once in a thousand deals, though a search
-  // allowed to see the pile order won one deal in eight — so the ceiling is
-  // skill, not luck, and the perfect is left in as a genuine trophy.
-  function getGrade(state) {
-    // Emoji only, never the Unicode playing-card glyphs (U+1F0A0 and friends):
-    // they are text symbols with patchy font coverage, and the share string has
-    // to survive being pasted anywhere.
-    var n = state.cleared;
-    if (n === 52) return { title: 'Clean Sweep', emoji: '✨', color: '#5FD3A0' };
-    if (n >= 44)  return { title: 'Cut It Fine', emoji: '🔥', color: '#7FC7E8' };
-    if (n >= 38)  return { title: 'Good Run',    emoji: '🃏', color: '#9BD6B0' };
-    if (n >= 30)  return { title: 'Fair Deal',   emoji: '🎴', color: '#D9A441' };
-    if (n >= 20)  return { title: 'Cold Deck',   emoji: '❄️', color: '#C99A5B' };
-    return             { title: 'Locked Early',  emoji: '🔒', color: '#C86B4A' };
+  // An earlier build graded the run into named tiers. The number is the honest
+  // unit here — it is what the daily board is actually comparable on, and a
+  // label sitting above it only competes with it for attention and invites the
+  // player to argue with the adjective instead of reading the score.
+  //
+  // For context when reading scores: over 1,500 simulated deals the spread was
+  // p25 28, median 34, p75 38, p90 42, p97 46, and all 52 came up about once in
+  // a thousand — so anything in the forties is a genuinely good board.
+  function getResultText(state) {
+    return state.cleared + ' of 52 cleared';
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -326,9 +316,8 @@
     'stay open, and a hole lets a line through: cards that could never reach each ' +
     'other suddenly can, so the order you take the last cards in is what decides ' +
     'how far you get. Nothing on the board is ever marked as matchable — finding ' +
-    'the pairs is the whole game. When no two cards that can see each other add ' +
-    'to thirteen and no king is left, the grid is locked and the deal is over. ' +
-    'Clearing all fifty-two is rare. Not every deal can be won.';
+    'the pairs is the whole game. The game ends when there are no more moves to ' +
+    'make. Clearing all fifty-two is rare. Not every deal can be won.';
 
   var SPLASH_TAGLINE =
     'Twenty-five cards, face up. Clear them two at a time — cards that add up to ' +
@@ -434,17 +423,13 @@
   // ── Share ────────────────────────────────────────────────────────────────────
   // Daily only. A practice run is not a shared challenge and a score from one
   // would mean nothing to whoever received it.
+  // The shared line leads with the same number the result screen does, so what
+  // gets pasted into a chat is what the player just read.
   function getShareText(s) {
     if (s.mode !== 'daily') return '';
-    var g = getGrade(s);
-    if (s.status === 'won') {
-      return 'Thirteen ' + s.dayKey + ' — the whole deck, 52/52. ' + s.matches +
-             ' matches, ' + s.misses + ' misses. ' + g.emoji + ' ' + g.title +
-             '. ' + SHARE_URL;
-    }
-    return 'Thirteen ' + s.dayKey + ' — ' + s.cleared + '/52 before the grid ' +
-           'locked. ' + g.emoji + ' ' + g.title + ', best run ' + s.best +
-           '. ' + SHARE_URL;
+    return 'Thirteen ' + s.dayKey + ' — ' + getResultText(s) + '. ' +
+           s.matches + ' matches, ' + s.misses + ' misses, best run ' +
+           s.best + '. ' + SHARE_URL;
   }
 
   // ── Rendering ────────────────────────────────────────────────────────────────
@@ -520,9 +505,9 @@
     el.lockedMsg.textContent = state.status === 'won'
       ? 'All fifty-two cleared. That is the whole deck.'
       : (state.draw.length
-          ? 'Nothing left that adds to thirteen, and no king. The grid is locked ' +
-            'with ' + state.draw.length + ' still in the pile.'
-          : 'Nothing left that adds to thirteen, and no king. The grid is locked.');
+          ? 'There are no more moves to make, with ' + state.draw.length +
+            ' still in the pile.'
+          : 'There are no more moves to make.');
   }
 
   function render() {
@@ -686,7 +671,7 @@
              'keeps its shape. When the pile runs out the holes stay — and cards ' +
              'see each other straight through a hole. These two could not reach ' +
              'each other a moment ago. Nothing is ever marked as matchable, and ' +
-             'the grid can lock with no warning.',
+             'the game ends when there are no more moves to make.',
       // One row before and one row after. A full 3x3 slab was tried and it made
       // the screen twice as tall as the other two for no extra clarity — the
       // whole idea is one card, then no card, in the same gap.
@@ -779,20 +764,23 @@
     if (!el.splashNote) return;
     var prior = mode === 'daily' ? loadStored() : null;
     if (!prior) { el.splashNote.classList.add('th-hide'); return; }
-    el.splashNote.textContent = prior.cleared === 52
-      ? 'You cleared the whole deck today.'
-      : 'You played today\'s deal and locked at ' + prior.cleared + '/52.';
+    el.splashNote.textContent = 'You played today\'s deal — ' +
+      prior.cleared + ' of 52 cleared.';
     el.splashNote.classList.remove('th-hide');
   }
 
   function showEnd() {
-    var grade = getGrade(state);
     var daily = state.mode === 'daily';
 
-    el.endKicker.textContent = state.status === 'won' ? 'Deck cleared' : 'Grid locked';
-    el.endGrade.textContent  = grade.emoji + ' ' + grade.title;
-    el.endGrade.style.color  = grade.color;
-    el.endScore.textContent  = state.cleared + ' of 52 cleared';
+    // The score IS the headline. The kicker above it only says how the deal
+    // finished, which the number alone cannot: ran out of moves, or went all
+    // the way. Clearing the whole deck is the one result that gets any emphasis,
+    // and it earns it at roughly one deal in a thousand.
+    el.endKicker.textContent = state.status === 'won'
+      ? 'The whole deck'
+      : 'No more moves';
+    el.endScore.textContent = getResultText(state);
+    el.endScore.style.color = state.status === 'won' ? '#5FD3A0' : '';
     el.endStats.innerHTML =
       '<li><span>Matches</span><strong>' + state.matches + '</strong></li>' +
       '<li><span>Misses</span><strong>' + state.misses + '</strong></li>' +
@@ -897,7 +885,6 @@
       legend:     q('th-legend'),
       end:        q('th-end'),
       endKicker:  q('th-end-kicker'),
-      endGrade:   q('th-end-grade'),
       endScore:   q('th-end-score'),
       endStats:   q('th-end-stats'),
       endNote:    q('th-end-note'),
@@ -993,7 +980,7 @@
     cardsLeft: cardsLeft, onBoard: onBoard,
     findAnyMove: findAnyMove, hasAnyMove: hasAnyMove, isLocked: isLocked, checkEnd: checkEnd,
     clearSolo: clearSolo, clearPair: clearPair, registerMiss: registerMiss,
-    getGrade: getGrade, getShareText: getShareText,
+    getResultText: getResultText, getShareText: getShareText,
     // page controller, exposed for verification
     begin: begin, render: render, getState: function () { return state; },
     onCellTap: onCellTap, onGiveUp: onGiveUp,

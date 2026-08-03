@@ -632,16 +632,12 @@ body { background: var(--th-felt); }
   margin-bottom: 8px;
 }
 
-.th-end-grade {
+/* The score is the headline — there is no rating line above it any more. */
+.th-end-score {
   font-size: 1.58rem;
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 4px;
-}
-
-.th-end-score {
-  font-size: 0.86rem;
-  color: var(--th-dim);
+  color: var(--th-card);
   margin-bottom: 18px;
 }
 
