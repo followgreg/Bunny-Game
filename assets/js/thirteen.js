@@ -128,16 +128,25 @@
   // Twenty-five cards face up, twenty-seven held back. Nothing is hidden except
   // the ORDER of the pile, so the board in front of the player is the whole of
   // what there is to reason about.
+  // Daily deals one seeded board a day — the same twenty-five cards for
+  // everyone — and that run is the only one that is scored, saved or shared.
+  // Once it is finished the game keeps dealing: fresh cards every time, for as
+  // long as the player wants them. Those extra deals are deliberately NOT
+  // scored, because a shared daily number stops meaning anything the moment a
+  // player can re-roll the board until they like their score.
+  //
+  // `scored` is what separates the two. Pass fresh:true for an extra deal.
   function deal(opts) {
     opts = opts || {};
     var mode   = opts.mode === 'practice' ? 'practice' : 'daily';
     var dayKey = opts.dayKey || getTodayKey();
+    var scored = mode === 'daily' && !opts.fresh;
     var seed;
 
-    if (mode === 'daily') {
+    if (scored) {
       seed = hashString('thirteen-' + dayKey);
     } else if (typeof opts.seed === 'number') {
-      seed = opts.seed >>> 0;                       // reproducible practice, for tests
+      seed = opts.seed >>> 0;                       // reproducible, for tests
     } else {
       seed = (Math.random() * 4294967296) >>> 0;
     }
@@ -148,6 +157,7 @@
       mode:        mode,
       dayKey:      dayKey,
       seed:        seed,
+      scored:      scored,            // the one daily board; extras are free play
       cols:        COLS,
       rows:        ROWS,
       grid:        deck.slice(0, CELLS),   // index -> card or null; cards never move
@@ -367,7 +377,7 @@
   }
 
   function saveResult() {
-    if (state.mode !== 'daily') return;
+    if (!state.scored) return;      // extra deals never overwrite today's result
     try {
       localStorage.setItem(lsKey(), JSON.stringify({
         day:     state.dayKey,
@@ -421,12 +431,13 @@
   }
 
   // ── Share ────────────────────────────────────────────────────────────────────
-  // Daily only. A practice run is not a shared challenge and a score from one
-  // would mean nothing to whoever received it.
+  // The scored daily board only. A practice run or an extra deal is not the
+  // shared challenge, and a score off a board nobody else was given would mean
+  // nothing to whoever received it.
   // The shared line leads with the same number the result screen does, so what
   // gets pasted into a chat is what the player just read.
   function getShareText(s) {
-    if (s.mode !== 'daily') return '';
+    if (!s.scored) return '';
     return 'Thirteen ' + s.dayKey + ' — ' + getResultText(s) + '. ' +
            s.matches + ' matches, ' + s.misses + ' misses, best run ' +
            s.best + '. ' + SHARE_URL;
@@ -754,7 +765,7 @@
     });
     if (el.modeNote) {
       el.modeNote.textContent = mode === 'daily'
-        ? 'One deal a day, the same for everyone. Playing again gives you the same board.'
+        ? 'One scored board a day, the same for everyone — then keep dealing fresh cards for as long as you like.'
         : 'A fresh shuffle every time, as many as you like. Nothing to share.';
     }
     renderSplashNote();
@@ -764,13 +775,13 @@
     if (!el.splashNote) return;
     var prior = mode === 'daily' ? loadStored() : null;
     if (!prior) { el.splashNote.classList.add('th-hide'); return; }
-    el.splashNote.textContent = 'You played today\'s deal — ' +
-      prior.cleared + ' of 52 cleared.';
+    el.splashNote.textContent = 'Today\'s board: ' + prior.cleared +
+      ' of 52 cleared. From here on you get fresh deals.';
     el.splashNote.classList.remove('th-hide');
   }
 
   function showEnd() {
-    var daily = state.mode === 'daily';
+    var scored = state.scored;
 
     // The score IS the headline. The kicker above it only says how the deal
     // finished, which the number alone cannot: ran out of moves, or went all
@@ -786,24 +797,24 @@
       '<li><span>Misses</span><strong>' + state.misses + '</strong></li>' +
       '<li><span>Best run</span><strong>' + state.best + '</strong></li>';
 
-    // Practice has nothing to share — it is not a shared challenge — so the
-    // button is absent rather than present and inert.
-    el.shareBtn.classList.toggle('th-hide', !daily);
-    // The button no longer claims anything about the board. It used to read
-    // "same board" on a daily, which is true of the deal but reads as a lie:
-    // the board a player is looking at when this appears is a picked-over grid
-    // full of holes, and the fresh 25 that replaces it looks nothing like it.
-    el.retryBtn.textContent = daily ? 'Play again' : 'New deal';
-    el.endNote.textContent  = daily
-      ? 'A new deal tomorrow.'
-      : 'Practice runs are not scored or shared.';
+    // Only the scored daily board can be shared, so on anything else the button
+    // is absent rather than present and inert.
+    el.shareBtn.classList.toggle('th-hide', !scored);
+    // Every route out of here now deals new cards, so the button says so and
+    // claims nothing about the board.
+    el.retryBtn.textContent = 'Deal new cards';
+    el.endNote.textContent  = scored
+      ? 'That was today\'s board. Keep playing as long as you like — extra deals are not scored.'
+      : (state.mode === 'daily'
+          ? 'An extra deal, not scored or shared. A new board tomorrow.'
+          : 'Practice runs are not scored or shared.');
     el.end.classList.remove('th-hide');
   }
 
   function hideEnd() { el.end.classList.add('th-hide'); }
 
   function onShare() {
-    if (state.mode !== 'daily') return;
+    if (!state.scored) return;
     if (typeof shareText === 'function') shareText(getShareText(state), 'Thirteen');
   }
 
@@ -854,13 +865,18 @@
     if (shakeTimer) { clearTimeout(shakeTimer); shakeTimer = null; }
     if (popTimer)   { clearTimeout(popTimer);   popTimer   = null; }
 
-    // Daily replays the same board by construction: the seed is the date, so
-    // re-dealing it is re-dealing it. Practice asks for fresh entropy.
-    state = deal({ mode: mode });
+    // Today's seeded board is dealt until it has been played through; after
+    // that daily keeps dealing fresh cards, so there is always another game.
+    // A stored result is what marks the daily as spent, so abandoning one
+    // mid-deal and coming back still gives the same twenty-five cards.
+    state = deal({ mode: mode, fresh: mode === 'daily' && !!loadStored() });
 
     var played = bumpGamesPlayed();
     if (el.legend)  el.legend.classList.toggle('th-hide', played > LEGEND_GAMES);
-    if (el.modeTag) el.modeTag.textContent = mode === 'daily' ? state.dayKey : 'Practice';
+    if (el.modeTag) {
+      el.modeTag.textContent = mode === 'practice' ? 'Practice'
+                             : (state.scored ? state.dayKey : 'Extra deal');
+    }
 
     show('game');
     render();
