@@ -789,7 +789,11 @@
     // Practice has nothing to share — it is not a shared challenge — so the
     // button is absent rather than present and inert.
     el.shareBtn.classList.toggle('th-hide', !daily);
-    el.retryBtn.textContent = daily ? 'Play again — same board' : 'New shuffle';
+    // The button no longer claims anything about the board. It used to read
+    // "same board" on a daily, which is true of the deal but reads as a lie:
+    // the board a player is looking at when this appears is a picked-over grid
+    // full of holes, and the fresh 25 that replaces it looks nothing like it.
+    el.retryBtn.textContent = daily ? 'Play again' : 'New deal';
     el.endNote.textContent  = daily
       ? 'A new deal tomorrow.'
       : 'Practice runs are not scored or shared.';
