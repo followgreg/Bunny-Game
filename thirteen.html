@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Thirteen — a daily pair-matching solitaire — Bunny Game</title>
+  <meta name="description" content="Twenty-five cards face up. Clear the deck two at a time — cards that add up to thirteen. Kings go alone. A new deal every day, and not every deal can be won.">
+  <meta property="og:title" content="Thirteen — a daily pair-matching solitaire — Bunny Game">
+  <meta property="og:description" content="Clear the deck two at a time — cards that add up to thirteen. Kings go alone. Not every deal can be won.">
+  <meta property="og:url" content="https://www.thebunnygame.com/thirteen">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/thirteen-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/thirteen-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/thirteen">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#16303F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/thirteen.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <!-- Matches Molt and Poise: a "?" that reopens the walkthrough at any time. -->
+    <button class="icon-btn th-help" id="help-btn" aria-label="How to play">?</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="canvas-wrap">
+
+  <!-- Splash — shown on every page load. The mode toggle lives here and only
+       here: switching mid-deal would mean abandoning a daily board halfway. -->
+  <div id="th-splash">
+    <img src="assets/logos/thirteen_logo.svg" alt="Thirteen" class="th-splash-logo">
+    <p class="th-splash-dir" id="th-splash-dir"></p>
+
+    <div class="th-modes" role="group" aria-label="Game mode">
+      <button type="button" class="th-mode" data-mode="daily" aria-pressed="true">Daily</button>
+      <button type="button" class="th-mode" data-mode="practice" aria-pressed="false">Practice</button>
+    </div>
+    <p class="th-mode-note" id="th-mode-note"></p>
+
+    <p class="th-splash-note th-hide" id="th-splash-note"></p>
+    <button class="th-btn th-btn-primary" id="th-play-btn">Play</button>
+  </div>
+
+  <!-- Game -->
+  <div id="th-game" class="th-hide">
+    <div class="th-topline">
+      <img src="assets/logos/thirteen_logo.svg" alt="Thirteen" class="th-wordmark">
+      <span class="th-mode-tag" id="th-mode-tag"></span>
+    </div>
+
+    <div class="th-hud">
+      <span>Cleared <strong id="th-cleared">0/52</strong></span>
+      <span>Matches <strong id="th-matches">0</strong></span>
+      <span>Streak <strong id="th-streak">0</strong></span>
+    </div>
+
+    <div id="th-locked" class="th-hide">
+      <span id="th-locked-msg"></span>
+      <button type="button" class="th-btn" id="th-result-btn">See result</button>
+    </div>
+
+    <div class="th-play-area">
+      <div id="th-board">
+        <div id="th-grid"></div>
+      </div>
+
+      <div class="th-tray">
+        <div id="th-draw">
+          <div class="th-card th-back"></div>
+          <span class="th-draw-count" id="th-draw-count">27</span>
+        </div>
+        <p class="th-tray-label">Left in the pile. Each one refills a cleared cell.</p>
+        <!-- With no hints anywhere, a player who cannot find the move that is
+             still on the board needs a way out of the deal. -->
+        <button type="button" class="th-giveup" id="th-giveup-btn">End deal</button>
+      </div>
+    </div>
+
+    <!-- Retires itself after three deals (thirteen_games_played) -->
+    <p id="th-legend" class="th-legend th-hide">
+      Two cards adding to 13 <span>&middot;</span> across, down or diagonal <span>&middot;</span> kings go alone
+    </p>
+  </div>
+
+</div>
+
+<!-- Tutorial — full-screen, shown unasked on a first visit, reopened by "?" -->
+<div id="th-tutorial" class="th-hide" role="dialog" aria-modal="true" aria-label="How to play Thirteen">
+  <div class="th-tut-box">
+    <button type="button" class="th-tut-skip" id="th-tut-skip">Skip</button>
+    <p class="th-tut-title" id="th-tut-title"></p>
+    <div class="th-tut-stage" id="th-tut-visual"></div>
+    <p class="th-tut-copy" id="th-tut-copy"></p>
+    <div class="th-tut-dots" id="th-tut-dots" role="img"></div>
+    <div class="th-tut-nav">
+      <button type="button" class="th-btn" id="th-tut-back">Back</button>
+      <button type="button" class="th-btn th-btn-primary" id="th-tut-next">Next</button>
+    </div>
+    <button type="button" class="th-tut-rules" id="th-tut-rules">Full rules</button>
+  </div>
+</div>
+
+<!-- End overlay -->
+<div id="th-end" class="th-hide">
+  <div class="th-end-box">
+    <p class="th-end-kicker" id="th-end-kicker"></p>
+    <p class="th-end-grade" id="th-end-grade"></p>
+    <p class="th-end-score" id="th-end-score"></p>
+    <ul id="th-end-stats"></ul>
+    <div class="th-end-actions">
+      <button class="th-btn th-btn-primary" id="th-share-btn">Share</button>
+      <button class="th-btn" id="th-retry-btn">Play again</button>
+    </div>
+    <p class="th-end-note" id="th-end-note"></p>
+    <button class="th-end-close" id="th-end-close">View the board</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <img src="assets/logos/thirteen_logo.svg" alt="Thirteen" class="th-dir-logo">
+    <p class="dir-heading">How to play</p>
+    <div id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got it</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/thirteen.js"></script>
+</body>
+</html>

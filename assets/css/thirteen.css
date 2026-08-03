@@ -1,0 +1,715 @@
+/* ── Thirteen — pair-matching solitaire ──────────────────────────────────────
+   Card sizing is driven by --th-cw, which thirteen.js measures from the space
+   the board actually has. Everything else is a ratio of it, so the whole board
+   scales as one piece from a small phone to a wide desktop.
+
+   Twenty-five cells across five columns is the tightest board on the site and a
+   diagonal tap has to hit the right one of eight neighbours, so the card floor
+   in fitBoard() (44px) and the gap here are what keep it tappable. Do not trade
+   either of them for a bigger board.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --th-felt:      #16303F;   /* table — a colder blue than Molt's green felt */
+  --th-felt-hi:   #1C3D4F;
+  --th-rule:      rgba(255, 255, 255, 0.10);
+  --th-rule-soft: rgba(255, 255, 255, 0.05);
+
+  --th-card:      #F7F3E6;   /* card face */
+  --th-ink:       #1B1712;
+  --th-red:       #C0392B;
+  --th-back:      #2A5468;   /* pile / face-down */
+  --th-back-line: rgba(247, 243, 230, 0.16);
+
+  --th-gold:      #E0B354;   /* selection */
+  --th-live:      #5FD3A0;   /* primary buttons, cleared */
+  --th-dim:       rgba(247, 243, 230, 0.55);
+  --th-dimmer:    rgba(247, 243, 230, 0.34);
+
+  /* Card width — fitBoard() overwrites this on every deal and resize. The
+     fallback is deliberately small: if fitBoard ever measures a board that has
+     not been laid out yet it leaves the value alone, and this one still fits
+     five columns plus gaps inside a 320px viewport (5x52 + 4x6 = 284). A larger
+     default would spill the grid off the side of the narrowest phones. */
+  --th-cw:  52px;
+  --th-gap: 6px;
+}
+
+body { background: var(--th-felt); }
+
+#canvas-wrap {
+  background:
+    radial-gradient(ellipse at 50% 10%, var(--th-felt-hi) 0%, var(--th-felt) 64%);
+  color: var(--th-card);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: hidden;
+}
+
+.th-hide { display: none !important; }
+
+/* ── Splash ───────────────────────────────────────────────────────────────── */
+
+#th-splash {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 22px 40px;
+}
+
+/* The wordmark ships as near-black ink for print. Every surface it appears on
+   here is dark, so it is knocked out to cream. */
+.th-splash-logo,
+.th-wordmark,
+.th-dir-logo { filter: brightness(0) invert(1); }
+
+.th-splash-logo { width: min(250px, 66vw); margin-bottom: 20px; }
+
+.th-splash-dir {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.62;
+  color: var(--th-dim);
+  max-width: 420px;
+  margin-bottom: 22px;
+}
+
+.th-splash-note {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
+  color: var(--th-gold);
+  margin-bottom: 16px;
+}
+
+/* ── Mode toggle ──────────────────────────────────────────────────────────── */
+/* Start screen only. Switching mode mid-deal would mean abandoning a daily
+   board halfway, so the control simply does not exist once play begins. */
+
+.th-modes {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--th-rule);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.18);
+  margin-bottom: 12px;
+}
+
+.th-mode {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--th-dim);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 22px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.th-mode:hover { color: var(--th-card); }
+.th-mode-on {
+  background: var(--th-card);
+  color: #14303E;
+}
+
+.th-mode-note {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--th-dimmer);
+  max-width: 330px;
+  min-height: 2.3em;
+  margin-bottom: 20px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.th-btn {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--th-card);
+  background: transparent;
+  border: 1px solid var(--th-rule);
+  border-radius: 9px;
+  padding: 11px 22px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.th-btn:hover:not(:disabled) { background: rgba(247, 243, 230, 0.07); }
+.th-btn:disabled { opacity: 0.34; cursor: not-allowed; }
+
+.th-btn-primary {
+  background: var(--th-live);
+  border-color: var(--th-live);
+  color: #0C2A20;
+  padding: 13px 40px;
+  font-size: 0.95rem;
+}
+.th-btn-primary:hover:not(:disabled) { background: #79E0B4; border-color: #79E0B4; }
+
+/* ── Game shell ───────────────────────────────────────────────────────────── */
+
+#th-game {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 8px 10px;
+  gap: 7px;
+}
+
+.th-topline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.th-wordmark { height: 19px; opacity: 0.82; }
+.th-mode-tag {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--th-dimmer);
+  border: 1px solid var(--th-rule);
+  border-radius: 99px;
+  padding: 3px 9px;
+}
+
+.th-hud {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--th-dimmer);
+  flex-shrink: 0;
+}
+.th-hud strong { color: var(--th-card); font-size: 0.74rem; margin-left: 5px; }
+
+/* ── Board ────────────────────────────────────────────────────────────────── */
+
+.th-play-area {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#th-board {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#th-grid {
+  display: grid;
+  grid-template-columns: repeat(5, var(--th-cw));
+  gap: var(--th-gap);
+  justify-content: center;
+  align-content: center;
+}
+
+/* Even spacing in both directions, with no decoration between cells: the
+   diagonal relationship has to read as easily as the orthogonal one, so
+   anything that draws a line along the rows would quietly bias how the board
+   is scanned. */
+.th-cell {
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.th-cell-empty { cursor: default; }
+
+/* ── Cards ────────────────────────────────────────────────────────────────── */
+
+.th-card {
+  width: var(--th-cw);
+  aspect-ratio: 0.74;
+  border-radius: calc(var(--th-cw) * 0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--th-cw) * 0.02);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  user-select: none;
+}
+
+.th-face {
+  background: var(--th-card);
+  color: var(--th-ink);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.34);
+  position: relative;
+}
+.th-face.th-red { color: var(--th-red); }
+.th-rank { font-size: calc(var(--th-cw) * 0.38); font-weight: 700; line-height: 1; }
+.th-suit { font-size: calc(var(--th-cw) * 0.30); line-height: 1; }
+
+/* A spent cell reads as a hole in the table, not as a card. It matters that it
+   looks like nothing at all: once the pile is empty these are what let the
+   sight-lines through, so they should feel like open space. */
+.th-empty {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px dashed var(--th-rule-soft);
+}
+
+.th-back {
+  background:
+    repeating-linear-gradient(45deg,
+      var(--th-back) 0 calc(var(--th-cw) * 0.07),
+      #234657 calc(var(--th-cw) * 0.07) calc(var(--th-cw) * 0.14));
+  border: 1px solid var(--th-back-line);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.34);
+}
+
+/* ── Cell states ──────────────────────────────────────────────────────────── */
+/* Selection is the ONLY thing the board ever marks. No partner glow, no
+   matchable outline, no sight-line overlay — finding the pairs is the game,
+   and this is the same stance Molt takes on its nests. */
+
+.th-cell-sel .th-face {
+  outline: 2px solid var(--th-gold);
+  outline-offset: 2px;
+  transform: translateY(calc(var(--th-cw) * -0.07));
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.42);
+  transition: transform 0.12s;
+}
+
+/* ── Phase 4 — animation ──────────────────────────────────────────────────── */
+/* A match takes both cards at once, so the pop is deliberately identical on the
+   pair — they leave together or the eye reads one as having caused the other. */
+
+.th-pop .th-face { animation: th-pop 0.30s cubic-bezier(0.3, 0.9, 0.4, 1) forwards; }
+@keyframes th-pop {
+  0%   { transform: scale(1);    opacity: 1; }
+  40%  { transform: scale(1.14); opacity: 1; }
+  100% { transform: scale(0.72); opacity: 0; }
+}
+
+/* The refill is the quieter of the two on purpose: the player did not ask for
+   it and it should not compete with the match they just made. */
+.th-deal .th-face { animation: th-deal 0.30s ease-out backwards; }
+@keyframes th-deal {
+  0%   { transform: translateY(calc(var(--th-cw) * -0.22)) scale(0.94); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* A rejected attempt says only "no". It never says which half of the rule was
+   missed — not the sum, not the sight-line. */
+.th-shake .th-face {
+  animation: th-shake 0.34s ease-in-out;
+  outline: 2px solid var(--th-red);
+  outline-offset: 2px;
+}
+@keyframes th-shake {
+  0%, 100% { transform: translateX(0); }
+  15%  { transform: translateX(-5px); }
+  30%  { transform: translateX(5px); }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px); }
+  80%  { transform: translateX(-2px); }
+}
+
+/* ── Pile ─────────────────────────────────────────────────────────────────── */
+
+.th-tray {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+#th-draw { position: relative; }
+#th-draw .th-card { width: calc(var(--th-cw) * 0.86); }
+
+.th-draw-count {
+  position: absolute;
+  bottom: calc(var(--th-cw) * -0.03);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: calc(var(--th-cw) * 0.19);
+  font-weight: 700;
+  color: var(--th-felt);
+  background: var(--th-card);
+  border-radius: 99px;
+  padding: 1px calc(var(--th-cw) * 0.13);
+}
+
+/* Once it is empty the pile stops being a resource and starts being a warning:
+   from here every match leaves a permanent hole. */
+#th-draw.th-draw-done .th-back {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px dashed var(--th-rule-soft);
+  box-shadow: none;
+}
+#th-draw.th-draw-done .th-draw-count { background: var(--th-dimmer); color: var(--th-felt); }
+
+.th-tray-label {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--th-dim);
+  max-width: 168px;
+}
+
+.th-giveup {
+  background: none;
+  border: none;
+  color: var(--th-dimmer);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.72rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 6px;
+  white-space: nowrap;   /* "End deal" broke across two lines at 320px */
+  flex-shrink: 0;
+}
+.th-giveup:hover { color: var(--th-card); }
+
+/* ── Locked bar ───────────────────────────────────────────────────────────── */
+
+#th-locked {
+  width: 100%;
+  max-width: 520px;
+  flex-shrink: 0;
+  background: rgba(224, 179, 84, 0.13);
+  border: 1px solid rgba(224, 179, 84, 0.42);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #F2DCA9;
+}
+#th-locked-msg { flex: 1 1 190px; min-width: 0; }
+#th-locked .th-btn { padding: 8px 14px; font-size: 0.76rem; }
+
+/* ── Legend strip ─────────────────────────────────────────────────────────── */
+/* Under the board for a player's first three deals, then never again. It states
+   the rule; it never points at the board. */
+
+.th-legend {
+  flex-shrink: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  color: var(--th-dimmer);
+  text-align: center;
+  padding: 2px 8px 0;
+  line-height: 1.4;
+}
+.th-legend span { color: rgba(247, 243, 230, 0.22); padding: 0 3px; }
+
+/* ── Tutorial ─────────────────────────────────────────────────────────────── */
+
+#th-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(8, 24, 32, 0.965);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.th-tut-box {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  background: var(--th-felt-hi);
+  border: 1px solid var(--th-rule);
+  border-radius: 16px;
+  padding: 40px 22px 20px;
+  text-align: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.th-tut-skip {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--th-dimmer);
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.th-tut-skip:hover { color: var(--th-card); }
+
+.th-tut-title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.34rem;
+  color: var(--th-card);
+  margin-bottom: 14px;
+}
+
+/* The examples are real board components, so the stage pins --th-cw rather than
+   inheriting whatever size fitBoard() last gave the live grid. */
+.th-tut-stage {
+  --th-cw: 42px;
+  --th-gap: 5px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.th-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, var(--th-cw));
+  gap: var(--th-gap);
+  justify-content: center;
+}
+.th-demo-cell { cursor: default; }
+
+.th-tut-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.th-tut-arrow {
+  width: 18px;
+  flex: 0 0 18px;
+  text-align: center;
+  color: var(--th-dimmer);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.th-tut-gap { width: 14px; flex: 0 0 14px; }
+
+/* Between the before and after rows on screen three. */
+.th-tut-sep {
+  color: var(--th-dimmer);
+  font-size: 1rem;
+  line-height: 1;
+  margin: 1px 0;
+}
+
+.th-tut-labels {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1px;
+}
+.th-tut-note {
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--th-dimmer);
+  line-height: 1.25;
+}
+/* Inside a stepped row the labels have to line up with the cells above them, so
+   there they take the card's width; on their own they are prose and must not. */
+.th-tut-labels.th-tut-row .th-tut-note {
+  width: var(--th-cw);
+  flex: 0 0 var(--th-cw);
+}
+.th-tut-labels.th-tut-row .th-tut-note:empty { width: 18px; flex: 0 0 18px; }
+
+/* The hole in screen three is the point of the screen, so it is drawn a shade
+   more present than a live empty cell. */
+.th-demo-hole .th-empty {
+  border-style: dashed;
+  border-color: rgba(224, 179, 84, 0.5);
+  background: rgba(224, 179, 84, 0.07);
+}
+
+.th-tut-copy {
+  font-size: 0.88rem;
+  line-height: 1.58;
+  color: var(--th-dim);
+  min-height: 5.6em;
+  margin-bottom: 12px;
+}
+
+.th-tut-dots {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.th-tut-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  box-shadow: inset 0 0 0 1px var(--th-rule);
+  transition: background 0.2s;
+}
+.th-tut-dot-on { background: var(--th-live); box-shadow: none; }
+
+.th-tut-nav { display: flex; gap: 10px; justify-content: center; }
+.th-tut-nav .th-btn { min-width: 104px; }
+
+.th-tut-rules {
+  background: none;
+  border: none;
+  color: var(--th-dimmer);
+  font-family: inherit;
+  font-size: 0.74rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 14px;
+}
+.th-tut-rules:hover { color: var(--th-card); }
+
+/* The "?" reads better as a circle than as a pill of text. */
+.th-help {
+  width: 30px;
+  padding: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 99px;
+}
+
+/* ── End overlay ──────────────────────────────────────────────────────────── */
+
+#th-end {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(8, 24, 32, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+.th-end-box {
+  width: 100%;
+  max-width: 360px;
+  background: var(--th-felt-hi);
+  border: 1px solid var(--th-rule);
+  border-radius: 16px;
+  padding: 26px 24px 22px;
+  text-align: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.th-end-kicker {
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--th-dimmer);
+  margin-bottom: 8px;
+}
+
+.th-end-grade {
+  font-size: 1.58rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.th-end-score {
+  font-size: 0.86rem;
+  color: var(--th-dim);
+  margin-bottom: 18px;
+}
+
+#th-end-stats {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+  font-size: 0.86rem;
+}
+#th-end-stats li {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--th-rule-soft);
+  color: var(--th-dim);
+}
+#th-end-stats strong { color: var(--th-card); }
+
+.th-end-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-items: stretch;
+}
+
+.th-end-note { font-size: 0.76rem; color: var(--th-dimmer); margin-top: 14px; }
+
+.th-end-close {
+  background: none;
+  border: none;
+  color: var(--th-dimmer);
+  font-family: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* ── Directions modal logo ────────────────────────────────────────────────── */
+.th-dir-logo { width: 150px; display: block; margin: 0 auto 14px; }
+
+/* ── Desktop ──────────────────────────────────────────────────────────────── */
+/* Same 25-cell board, more room around it. Card size still comes from --th-cw,
+   so this only relaxes the chrome. */
+@media (min-width: 720px) {
+  #th-game { padding: 14px 16px 18px; gap: 11px; }
+  .th-wordmark { height: 25px; }
+  .th-hud { font-size: 0.64rem; gap: 22px; }
+  .th-tray-label { font-size: 0.76rem; max-width: 210px; }
+  #th-board { max-width: 620px; margin: 0 auto; }
+
+  .th-tut-box { max-width: 470px; padding: 44px 30px 24px; }
+  .th-tut-stage { --th-cw: 50px; min-height: 168px; }
+  .th-tut-copy { font-size: 0.93rem; }
+  .th-legend { font-size: 0.72rem; }
+
+  .th-end-actions { flex-direction: row; justify-content: center; }
+  .th-end-actions .th-btn { flex: 1 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .th-pop .th-face,
+  .th-deal .th-face,
+  .th-shake .th-face { animation: none !important; }
+  /* The pop is how a match is confirmed, so with motion off the cards still
+     have to leave — they just do it without the scale. */
+  .th-pop .th-face { opacity: 0; }
+  .th-cell-sel .th-face { transition: none; }
+}

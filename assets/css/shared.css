@@ -46,17 +46,32 @@ body {
   color: #f9fafb;
   white-space: nowrap;
   letter-spacing: 0.01em;
+  /* The logo is the flexible side — it yields before the buttons clip.
+     No effect at widths where everything already fits. */
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
+#header h1 a { min-width: 0; }
 
 .header-controls {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Buttons keep their intrinsic width and never wrap */
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
 }
 
 /* ── Header logo — noticeably larger than the 30px inline default ── */
 #header h1 img {
   height: 44px !important;
+  /* width:100% + object-fit lets the logo scale down (aspect preserved) when
+     the header runs out of room, instead of pushing buttons off screen.
+     At normal widths it resolves to the logo's intrinsic size. */
+  width: 100%;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .icon-btn {
@@ -81,6 +96,32 @@ body {
 .icon-btn:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
 .icon-btn:active:not(:disabled) { background: #3b4f6a; color: #fff; }
 .icon-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+
+/* ── Header on small screens ──
+   Pages carry two or three header buttons once nav.js injects "All Games"
+   (e.g. race-to-zero: All Games / How to play / ↺ New). At 375px the logo
+   plus buttons overflowed and the right-hand button clipped off screen.
+   Buttons keep their intrinsic width and stay on one row; the logo is the
+   only thing allowed to shrink. Desktop is untouched. */
+@media (max-width: 480px) {
+  #header {
+    max-width: 100%;
+    padding: 0 10px;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  #header h1 img { height: 32px !important; }
+
+  .header-controls { gap: 4px; }
+  .header-controls .icon-btn {
+    font-size: 0.72rem;
+    padding: 0 9px;
+    min-height: 32px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
 
 /* ── Mode tabs (nav bar) ── */
 #mode-tabs {
