@@ -97,10 +97,9 @@
   }
 
   // ── Seeding ──────────────────────────────────────────────────────────────────
-  // Same hash + LCG the other daily games use, so a date reproduces a deal for
-  // everyone. Practice skips it and asks the platform for entropy instead.
-  function getTodayKey() { return new Date().toISOString().slice(0, 10); }
-
+  // The same LCG the other games use. Boards come from platform entropy; the
+  // seed is kept on the state so a given deal can be reproduced from a bug
+  // report or a test.
   function hashString(s) {
     var h = 0;
     for (var i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
@@ -128,36 +127,19 @@
   // Twenty-five cards face up, twenty-seven held back. Nothing is hidden except
   // the ORDER of the pile, so the board in front of the player is the whole of
   // what there is to reason about.
-  // Daily deals one seeded board a day — the same twenty-five cards for
-  // everyone — and that run is the only one that is scored, saved or shared.
-  // Once it is finished the game keeps dealing: fresh cards every time, for as
-  // long as the player wants them. Those extra deals are deliberately NOT
-  // scored, because a shared daily number stops meaning anything the moment a
-  // player can re-roll the board until they like their score.
-  //
-  // `scored` is what separates the two. Pass fresh:true for an extra deal.
+  // Every deal is a fresh shuffle. There is no board of the day and no run that
+  // counts for more than any other — this is a game you sit down and play again.
+  // Pass a seed to reproduce a board, which is what the tests do.
   function deal(opts) {
     opts = opts || {};
-    var mode   = opts.mode === 'practice' ? 'practice' : 'daily';
-    var dayKey = opts.dayKey || getTodayKey();
-    var scored = mode === 'daily' && !opts.fresh;
-    var seed;
-
-    if (scored) {
-      seed = hashString('thirteen-' + dayKey);
-    } else if (typeof opts.seed === 'number') {
-      seed = opts.seed >>> 0;                       // reproducible, for tests
-    } else {
-      seed = (Math.random() * 4294967296) >>> 0;
-    }
+    var seed = (typeof opts.seed === 'number')
+      ? opts.seed >>> 0
+      : (Math.random() * 4294967296) >>> 0;
 
     var deck = shuffle(buildDeck(), makePrng(seed));
 
     return {
-      mode:        mode,
-      dayKey:      dayKey,
       seed:        seed,
-      scored:      scored,            // the one daily board; extras are free play
       cols:        COLS,
       rows:        ROWS,
       grid:        deck.slice(0, CELLS),   // index -> card or null; cards never move
@@ -296,9 +278,8 @@
   // rating band and no title on top of it.
   //
   // An earlier build graded the run into named tiers. The number is the honest
-  // unit here — it is what the daily board is actually comparable on, and a
-  // label sitting above it only competes with it for attention and invites the
-  // player to argue with the adjective instead of reading the score.
+  // unit, and a label sitting above it only competes with it for attention and
+  // invites the player to argue with the adjective instead of reading the score.
   //
   // For context when reading scores: over 1,500 simulated deals the spread was
   // p25 28, median 34, p75 38, p90 42, p97 46, and all 52 came up about once in
@@ -333,9 +314,10 @@
     'Twenty-five cards, face up. Clear them two at a time — cards that add up to ' +
     'thirteen. Kings go alone.';
 
-  var SHARE_URL = 'https://www.thebunnygame.com/thirteen';
-  var LS_PREFIX = 'thirteen_result_';
-  var MODE_KEY  = 'thirteen_mode';
+  // Keys left behind by the daily build. Nothing writes them any more; boot
+  // clears them so an early player's stale result is not sat in storage forever.
+  var DEAD_KEYS   = ['thirteen_mode'];
+  var DEAD_PREFIX = 'thirteen_result_';
 
   // Onboarding follows Molt, which follows Poise: set once, checked on boot,
   // never cleared.
@@ -344,7 +326,6 @@
   var LEGEND_GAMES = 3;      // the legend strip retires after this many deals
 
   var state    = null;
-  var mode     = 'daily';
   var selected = null;       // cell the player has picked up, or null
   // One-shot animation state. render() rebuilds the grid wholesale, so effects
   // are re-triggered by tagging the cells that changed rather than by
@@ -367,36 +348,8 @@
   function q(id) { return document.getElementById(id); }
 
   // ── Storage ──────────────────────────────────────────────────────────────────
-  // Only the daily deal is worth remembering — practice is explicitly unlimited
-  // and a result from it means nothing tomorrow.
-  function lsKey() { return LS_PREFIX + getTodayKey(); }
-
-  function loadStored() {
-    try { var r = localStorage.getItem(lsKey()); return r ? JSON.parse(r) : null; }
-    catch (e) { return null; }
-  }
-
-  function saveResult() {
-    if (!state.scored) return;      // extra deals never overwrite today's result
-    try {
-      localStorage.setItem(lsKey(), JSON.stringify({
-        day:     state.dayKey,
-        status:  state.status,
-        cleared: state.cleared,
-        matches: state.matches,
-        misses:  state.misses,
-        best:    state.best,
-      }));
-    } catch (e) {}
-  }
-
-  function loadMode() {
-    try { return localStorage.getItem(MODE_KEY) === 'practice' ? 'practice' : 'daily'; }
-    catch (e) { return 'daily'; }
-  }
-
-  function saveMode(m) { try { localStorage.setItem(MODE_KEY, m); } catch (e) {} }
-
+  // Nothing about a run is persisted. Every deal is its own game, so there is no
+  // result to carry between them and nothing to restore on the way back in.
   function tutorialSeen() {
     try { return !!localStorage.getItem(TUTORIAL_KEY); } catch (e) { return false; }
   }
@@ -418,29 +371,18 @@
     return n;
   }
 
+  // One-time sweep of the daily build's leftovers.
   function cleanupStale() {
-    var today = lsKey(), doomed = [];
+    var doomed = [];
     try {
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && k.indexOf(LS_PREFIX) === 0 && k !== today) doomed.push(k);
+        if (!k) continue;
+        if (k.indexOf(DEAD_PREFIX) === 0 || DEAD_KEYS.indexOf(k) !== -1) doomed.push(k);
       }
       doomed.forEach(function (k) { localStorage.removeItem(k); });
     } catch (e) {}
     return doomed.length;
-  }
-
-  // ── Share ────────────────────────────────────────────────────────────────────
-  // The scored daily board only. A practice run or an extra deal is not the
-  // shared challenge, and a score off a board nobody else was given would mean
-  // nothing to whoever received it.
-  // The shared line leads with the same number the result screen does, so what
-  // gets pasted into a chat is what the player just read.
-  function getShareText(s) {
-    if (!s.scored) return '';
-    return 'Thirteen ' + s.dayKey + ' — ' + getResultText(s) + '. ' +
-           s.matches + ' matches, ' + s.misses + ' misses, best run ' +
-           s.best + '. ' + SHARE_URL;
   }
 
   // ── Rendering ────────────────────────────────────────────────────────────────
@@ -550,7 +492,6 @@
       dealCells = state.lastFilled.slice();
       render();
       if (state.status !== 'playing') {
-        saveResult();
         setTimeout(showEnd, 300);      // let the refill land before the overlay
       }
     }, CLEAR_MS);
@@ -615,7 +556,6 @@
   function onGiveUp() {
     if (state.status !== 'playing') { showEnd(); return; }
     state.status = 'lost';
-    saveResult();
     render();
     showEnd();
   }
@@ -755,34 +695,7 @@
     });
   }
 
-  function setMode(m) {
-    mode = m === 'practice' ? 'practice' : 'daily';
-    saveMode(mode);
-    el.modeBtns.forEach(function (b) {
-      var on = b.getAttribute('data-mode') === mode;
-      b.classList.toggle('th-mode-on', on);
-      b.setAttribute('aria-pressed', on ? 'true' : 'false');
-    });
-    if (el.modeNote) {
-      el.modeNote.textContent = mode === 'daily'
-        ? 'One scored board a day, the same for everyone — then keep dealing fresh cards for as long as you like.'
-        : 'A fresh shuffle every time, as many as you like. Nothing to share.';
-    }
-    renderSplashNote();
-  }
-
-  function renderSplashNote() {
-    if (!el.splashNote) return;
-    var prior = mode === 'daily' ? loadStored() : null;
-    if (!prior) { el.splashNote.classList.add('th-hide'); return; }
-    el.splashNote.textContent = 'Today\'s board: ' + prior.cleared +
-      ' of 52 cleared. From here on you get fresh deals.';
-    el.splashNote.classList.remove('th-hide');
-  }
-
   function showEnd() {
-    var scored = state.scored;
-
     // The score IS the headline. The kicker above it only says how the deal
     // finished, which the number alone cannot: ran out of moves, or went all
     // the way. Clearing the whole deck is the one result that gets any emphasis,
@@ -797,26 +710,11 @@
       '<li><span>Misses</span><strong>' + state.misses + '</strong></li>' +
       '<li><span>Best run</span><strong>' + state.best + '</strong></li>';
 
-    // Only the scored daily board can be shared, so on anything else the button
-    // is absent rather than present and inert.
-    el.shareBtn.classList.toggle('th-hide', !scored);
-    // Every route out of here now deals new cards, so the button says so and
-    // claims nothing about the board.
     el.retryBtn.textContent = 'Deal new cards';
-    el.endNote.textContent  = scored
-      ? 'That was today\'s board. Keep playing as long as you like — extra deals are not scored.'
-      : (state.mode === 'daily'
-          ? 'An extra deal, not scored or shared. A new board tomorrow.'
-          : 'Practice runs are not scored or shared.');
     el.end.classList.remove('th-hide');
   }
 
   function hideEnd() { el.end.classList.add('th-hide'); }
-
-  function onShare() {
-    if (!state.scored) return;
-    if (typeof shareText === 'function') shareText(getShareText(state), 'Thirteen');
-  }
 
   function onRetry() { hideEnd(); begin(); }
 
@@ -865,18 +763,10 @@
     if (shakeTimer) { clearTimeout(shakeTimer); shakeTimer = null; }
     if (popTimer)   { clearTimeout(popTimer);   popTimer   = null; }
 
-    // Today's seeded board is dealt until it has been played through; after
-    // that daily keeps dealing fresh cards, so there is always another game.
-    // A stored result is what marks the daily as spent, so abandoning one
-    // mid-deal and coming back still gives the same twenty-five cards.
-    state = deal({ mode: mode, fresh: mode === 'daily' && !!loadStored() });
+    state = deal();                       // a fresh shuffle, every time
 
     var played = bumpGamesPlayed();
-    if (el.legend)  el.legend.classList.toggle('th-hide', played > LEGEND_GAMES);
-    if (el.modeTag) {
-      el.modeTag.textContent = mode === 'practice' ? 'Practice'
-                             : (state.scored ? state.dayKey : 'Extra deal');
-    }
+    if (el.legend) el.legend.classList.toggle('th-hide', played > LEGEND_GAMES);
 
     show('game');
     render();
@@ -887,7 +777,6 @@
   function init() {
     el = {
       splash:     q('th-splash'),
-      splashNote: q('th-splash-note'),
       game:       q('th-game'),
       board:      q('th-board'),
       grid:       q('th-grid'),
@@ -896,9 +785,6 @@
       streak:     q('th-streak'),
       draw:       q('th-draw'),
       drawCount:  q('th-draw-count'),
-      modeTag:    q('th-mode-tag'),
-      modeNote:   q('th-mode-note'),
-      modeBtns:   [].slice.call(document.querySelectorAll('[data-mode]')),
       locked:     q('th-locked'),
       lockedMsg:  q('th-locked-msg'),
       giveUp:     q('th-giveup-btn'),
@@ -907,8 +793,6 @@
       endKicker:  q('th-end-kicker'),
       endScore:   q('th-end-score'),
       endStats:   q('th-end-stats'),
-      endNote:    q('th-end-note'),
-      shareBtn:   q('th-share-btn'),
       retryBtn:   q('th-retry-btn'),
       tutorial:   q('th-tutorial'),
       tutTitle:   q('th-tut-title'),
@@ -930,14 +814,9 @@
       if (c) { e.preventDefault(); onCellTap(+c.getAttribute('data-cell')); }
     });
 
-    el.modeBtns.forEach(function (b) {
-      b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); });
-    });
-
     q('th-play-btn').addEventListener('click', begin);
     q('th-result-btn').addEventListener('click', showEnd);
     el.giveUp.addEventListener('click', onGiveUp);
-    el.shareBtn.addEventListener('click', onShare);
     el.retryBtn.addEventListener('click', onRetry);
     q('th-end-close').addEventListener('click', hideEnd);
 
@@ -978,7 +857,6 @@
     if (help) help.addEventListener('click', function () { showTutorial(true); });
 
     cleanupStale();
-    setMode(loadMode());
     show('splash');
 
     if (!tutorialSeen()) showTutorial(false);
@@ -993,18 +871,16 @@
     SUITS: SUITS, RANK_LABEL: RANK_LABEL, SUIT_GLYPH: SUIT_GLYPH,
     COLS: COLS, ROWS: ROWS, CELLS: CELLS, TARGET: TARGET, NEIGHBORS: NEIGHBORS,
     buildDeck: buildDeck, cardLabel: cardLabel, isRed: isRed,
-    hashString: hashString, makePrng: makePrng, shuffle: shuffle,
-    getTodayKey: getTodayKey, deal: deal,
+    hashString: hashString, makePrng: makePrng, shuffle: shuffle, deal: deal,
     cardAt: cardAt, isKing: isKing, canSee: canSee, sightNeighbors: sightNeighbors,
     canClearSolo: canClearSolo, isPair: isPair,
     cardsLeft: cardsLeft, onBoard: onBoard,
     findAnyMove: findAnyMove, hasAnyMove: hasAnyMove, isLocked: isLocked, checkEnd: checkEnd,
     clearSolo: clearSolo, clearPair: clearPair, registerMiss: registerMiss,
-    getResultText: getResultText, getShareText: getShareText,
+    getResultText: getResultText,
     // page controller, exposed for verification
     begin: begin, render: render, getState: function () { return state; },
     onCellTap: onCellTap, onGiveUp: onGiveUp,
-    setMode: setMode, getMode: function () { return mode; },
     // onboarding
     TUTORIAL_KEY: TUTORIAL_KEY, GAMES_KEY: GAMES_KEY, LEGEND_GAMES: LEGEND_GAMES,
     TUTORIAL: TUTORIAL, tutorialSeen: tutorialSeen, gamesPlayed: gamesPlayed,

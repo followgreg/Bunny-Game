@@ -81,56 +81,6 @@ body { background: var(--th-felt); }
   margin-bottom: 22px;
 }
 
-.th-splash-note {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 0.82rem;
-  color: var(--th-gold);
-  margin-bottom: 16px;
-}
-
-/* ── Mode toggle ──────────────────────────────────────────────────────────── */
-/* Start screen only. Switching mode mid-deal would mean abandoning a daily
-   board halfway, so the control simply does not exist once play begins. */
-
-.th-modes {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--th-rule);
-  border-radius: 11px;
-  background: rgba(0, 0, 0, 0.18);
-  margin-bottom: 12px;
-}
-
-.th-mode {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--th-dim);
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 22px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.th-mode:hover { color: var(--th-card); }
-.th-mode-on {
-  background: var(--th-card);
-  color: #14303E;
-}
-
-.th-mode-note {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 0.76rem;
-  line-height: 1.5;
-  color: var(--th-dimmer);
-  max-width: 330px;
-  min-height: 2.3em;
-  margin-bottom: 20px;
-}
-
 /* ── Buttons ──────────────────────────────────────────────────────────────── */
 
 .th-btn {
@@ -177,17 +127,6 @@ body { background: var(--th-felt); }
   flex-shrink: 0;
 }
 .th-wordmark { height: 19px; opacity: 0.82; }
-.th-mode-tag {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--th-dimmer);
-  border: 1px solid var(--th-rule);
-  border-radius: 99px;
-  padding: 3px 9px;
-}
 
 .th-hud {
   display: flex;
@@ -664,8 +603,6 @@ body { background: var(--th-felt); }
   gap: 9px;
   align-items: stretch;
 }
-
-.th-end-note { font-size: 0.76rem; color: var(--th-dimmer); margin-top: 14px; }
 
 .th-end-close {
   background: none;

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Thirteen — a daily pair-matching solitaire — Bunny Game</title>
-  <meta name="description" content="Twenty-five cards face up. Clear the deck two at a time — cards that add up to thirteen. Kings go alone. A new deal every day, and not every deal can be won.">
-  <meta property="og:title" content="Thirteen — a daily pair-matching solitaire — Bunny Game">
+  <title>Thirteen — a pair-matching solitaire — Bunny Game</title>
+  <meta name="description" content="Twenty-five cards face up. Clear the deck two at a time — cards that add up to thirteen. Kings go alone. A fresh deal every game, and not every deal can be won.">
+  <meta property="og:title" content="Thirteen — a pair-matching solitaire — Bunny Game">
   <meta property="og:description" content="Clear the deck two at a time — cards that add up to thirteen. Kings go alone. Not every deal can be won.">
   <meta property="og:url" content="https://www.thebunnygame.com/thirteen">
   <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/thirteen-og.png">
@@ -54,19 +54,10 @@
 
 <div id="canvas-wrap">
 
-  <!-- Splash — shown on every page load. The mode toggle lives here and only
-       here: switching mid-deal would mean abandoning a daily board halfway. -->
+  <!-- Splash — shown on every page load -->
   <div id="th-splash">
     <img src="assets/logos/thirteen_logo.svg" alt="Thirteen" class="th-splash-logo">
     <p class="th-splash-dir" id="th-splash-dir"></p>
-
-    <div class="th-modes" role="group" aria-label="Game mode">
-      <button type="button" class="th-mode" data-mode="daily" aria-pressed="true">Daily</button>
-      <button type="button" class="th-mode" data-mode="practice" aria-pressed="false">Practice</button>
-    </div>
-    <p class="th-mode-note" id="th-mode-note"></p>
-
-    <p class="th-splash-note th-hide" id="th-splash-note"></p>
     <button class="th-btn th-btn-primary" id="th-play-btn">Play</button>
   </div>
 
@@ -74,7 +65,6 @@
   <div id="th-game" class="th-hide">
     <div class="th-topline">
       <img src="assets/logos/thirteen_logo.svg" alt="Thirteen" class="th-wordmark">
-      <span class="th-mode-tag" id="th-mode-tag"></span>
     </div>
 
     <div class="th-hud">
@@ -136,10 +126,8 @@
     <p class="th-end-score" id="th-end-score"></p>
     <ul id="th-end-stats"></ul>
     <div class="th-end-actions">
-      <button class="th-btn th-btn-primary" id="th-share-btn">Share</button>
-      <button class="th-btn" id="th-retry-btn">Play again</button>
+      <button class="th-btn th-btn-primary" id="th-retry-btn">Deal new cards</button>
     </div>
-    <p class="th-end-note" id="th-end-note"></p>
     <button class="th-end-close" id="th-end-close">View the board</button>
   </div>
 </div>
