@@ -314,6 +314,8 @@
     'Twenty-five cards, face up. Clear them two at a time — cards that add up to ' +
     'thirteen. Kings go alone.';
 
+  var SHARE_URL = 'https://www.thebunnygame.com/thirteen';
+
   // Keys left behind by the daily build. Nothing writes them any more; boot
   // clears them so an early player's stale result is not sat in storage forever.
   var DEAD_KEYS   = ['thirteen_mode'];
@@ -341,6 +343,7 @@
   var dealCells  = [];
   var shakeCells = [];
   var shakeTimer = null;
+  var shareTimer = null;     // resets the share button's "copied" label
   var CLEAR_MS   = 300;      // keep in step with th-pop in thirteen.css
   var lockedShown = false;   // whether the locked bar was up on the last render
   var el = {};
@@ -383,6 +386,16 @@
       doomed.forEach(function (k) { localStorage.removeItem(k); });
     } catch (e) {}
     return doomed.length;
+  }
+
+  // ── Share ────────────────────────────────────────────────────────────────────
+  // No board is shared between players any more, so this is a score, not a
+  // challenge — no date and no claim that anyone else had the same cards. It
+  // leads with the same string the result screen shows, so what gets pasted is
+  // what the player just read.
+  function getShareText(s) {
+    return 'Thirteen — ' + getResultText(s) + '. ' + s.matches + ' matches, ' +
+           s.misses + ' misses, best run ' + s.best + '. ' + SHARE_URL;
   }
 
   // ── Rendering ────────────────────────────────────────────────────────────────
@@ -711,12 +724,27 @@
       '<li><span>Best run</span><strong>' + state.best + '</strong></li>';
 
     el.retryBtn.textContent = 'Deal new cards';
+    el.shareBtn.textContent = 'Share';
     el.end.classList.remove('th-hide');
   }
 
   function hideEnd() { el.end.classList.add('th-hide'); }
 
   function onRetry() { hideEnd(); begin(); }
+
+  // shared.js hands the text to the platform share sheet where there is one and
+  // falls back to the clipboard otherwise — but its "copied" flash only knows
+  // how to find a button with id "share-btn", which this page does not have. So
+  // the confirmation is done here; without it the clipboard path looks like a
+  // button that did nothing.
+  function onShare() {
+    if (typeof shareText !== 'function') return;
+    shareText(getShareText(state), 'Thirteen');
+    if (global.navigator && global.navigator.share) return;
+    el.shareBtn.textContent = '✓ Copied';
+    if (shareTimer) clearTimeout(shareTimer);
+    shareTimer = setTimeout(function () { el.shareBtn.textContent = 'Share'; }, 2200);
+  }
 
   // ── Board sizing ─────────────────────────────────────────────────────────────
   // Twenty-five cells across five columns is the tightest board on the site, and
@@ -794,6 +822,7 @@
       endScore:   q('th-end-score'),
       endStats:   q('th-end-stats'),
       retryBtn:   q('th-retry-btn'),
+      shareBtn:   q('th-share-btn'),
       tutorial:   q('th-tutorial'),
       tutTitle:   q('th-tut-title'),
       tutCopy:    q('th-tut-copy'),
@@ -818,6 +847,7 @@
     q('th-result-btn').addEventListener('click', showEnd);
     el.giveUp.addEventListener('click', onGiveUp);
     el.retryBtn.addEventListener('click', onRetry);
+    el.shareBtn.addEventListener('click', onShare);
     q('th-end-close').addEventListener('click', hideEnd);
 
     global.addEventListener('resize', function () { if (state) fitBoard(); });
@@ -877,7 +907,7 @@
     cardsLeft: cardsLeft, onBoard: onBoard,
     findAnyMove: findAnyMove, hasAnyMove: hasAnyMove, isLocked: isLocked, checkEnd: checkEnd,
     clearSolo: clearSolo, clearPair: clearPair, registerMiss: registerMiss,
-    getResultText: getResultText,
+    getResultText: getResultText, getShareText: getShareText,
     // page controller, exposed for verification
     begin: begin, render: render, getState: function () { return state; },
     onCellTap: onCellTap, onGiveUp: onGiveUp,
