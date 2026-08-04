@@ -21,7 +21,10 @@
     'holding it up, so it falls too, and it pays double. ' +
     'The catch: a shot that lands off-centre spins the whole cluster, and a glancing ' +
     'hit on the rim spins it hard. Aim straight at the hub if you want it to sit still. ' +
-    'Shots bank off the side walls to reach the back. Clear every bubble and your score doubles.';
+    'Shots bank off the side walls to reach the back. ' +
+    'Every third shot the board feeds itself — three more bubbles fly in and stick to the rim, ' +
+    'whether your shot landed or not. Let the cluster grow until it touches a wall and the run ' +
+    'is over on the spot, so pop faster than it grows. Clear every bubble and your score doubles.';
 
   // ── Board / physics tunables ──────────────────────────────────────────────
 
@@ -29,6 +32,8 @@
   var SHOT_LIMIT    = 50;     // a miss costs a shot too
   var SAFE_SHOTS    = 25;     // opening queue draws only colours already on the board
   var MIN_MATCH     = 3;
+  var FEED_EVERY    = 3;      // shots between feeds
+  var FEED_COUNT    = 3;      // bubbles per feed
 
   var SPIN_GAIN     = 26;     // impulse exaggeration — real mass ratios barely move 90 bubbles
   var MAX_OMEGA     = 3.2;    // rad/sec
@@ -59,12 +64,17 @@
   // when the script runs, which would silently hand a desktop the phone board.
   var VIEW_W = window.innerWidth || document.documentElement.clientWidth ||
                (window.screen && window.screen.width) || 1024;
+  // The two boards are sized so the cluster gets the same room to grow before
+  // it touches a wall — about four hex rows on both. Scaling the bubble down
+  // without widening the board in step leaves the phone barely two rows of
+  // clearance, which is a materially harder game than the desktop one.
   var MOBILE = VIEW_W < 640;
-  var LW = MOBILE ? 400 : 560;
-  var LH = MOBILE ? 640 : 720;
-  var R  = MOBILE ? 13  : 15;     // bubble radius
+  var LW = MOBILE ? 430 : 560;
+  var LH = MOBILE ? 650 : 720;
+  var R  = MOBILE ? 12  : 15;     // bubble radius
   var SP = R * 2;                 // hex spacing — touching bubbles
   var SPEED = R * 36;             // projectile speed, px/sec
+  var FEED_SPEED = R * 21;        // fed bubbles drift in slower than a shot
 
   var HUB_X = LW / 2;
   var HUB_Y = Math.round(LH * 0.385);
@@ -91,6 +101,7 @@
   var queue = [];             // [current, next] colours
   var safeLeft = SAFE_SHOTS;
   var freshAnnounced = false;
+  var feedAnnounced = false;
 
   var score = 0, shotsUsed = 0, matched = 0, dropped = 0;
   var best = 0;
@@ -99,6 +110,7 @@
   var aim = -Math.PI / 2;     // straight up
   var pointerDown = false;
 
+  var feeders = [];           // bubbles flying in from off-screen, world coords
   var pops = [], falls = [], floats = [];
   var lastTime = null, raf = null;
 
@@ -367,6 +379,7 @@
     bubbles.set(key(b.q, b.r), b);
 
     resolve(b);
+    afterShot();
   }
 
   // Nearest free hex cell to the contact point, among the empty neighbours of
@@ -412,6 +425,171 @@
       if (d < bestD) { bestD = d; bestCell = c; }
     });
     return bestCell;
+  }
+
+  // ── The feed ──────────────────────────────────────────────────────────────
+  //
+  // Every third shot the board grows itself: a handful of bubbles fly in from
+  // off-screen and stick to the rim. They are spread around the cluster rather
+  // than dropped in one place, so the feed pushes the whole outline outward
+  // toward the walls instead of building a single arm.
+
+  // Empty cells touching at least one bubble — everywhere the mass can grow.
+  // `nb` is how many bubbles already surround the cell, which is what separates
+  // a pocket bitten out of the mass from a cell hanging off the rim.
+  function frontierCells() {
+    var seen = {}, out = [];
+    bubbles.forEach(function (b) {
+      for (var i = 0; i < 6; i++) {
+        var q = b.q + DIRS[i][0], r = b.r + DIRS[i][1], k = key(q, r);
+        if (seen[k] || bubbles.has(k)) continue;
+        if (q === 0 && r === 0) continue;              // the hub is not a slot
+        seen[k] = 1;
+        var nb = 0;
+        for (var j = 0; j < 6; j++) {
+          if (bubbles.has(key(q + DIRS[j][0], r + DIRS[j][1]))) nb++;
+        }
+        var x = cellX(q, r), y = cellY(q, r);
+        out.push({ q: q, r: r, x: x, y: y, nb: nb, a: Math.atan2(y, x), rad: Math.hypot(x, y) });
+      }
+    });
+    return out;
+  }
+
+  function angleGap(a, b) {
+    var d = Math.abs(a - b) % TAU;
+    return d > Math.PI ? TAU - d : d;
+  }
+
+  // n cells spread around the cluster, one per evenly-spaced heading.
+  //
+  // Within a heading the feed takes the best-supported cell it can find: it
+  // fills the pockets the player has just bitten out of the mass before it
+  // extends the rim. Preferring the outermost cell instead pushes the whole
+  // silhouette out a full hex row per feed, which reaches the walls faster than
+  // anyone can pop and ends runs in a dozen shots. Filling in first also reads
+  // better — the mass thickens, then grows.
+  function pickFeedCells(n) {
+    var frontier = frontierCells();
+    if (!frontier.length) return [];
+
+    var base = Math.random() * TAU;
+    var taken = {}, out = [];
+
+    for (var i = 0; i < n; i++) {
+      var want = base + (i / n) * TAU;
+      var bestCell = null, bestScore = -Infinity;
+      for (var j = 0; j < frontier.length; j++) {
+        var f = frontier[j];
+        if (taken[key(f.q, f.r)]) continue;
+        // Support dominates; radius is a nudge so a smooth cluster still grows
+        // outward eventually; the heading term keeps the three apart.
+        var score = f.nb * 14 + f.rad * 0.10 - angleGap(f.a, want) * SP * 3;
+        if (score > bestScore) { bestScore = score; bestCell = f; }
+      }
+      if (!bestCell) break;
+      taken[key(bestCell.q, bestCell.r)] = 1;
+      out.push(bestCell);
+    }
+    return out;
+  }
+
+  // Where a ray leaving the hub on this heading crosses the edge of the board.
+  // Feeders start one bubble beyond that point rather than at some fixed large
+  // radius: a fixed radius puts them well outside the frame on the short axis,
+  // so most of the flight happens where nobody can see it.
+  function edgeDistance(ux, uy) {
+    var tx = ux > 0 ? (LW - HUB_X) / ux : ux < 0 ? -HUB_X / ux : Infinity;
+    var ty = uy > 0 ? (LH - HUB_Y) / uy : uy < 0 ? -HUB_Y / uy : Infinity;
+    return Math.min(tx, ty);
+  }
+
+  function spawnFeed() {
+    var cells = pickFeedCells(FEED_COUNT);
+
+    cells.forEach(function (cell) {
+      toWorld(cell.x, cell.y, _w);
+      var dx = _w.x - HUB_X, dy = _w.y - HUB_Y;
+      var len = Math.hypot(dx, dy) || 1;
+      var ux = dx / len, uy = dy / len;
+      var launch = edgeDistance(ux, uy) + SP;
+      feeders.push({
+        x: HUB_X + ux * launch,
+        y: HUB_Y + uy * launch,
+        q: cell.q, r: cell.r,
+        color: nextFeedColor()
+      });
+    });
+
+    // Announced once, on the first feed. After that the counter in the corner
+    // and three bubbles visibly flying in say it, and a toast every third shot
+    // for a whole run is nagging.
+    if (cells.length && !feedAnnounced) {
+      feedAnnounced = true;
+      toast('Every third shot feeds the cluster');
+    }
+  }
+
+  // The feed pulls from the whole palette from the start. The safe set is the
+  // shooter's courtesy, not the board's.
+  function nextFeedColor() { return pick(COLORS); }
+
+  function stepFeeders(dt) {
+    for (var i = feeders.length - 1; i >= 0; i--) {
+      var f = feeders[i];
+
+      // Chases its cell's live world position, so it tracks a cluster that is
+      // still turning underneath it and lands exactly on the slot.
+      toWorld(cellX(f.q, f.r), cellY(f.q, f.r), _w);
+      var dx = _w.x - f.x, dy = _w.y - f.y;
+      var d = Math.hypot(dx, dy);
+      var step = FEED_SPEED * dt;
+
+      if (d > step) {
+        f.x += (dx / d) * step;
+        f.y += (dy / d) * step;
+        continue;
+      }
+
+      feeders.splice(i, 1);
+      landFeeder(f);
+    }
+  }
+
+  function landFeeder(f) {
+    var q = f.q, r = f.r;
+
+    // A shot may have taken the slot, or a pop may have cut it loose from the
+    // cluster, while this was in the air. Either way it needs a live rim cell.
+    if (bubbles.has(key(q, r)) || !hasNeighbour(q, r)) {
+      var alt = nearestFrontier(cellX(q, r), cellY(q, r));
+      if (!alt) return;
+      q = alt.q; r = alt.r;
+    }
+
+    var b = { q: q, r: r, x: cellX(q, r), y: cellY(q, r), color: f.color };
+    bubbles.set(key(q, r), b);
+
+    resolve(b);
+    updateHud();
+    checkEnd();
+  }
+
+  function hasNeighbour(q, r) {
+    for (var i = 0; i < 6; i++) {
+      if (bubbles.has(key(q + DIRS[i][0], r + DIRS[i][1]))) return true;
+    }
+    return false;
+  }
+
+  function nearestFrontier(x, y) {
+    var frontier = frontierCells(), best = null, bestD = Infinity;
+    frontier.forEach(function (f) {
+      var dx = x - f.x, dy = y - f.y;
+      var d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = f; }
+    });
+    return best;
   }
 
   // ── Matching, orphans, scoring ────────────────────────────────────────────
@@ -511,37 +689,55 @@
 
     score += gained;
     recompute();
-    afterShot();
   }
 
   function afterShot() {
     updateHud();
-
-    if (bubbles.size === 0) { finish('win'); return; }
-
-    // Decided here as well as per-frame, so a bubble that lands inside the
-    // shooter's zone ends the run on the shot that put it there rather than
-    // whenever the next frame happens to be drawn.
-    measureShooterGap();
-    if (shooterGap < SHOOTER_SAFE) { finish('reached'); return; }
-
+    if (checkEnd()) return;
     if (shotsUsed >= SHOT_LIMIT) { finish('out'); return; }
+
+    // Every third shot the board feeds itself, landed or missed. A shot that
+    // pops nothing still costs you the ground the feed takes.
+    if (shotsUsed % FEED_EVERY === 0) spawnFeed();
   }
 
-  // Distance from the shooter to the nearest bubble, in the spinner's frame so
-  // the whole cluster does not have to be transformed. Recomputed each frame:
-  // the cluster keeps turning between shots, so an arm can arrive on its own.
-  var shooterGap = Infinity;
+  // Both threats are decided here as well as per-frame, so a bubble that
+  // arrives in a losing position ends the run on the event that put it there
+  // rather than whenever the next frame happens to be drawn.
+  function checkEnd() {
+    if (bubbles.size === 0) { finish('win'); return true; }
+    measureThreats();
+    if (wallGap <= 0) { finish('wall'); return true; }
+    if (shooterGap < SHOOTER_SAFE) { finish('reached'); return true; }
+    return false;
+  }
 
-  function measureShooterGap() {
+  // wallGap: how much clearance the cluster has left against the side and top
+  // walls. shooterGap: the same against the shooter. Both are measured on the
+  // bubbles' real world positions rather than on the cluster radius, so growing
+  // in a harmless direction is not punished and an arm that only becomes a
+  // problem once the spin brings it round has to actually come round.
+  var wallGap = Infinity, shooterGap = Infinity;
+
+  function measureThreats() {
     toLocal(HUB_X, SHOOTER_Y, _l);
-    var sx = _l.x, sy = _l.y, best = Infinity;
+    var sx = _l.x, sy = _l.y;
+    var bestShooter = Infinity, bestWall = Infinity;
+    var c = Math.cos(theta), s = Math.sin(theta);
+
     bubbles.forEach(function (b) {
       var dx = sx - b.x, dy = sy - b.y;
       var d = dx * dx + dy * dy;
-      if (d < best) best = d;
+      if (d < bestShooter) bestShooter = d;
+
+      var wx = HUB_X + b.x * c - b.y * s;
+      var wy = HUB_Y + b.x * s + b.y * c;
+      var clear = Math.min(wx, LW - wx, wy) - R;
+      if (clear < bestWall) bestWall = clear;
     });
-    shooterGap = Math.sqrt(best) - R;
+
+    shooterGap = Math.sqrt(bestShooter) - R;
+    wallGap = bestWall;
   }
 
   // ── Spin ──────────────────────────────────────────────────────────────────
@@ -600,11 +796,11 @@
     if (running && !ended) {
       if (shot) stepShot(dt);
       else spinStep(dt);
-      measureShooterGap();
-      if (shooterGap < SHOOTER_SAFE) finish('reached');
+      stepFeeders(dt);
+      checkEnd();
     } else {
       spinStep(dt);
-      measureShooterGap();
+      measureThreats();
     }
 
     stepEffects(dt);
@@ -645,6 +841,7 @@
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, LW, LH);
 
+    drawWalls();
     drawDanger();
     drawHub();
 
@@ -652,6 +849,8 @@
       toWorld(b.x, b.y, _w);
       drawBubble(_w.x, _w.y, b.color);
     });
+
+    feeders.forEach(function (f) { drawBubble(f.x, f.y, f.color); });
 
     falls.forEach(function (f) {
       drawBubble(f.x, f.y, f.color, 1, 1 - f.t / FALL_MS);
@@ -666,7 +865,39 @@
     if (shot) drawBubble(shot.x, shot.y, shot.color);
 
     drawShooter();
+    drawFeedCounter();
     drawFloats();
+  }
+
+  // The walls are a hard edge now: touch one and the run is over. They stay
+  // quiet until the cluster is within a few bubbles of them, then light up on
+  // the side that is actually threatened.
+  function drawWalls() {
+    var warnAt = SP * 3;
+    if (wallGap > warnAt) return;
+    var heat = clamp(1 - wallGap / warnAt, 0, 1);
+
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(239,68,68,' + (0.22 + heat * 0.66).toFixed(3) + ')';
+    ctx.beginPath();
+    ctx.moveTo(1.5, LH);
+    ctx.lineTo(1.5, 1.5);
+    ctx.lineTo(LW - 1.5, 1.5);
+    ctx.lineTo(LW - 1.5, LH);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawFeedCounter() {
+    if (!running || ended) return;
+    var left = FEED_EVERY - (shotsUsed % FEED_EVERY);
+    ctx.save();
+    ctx.textAlign = 'left';
+    ctx.font = '700 10px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = left === 1 ? 'rgba(251,191,36,0.9)' : 'rgba(148,163,184,0.5)';
+    ctx.fillText('FEED IN ' + left, 12, 20);
+    ctx.restore();
   }
 
   // The keep-out ring around the shooter. Invisible until the mass is within
@@ -808,6 +1039,10 @@
   }
 
   function finish(reason) {
+    // Idempotent on purpose. A win doubles the score, so a second call — from
+    // a feeder landing on the frame the board emptied, or any future caller —
+    // would double it again.
+    if (ended) return;
     ended = true;
     running = false;
 
@@ -827,6 +1062,11 @@
       titleEl.textContent = 'CLUSTER CLEARED';
       modalSubEl.textContent = 'Every bubble off the spinner with ' +
         (SHOT_LIMIT - shotsUsed) + ' shot' + (SHOT_LIMIT - shotsUsed === 1 ? '' : 's') + ' to spare.';
+    } else if (reason === 'wall') {
+      bannerEl.classList.add('hidden');
+      titleEl.textContent = 'THE CLUSTER HIT THE WALL';
+      modalSubEl.textContent = 'It outgrew the board at ' + bubbles.size +
+        ' bubbles. Every third shot feeds it — pop faster than it grows.';
     } else if (reason === 'reached') {
       bannerEl.classList.add('hidden');
       titleEl.textContent = 'THE CLUSTER REACHED YOU';
@@ -868,8 +1108,11 @@
     queue = [];
     safeLeft = SAFE_SHOTS;
     freshAnnounced = false;
+    feedAnnounced = false;
     score = 0; shotsUsed = 0; matched = 0; dropped = 0;
+    feeders = [];
     pops = []; falls = []; floats = [];
+    wallGap = Infinity; shooterGap = Infinity;
     ended = false;
     aim = -Math.PI / 2;
     buildCluster();
@@ -973,19 +1216,31 @@
           maxR: maxR, inertia: inertia,
           score: score, shotsUsed: shotsUsed, matched: matched, dropped: dropped,
           safeLeft: safeLeft, queue: queue.slice(), ended: ended, running: running,
-          inFlight: !!shot, shooterSafe: SHOOTER_SAFE, shooterGap: shooterGap
+          inFlight: !!shot, shooterSafe: SHOOTER_SAFE, shooterGap: shooterGap,
+          wallGap: wallGap, feeders: feeders.length,
+          feederPos: feeders.map(function (f) { return [Math.round(f.x), Math.round(f.y)]; }),
+          feedIn: FEED_EVERY - (shotsUsed % FEED_EVERY)
         };
       },
       aimAt: function (a) { aim = a; },
       fire: fire,
       start: startGame,
-      // Runs a shot to completion without waiting on frames.
+      // Runs a shot, and anything the feed put in the air, to completion
+      // without waiting on frames.
       settle: function (max) {
-        var n = 0;
-        while (shot && n++ < (max || 4000)) stepShot(1 / 240);
+        var n = 0, cap = max || 4000;
+        while (shot && n++ < cap) stepShot(1 / 240);
+        while (feeders.length && n++ < cap) { stepFeeders(1 / 240); spinStep(1 / 240); }
         return n;
       },
       spin: function (s) { var n = 0; while (n++ < s * 240) spinStep(1 / 240); },
+      // One frame's worth of everything, exactly as the rAF loop runs it.
+      tick: function (dt) {
+        if (!running || ended) { spinStep(dt); return; }
+        if (shot) stepShot(dt); else spinStep(dt);
+        stepFeeders(dt);
+        checkEnd();
+      },
       setOmega: function (v) { omega = v; },
       colorsOnBoard: boardColors,
       cells: function () {
