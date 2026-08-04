@@ -105,7 +105,9 @@
 
   var score = 0, shotsUsed = 0, matched = 0, dropped = 0;
   var best = 0;
-  var running = false, ended = false;
+  var running = false, ended = false, resolved = false;
+  var winPending = false, winHold = 0;
+  var WIN_HOLD_MAX = 2200;    // ms — the cascade never gets to hang the result
 
   var aim = -Math.PI / 2;     // straight up
   var pointerDown = false;
@@ -705,7 +707,20 @@
   // arrives in a losing position ends the run on the event that put it there
   // rather than whenever the next frame happens to be drawn.
   function checkEnd() {
-    if (bubbles.size === 0) { finish('win'); return true; }
+    if (bubbles.size === 0) {
+      if (!winPending) {
+        // Gameplay stops here; the result is presented once the board has
+        // finished falling. Note this can be reached from inside the feeder
+        // loop — a fed bubble can complete the clear — so the feed is stood
+        // down in advanceWin rather than here.
+        ended = true;
+        running = false;
+        winPending = true;
+        winHold = 0;
+        updateHud();
+      }
+      return true;
+    }
     measureThreats();
     if (wallGap <= 0) { finish('wall'); return true; }
     if (shooterGap < SHOOTER_SAFE) { finish('reached'); return true; }
@@ -793,6 +808,13 @@
     var dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
 
+    step(dt);
+    render();
+  }
+
+  // One frame of simulation, with no drawing. The rAF loop and the test hook
+  // both go through here so there is only one description of a frame.
+  function step(dt) {
     if (running && !ended) {
       if (shot) stepShot(dt);
       else spinStep(dt);
@@ -804,7 +826,26 @@
     }
 
     stepEffects(dt);
-    render();
+    advanceWin(dt);
+  }
+
+  // Clearing the board drops every bubble still on it. Presenting the result
+  // the instant the last one is removed puts the modal over the top of the
+  // cascade that earned it, so the win waits for the board to finish emptying.
+  function advanceWin(dt) {
+    if (!winPending) return;
+
+    // Anything still flying in has nothing left to attach to. Dropped here,
+    // outside stepFeeders, because emptying the list underneath that loop
+    // leaves it indexing past the end.
+    if (feeders.length) feeders.length = 0;
+
+    winHold += dt * 1000;
+    var settled = !pops.length && !falls.length && !floats.length;
+    if (settled || winHold > WIN_HOLD_MAX) {
+      winPending = false;
+      finish('win');
+    }
   }
 
   function stepEffects(dt) {
@@ -1039,12 +1080,15 @@
   }
 
   function finish(reason) {
-    // Idempotent on purpose. A win doubles the score, so a second call — from
-    // a feeder landing on the frame the board emptied, or any future caller —
-    // would double it again.
-    if (ended) return;
+    // Idempotent on purpose, and tracked separately from `ended`: a win sets
+    // `ended` when the board empties but does not present until the cascade
+    // has played, so `ended` cannot be the guard. A win doubles the score, so
+    // a second call through here would double it again.
+    if (resolved) return;
+    resolved = true;
     ended = true;
     running = false;
+    winPending = false;
 
     var doubled = false;
     if (reason === 'win') { score *= 2; doubled = true; }
@@ -1113,7 +1157,8 @@
     feeders = [];
     pops = []; falls = []; floats = [];
     wallGap = Infinity; shooterGap = Infinity;
-    ended = false;
+    ended = false; resolved = false;
+    winPending = false; winHold = 0;
     aim = -Math.PI / 2;
     buildCluster();
     fillQueue();
@@ -1216,6 +1261,8 @@
           maxR: maxR, inertia: inertia,
           score: score, shotsUsed: shotsUsed, matched: matched, dropped: dropped,
           safeLeft: safeLeft, queue: queue.slice(), ended: ended, running: running,
+          resolved: resolved, winPending: winPending,
+          pops: pops.length, falls: falls.length, floats: floats.length,
           inFlight: !!shot, shooterSafe: SHOOTER_SAFE, shooterGap: shooterGap,
           wallGap: wallGap, feeders: feeders.length,
           feederPos: feeders.map(function (f) { return [Math.round(f.x), Math.round(f.y)]; }),
@@ -1225,22 +1272,16 @@
       aimAt: function (a) { aim = a; },
       fire: fire,
       start: startGame,
-      // Runs a shot, and anything the feed put in the air, to completion
-      // without waiting on frames.
+      // Runs a shot, anything the feed put in the air, and a win waiting on
+      // its cascade, all to completion without waiting on frames.
       settle: function (max) {
         var n = 0, cap = max || 4000;
-        while (shot && n++ < cap) stepShot(1 / 240);
-        while (feeders.length && n++ < cap) { stepFeeders(1 / 240); spinStep(1 / 240); }
+        while ((shot || feeders.length || winPending) && n++ < cap) step(1 / 240);
         return n;
       },
       spin: function (s) { var n = 0; while (n++ < s * 240) spinStep(1 / 240); },
       // One frame's worth of everything, exactly as the rAF loop runs it.
-      tick: function (dt) {
-        if (!running || ended) { spinStep(dt); return; }
-        if (shot) stepShot(dt); else spinStep(dt);
-        stepFeeders(dt);
-        checkEnd();
-      },
+      tick: step,
       setOmega: function (v) { omega = v; },
       colorsOnBoard: boardColors,
       cells: function () {
