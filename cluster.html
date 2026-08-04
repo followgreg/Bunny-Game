@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cluster — a bubble shooter that spins — Bunny Game</title>
+  <meta name="description" content="Ninety bubbles hang off a spinner. Match three to pop them, and anything left with no path back to the hub falls too. Every shot that lands off-centre spins the whole cluster.">
+  <meta property="og:title" content="Cluster — a bubble shooter that spins — Bunny Game">
+  <meta property="og:description" content="Match three to pop. Anything cut off from the hub falls and pays double. Every shot spins the whole cluster.">
+  <meta property="og:url" content="https://www.thebunnygame.com/cluster">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/cluster-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/cluster-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/cluster">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#080d18">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/cluster.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="stats">
+  <div class="stat-item">
+    <span class="stat-label">Score</span>
+    <span class="stat-value" id="val-score">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Shots</span>
+    <span class="stat-value" id="val-shots">50</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Bubbles</span>
+    <span class="stat-value" id="val-bubbles">90</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Best</span>
+    <span class="stat-value" id="val-best">—</span>
+  </div>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="game-canvas"></canvas>
+
+  <div id="cl-toast"></div>
+
+  <div id="cl-start">
+    <img src="assets/logos/cluster_logo.svg" alt="Cluster" class="cl-splash-logo">
+    <p class="cl-splash-line">The whole mass hangs off one spinner. Match three to pop — and every shot that lands off-centre turns the board.</p>
+    <button class="cl-btn" id="cl-play-btn">Play</button>
+  </div>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2 id="modal-title">OUT OF BUBBLES</h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub"   id="modal-sub"></p>
+    <div class="breakdown" id="modal-breakdown"></div>
+    <button class="play-again-btn" id="play-again-btn">Play Again</button>
+    <button class="share-btn" id="share-btn">Share Score</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/cluster.js"></script>
+</body>
+</html>

@@ -346,6 +346,11 @@
     .lc-whiskers .lobby-card-desc { color: rgba(148,163,184,0.8); }
 
     /* THIRTEEN: blue card-table felt, cream logo */
+    /* Cluster: deep space navy, white wordmark — matches the game board */
+    .lc-cluster { background: #0d1526; border-color: rgba(148,163,184,0.22); }
+    .lc-cluster .lobby-card-logo img { filter: brightness(0) invert(1); }
+    .lc-cluster .lobby-card-desc { color: rgba(226,232,240,0.55); }
+
     .lc-thirteen { background: #16303F; border-color: rgba(255,255,255,0.14); }
     .lc-thirteen .lobby-card-logo img { filter: brightness(0) invert(1); }
     .lc-thirteen .lobby-card-desc { color: rgba(247,243,230,0.62); }
@@ -561,6 +566,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-cluster" data-categories="arcade,target,matching,color" data-date="2026-08-04" href="cluster.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/cluster_logo.svg" alt="Cluster">
+        </div>
+        <p class="lobby-card-desc">Pop three. Every shot spins the whole cluster.</p>
       </a>
 
       <a class="lobby-card lc-thirteen" data-categories="cards,puzzle,matching,math" data-date="2026-08-03" href="thirteen.html">
