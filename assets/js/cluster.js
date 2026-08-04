@@ -22,9 +22,11 @@
     'The catch: a shot that lands off-centre spins the whole cluster, and a glancing ' +
     'hit on the rim spins it hard. Aim straight at the hub if you want it to sit still. ' +
     'Shots bank off the side walls to reach the back. ' +
-    'Every third shot the board feeds itself — three more bubbles fly in and stick to the rim, ' +
-    'whether your shot landed or not. Let the cluster grow until it touches a wall and the run ' +
-    'is over on the spot, so pop faster than it grows. Clear every bubble and your score doubles.';
+    'Every third shot the board feeds itself — two more bubbles fly in and stick to the rim, ' +
+    'whether your shot landed or not. A fed bubble only ever sticks: it never pops, even when it ' +
+    'completes a colour group, so it leaves that group sitting there for you to fire into. ' +
+    'Let the cluster grow until it touches a wall and the run is over on the spot, ' +
+    'so pop faster than it grows. Clear every bubble and your score doubles.';
 
   // ── Board / physics tunables ──────────────────────────────────────────────
 
@@ -33,7 +35,11 @@
   var SAFE_SHOTS    = 25;     // opening queue draws only colours already on the board
   var MIN_MATCH     = 3;
   var FEED_EVERY    = 3;      // shots between feeds
-  var FEED_COUNT    = 3;      // bubbles per feed
+  // Dropped from 3 when fed bubbles stopped being able to pop. With the feed
+  // purely additive, 3 a time put the cluster into a wall in 32 of 50 measured
+  // runs against 6 before; 2 halves that. 1 is barely different from 2, so the
+  // volume is not what was doing the damage — the free pops were.
+  var FEED_COUNT    = 2;      // bubbles per feed
 
   var SPIN_GAIN     = 26;     // impulse exaggeration — real mass ratios barely move 90 bubbles
   var MAX_OMEGA     = 3.2;    // rad/sec
@@ -569,10 +575,13 @@
       q = alt.q; r = alt.r;
     }
 
-    var b = { q: q, r: r, x: cellX(q, r), y: cellY(q, r), color: f.color };
-    bubbles.set(key(q, r), b);
+    bubbles.set(key(q, r), { q: q, r: r, x: cellX(q, r), y: cellY(q, r), color: f.color });
 
-    resolve(b);
+    // A fed bubble only ever sticks. It is deliberately not put through
+    // resolve(): the feed is the board working against you, so it must not be
+    // able to hand back a pop, and a group it completes is left standing as a
+    // setup for the player to fire into.
+    recompute();
     updateHud();
     checkEnd();
   }
