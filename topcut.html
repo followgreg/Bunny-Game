@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Top Cut — cut it exactly in half — Bunny Game</title>
+  <meta name="description" content="One straight drag splits the object in two. The pieces drop into a balance and the beam tells you how wrong you were. Twenty-five objects, and only a cut within 5% moves you on.">
+  <meta property="og:title" content="Top Cut — cut it exactly in half — Bunny Game">
+  <meta property="og:description" content="One straight drag splits the object in two. The pieces drop into a balance and the beam tells you how wrong you were. Twenty-five objects to halve.">
+  <meta property="og:url" content="https://www.thebunnygame.com/topcut">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/topcut-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/topcut-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/topcut">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#E9E2D6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/topcut.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn">How to play</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="stats">
+  <div class="stat-item tc-stat-level">
+    <span class="stat-label">Level</span>
+    <button class="tc-step" id="tc-prev" aria-label="Previous level">&lsaquo;</button>
+    <span class="stat-value" id="val-level">1 / 25</span>
+    <button class="tc-step" id="tc-nextlvl" aria-label="Next level">&rsaquo;</button>
+  </div>
+  <div class="stat-item tc-stat-object">
+    <span class="stat-label">Object</span>
+    <span class="stat-value" id="val-object">&mdash;</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Best</span>
+    <span class="stat-value" id="val-best">&mdash;</span>
+  </div>
+</div>
+
+<div id="canvas-wrap">
+  <div id="tc-stage">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="tc-toast"></div>
+
+    <div id="tc-actions" class="tc-hide">
+      <button type="button" class="tc-btn tc-btn-primary tc-hide" id="tc-next-btn">Next Level</button>
+      <button type="button" class="tc-btn" id="tc-again-btn">Try Again</button>
+      <button type="button" class="tc-btn" id="tc-share-btn">Share Result</button>
+    </div>
+
+    <div id="tc-start">
+      <img src="assets/logos/topcut_logo.svg" alt="Top Cut" class="tc-splash-logo">
+      <p class="tc-splash-line">One straight drag splits the object in two. The scale tells you how far off half you were — get within 5% and the next one unlocks.</p>
+      <button type="button" class="tc-btn tc-btn-primary" id="tc-play-btn">Play</button>
+    </div>
+  </div>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <img src="assets/logos/topcut_logo.svg" alt="Top Cut" class="tc-dir-logo">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/topcut.js"></script>
+</body>
+</html>

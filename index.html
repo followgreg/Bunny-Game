@@ -228,6 +228,11 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Top Cut: linen bg, dark logo, cut-line orange accent */
+    .lc-topcut { background: #F5F0E8; border-color: rgba(228,87,46,0.30); }
+    .lc-topcut .lobby-card-name { color: #231f20; }
+    .lc-topcut .lobby-card-desc { color: rgba(35,31,32,0.58); }
+
     /* Protractor: white bg, orange accent — matches the game page */
     .lc-protractor { background: #ffffff; border-color: rgba(255,107,53,0.30); }
     .lc-protractor .lobby-card-name { color: #2C3E50; }
@@ -566,6 +571,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-topcut" data-categories="puzzle,logic,target,math" data-date="2026-08-05" href="topcut.html">
+        <div class="lobby-card-logo">
+          <img src="assets/logos/topcut_logo.svg" alt="Top Cut">
+        </div>
+        <p class="lobby-card-desc">One straight cut. Get both halves equal.</p>
       </a>
 
       <a class="lobby-card lc-cluster" data-categories="arcade,target,matching,color" data-date="2026-08-04" href="cluster.html">

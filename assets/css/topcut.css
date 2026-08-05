@@ -1,0 +1,165 @@
+/* ============================================================
+   Top Cut — precision cutting on a balance
+   ============================================================ */
+
+#canvas-wrap {
+  background: #E9E2D6;
+  padding: 8px;
+}
+
+#tc-stage {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(35, 31, 32, 0.18);
+}
+
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  image-rendering: auto;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ── Level stepper in the stats bar ── */
+.tc-stat-level { gap: 6px; }
+
+.tc-step {
+  background: #1e293b;
+  border: 1px solid #2d3f55;
+  color: #94a3b8;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.tc-step:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
+.tc-step:disabled { opacity: 0.28; cursor: not-allowed; }
+
+#val-level { min-width: 4.5ch; text-align: center; }
+#val-object { max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Buttons ── */
+.tc-btn {
+  background: transparent;
+  border: 1.5px solid rgba(35, 31, 32, 0.28);
+  color: #231f20;
+  padding: 9px 16px;
+  border-radius: 9px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.tc-btn:hover  { background: rgba(35, 31, 32, 0.07); border-color: rgba(35, 31, 32, 0.5); }
+.tc-btn:active { background: rgba(35, 31, 32, 0.14); }
+
+.tc-btn-primary {
+  background: #E4572E;
+  border-color: #E4572E;
+  color: #fff;
+}
+.tc-btn-primary:hover  { background: #F06B44; border-color: #F06B44; color: #fff; }
+.tc-btn-primary:active { background: #C8451F; border-color: #C8451F; }
+
+.tc-hide { display: none !important; }
+
+/* ── Action row — sits under the scale, appears once a cut settles ── */
+#tc-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2.2%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  z-index: 20;
+}
+
+@media (max-width: 420px) {
+  .tc-btn { padding: 8px 11px; font-size: 0.75rem; }
+  #tc-actions { gap: 6px; }
+}
+
+/* Three stats plus a stepper overflow a phone's 375px bar. The object's name
+   is already in the prompt above the board, so it is the one that goes. */
+@media (max-width: 480px) {
+  #stats { padding: 0 12px; }
+  .tc-stat-object { display: none; }
+}
+
+/* ── Toast — why a cut was refused ── */
+#tc-toast {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  transform: translate(-50%, -8px);
+  z-index: 30;
+  max-width: 86%;
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: #231f20;
+  color: #F5F0E8;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+#tc-toast.tc-toast-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Splash ── */
+#tc-start {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 26px 22px;
+  background: rgba(245, 240, 232, 0.94);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  text-align: center;
+}
+
+.tc-splash-logo {
+  width: min(260px, 66%);
+  height: auto;
+}
+
+.tc-splash-line {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: #6B6357;
+  max-width: 34ch;
+}
+
+/* ── How-to-play modal — light treatment to match the board ── */
+.tc-dir-logo {
+  display: block;
+  width: 170px;
+  height: auto;
+  margin: 0 auto 14px;
+  filter: brightness(0) invert(1);
+}
