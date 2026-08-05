@@ -1,5 +1,5 @@
 /* ============================================================
-   Top Cut — precision cutting on a balance
+   Shared skeleton for the cutting games (Top Cut, Nation Divided)
    ============================================================ */
 
 #canvas-wrap {
@@ -7,7 +7,7 @@
   padding: 8px;
 }
 
-#tc-stage {
+#cut-stage {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
@@ -26,9 +26,9 @@
 }
 
 /* ── Level stepper in the stats bar ── */
-.tc-stat-level { gap: 6px; }
+.cut-stat-level { gap: 6px; }
 
-.tc-step {
+.cut-step {
   background: #1e293b;
   border: 1px solid #2d3f55;
   color: #94a3b8;
@@ -42,14 +42,14 @@
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
-.tc-step:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
-.tc-step:disabled { opacity: 0.28; cursor: not-allowed; }
+.cut-step:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
+.cut-step:disabled { opacity: 0.28; cursor: not-allowed; }
 
 #val-level { min-width: 4.5ch; text-align: center; }
 #val-object { max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Buttons ── */
-.tc-btn {
+.cut-btn {
   background: transparent;
   border: 1.5px solid rgba(35, 31, 32, 0.28);
   color: #231f20;
@@ -64,21 +64,21 @@
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
 }
-.tc-btn:hover  { background: rgba(35, 31, 32, 0.07); border-color: rgba(35, 31, 32, 0.5); }
-.tc-btn:active { background: rgba(35, 31, 32, 0.14); }
+.cut-btn:hover  { background: rgba(35, 31, 32, 0.07); border-color: rgba(35, 31, 32, 0.5); }
+.cut-btn:active { background: rgba(35, 31, 32, 0.14); }
 
-.tc-btn-primary {
+.cut-btn-primary {
   background: #E4572E;
   border-color: #E4572E;
   color: #fff;
 }
-.tc-btn-primary:hover  { background: #F06B44; border-color: #F06B44; color: #fff; }
-.tc-btn-primary:active { background: #C8451F; border-color: #C8451F; }
+.cut-btn-primary:hover  { background: #F06B44; border-color: #F06B44; color: #fff; }
+.cut-btn-primary:active { background: #C8451F; border-color: #C8451F; }
 
-.tc-hide { display: none !important; }
+.cut-hide { display: none !important; }
 
 /* ── Action row — sits under the scale, appears once a cut settles ── */
-#tc-actions {
+#cut-actions {
   position: absolute;
   left: 0;
   right: 0;
@@ -92,19 +92,19 @@
 }
 
 @media (max-width: 420px) {
-  .tc-btn { padding: 8px 11px; font-size: 0.75rem; }
-  #tc-actions { gap: 6px; }
+  .cut-btn { padding: 8px 11px; font-size: 0.75rem; }
+  #cut-actions { gap: 6px; }
 }
 
 /* Three stats plus a stepper overflow a phone's 375px bar. The object's name
    is already in the prompt above the board, so it is the one that goes. */
 @media (max-width: 480px) {
   #stats { padding: 0 12px; }
-  .tc-stat-object { display: none; }
+  .cut-stat-object { display: none; }
 }
 
 /* ── Toast — why a cut was refused ── */
-#tc-toast {
+#cut-toast {
   position: absolute;
   left: 50%;
   top: 6%;
@@ -123,10 +123,10 @@
   pointer-events: none;
   transition: opacity 0.18s, transform 0.18s;
 }
-#tc-toast.tc-toast-on { opacity: 1; transform: translate(-50%, 0); }
+#cut-toast.cut-toast-on { opacity: 1; transform: translate(-50%, 0); }
 
 /* ── Splash ── */
-#tc-start {
+#cut-start {
   position: absolute;
   inset: 0;
   z-index: 60;
@@ -142,12 +142,12 @@
   text-align: center;
 }
 
-.tc-splash-logo {
+.cut-splash-logo {
   width: min(260px, 66%);
   height: auto;
 }
 
-.tc-splash-line {
+.cut-splash-line {
   font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.84rem;
   line-height: 1.65;
@@ -156,7 +156,7 @@
 }
 
 /* ── How-to-play modal — light treatment to match the board ── */
-.tc-dir-logo {
+.cut-dir-logo {
   display: block;
   width: 170px;
   height: auto;

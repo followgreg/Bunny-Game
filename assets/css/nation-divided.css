@@ -1,0 +1,52 @@
+/* ============================================================
+   Nation Divided — the country identity strip above the board.
+   Everything else comes from cut-game.css, shared with Top Cut.
+   ============================================================ */
+
+/* Sits in the band the engine reserves at the top of the board (headerFrac).
+   Font size is set in JS from the stage height, so it stays in proportion with
+   the shape underneath on any screen. */
+#nd-ident {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3%;
+  height: 6.4%;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  pointer-events: none;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;   /* replaced on load — see trackStageSize() */
+}
+
+#nd-flag {
+  height: 1.5em;
+  width: 2em;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(35, 31, 32, 0.22);
+  background: rgba(35, 31, 32, 0.05);
+  flex-shrink: 0;
+}
+
+#nd-name {
+  font-size: 1.35em;
+  font-weight: 700;
+  color: #231f20;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cut-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.cut-btn:disabled:hover {
+  background: #E4572E;
+  border-color: #E4572E;
+}

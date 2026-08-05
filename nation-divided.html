@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Top Cut — cut it exactly in half — Bunny Game</title>
-  <meta name="description" content="One straight drag splits the object in two. The pieces drop into a balance and the beam tells you how wrong you were. Twenty-five objects, and only a cut within 5% moves you on.">
-  <meta property="og:title" content="Top Cut — cut it exactly in half — Bunny Game">
-  <meta property="og:description" content="One straight drag splits the object in two. The pieces drop into a balance and the beam tells you how wrong you were. Twenty-five objects to halve.">
-  <meta property="og:url" content="https://www.thebunnygame.com/topcut">
-  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/topcut-og.png">
+  <title>Nation Divided — cut a country exactly in half — Bunny Game</title>
+  <meta name="description" content="One straight drag splits a country in two. The pieces drop into a balance and the beam tells you how wrong you were. A hundred countries, from Egypt's straight edges to Chile's coastline.">
+  <meta property="og:title" content="Nation Divided — cut a country exactly in half — Bunny Game">
+  <meta property="og:description" content="One straight drag splits a country in two. The scale says how far off half you were. A hundred countries, easiest borders first.">
+  <meta property="og:url" content="https://www.thebunnygame.com/nation-divided">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/nation-divided-og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/topcut-og.png">
-  <link rel="canonical" href="https://www.thebunnygame.com/topcut">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/nation-divided-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/nation-divided">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
@@ -37,6 +37,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/shared.css">
   <link rel="stylesheet" href="assets/css/cut-game.css">
+  <link rel="stylesheet" href="assets/css/nation-divided.css">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
        crossorigin="anonymous"></script>
 </head>
@@ -55,11 +56,11 @@
   <div class="stat-item cut-stat-level">
     <span class="stat-label">Level</span>
     <button class="cut-step" id="cut-prev" aria-label="Previous level">&lsaquo;</button>
-    <span class="stat-value" id="val-level">1 / 25</span>
+    <span class="stat-value" id="val-level">1 / 100</span>
     <button class="cut-step" id="cut-nextlvl" aria-label="Next level">&rsaquo;</button>
   </div>
   <div class="stat-item cut-stat-object">
-    <span class="stat-label">Object</span>
+    <span class="stat-label">Country</span>
     <span class="stat-value" id="val-object">&mdash;</span>
   </div>
   <div class="stat-item">
@@ -72,6 +73,11 @@
   <div id="cut-stage">
     <canvas id="game-canvas"></canvas>
 
+    <div id="nd-ident">
+      <img id="nd-flag" alt="">
+      <span id="nd-name"></span>
+    </div>
+
     <div id="cut-toast"></div>
 
     <div id="cut-actions" class="cut-hide">
@@ -81,8 +87,8 @@
     </div>
 
     <div id="cut-start">
-      <img src="assets/logos/topcut_logo.svg" alt="Top Cut" class="cut-splash-logo">
-      <p class="cut-splash-line">One straight drag splits the object in two. The scale tells you how far off half you were — get within 5% and the next one unlocks.</p>
+      <img src="assets/logos/nationdivided_logo.svg" alt="Nation Divided" class="cut-splash-logo">
+      <p class="cut-splash-line" id="nd-splash-line">One straight drag splits the country in two. The scale tells you how far off half you were — get within 5% and the next one unlocks.</p>
       <button type="button" class="cut-btn cut-btn-primary" id="cut-play-btn">Play</button>
     </div>
   </div>
@@ -98,7 +104,7 @@
 
 <div id="directions-overlay" class="hidden">
   <div class="directions-modal">
-    <img src="assets/logos/topcut_logo.svg" alt="Top Cut" class="cut-dir-logo">
+    <img src="assets/logos/nationdivided_logo.svg" alt="Nation Divided" class="cut-dir-logo">
     <p class="dir-heading">How to Play</p>
     <div class="dir-pane" id="directions-text"></div>
     <button class="dir-close-btn" id="dir-close-btn">Got It</button>
@@ -108,6 +114,6 @@
 <script src="assets/js/nav.js"></script>
 <script src="assets/js/shared.js"></script>
 <script src="assets/js/cut-engine.js"></script>
-<script src="assets/js/topcut.js"></script>
+<script src="assets/js/nation-divided.js"></script>
 </body>
 </html>
