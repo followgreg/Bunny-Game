@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>About — The Bunny Game Arcade</title>
+  <meta name="description" content="A personal project by Gregory Ng exploring rapid game prototyping with AI-assisted development. 60+ games, 25 documented mechanics, all in vanilla JavaScript.">
+  <link rel="canonical" href="https://www.thebunnygame.com/about">
+  <!-- Open Graph -->
+  <meta property="og:title" content="About — The Bunny Game Arcade">
+  <meta property="og:description" content="A personal project by Gregory Ng exploring rapid game prototyping with AI-assisted development. 60+ games, 25 documented mechanics, all in vanilla JavaScript.">
+  <meta property="og:url" content="https://www.thebunnygame.com/about">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/bunnygame-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/bunnygame-og.png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/page.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls"></div>
+</div>
+
+<main>
+
+  <p class="doc-kicker">About</p>
+  <h1 class="doc-title">The Bunny Game Arcade</h1>
+
+  <p class="doc-lede">A personal project by <a href="https://followgreg.com/" target="_blank" rel="noopener">Gregory Ng</a> — <a href="https://www.linkedin.com/in/gregoryng/" target="_blank" rel="noopener">LinkedIn</a></p>
+
+  <h2>Where it started</h2>
+
+  <p>The Bunny Game Arcade began as an attempt to recreate <a href="macigame.html">Macigame</a> — a classic Mac shareware puzzle game from the 1990s that Gregory played as a kid. The original mechanic was simple: a grid of tiles displaying various characters, and the goal was to click matching groups to clear them. It was satisfying in a way that's hard to explain — the snap of tiles disappearing, the cascade of new configurations, the quiet arithmetic of clearing a board.</p>
+
+  <p>Recreating that mechanic as a browser game turned out to be the easy part. What came next was less expected.</p>
+
+  <h2>What it became</h2>
+
+  <p>Once <a href="classic.html">Classic</a> was running, the obvious question was: what else could this mechanic do? <a href="bomb-mode.html">Bomb Mode</a> answered one version of that question. <a href="86-bunnies.html">86 Bunnies</a> answered another. <a href="hare-line.html">Hare Line</a> introduced sliding. <a href="shroom-mode.html">Shroom Mode</a> explored pure visual transformation. Each experiment asked something different of the same underlying idea — and each one suggested three more.</p>
+
+  <p>That pattern accelerated into something larger. The arcade is now a growing library of browser-based games and puzzles spanning logic, word games, memory challenges, audio mechanics, daily shared puzzles, and physics simulations. As of this writing, the collection includes over 60 distinct games across more than 20 mechanic categories.</p>
+
+  <h2>The real experiment</h2>
+
+  <p>This project is Gregory Ng's personal laboratory for testing rapid prototyping workflows using AI-assisted development. Every game on this site was designed, built, iterated, and deployed through a workflow centered on Claude Code — Anthropic's agentic coding tool. The pace at which functional, playable games can be conceived, built, and shipped using these tools is the actual experiment. The games are the artifacts.</p>
+
+  <p>The questions driving the project:</p>
+
+  <ul>
+    <li>How quickly can a novel game mechanic go from concept to deployed, playable game?</li>
+    <li>Which mechanics produce genuine replayability versus one-time novelty?</li>
+    <li>What does a library of accelerator components for game development actually look like when built iteratively rather than planned upfront?</li>
+    <li>How do usage patterns differ between daily-reset games, infinite-replay games, and finite level-progression games?</li>
+  </ul>
+
+  <h2>The developer layer</h2>
+
+  <p>Because everything is built in vanilla JavaScript with no framework dependencies, the underlying implementations are unusually portable and readable. The <a href="dev.html">DEV page</a> documents the core mechanics as reusable code modules — from Hamiltonian path solvers to hex grid systems to daily shared puzzle architecture — available for other developers to learn from and build upon under an MIT License.</p>
+
+  <p>The goal isn't just a collection of games. It's a collection of solved problems, each one documented well enough that the next person who wants to build a sliding puzzle, a daily word game, or a logic puzzle generator doesn't have to start from scratch.</p>
+
+  <h2>About Gregory Ng</h2>
+
+  <p>Gregory Ng is a creative entrepreneur, designer, and technologist based in Raleigh, NC. He is EVP of Decision Science at MERGE, a health and wellness marketing agency, where he leads a team focused on data analytics, behavioral science, and strategic marketing. He is a RISD alumnus, serves on the board of Artspace Raleigh, and writes about authenticity and algorithmic optimization in his Substack newsletter The Human Thread.</p>
+
+  <p>This project sits at the intersection of his longstanding interests in game design, visual systems, rapid iteration, and the emerging question of what human creativity looks like when it works alongside — rather than against — AI tools.</p>
+
+  <p>→ <a href="https://followgreg.com/" target="_blank" rel="noopener">followgreg.com</a><br>
+     → <a href="https://www.linkedin.com/in/gregoryng/" target="_blank" rel="noopener">LinkedIn</a></p>
+
+</main>
+
+<script src="assets/js/nav.js"></script>
+</body>
+</html>

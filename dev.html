@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dev — Game Mechanic Code Library — Bunny Game</title>
+  <meta name="description" content="25 reusable game mechanic implementations in vanilla JavaScript. Hamiltonian solvers, hex grids, daily puzzle architecture, physics simulations, and more. MIT Licensed.">
+  <link rel="canonical" href="https://www.thebunnygame.com/dev">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Dev — Game Mechanic Code Library — Bunny Game">
+  <meta property="og:description" content="25 reusable game mechanic implementations in vanilla JavaScript. Hamiltonian solvers, hex grids, daily puzzle architecture, physics simulations, and more. MIT Licensed.">
+  <meta property="og:url" content="https://www.thebunnygame.com/dev">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/bunnygame-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/bunnygame-og.png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f172a">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/page.css">
+  <link rel="stylesheet" href="assets/css/dev.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls"></div>
+</div>
+
+<main>
+
+  <p class="doc-kicker">Developer Resource</p>
+  <h1 class="doc-title">Game Mechanics of The Bunny Game Arcade</h1>
+
+  <p class="doc-lede">The Bunny Game Arcade is built entirely in vanilla JavaScript, HTML, and CSS — no frameworks, no build tools, no dependencies. Every puzzle, game, and daily challenge on this site was prototyped and deployed using rapid AI-assisted development workflows. This page documents the core game mechanics and algorithmic devices underlying the arcade, presented as reusable code modules for developers to learn from, adapt, and build upon. Whether you're building your own puzzle game, daily word challenge, or logic mechanic, the implementations below represent battle-tested, production-deployed solutions to common game development problems. All code is released under the MIT License.</p>
+
+  <div class="callout">
+    <h3>License &amp; Disclaimer</h3>
+    <p>All code on this page is released under the MIT License. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this code for any purpose, with or without attribution.</p>
+    <p>This code is provided "as is," without warranty of any kind. The author is not responsible for any issues, bugs, or consequences arising from use of this code in your own projects. Use at your own risk.</p>
+  </div>
+
+  <nav class="toc" aria-label="Mechanics index">
+    <h2>25 Mechanics</h2>
+    <ol>
+      <li><a href="#hamiltonian-path">Hamiltonian Path Solver</a></li>
+      <li><a href="#hex-grid">Hex Grid Coordinate System</a></li>
+      <li><a href="#daily-puzzle">Daily Shared Puzzle Architecture</a></li>
+      <li><a href="#uniqueness-generation">Constraint-Satisfaction Puzzle Generation</a></li>
+      <li><a href="#frequency-matching">Web Audio Frequency Matching</a></li>
+      <li><a href="#svg-tile-slicing">SVG Tile Slicing for Image Puzzles</a></li>
+      <li><a href="#sliding-puzzle">Sliding Puzzle with Parity Check</a></li>
+      <li><a href="#rotation-gravity">Rotation + Gravity Physics</a></li>
+      <li><a href="#zone-clearing">Zone-Based Clearing</a></li>
+      <li><a href="#marble-physics">Marble Physics Simulation</a></li>
+      <li><a href="#weighted-random">Weighted Random Tile Generation</a></li>
+      <li><a href="#flood-fill">Flood-Fill Connectivity Check</a></li>
+      <li><a href="#blind-pairs">Blind Pair Detection with Blank-Spanning</a></li>
+      <li><a href="#fan-damage">Fan-Shaped Damage Physics</a></li>
+      <li><a href="#rotary-dial">Rotary Dial Frequency Control</a></li>
+      <li><a href="#color-distance">Color Distance Scoring</a></li>
+      <li><a href="#sequence-uniqueness">Sequence Pattern Generation</a></li>
+      <li><a href="#word-path">Winding Word Path</a></li>
+      <li><a href="#progressive-reveal">Progressive Reveal with Round-Lock</a></li>
+      <li><a href="#gutenberg-fetch">Live Gutenberg Fetch with Typo Injection</a></li>
+      <li><a href="#boggle-dice">Boggle-Dice Letter Distribution</a></li>
+      <li><a href="#permutation-parity">Permutation Parity Check</a></li>
+      <li><a href="#spiral-svg">Archimedean Spiral SVG Generation</a></li>
+      <li><a href="#electric-network">Electricity Network Animation</a></li>
+      <li><a href="#always-solvable">Always-Solvable Piece Generation</a></li>
+    </ol>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════ 1 -->
+  <section class="mechanic" id="hamiltonian-path">
+    <div class="mechanic-head">
+      <span class="mechanic-num">01</span>
+      <h2>Hamiltonian Path Solver</h2>
+      <a class="anchor-link" href="#hamiltonian-path" aria-label="Link to Hamiltonian Path Solver">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="snek.html">SNEK</a><a href="fuse.html">Fuse</a><a href="spell.html">Spell</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Finds a path through a grid that visits every cell exactly once. The backbone of single-path puzzle games where the challenge is navigating an irregular shape without backtracking.</p>
+    <ul class="concepts">
+      <li>Backtracking DFS</li><li>Connectivity pruning</li><li>Irregular grid carving</li><li>Degree-1 endpoint insight</li>
+    </ul>
+    <p class="code-caption">Backtracking solver with visited-cell tracking and dead-end detection.</p>
+    <div class="code-box"><pre><code>// Backtracking Hamiltonian path solver over an irregular set of cells.
+// `cells` is an array of [row, col] pairs — any shape, not just a rectangle.
+
+var DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+var k = function (r, c) { return r + ',' + c; };
+
+function solveBacktrack(cells, startR, startC, maxIters) {
+  var cellSet = new Set(cells.map(function (p) { return k(p[0], p[1]); }));
+  var total   = cells.length;
+  var path    = [[startR, startC]];
+  var visited = new Set([k(startR, startC)]);
+  var found   = false;
+  var iters   = 0;
+
+  function bt(r, c) {
+    if (found || iters &gt; maxIters) return;
+    if (path.length === total) { found = true; return; }   // every cell visited
+    for (var i = 0; i &lt; DIRS.length; i++) {
+      if (found || iters &gt; maxIters) return;
+      var nr = r + DIRS[i][0];
+      var nc = c + DIRS[i][1];
+      var key = k(nr, nc);
+      if (cellSet.has(key) &amp;&amp; !visited.has(key)) {
+        visited.add(key);
+        path.push([nr, nc]);
+        bt(nr, nc);
+        if (!found) {                       // dead end — undo and try the next dir
+          path.pop();
+          visited.delete(key);
+          iters++;
+        }
+      }
+    }
+  }
+
+  if (!cellSet.has(k(startR, startC))) return null;
+  bt(startR, startC);
+  return found ? path : null;
+}
+
+// The pruning that actually matters. A cell with exactly one neighbour MUST be
+// an endpoint of any Hamiltonian path, so when such cells exist they are the
+// only start cells worth trying — the search shrinks from n starts to at most 2.
+function startCandidates(cells) {
+  var cellSet = new Set(cells.map(function (p) { return k(p[0], p[1]); }));
+  var deg1 = cells.filter(function (p) {
+    return DIRS.filter(function (d) {
+      return cellSet.has(k(p[0] + d[0], p[1] + d[1]));
+    }).length === 1;
+  });
+  return deg1.length ? deg1 : cells;
+}
+
+// Warnsdorff's heuristic: always step to the neighbour with the fewest onward
+// moves. O(n^2) and not complete, but it solves most boards instantly — run it
+// first and fall back to solveBacktrack() only when it fails.
+function solveWarnsdorff(cells, startR, startC) {
+  var cellSet = new Set(cells.map(function (p) { return k(p[0], p[1]); }));
+  var visited = new Set([k(startR, startC)]);
+  var path    = [[startR, startC]];
+  var r = startR, c = startC;
+
+  while (path.length &lt; cells.length) {
+    var moves = DIRS
+      .map(function (d) { return [r + d[0], c + d[1]]; })
+      .filter(function (p) { return cellSet.has(k(p[0], p[1])) &amp;&amp; !visited.has(k(p[0], p[1])); });
+    if (moves.length === 0) return null;
+
+    var scored = moves.map(function (p) {
+      return {
+        r: p[0], c: p[1],
+        fwd: DIRS.filter(function (d) {
+          var nk = k(p[0] + d[0], p[1] + d[1]);
+          return cellSet.has(nk) &amp;&amp; !visited.has(nk);
+        }).length
+      };
+    });
+
+    var minFwd = Math.min.apply(null, scored.map(function (s) { return s.fwd; }));
+    var chosen = scored.filter(function (s) { return s.fwd === minFwd; })[0];
+
+    r = chosen.r; c = chosen.c;
+    visited.add(k(r, c));
+    path.push([r, c]);
+  }
+  return path;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 2 -->
+  <section class="mechanic" id="hex-grid">
+    <div class="mechanic-head">
+      <span class="mechanic-num">02</span>
+      <h2>Hex Grid Coordinate System</h2>
+      <a class="anchor-link" href="#hex-grid" aria-label="Link to Hex Grid Coordinate System">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="honey.html">Honey</a><a href="circuit.html">Circuit</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Implements axial coordinates for a hexagonal grid, including neighbor lookup, hex-to-pixel conversion, and radius-based board generation. The foundation for any honeycomb-style game.</p>
+    <ul class="concepts">
+      <li>Axial (q,r) coordinates</li><li>Pointy-top hexagons</li><li>6-directional adjacency</li><li>Radius-bounded boards</li>
+    </ul>
+    <p class="code-caption">Axial neighbors, hex-to-pixel conversion, and radius-3 cell generation.</p>
+    <div class="code-box"><pre><code>// Axial coordinates (q, r) for pointy-top hexagons.
+// Directions run 0–5 clockwise from East. The opposite of direction d is
+// (d + 3) % 6 — that one identity removes most of the pain of hex adjacency.
+
+var HEX_DIRS = [
+  [+1,  0],  // 0: E
+  [ 0, +1],  // 1: SE
+  [-1, +1],  // 2: SW
+  [-1,  0],  // 3: W
+  [ 0, -1],  // 4: NW
+  [+1, -1]   // 5: NE
+];
+
+var cellKey = function (q, r) { return q + ',' + r; };
+
+// Every cell within `radius` of the origin. A hex board of radius n holds
+// 3n(n+1) + 1 cells: radius 1 = 7, radius 2 = 19, radius 3 = 37.
+function cellsForRadius(radius) {
+  var cells = [];
+  for (var q = -radius; q &lt;= radius; q++) {
+    for (var r = -radius; r &lt;= radius; r++) {
+      if (Math.abs(q + r) &lt;= radius) cells.push({ q: q, r: r });
+    }
+  }
+  return cells;
+}
+
+// Neighbours that exist on a radius-bounded board, with the direction used to
+// reach them and the reciprocal direction back — handy for pipe/edge matching.
+function getNeighbors(q, r, radius) {
+  var result = [];
+  for (var d = 0; d &lt; 6; d++) {
+    var nq = q + HEX_DIRS[d][0];
+    var nr = r + HEX_DIRS[d][1];
+    if (Math.abs(nq) &lt;= radius &amp;&amp; Math.abs(nr) &lt;= radius &amp;&amp; Math.abs(nq + nr) &lt;= radius) {
+      result.push({ q: nq, r: nr, fromDir: d, toDir: (d + 3) % 6 });
+    }
+  }
+  return result;
+}
+
+// Axial → screen. SIZE is the hex circumradius (centre to corner).
+var SIZE  = 34;
+var SQRT3 = Math.sqrt(3);
+
+function hexToPixel(q, r) {
+  return {
+    x: SIZE * (SQRT3 * q + SQRT3 / 2 * r),
+    y: SIZE * (1.5 * r)
+  };
+}
+
+// Corner points for one pointy-top hexagon, ready for an SVG &lt;polygon&gt;.
+function hexPoints() {
+  var pts = [];
+  for (var i = 0; i &lt; 6; i++) {
+    var angle = Math.PI * (30 + 60 * i) / 180;
+    pts.push(
+      (SIZE * Math.cos(angle)).toFixed(2) + ',' +
+      (SIZE * Math.sin(angle)).toFixed(2)
+    );
+  }
+  return pts.join(' ');
+}
+
+// Midpoint of edge e — where a pipe or connector meets the hex boundary.
+function edgeMidpoint(e) {
+  var apothem = SIZE * SQRT3 / 2;
+  var angle   = Math.PI * 60 * e / 180;
+  return { x: apothem * Math.cos(angle), y: apothem * Math.sin(angle) };
+}
+
+// Usage: build a radius-3 board and lay it out.
+var board = cellsForRadius(3);                    // 37 cells
+var laid  = board.map(function (c) {
+  var px = hexToPixel(c.q, c.r);
+  return { q: c.q, r: c.r, x: px.x, y: px.y };
+});</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 3 -->
+  <section class="mechanic" id="daily-puzzle">
+    <div class="mechanic-head">
+      <span class="mechanic-num">03</span>
+      <h2>Daily Shared Puzzle Architecture</h2>
+      <a class="anchor-link" href="#daily-puzzle" aria-label="Link to Daily Shared Puzzle Architecture">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="cropped.html">Cropped</a><a href="proof.html">Proof</a><a href="excerpt.html">Excerpt</a><a href="wordup.html">Word Up!</a><a href="relation.html">Relation</a><a href="wave.html">Wave</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Ensures every player worldwide sees the same puzzle on the same day, with one attempt per day enforced via localStorage. Deterministic date-seeded selection with automatic daily reset.</p>
+    <ul class="concepts">
+      <li>UTC date hashing</li><li>Deterministic array indexing</li><li>Date-keyed round lock</li><li>Stale-entry cleanup</li>
+    </ul>
+    <p class="code-caption">getTodayKey(), getDailyEntry(), and the round-lock save/restore pattern.</p>
+    <div class="code-box"><pre><code>// One puzzle per UTC day, identical for every player, no server involved.
+
+var LS_PREFIX = 'mygame_result_';
+
+// ── The day key ────────────────────────────────────────────────────────────
+// ISO date in UTC: "2026-08-06". Every client on Earth agrees on this string,
+// which is the whole trick — the puzzle is a pure function of the date.
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// ── Deterministic selection ────────────────────────────────────────────────
+// Classic 32-bit string hash (djb2-ish), forced unsigned so the modulo is
+// never negative.
+function hashString(s) {
+  var h = 0;
+  for (var i = 0; i &lt; s.length; i++) {
+    h = ((h &lt;&lt; 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return h &gt;&gt;&gt; 0;
+}
+
+function getDailyEntry(index) {
+  var hash = hashString(getTodayKey());
+  return index[hash % index.length];
+}
+
+// Need repeatable randomness *within* the day (shuffling answer options,
+// picking distractors)? Seed a PRNG from the same key — every player gets the
+// same shuffle. A 32-bit LCG is plenty.
+function makePrng(seed) {
+  var state = (seed &gt;&gt;&gt; 0) || 2463534242;
+  return function () {
+    state = ((state * 1664525) + 1013904223) &gt;&gt;&gt; 0;
+    return state / 4294967296;
+  };
+}
+
+// ── Round lock ─────────────────────────────────────────────────────────────
+function loadStored(key) {
+  try {
+    var raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }      // private mode / quota — never throw
+}
+
+function saveStored(key, obj) {
+  try { localStorage.setItem(key, JSON.stringify(obj)); } catch (e) {}
+}
+
+// Yesterday's result is dead weight. Sweep every key under our prefix that
+// isn't today's, so storage never grows past a single entry.
+function cleanupStale(todayKey) {
+  var doomed = [];
+  try {
+    for (var i = 0; i &lt; localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k &amp;&amp; k.indexOf(LS_PREFIX) === 0 &amp;&amp; k !== LS_PREFIX + todayKey) doomed.push(k);
+    }
+    doomed.forEach(function (k) { localStorage.removeItem(k); });
+  } catch (e) {}
+}
+
+// ── Boot sequence ──────────────────────────────────────────────────────────
+function init(index) {
+  var todayKey = getTodayKey();
+  var lsKey    = LS_PREFIX + todayKey;
+
+  cleanupStale(todayKey);
+
+  var entry  = getDailyEntry(index);   // same entry for everyone, all day
+  var stored = loadStored(lsKey);
+
+  if (stored) {
+    showResult(stored);                // already played today — replay locked
+  } else {
+    startPuzzle(entry, function onFinish(result) {
+      saveStored(lsKey, result);       // lock the round the instant it ends
+      showResult(result);
+    });
+  }
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 4 -->
+  <section class="mechanic" id="uniqueness-generation">
+    <div class="mechanic-head">
+      <span class="mechanic-num">04</span>
+      <h2>Constraint-Satisfaction Puzzle Generation with Uniqueness Verification</h2>
+      <a class="anchor-link" href="#uniqueness-generation" aria-label="Link to Constraint-Satisfaction Puzzle Generation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="solo.html">Solo</a><a href="warren.html">Warren</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates logic puzzles that are guaranteed to have exactly one valid solution. The solver enumerates all possible solutions and rejects any board where more than one exists, regenerating until a uniquely-solvable board is found.</p>
+    <ul class="concepts">
+      <li>Backtracking constraint solver</li><li>Early termination at count=2</li><li>Region growing via flood-fill</li><li>Generate-and-reject loop</li>
+    </ul>
+    <p class="code-caption">Region-growing generator plus the uniqueness checker with a maxCount=2 early exit.</p>
+    <div class="code-box"><pre><code>// Star Battle style: an N x N board carved into N regions, exactly one star
+// per row, per column and per region, and no two stars touching.
+
+var N   = 5;
+var D4  = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+
+// ── Step 1: place the solution first ───────────────────────────────────────
+// Generating a solution and then building a board around it is far cheaper
+// than generating boards and hoping one is solvable.
+function generateStars(rng) {
+  var starCols = new Array(N);
+  var usedCols = new Set();
+
+  function bt(row) {
+    if (row === N) return true;
+    var cols = shuffle([0, 1, 2, 3, 4], rng);
+    for (var i = 0; i &lt; cols.length; i++) {
+      var col = cols[i];
+      if (usedCols.has(col)) continue;
+      // Only the row directly above can be diagonally adjacent
+      if (row &gt; 0 &amp;&amp; Math.abs(col - starCols[row - 1]) &lt;= 1) continue;
+      starCols[row] = col;
+      usedCols.add(col);
+      if (bt(row + 1)) return true;
+      usedCols.delete(col);
+    }
+    return false;
+  }
+  return bt(0) ? starCols : null;
+}
+
+// ── Step 2: grow regions outward from each star ────────────────────────────
+// Round-robin growth keeps the regions roughly equal in size; growing one
+// region to completion first produces long snakes and dead pockets.
+function generateRegions(starCols, rng) {
+  for (var attempt = 0; attempt &lt; 400; attempt++) {
+    var g  = Array.from({ length: N }, function () { return new Array(N).fill(0); });
+    var sz = new Array(N + 1).fill(0);
+
+    for (var r = 0; r &lt; N; r++) { g[r][starCols[r]] = r + 1; sz[r + 1] = 1; }
+    var assigned = N;
+
+    while (assigned &lt; N * N) {
+      var open = shuffle([1, 2, 3, 4, 5].filter(function (i) { return sz[i] &lt; N; }), rng);
+      var progress = false;
+
+      for (var oi = 0; oi &lt; open.length; oi++) {
+        var reg = open[oi];
+        var front = [];
+        for (var rr = 0; rr &lt; N; rr++) {
+          for (var cc = 0; cc &lt; N; cc++) {
+            if (g[rr][cc] !== 0) continue;
+            for (var d = 0; d &lt; D4.length; d++) {
+              var nr = rr + D4[d][0], nc = cc + D4[d][1];
+              if (nr &gt;= 0 &amp;&amp; nr &lt; N &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; N &amp;&amp; g[nr][nc] === reg) {
+                front.push([rr, cc]);
+                break;
+              }
+            }
+          }
+        }
+        if (!front.length) continue;
+        shuffle(front, rng);
+        g[front[0][0]][front[0][1]] = reg;
+        sz[reg]++; assigned++; progress = true;
+      }
+      if (!progress) break;             // wedged — throw it away and retry
+    }
+
+    if (assigned === N * N) return g;
+  }
+  return null;
+}
+
+// ── Step 3: uniqueness ─────────────────────────────────────────────────────
+// Stop at `limit` solutions. Finding a second one is all the information the
+// caller needs, and full enumeration on a rejected board is wasted work.
+function solve(shapeGrid, limit) {
+  limit = limit || 2;
+  var solutions  = [];
+  var usedCols   = new Array(N).fill(false);
+  var usedShapes = new Array(N + 1).fill(false);
+  var placed     = [];
+
+  function bt(row) {
+    if (solutions.length &gt;= limit) return;      // early exit at count = 2
+    if (row === N) { solutions.push(placed.slice()); return; }
+
+    for (var col = 0; col &lt; N; col++) {
+      if (usedCols[col]) continue;
+      var shape = shapeGrid[row][col];
+      if (usedShapes[shape]) continue;
+      if (row &gt; 0 &amp;&amp; Math.abs(col - placed[row - 1][1]) &lt;= 1) continue;
+
+      placed.push([row, col]);
+      usedCols[col] = true; usedShapes[shape] = true;
+      bt(row + 1);
+      placed.pop();
+      usedCols[col] = false; usedShapes[shape] = false;
+    }
+  }
+
+  bt(0);
+  return solutions;
+}
+
+// ── Generate until unique ──────────────────────────────────────────────────
+function generateLevel(rng) {
+  for (var tries = 0; tries &lt; 5000; tries++) {
+    var stars = generateStars(rng);
+    if (!stars) continue;
+    var regions = generateRegions(stars, rng);
+    if (!regions) continue;
+    var sols = solve(regions, 2);
+    if (sols.length === 1) return { regions: regions, solution: sols[0] };
+  }
+  return null;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 5 -->
+  <section class="mechanic" id="frequency-matching">
+    <div class="mechanic-head">
+      <span class="mechanic-num">05</span>
+      <h2>Web Audio Frequency Matching</h2>
+      <a class="anchor-link" href="#frequency-matching" aria-label="Link to Web Audio Frequency Matching">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="pitch.html">Pitch</a><a href="tonal.html">Tonal</a><a href="sounddestroyer.html">Sound Destroyer</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates pure sine wave tones at arbitrary frequencies using the Web Audio API, with smooth attack/release envelopes to avoid clicks. Scores player accuracy using logarithmic cents-based distance matching human pitch perception.</p>
+    <ul class="concepts">
+      <li>Oscillator + gain envelope</li><li>Logarithmic frequency mapping</li><li>Cents-based scoring</li><li>Autoplay policy compliance</li>
+    </ul>
+    <p class="code-caption">Oscillator setup with gain envelope, live frequency update, and cents-based scoring.</p>
+    <div class="code-box"><pre><code>// A sine wave started at full gain produces an audible click — the waveform
+// jumps from silence to amplitude in one sample. Every tone here ramps.
+
+var _audioCtx = null;
+
+// One context for the page, resumed lazily. Browsers start it suspended until
+// a user gesture, so call this from inside a click handler, never on load.
+function getAudioContext() {
+  if (!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+// ── Fixed-length tone with attack + release ────────────────────────────────
+var _targetOsc = null;
+
+function playTone(frequency, duration) {
+  duration = duration !== undefined ? duration : 3.0;
+  stopTone();
+
+  var ctx  = getAudioContext();
+  var osc  = ctx.createOscillator();
+  var gain = ctx.createGain();
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+
+  gain.gain.setValueAtTime(0, ctx.currentTime);                              // silent
+  gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.05);            // attack
+  gain.gain.setValueAtTime(0.6, ctx.currentTime + duration - 0.08);          // sustain
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);          // release
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + duration);
+
+  _targetOsc = osc;
+  osc.onended = function () { if (_targetOsc === osc) _targetOsc = null; };
+}
+
+function stopTone() {
+  if (_targetOsc) {
+    try { _targetOsc.stop(); } catch (e) {}
+    _targetOsc = null;
+  }
+}
+
+// ── Live tone the player steers in real time ───────────────────────────────
+var _liveOsc = null, _liveGain = null;
+
+function startLiveTone(frequency) {
+  stopLiveTone();
+  var ctx = getAudioContext();
+  _liveOsc  = ctx.createOscillator();
+  _liveGain = ctx.createGain();
+  _liveOsc.type = 'sine';
+  _liveOsc.frequency.setValueAtTime(frequency, ctx.currentTime);
+  _liveGain.gain.setValueAtTime(0.4, ctx.currentTime);
+  _liveOsc.connect(_liveGain);
+  _liveGain.connect(ctx.destination);
+  _liveOsc.start();
+}
+
+// Called on every pointermove — retunes the running oscillator instead of
+// creating a new one, which would click on every frame.
+function updateLiveToneFrequency(frequency) {
+  if (_liveOsc) {
+    _liveOsc.frequency.setValueAtTime(frequency, getAudioContext().currentTime);
+  }
+}
+
+function stopLiveTone() {
+  if (_liveOsc) {
+    var ctx = getAudioContext();
+    _liveGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.05);   // fade, don't cut
+    _liveOsc.stop(ctx.currentTime + 0.05);
+    _liveOsc = null; _liveGain = null;
+  }
+}
+
+// ── Frequency range: logarithmic, because hearing is ───────────────────────
+// 80 Hz → 1200 Hz. Linear interpolation would waste most of the range on
+// high frequencies that all sound alike; log space spreads octaves evenly.
+var LOG_MIN = Math.log(80);
+var LOG_MAX = Math.log(1200);
+
+function normToFreq(t) { return Math.exp(LOG_MIN + t * (LOG_MAX - LOG_MIN)); }
+function freqToNorm(hz) { return (Math.log(hz) - LOG_MIN) / (LOG_MAX - LOG_MIN); }
+
+function generateTargetFrequency() {
+  return Math.round(Math.exp(LOG_MIN + Math.random() * (LOG_MAX - LOG_MIN)));
+}
+
+// ── Scoring in cents ───────────────────────────────────────────────────────
+// 1200 cents = one octave, 100 = one semitone. Being 20 Hz off at 100 Hz is a
+// disaster; at 1000 Hz it is barely audible. Cents captures exactly that.
+function scoreAccuracy(targetHz, playerHz) {
+  var cents = Math.abs(1200 * Math.log2(playerHz / targetHz));
+  return Math.max(0, Math.round(100 - (cents / 12)));   // 1200 cents off = 0
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 6 -->
+  <section class="mechanic" id="svg-tile-slicing">
+    <div class="mechanic-head">
+      <span class="mechanic-num">06</span>
+      <h2>SVG Tile Slicing for Image Puzzles</h2>
+      <a class="anchor-link" href="#svg-tile-slicing" aria-label="Link to SVG Tile Slicing">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="mobi.html">MOBI</a><a href="coil.html">Coil</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Slices a source SVG into a grid of independently rotatable tiles using viewBox clipping, without needing to manipulate path data. Each tile renders a cropped viewport of the original artwork.</p>
+    <ul class="concepts">
+      <li>SVG viewBox clipping</li><li>Grid coordinate → viewBox offset</li><li>CSS transform rotation</li><li>Rotation-state win check</li>
+    </ul>
+    <p class="code-caption">Tile SVG generation with viewBox offset, rotation state tracking, and win check.</p>
+    <div class="code-box"><pre><code>// The artwork is never cut up. Each tile is a full copy of the source with a
+// viewBox that shows only its own window onto it — so the drawing stays
+// vector-crisp at any size and there is zero path math.
+
+function generateTileSVG(sourcePathData, totalSize, tileSize, offsetX, offsetY) {
+  // Clip ids are global in the document — collide them and tiles vanish.
+  var clipId = 'clip-' + offsetX + '-' + offsetY;
+
+  return '&lt;svg xmlns="http://www.w3.org/2000/svg"' +
+         ' width="' + tileSize + '" height="' + tileSize + '"' +
+         ' viewBox="' + offsetX + ' ' + offsetY + ' ' + tileSize + ' ' + tileSize + '"&gt;' +
+           '&lt;defs&gt;&lt;clipPath id="' + clipId + '"&gt;' +
+             '&lt;rect x="' + offsetX + '" y="' + offsetY + '"' +
+             ' width="' + tileSize + '" height="' + tileSize + '"/&gt;' +
+           '&lt;/clipPath&gt;&lt;/defs&gt;' +
+           '&lt;rect x="' + offsetX + '" y="' + offsetY + '"' +
+           ' width="' + tileSize + '" height="' + tileSize + '" fill="#E8E8E8"/&gt;' +
+           '&lt;path d="' + sourcePathData + '" fill="none" stroke="#1A3A6B"' +
+           ' stroke-width="' + (totalSize * 0.006) + '"' +
+           ' stroke-linecap="round" stroke-linejoin="round"' +
+           ' clip-path="url(#' + clipId + ')"/&gt;' +
+         '&lt;/svg&gt;';
+}
+
+// Grid position → viewBox offset. This is the entire mapping.
+function generateTiles(sourcePathData, gridPixelSize, cols, rows) {
+  var tileW = gridPixelSize / cols;
+  var tileH = gridPixelSize / rows;
+  var tiles = [];
+
+  for (var r = 0; r &lt; rows; r++) {
+    for (var c = 0; c &lt; cols; c++) {
+      tiles.push({
+        row: r,
+        col: c,
+        rotation: Math.floor(Math.random() * 4),   // 0–3 quarter turns
+        svg: generateTileSVG(sourcePathData, gridPixelSize, tileW, c * tileW, r * tileH)
+      });
+    }
+  }
+  return tiles;
+}
+
+// ── Rotation ───────────────────────────────────────────────────────────────
+// Rotation lives in state, not in the SVG. The DOM node is just a mirror of it.
+function renderTile(tile, el) {
+  el.style.transform = 'rotate(' + (tile.rotation * 90) + 'deg)';
+}
+
+function handleTileClick(tile, el) {
+  tile.rotation = (tile.rotation + 1) % 4;
+  renderTile(tile, el);
+  if (isSolved(tiles)) showWin();
+}
+
+// Solved when every tile is back at its original orientation. No pixel
+// comparison, no image diffing — the state array already knows.
+function isSolved(tiles) {
+  return tiles.every(function (t) { return t.rotation === 0; });
+}
+
+// A shuffle that leaves a tile at rotation 0 has handed the player a free
+// square. For small grids, force every tile off-true.
+function shuffleTiles(tiles) {
+  tiles.forEach(function (t) {
+    t.rotation = 1 + Math.floor(Math.random() * 3);   // 1, 2 or 3 — never 0
+  });
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 7 -->
+  <section class="mechanic" id="sliding-puzzle">
+    <div class="mechanic-head">
+      <span class="mechanic-num">07</span>
+      <h2>Sliding Puzzle with Parity Check</h2>
+      <a class="anchor-link" href="#sliding-puzzle" aria-label="Link to Sliding Puzzle with Parity Check">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="hare-line.html">Hare Line</a><a href="coil.html">Coil</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Implements a classic N-puzzle (15-puzzle style) sliding mechanic with a mathematical parity check to guarantee every shuffled board is solvable. Without parity checking, 50% of random shuffles are mathematically unsolvable regardless of how many moves are made.</p>
+    <ul class="concepts">
+      <li>Fisher-Yates shuffle</li><li>Inversion counting</li><li>Parity class determination</li><li>Blank-tile position correction</li>
+    </ul>
+    <p class="code-caption">shuffle() with countInversions() and parity fix, plus move validation.</p>
+    <div class="code-box"><pre><code>// Half of all random arrangements of a sliding puzzle cannot be solved. Not
+// "hard" — impossible. Sliding tiles can never change the parity of the
+// permutation, so a board that starts in the wrong parity class stays there.
+
+var SIZE  = 5;                       // 5 x 5 board, 24 tiles + one blank
+var BLANK = SIZE * SIZE - 1;         // blank is the highest index
+
+function countInversions(arr) {
+  var inv = 0;
+  for (var i = 0; i &lt; arr.length; i++) {
+    for (var j = i + 1; j &lt; arr.length; j++) {
+      if (arr[i] &gt; arr[j]) inv++;
+    }
+  }
+  return inv;
+}
+
+function shuffle(grid) {
+  // Flatten, dropping the blank — it is not part of the permutation
+  var flat = [];
+  for (var r = 0; r &lt; SIZE; r++) {
+    for (var c = 0; c &lt; SIZE; c++) {
+      if (grid[r][c] !== BLANK) flat.push(grid[r][c]);
+    }
+  }
+
+  // Fisher-Yates
+  for (var i = flat.length - 1; i &gt; 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = flat[i]; flat[i] = flat[j]; flat[j] = tmp;
+  }
+
+  // Parity fix. With the blank in the bottom-right of an odd-width board, a
+  // board is solvable iff the inversion count is even. Swapping any two tiles
+  // flips parity — one swap is all it ever takes.
+  if (countInversions(flat) % 2 !== 0) {
+    var t = flat[0]; flat[0] = flat[1]; flat[1] = t;
+  }
+
+  // Rebuild with the blank restored to the bottom-right
+  var out = [], k = 0;
+  for (var rr = 0; rr &lt; SIZE; rr++) {
+    var row = [];
+    for (var cc = 0; cc &lt; SIZE; cc++) {
+      row.push((rr === SIZE - 1 &amp;&amp; cc === SIZE - 1) ? BLANK : flat[k++]);
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+// ── Moves ──────────────────────────────────────────────────────────────────
+// There is no "move the blank" — the player clicks a tile, and it slides only
+// if it is orthogonally adjacent to the blank.
+function canMove(blankPos, r, c) {
+  return Math.abs(blankPos[0] - r) + Math.abs(blankPos[1] - c) === 1;
+}
+
+function move(grid, blankPos, r, c) {
+  if (!canMove(blankPos, r, c)) return null;      // illegal — silent no-op
+  var next = grid.map(function (row) { return row.slice(); });
+  next[blankPos[0]][blankPos[1]] = grid[r][c];
+  next[r][c] = BLANK;
+  return { grid: next, blankPos: [r, c] };
+}
+
+// A shuffle that happens to be solved already is a wasted round — reshuffle.
+function newBoard(solvedGrid) {
+  for (;;) {
+    var g = shuffle(solvedGrid);
+    if (!isSolved(g)) return g;
+  }
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 8 -->
+  <section class="mechanic" id="rotation-gravity">
+    <div class="mechanic-head">
+      <span class="mechanic-num">08</span>
+      <h2>Rotation + Gravity Physics</h2>
+      <a class="anchor-link" href="#rotation-gravity" aria-label="Link to Rotation + Gravity Physics">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="lava.html">Lava</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Simulates a grid that rotates 90° after each move, with gravity causing the bottom block of each column to fall off. Produces emergent puzzle complexity from two simple rules applied in sequence.</p>
+    <ul class="concepts">
+      <li>Grid rotation matrix</li><li>Column-based gravity</li><li>Entity tracking through rotation</li><li>Player-chosen direction branching</li>
+    </ul>
+    <p class="code-caption">rotateGrid90CW(), rotateGrid90CCW(), and applyGravity() with fall-off detection.</p>
+    <div class="code-box"><pre><code>// Two rules, applied in order, every turn: rotate the board, then let the
+// bottom block of each column fall away. The player's piece has to be carried
+// through both transforms, which is where the interesting failures live.
+
+var SIZE = 4;
+
+// Clockwise: cell (r, c) lands at (c, SIZE-1-r)
+function rotateGrid90CW(grid, entityPos) {
+  var newGrid = Array.from({ length: SIZE }, function () { return Array(SIZE).fill(0); });
+  var newPos  = [0, 0];
+  for (var r = 0; r &lt; SIZE; r++) {
+    for (var c = 0; c &lt; SIZE; c++) {
+      newGrid[c][SIZE - 1 - r] = grid[r][c];
+      if (r === entityPos[0] &amp;&amp; c === entityPos[1]) newPos = [c, SIZE - 1 - r];
+    }
+  }
+  return { newGrid: newGrid, newPos: newPos };
+}
+
+// Counter-clockwise: cell (r, c) lands at (SIZE-1-c, r)
+function rotateGrid90CCW(grid, entityPos) {
+  var newGrid = Array.from({ length: SIZE }, function () { return Array(SIZE).fill(0); });
+  var newPos  = [0, 0];
+  for (var r = 0; r &lt; SIZE; r++) {
+    for (var c = 0; c &lt; SIZE; c++) {
+      newGrid[SIZE - 1 - c][r] = grid[r][c];
+      if (r === entityPos[0] &amp;&amp; c === entityPos[1]) newPos = [SIZE - 1 - c, r];
+    }
+  }
+  return { newGrid: newGrid, newPos: newPos };
+}
+
+// ── Gravity ────────────────────────────────────────────────────────────────
+// Per column: everything stacks to the bottom and the lowest block burns off.
+// Riding that lowest block is how the player loses.
+function applyGravity(grid, entityPos) {
+  var newGrid  = Array.from({ length: SIZE }, function () { return Array(SIZE).fill(0); });
+  var newPos   = null;
+  var survived = true;
+
+  for (var c = 0; c &lt; SIZE; c++) {
+    var blocks = [];
+    var entityIndex = -1;
+
+    for (var r = 0; r &lt; SIZE; r++) {
+      if (grid[r][c] !== 0) {
+        if (r === entityPos[0] &amp;&amp; c === entityPos[1]) entityIndex = blocks.length;
+        blocks.push(1);
+      }
+    }
+
+    if (blocks.length === 0) continue;
+    if (blocks.length === 1) {                       // lone block — it falls off
+      if (entityIndex === 0) survived = false;
+      continue;
+    }
+    if (entityIndex === blocks.length - 1) {         // riding the bottom block
+      survived = false;
+      continue;
+    }
+
+    // Restack the survivors from the floor up
+    var surviving = blocks.length - 1;
+    for (var i = 0; i &lt; surviving; i++) {
+      var newRow = SIZE - 1 - i;
+      newGrid[newRow][c] = 1;
+      if (entityIndex === surviving - 1 - i) newPos = [newRow, c];
+    }
+  }
+
+  if (!survived) return { newGrid: newGrid, newPos: null, survived: false };
+  return { newGrid: newGrid, newPos: newPos || entityPos, survived: true };
+}
+
+// ── One turn ───────────────────────────────────────────────────────────────
+// Remove a block, spin the board the way the player chose, then gravity.
+function simulateTurn(grid, entityPos, removePos, direction) {
+  var g = grid.map(function (row) { return row.slice(); });
+  g[removePos[0]][removePos[1]] = 0;
+
+  var rotated = direction === 'cw'
+    ? rotateGrid90CW(g, entityPos)
+    : rotateGrid90CCW(g, entityPos);
+
+  return applyGravity(rotated.newGrid, rotated.newPos);
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 9 -->
+  <section class="mechanic" id="zone-clearing">
+    <div class="mechanic-head">
+      <span class="mechanic-num">09</span>
+      <h2>Zone-Based Clearing (Block Placement)</h2>
+      <a class="anchor-link" href="#zone-clearing" aria-label="Link to Zone-Based Clearing">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="zone.html">Zone</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> A Block Blast variant where clearing units are 3×3 zones rather than rows or columns. Implements always-solvable piece generation — each offered piece is verified to have at least one valid placement on the current board before being offered.</p>
+    <ul class="concepts">
+      <li>Polyomino placement validation</li><li>Zone-fill detection</li><li>Placement pre-verification</li><li>Combo multiplier scoring</li>
+    </ul>
+    <p class="code-caption">canPlace(), isZoneFull(), and generateThreePieces() with its isPiecePlaceable() guard.</p>
+    <div class="code-box"><pre><code>// 9 x 9 board split into nine 3 x 3 zones. Fill a zone completely and it
+// clears — rows and columns mean nothing here.
+
+function makeGrid() {
+  return Array.from({ length: 9 }, function () { return Array(9).fill(null); });
+}
+
+function getZone(r, c) {
+  return Math.floor(r / 3) * 3 + Math.floor(c / 3);
+}
+
+function isZoneFull(grid, zoneIndex) {
+  var startRow = Math.floor(zoneIndex / 3) * 3;
+  var startCol = (zoneIndex % 3) * 3;
+  for (var r = startRow; r &lt; startRow + 3; r++) {
+    for (var c = startCol; c &lt; startCol + 3; c++) {
+      if (grid[r][c] === null) return false;
+    }
+  }
+  return true;
+}
+
+// ── Placement ──────────────────────────────────────────────────────────────
+// A piece is a 2D array of 0/1. Zeroes are holes and must be ignored, or
+// L-shapes and S-shapes will refuse to sit next to anything.
+function canPlace(grid, piece, startRow, startCol) {
+  for (var r = 0; r &lt; piece.shape.length; r++) {
+    for (var c = 0; c &lt; piece.shape[r].length; c++) {
+      if (piece.shape[r][c] === 0) continue;
+      var gr = startRow + r, gc = startCol + c;
+      if (gr &lt; 0 || gr &gt;= 9 || gc &lt; 0 || gc &gt;= 9) return false;
+      if (grid[gr][gc] !== null) return false;
+    }
+  }
+  return true;
+}
+
+function placePiece(grid, piece, startRow, startCol) {
+  var next = grid.map(function (row) { return row.slice(); });
+  for (var r = 0; r &lt; piece.shape.length; r++) {
+    for (var c = 0; c &lt; piece.shape[r].length; c++) {
+      if (piece.shape[r][c] === 0) continue;
+      next[startRow + r][startCol + c] = piece.color;
+    }
+  }
+  return next;
+}
+
+// ── Clearing and combo scoring ─────────────────────────────────────────────
+// Clearing n zones at once scores n times the base — the multiplier is what
+// makes players hold a piece back instead of dumping it.
+function clearFullZones(grid) {
+  var cleared = [];
+  for (var z = 0; z &lt; 9; z++) if (isZoneFull(grid, z)) cleared.push(z);
+  if (!cleared.length) return { newGrid: grid, score: 0, clearedZones: [] };
+
+  var next = grid.map(function (row) { return row.slice(); });
+  cleared.forEach(function (z) {
+    var startRow = Math.floor(z / 3) * 3;
+    var startCol = (z % 3) * 3;
+    for (var r = startRow; r &lt; startRow + 3; r++) {
+      for (var c = startCol; c &lt; startCol + 3; c++) next[r][c] = null;
+    }
+  });
+
+  var combo     = cleared.length;
+  var score     = (cleared.length * 9) * combo;
+  var megaBonus = cleared.length === 9 ? 500 : 0;
+
+  return { newGrid: next, score: score + megaBonus, clearedZones: cleared };
+}
+
+// ── Always-solvable offering ───────────────────────────────────────────────
+function isPiecePlaceable(grid, piece) {
+  for (var r = 0; r &lt;= 9 - piece.shape.length; r++) {
+    for (var c = 0; c &lt;= 9 - piece.shape[0].length; c++) {
+      if (canPlace(grid, piece, r, c)) return true;
+    }
+  }
+  return false;
+}
+
+// Rejection sampling: keep drawing until three pieces that actually fit are
+// found. The player can still play badly — they just can't be handed a piece
+// that was dead on arrival. The attempt cap keeps a full board from hanging.
+function generateThreePieces(grid, PIECES) {
+  var pieces = [], attempts = 0;
+  while (pieces.length &lt; 3 &amp;&amp; attempts &lt; 1000) {
+    attempts++;
+    var candidate = PIECES[Math.floor(Math.random() * PIECES.length)];
+    if (isPiecePlaceable(grid, candidate)) pieces.push(candidate);
+  }
+  return pieces.length &lt; 3 ? null : pieces;   // null = board is finished
+}
+
+function isGameOver(grid, pieces) {
+  return pieces.every(function (p) { return !isPiecePlaceable(grid, p); });
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 10 -->
+  <section class="mechanic" id="marble-physics">
+    <div class="mechanic-head">
+      <span class="mechanic-num">10</span>
+      <h2>Marble Physics Simulation</h2>
+      <a class="anchor-link" href="#marble-physics" aria-label="Link to Marble Physics Simulation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="slope.html">Slope</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> A discrete grid-based marble simulation with three movement states (falling, moving-left, moving-right). The marble re-evaluates its state at every cell entry, producing deterministic chain reactions from ramp placements.</p>
+    <ul class="concepts">
+      <li>Discrete state machine physics</li><li>Ramp deflection rules</li><li>Gravity-triggered transitions</li><li>Cycle detection</li>
+    </ul>
+    <p class="code-caption">simulateMarble() with the full state machine and path recording for animation.</p>
+    <div class="code-box"><pre><code>// No velocity, no timestep, no floats. The marble occupies one cell and holds
+// one of three states; every step is a table lookup. Deterministic, replayable,
+// and cheap enough to run the whole trajectory before drawing a single frame.
+
+var CELL = {
+  EMPTY: 0, WALL: 1, PLATFORM: 2,
+  RAMP_LEFT: 3, RAMP_RIGHT: 4,
+  SLOT: 5, TARGET: 6
+};
+
+function simulateMarble(grid, startCol) {
+  var ROWS = grid.length;
+  var COLS = grid[0].length;
+
+  var r = 0, c = startCol;
+  var state = 'falling';
+
+  var path      = [{ r: r, c: c, state: state }];   // recorded for animation
+  var visited   = new Set();
+  var MAX_STEPS = 300;
+
+  for (var step = 0; step &lt; MAX_STEPS; step++) {
+    // Same cell in the same state twice means a closed loop. Ramps facing each
+    // other will bounce a marble forever otherwise.
+    var key = r + ',' + c + ',' + state;
+    if (visited.has(key)) return { result: 'fail', path: path };
+    visited.add(key);
+
+    if (state === 'falling') {
+      var nextR = r + 1;
+      if (nextR &gt;= ROWS) return { result: 'fail', path: path };   // off the board
+
+      var below = grid[nextR][c];
+
+      if (below === CELL.TARGET) {
+        path.push({ r: nextR, c: c, state: state });
+        return { result: 'win', path: path };
+      }
+
+      if (below === CELL.EMPTY || below === CELL.SLOT) {
+        r = nextR;
+        path.push({ r: r, c: c, state: state });
+        continue;
+      }
+
+      if (below === CELL.RAMP_RIGHT || below === CELL.RAMP_LEFT) {
+        var dir    = (below === CELL.RAMP_RIGHT) ? 1 : -1;
+        var destC  = c + dir;
+        var destSt = (dir === 1) ? 'moving_right' : 'moving_left';
+        if (destC &lt; 0 || destC &gt;= COLS) return { result: 'fail', path: path };
+
+        r = nextR;                                   // enter the ramp cell
+        path.push({ r: r, c: c, state: state });
+
+        var dest = grid[r][destC];                   // then look before leaping
+        if (dest === CELL.TARGET) {
+          path.push({ r: r, c: destC, state: destSt });
+          return { result: 'win', path: path };
+        }
+        if (dest !== CELL.EMPTY &amp;&amp; dest !== CELL.SLOT) {
+          return { result: 'fail', path: path };     // deflected into a wall
+        }
+
+        c = destC; state = destSt;
+        path.push({ r: r, c: c, state: state });
+        continue;
+      }
+
+      return { result: 'fail', path: path };         // wall or platform
+    }
+
+    // ── Horizontal ──────────────────────────────────────────────────────────
+    var dc    = (state === 'moving_right') ? 1 : -1;
+    var nextC = c + dc;
+
+    // Support is checked under the CURRENT cell first. Advancing before the
+    // gravity check is the classic bug — the marble skates over a hole.
+    var belowR = r + 1;
+    if (belowR &gt;= ROWS) return { result: 'fail', path: path };
+
+    var support = grid[belowR][c];
+    if (support === CELL.TARGET) {
+      path.push({ r: belowR, c: c, state: 'falling' });
+      return { result: 'win', path: path };
+    }
+    if (support === CELL.EMPTY || support === CELL.SLOT) {
+      state = 'falling';                             // nothing holding it up
+      path.push({ r: r, c: c, state: state });
+      continue;
+    }
+
+    if (nextC &lt; 0 || nextC &gt;= COLS) return { result: 'fail', path: path };
+
+    var ahead = grid[r][nextC];
+    if (ahead === CELL.TARGET) {
+      path.push({ r: r, c: nextC, state: state });
+      return { result: 'win', path: path };
+    }
+    if (ahead !== CELL.EMPTY &amp;&amp; ahead !== CELL.SLOT) {
+      return { result: 'fail', path: path };         // blocked
+    }
+
+    c = nextC;
+    path.push({ r: r, c: c, state: state });
+  }
+
+  return { result: 'fail', path: path };             // step budget exhausted
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 11 -->
+  <section class="mechanic" id="weighted-random">
+    <div class="mechanic-head">
+      <span class="mechanic-num">11</span>
+      <h2>Weighted Random Tile Generation</h2>
+      <a class="anchor-link" href="#weighted-random" aria-label="Link to Weighted Random Tile Generation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="classic.html">Classic</a><a href="race-to-zero.html">Race to Zero</a><a href="numeral.html">Numeral</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates random tile boards with configurable weighting (e.g. odd numbers appearing twice as often as even) while maintaining a balanced enough distribution for interesting gameplay.</p>
+    <ul class="concepts">
+      <li>Weighted sampling</li><li>Expanded pools vs. cumulative weights</li><li>Seeded distribution</li><li>Board balance guards</li>
+    </ul>
+    <p class="code-caption">weightedRandom(), the expanded-pool shortcut, and a board fill with weight config.</p>
+    <div class="code-box"><pre><code>// Two ways to weight a draw. Use the pool when weights are small integers —
+// it is one array index and impossible to get wrong. Use cumulative weights
+// when they are fractional or the value set is large.
+
+// ── Expanded pool ──────────────────────────────────────────────────────────
+// Odd digits appear twice, even digits once: odds are twice as likely.
+var WEIGHTED_POOL = [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9];
+
+function randomDigit() {
+  return WEIGHTED_POOL[(Math.random() * WEIGHTED_POOL.length) | 0];
+}
+
+// ── General weighted sampling ──────────────────────────────────────────────
+// config: { 'blue-bunny': 3, 'mushroom': 2, 'carrot': 1 } — any positive
+// numbers, no need to normalise; the total is computed here.
+function weightedRandom(config, rng) {
+  rng = rng || Math.random;
+  var keys  = Object.keys(config);
+  var total = 0;
+  for (var i = 0; i &lt; keys.length; i++) total += config[keys[i]];
+
+  var roll = rng() * total;
+  for (var j = 0; j &lt; keys.length; j++) {
+    roll -= config[keys[j]];
+    if (roll &lt; 0) return keys[j];
+  }
+  return keys[keys.length - 1];        // float rounding safety net
+}
+
+// ── Board fill ─────────────────────────────────────────────────────────────
+function fillBoard(rows, cols, config, rng) {
+  var grid = [];
+  for (var r = 0; r &lt; rows; r++) {
+    var row = [];
+    for (var c = 0; c &lt; cols; c++) row.push(weightedRandom(config, rng));
+    grid.push(row);
+  }
+  return grid;
+}
+
+// ── The part that is easy to skip ──────────────────────────────────────────
+// Pure weighted randomness produces boards where one tile type is missing
+// entirely, or where nothing matches on the opening screen. Reject and refill.
+function fillPlayableBoard(rows, cols, config, rng) {
+  var types = Object.keys(config);
+  for (var attempt = 0; attempt &lt; 100; attempt++) {
+    var grid   = fillBoard(rows, cols, config, rng);
+    var counts = {};
+    types.forEach(function (t) { counts[t] = 0; });
+    grid.forEach(function (row) { row.forEach(function (v) { counts[v]++; }); });
+
+    var minWanted = Math.floor((rows * cols) / (types.length * 3));
+    var balanced  = types.every(function (t) { return counts[t] &gt;= minWanted; });
+
+    if (balanced &amp;&amp; hasAnyMove(grid)) return grid;
+  }
+  return fillBoard(rows, cols, config, rng);        // give up gracefully
+}
+
+// Seeded variant: pass a PRNG and the same seed yields the same board — the
+// bridge between this and a daily shared puzzle.
+function makePrng(seed) {
+  var state = (seed &gt;&gt;&gt; 0) || 2463534242;
+  return function () {
+    state = ((state * 1664525) + 1013904223) &gt;&gt;&gt; 0;
+    return state / 4294967296;
+  };
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 12 -->
+  <section class="mechanic" id="flood-fill">
+    <div class="mechanic-head">
+      <span class="mechanic-num">12</span>
+      <h2>Flood-Fill Connectivity Check</h2>
+      <a class="anchor-link" href="#flood-fill" aria-label="Link to Flood-Fill Connectivity Check">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="honey.html">Honey</a><a href="circuit.html">Circuit</a><a href="lava.html">Lava</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> BFS-based flood fill from all edge cells simultaneously to determine which cells are connected to the frame or boundary. Any cell not reachable is structurally disconnected. Used for both puzzle generation and win-condition verification.</p>
+    <ul class="concepts">
+      <li>Multi-source BFS</li><li>Set-based visited tracking</li><li>4-directional adjacency</li><li>Spanning-tree edge counting</li>
+    </ul>
+    <p class="code-caption">getConnectedToFrame(), allConnected(), and hasLoop() via edge count.</p>
+    <div class="code-box"><pre><code>// Three related questions, three cheap answers:
+//   is a cell attached to the frame?  is everything one piece?  is there a loop?
+
+var DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+var k = function (r, c) { return r + ',' + c; };
+
+// ── Multi-source BFS from the boundary ─────────────────────────────────────
+// Seeding the queue with every edge cell at once costs nothing and answers
+// "which cells hang off the frame" in a single pass — no per-cell searches.
+function getConnectedToFrame(grid) {
+  var rows = grid.length, cols = grid[0].length;
+  var visited = new Set();
+  var queue   = [];
+
+  for (var r = 0; r &lt; rows; r++) {
+    for (var c = 0; c &lt; cols; c++) {
+      var onEdge = (r === 0 || c === 0 || r === rows - 1 || c === cols - 1);
+      if (onEdge &amp;&amp; grid[r][c] !== 0 &amp;&amp; !visited.has(k(r, c))) {
+        visited.add(k(r, c));
+        queue.push([r, c]);
+      }
+    }
+  }
+
+  var head = 0;                                  // index cursor, not shift()
+  while (head &lt; queue.length) {
+    var cur = queue[head++];
+    for (var d = 0; d &lt; DIRS.length; d++) {
+      var nr = cur[0] + DIRS[d][0];
+      var nc = cur[1] + DIRS[d][1];
+      if (nr &lt; 0 || nr &gt;= rows || nc &lt; 0 || nc &gt;= cols) continue;
+      if (grid[nr][nc] === 0 || visited.has(k(nr, nc))) continue;
+      visited.add(k(nr, nc));
+      queue.push([nr, nc]);
+    }
+  }
+  return visited;                                // Set of "r,c" keys
+}
+
+function isFloating(grid, r, c) {
+  return grid[r][c] !== 0 &amp;&amp; !getConnectedToFrame(grid).has(k(r, c));
+}
+
+// ── Is the whole thing one piece? ──────────────────────────────────────────
+function allConnected(cells) {
+  if (cells.length &lt;= 1) return true;
+  var set     = new Set(cells.map(function (p) { return k(p[0], p[1]); }));
+  var visited = new Set([k(cells[0][0], cells[0][1])]);
+  var queue   = [cells[0]];
+  var head    = 0;
+
+  while (head &lt; queue.length) {
+    var cur = queue[head++];
+    for (var d = 0; d &lt; DIRS.length; d++) {
+      var key = k(cur[0] + DIRS[d][0], cur[1] + DIRS[d][1]);
+      if (set.has(key) &amp;&amp; !visited.has(key)) {
+        visited.add(key);
+        queue.push([cur[0] + DIRS[d][0], cur[1] + DIRS[d][1]]);
+      }
+    }
+  }
+  return visited.size === cells.length;
+}
+
+// ── Loops, for free ────────────────────────────────────────────────────────
+// A connected graph of N nodes is a tree iff it has exactly N-1 edges. Count
+// the edges while union-finding and loop detection needs no extra traversal —
+// this is the whole win condition for a pipe-connection puzzle.
+function analyseNetwork(nodes, edgesOf) {
+  var parent = nodes.map(function (_, i) { return i; });
+  function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+  function unite(a, b) { var ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra; }
+
+  var edgeCount = 0;
+  nodes.forEach(function (n, i) {
+    edgesOf(n, i).forEach(function (j) {
+      if (j &lt;= i) return;                        // count each edge once
+      unite(i, j);
+      edgeCount++;
+    });
+  });
+
+  var root      = find(0);
+  var connected = nodes.every(function (_, i) { return find(i) === root; });
+
+  return {
+    connected: connected,
+    hasLoop:   edgeCount &gt; nodes.length - 1,
+    solved:    connected &amp;&amp; edgeCount === nodes.length - 1
+  };
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 13 -->
+  <section class="mechanic" id="blind-pairs">
+    <div class="mechanic-head">
+      <span class="mechanic-num">13</span>
+      <h2>Blind Pair Detection with Blank-Spanning</h2>
+      <a class="anchor-link" href="#blind-pairs" aria-label="Link to Blind Pair Detection">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="numeral.html">Numeral</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Finds valid pairs between any two numbers in the same row, column, or true mathematical diagonal, skipping over any number of blank cells between them. Supports both identical-number and sum-to-target matching.</p>
+    <ul class="concepts">
+      <li>Mathematical diagonal detection</li><li>Blank-spanning traversal</li><li>Row-wrap adjacency</li><li>O(N⁴) enumeration with early exit</li>
+    </ul>
+    <p class="code-caption">isValidPair(), allBlanksBetween(), and hasAnyValidPair().</p>
+    <div class="code-box"><pre><code>// Two cells pair if they match (equal, or summing to the target) AND nothing
+// but blanks lies between them along a row, a column, or a true diagonal.
+
+var ROWS = 9, COLS = 9, TARGET_SUM = 10;
+
+// Math.sign gives the step direction for all three cases at once — no separate
+// row / column / diagonal walkers.
+function allBlanksBetween(grid, r1, c1, r2, c2) {
+  var dr = Math.sign(r2 - r1);
+  var dc = Math.sign(c2 - c1);
+  var r  = r1 + dr, c = c1 + dc;
+  while (r !== r2 || c !== c2) {
+    if (grid[r][c] !== null) return false;
+    r += dr; c += dc;
+  }
+  return true;
+}
+
+// The wrap case: the last live cell of one row pairs with the first live cell
+// of the next, as if the board were one long ribbon.
+function isWrapPair(grid, r1, c1, r2, c2) {
+  if (r2 !== r1 + 1) return false;
+  var v1 = grid[r1][c1], v2 = grid[r2][c2];
+  if (v1 === null || v2 === null) return false;
+  if (v1 !== v2 &amp;&amp; v1 + v2 !== TARGET_SUM) return false;
+
+  for (var ca = c1 + 1; ca &lt; grid[0].length; ca++) if (grid[r1][ca] !== null) return false;
+  for (var cb = 0; cb &lt; c2; cb++) if (grid[r2][cb] !== null) return false;
+  return true;
+}
+
+function isValidPair(grid, r1, c1, r2, c2) {
+  var v1 = grid[r1][c1], v2 = grid[r2][c2];
+  if (v1 === null || v2 === null) return false;
+
+  if (isWrapPair(grid, r1, c1, r2, c2)) return true;
+  if (isWrapPair(grid, r2, c2, r1, c1)) return true;
+
+  var sameRow  = r1 === r2;
+  var sameCol  = c1 === c2;
+  // A *true* diagonal, not merely "off to one side" — equal deltas both ways.
+  var sameDiag = Math.abs(r1 - r2) === Math.abs(c1 - c2);
+  if (!sameRow &amp;&amp; !sameCol &amp;&amp; !sameDiag) return false;
+
+  if (!allBlanksBetween(grid, r1, c1, r2, c2)) return false;
+
+  return (v1 === v2) || (v1 + v2 === TARGET_SUM);
+}
+
+// ── Deadlock detection ─────────────────────────────────────────────────────
+// Brute force over every ordered pair. O(N^4) reads alarming and is irrelevant
+// at 9 x 9 — the early return fires almost immediately on a live board, and
+// only a genuinely dead board pays the full cost.
+function hasAnyValidPair(grid) {
+  for (var r1 = 0; r1 &lt; ROWS; r1++) {
+    for (var c1 = 0; c1 &lt; COLS; c1++) {
+      if (grid[r1][c1] === null) continue;
+      for (var r2 = 0; r2 &lt; ROWS; r2++) {
+        for (var c2 = 0; c2 &lt; COLS; c2++) {
+          if (r1 === r2 &amp;&amp; c1 === c2) continue;
+          if (isValidPair(grid, r1, c1, r2, c2)) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+// Same walk, returning the pair instead of a boolean — that is your hint button.
+function findHintPair(grid) {
+  for (var r1 = 0; r1 &lt; ROWS; r1++) {
+    for (var c1 = 0; c1 &lt; COLS; c1++) {
+      if (grid[r1][c1] === null) continue;
+      for (var r2 = 0; r2 &lt; ROWS; r2++) {
+        for (var c2 = 0; c2 &lt; COLS; c2++) {
+          if (r1 === r2 &amp;&amp; c1 === c2) continue;
+          if (isValidPair(grid, r1, c1, r2, c2)) return { r1: r1, c1: c1, r2: r2, c2: c2 };
+        }
+      }
+    }
+  }
+  return null;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 14 -->
+  <section class="mechanic" id="fan-damage">
+    <div class="mechanic-head">
+      <span class="mechanic-num">14</span>
+      <h2>Fan-Shaped Damage Physics</h2>
+      <a class="anchor-link" href="#fan-damage" aria-label="Link to Fan-Shaped Damage Physics">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="sounddestroyer.html">Sound Destroyer</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Calculates a cone or fan-shaped area of effect from a source point, where both the horizontal spread and vertical reach scale with an accuracy input. The fan tapers from narrow at the base to wide at the peak using linear interpolation per row.</p>
+    <ul class="concepts">
+      <li>Linear interpolation for row width</li><li>Center-outward spreading</li><li>Accuracy-to-dimension mapping</li><li>Per-cell state tracking</li>
+    </ul>
+    <p class="code-caption">getFanDimensions() and getFanCellsDestroyed() with linear interpolation.</p>
+    <div class="code-box"><pre><code>// One input — an accuracy score — drives both how far the blast reaches and
+// how wide it opens. Discrete tiers beat a continuous formula here: players
+// can feel the step up from "good" to "great", which a smooth curve hides.
+
+function getFanDimensions(accuracyScore) {
+  if (accuracyScore &gt;= 98) return { columns: 10, rows: 10 };
+  if (accuracyScore &gt;= 93) return { columns: 8,  rows: 9  };
+  if (accuracyScore &gt;= 85) return { columns: 6,  rows: 7  };
+  if (accuracyScore &gt;= 75) return { columns: 4,  rows: 5  };
+  if (accuracyScore &gt;= 63) return { columns: 3,  rows: 4  };
+  if (accuracyScore &gt;= 50) return { columns: 2,  rows: 3  };
+  if (accuracyScore &gt;= 35) return { columns: 1,  rows: 2  };
+  return { columns: 0, rows: 0 };                            // miss
+}
+
+// The fan is one column wide where it starts and `maxColumns` wide at its
+// far edge; every row between is a linear interpolation of the two.
+function getFanCellsDestroyed(aimedColumn, accuracyScore, totalColumns) {
+  totalColumns = totalColumns !== undefined ? totalColumns : 10;
+
+  var dims = getFanDimensions(accuracyScore);
+  if (dims.columns === 0 || dims.rows === 0) return [];
+
+  var maxColumns = dims.columns;
+  var maxRows    = dims.rows;
+  var result     = [];
+  var bottomRow  = 9;                        // blast originates at the floor
+  var topRow     = bottomRow - maxRows + 1;
+
+  for (var row = bottomRow; row &gt;= topRow; row--) {
+    var rowsFromBottom = bottomRow - row;
+
+    // lerp from 1 wide at the base to maxColumns at the peak.
+    // The maxRows &lt;= 1 guard avoids a divide-by-zero on a one-row fan.
+    var widthAtRow = maxRows &lt;= 1
+      ? maxColumns
+      : Math.round(1 + (rowsFromBottom / (maxRows - 1)) * (maxColumns - 1));
+
+    // Spread symmetrically around the aim point, clamped to the board so a
+    // shot at the edge loses its outer half rather than wrapping around.
+    var halfSpread = Math.floor(widthAtRow / 2);
+    var leftCol    = Math.max(0, aimedColumn - halfSpread);
+    var rightCol   = Math.min(totalColumns - 1, aimedColumn + halfSpread);
+
+    for (var col = leftCol; col &lt;= rightCol; col++) {
+      result.push({ row: row, col: col });
+    }
+  }
+  return result;
+}
+
+// Returning coordinates rather than mutating the board keeps the geometry
+// testable and lets the caller stagger the animation by row.
+function applyDamage(board, cells) {
+  var destroyed = 0;
+  cells.forEach(function (cell) {
+    if (board[cell.row][cell.col] === 'intact') {
+      board[cell.row][cell.col] = 'destroyed';
+      destroyed++;
+    }
+  });
+  return destroyed;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 15 -->
+  <section class="mechanic" id="rotary-dial">
+    <div class="mechanic-head">
+      <span class="mechanic-num">15</span>
+      <h2>Rotary Dial Frequency Control</h2>
+      <a class="anchor-link" href="#rotary-dial" aria-label="Link to Rotary Dial Frequency Control">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="pitch.html">Pitch</a><a href="sounddestroyer.html">Sound Destroyer</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Maps a circular drag gesture to a logarithmic frequency range, so equal angular movement produces perceptually equal pitch changes (matching how human hearing works). Updates a live Web Audio oscillator in real time during drag.</p>
+    <ul class="concepts">
+      <li>Angle-to-frequency log mapping</li><li>Pointer event handling</li><li>Wrap-around delta correction</li><li>Disabled state during playback</li>
+    </ul>
+    <p class="code-caption">angleToFrequency() with Math.log/Math.exp and onDragMove() with live tone update.</p>
+    <div class="code-box"><pre><code>// A knob that reads absolute angle jumps the moment the pointer crosses the
+// 12 o'clock boundary. Accumulating *deltas* instead means the dial can be
+// spun any number of times from any starting grab, with no discontinuity.
+
+var DIAL_RANGE = 270;                 // degrees of sweep from min to max
+var LOG_MIN    = Math.log(80);        // 80 Hz
+var LOG_MAX    = Math.log(1200);      // 1200 Hz
+
+var _dialPos   = 0.5;                 // normalised 0..1
+var _dragging  = false;
+var _lastAngle = 0;
+var _locked    = false;
+var _canvas    = null;
+
+// Position → frequency, exponentially. Half a turn moves you the same number
+// of octaves at the bottom of the range as at the top, which is what a player
+// expects from a pitch control and what a linear map fails to deliver.
+function angleToFrequency(t) {
+  return Math.exp(LOG_MIN + t * (LOG_MAX - LOG_MIN));
+}
+
+function frequencyToAngle(hz) {
+  return (Math.log(hz) - LOG_MIN) / (LOG_MAX - LOG_MIN);
+}
+
+function angleFromCenter(clientX, clientY) {
+  var rect = _canvas.getBoundingClientRect();
+  var dx = clientX - (rect.left + rect.width  / 2);
+  var dy = clientY - (rect.top  + rect.height / 2);
+  return Math.atan2(dy, dx);          // radians, -PI..PI
+}
+
+function onDragStart(clientX, clientY) {
+  if (_locked) return;
+  _dragging  = true;
+  _lastAngle = angleFromCenter(clientX, clientY);
+  startLiveTone(angleToFrequency(_dialPos));
+}
+
+function onDragMove(clientX, clientY) {
+  if (!_dragging) return;
+  var angle = angleFromCenter(clientX, clientY);
+
+  // Crossing PI reads as a -2PI jump. Unwrap it, or the knob snaps a full
+  // sweep every time the pointer passes the boundary.
+  var delta = angle - _lastAngle;
+  if (delta &gt;  Math.PI) delta -= 2 * Math.PI;
+  if (delta &lt; -Math.PI) delta += 2 * Math.PI;
+  _lastAngle = angle;
+
+  _dialPos = Math.max(0, Math.min(1, _dialPos + delta / (DIAL_RANGE * Math.PI / 180)));
+
+  drawDial(_dialPos);
+  // Retune the running oscillator — do not round here. Rounding mid-drag
+  // produces audible stair-stepping; round only where the number is displayed.
+  updateLiveToneFrequency(angleToFrequency(_dialPos));
+}
+
+function onDragEnd() {
+  if (!_dragging) return;
+  _dragging = false;
+  stopLiveTone();
+}
+
+// Let the player fight the dial while the target tone is playing and they will
+// simply mishear it. Lock it, and make the lock visible.
+function setDialLocked(locked) {
+  _locked = locked;
+  if (!_canvas) return;
+  _canvas.style.pointerEvents = locked ? 'none' : '';
+  _canvas.style.cursor        = locked ? 'default' : '';
+  _canvas.classList.toggle('dial--disabled', locked);
+}
+
+// Pointer events cover mouse, touch and pen in one path. setPointerCapture
+// keeps the drag alive when the finger leaves the knob.
+function attachDial(canvas) {
+  _canvas = canvas;
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture(e.pointerId);
+    onDragStart(e.clientX, e.clientY);
+  });
+  canvas.addEventListener('pointermove', function (e) { onDragMove(e.clientX, e.clientY); });
+  canvas.addEventListener('pointerup',     onDragEnd);
+  canvas.addEventListener('pointercancel', onDragEnd);
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 16 -->
+  <section class="mechanic" id="color-distance">
+    <div class="mechanic-head">
+      <span class="mechanic-num">16</span>
+      <h2>Color Distance Scoring</h2>
+      <a class="anchor-link" href="#color-distance" aria-label="Link to Color Distance Scoring">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="recall.html">Recall</a><a href="colorblind.html">Color Blind</a><a href="shaded.html">Shaded</a><a href="spectrum.html">Spectrum</a><a href="tonal.html">Tonal</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Measures perceptual similarity between two colors using Euclidean distance in RGB space, normalized to a 0-100 accuracy score. Used both for scoring player color-memory accuracy and for generating distinguishable color sets.</p>
+    <ul class="concepts">
+      <li>RGB Euclidean distance</li><li>Max-distance normalization</li><li>Constrained HSL generation</li><li>Minimum-distance guard</li>
+    </ul>
+    <p class="code-caption">scoreColorAccuracy(), generateConstrainedHSL(), and the distinguishability check.</p>
+    <div class="code-box"><pre><code>// ── Conversions ────────────────────────────────────────────────────────────
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  var a = s * Math.min(l, 1 - l);
+  function f(n) {
+    var k = (n + h / 30) % 12;
+    return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+  }
+  return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+}
+
+function toHex(rgb) {
+  return '#' + rgb.map(function (c) { return c.toString(16).padStart(2, '0'); }).join('');
+}
+
+function hexToRgb(hex) {
+  var n = parseInt(hex.slice(1), 16);
+  return [(n &gt;&gt; 16) &amp; 255, (n &gt;&gt; 8) &amp; 255, n &amp; 255];
+}
+
+// ── Scoring ────────────────────────────────────────────────────────────────
+// Euclidean distance in RGB, normalised against the longest possible distance
+// (black to white, 441.67). Not perceptually uniform the way CIELAB is, but it
+// is four lines, has no edge cases, and players cannot tell the difference at
+// scoring granularity.
+function scoreColorAccuracy(shownHex, pickedHex) {
+  var a = hexToRgb(shownHex);
+  var b = hexToRgb(pickedHex);
+  var maxDist = Math.sqrt(255 * 255 * 3);
+  var dist = Math.sqrt(
+    (a[0] - b[0]) * (a[0] - b[0]) +
+    (a[1] - b[1]) * (a[1] - b[1]) +
+    (a[2] - b[2]) * (a[2] - b[2])
+  );
+  return Math.round((1 - dist / maxDist) * 100);
+}
+
+// ── Generation ─────────────────────────────────────────────────────────────
+// Unconstrained random RGB produces muddy near-blacks and washed-out
+// near-whites that are impossible to judge. Generate in HSL and hold
+// saturation and lightness inside a usable band; hue roams free.
+function generateConstrainedHSL() {
+  var h = Math.random() * 360;
+  var s = 45 + Math.random() * 40;      // 45–85%  — never grey, never neon
+  var l = 25 + Math.random() * 45;      // 25–70%  — never black, never white
+  var rgb = hslToRgb(h, s, l);
+  return { hex: toHex(rgb), h: Math.round(h), s: Math.round(s), l: Math.round(l) };
+}
+
+// ── Distinguishable sets ───────────────────────────────────────────────────
+// For multiple-choice rounds, the same distance function decides whether two
+// options are far enough apart to be a fair question.
+function generateDistinguishableSet(count, minDistance) {
+  minDistance = minDistance || 60;      // in raw RGB distance units
+  var chosen = [];
+  var guard  = 0;
+
+  while (chosen.length &lt; count &amp;&amp; guard++ &lt; 1000) {
+    var candidate = generateConstrainedHSL();
+    var farEnough = chosen.every(function (c) {
+      var a = hexToRgb(c.hex), b = hexToRgb(candidate.hex);
+      return Math.sqrt(
+        (a[0] - b[0]) * (a[0] - b[0]) +
+        (a[1] - b[1]) * (a[1] - b[1]) +
+        (a[2] - b[2]) * (a[2] - b[2])
+      ) &gt;= minDistance;
+    });
+    if (farEnough) chosen.push(candidate);
+  }
+  return chosen;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 17 -->
+  <section class="mechanic" id="sequence-uniqueness">
+    <div class="mechanic-head">
+      <span class="mechanic-num">17</span>
+      <h2>Sequence Pattern Generation with Uniqueness Verification</h2>
+      <a class="anchor-link" href="#sequence-uniqueness" aria-label="Link to Sequence Pattern Generation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="next.html">Next</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates color sequence puzzles (ABAB, ABCABC, growing runs, and so on) where exactly one color from the available palette satisfies the pattern rule. Brute-force tests every palette color as a hypothetical answer and rejects any sequence where more than one works.</p>
+    <ul class="concepts">
+      <li>Rules as composable functions</li><li>Palette-growth scheduling</li><li>Brute-force uniqueness check</li><li>Rule combination for hard boards</li>
+    </ul>
+    <p class="code-caption">The rule checkers, the uniqueness brute-force loop, and paletteAtBoard().</p>
+    <div class="code-box"><pre><code>// "What comes next?" is only a fair question if exactly one answer is right.
+// Every generated sequence is tested against the whole palette before shipping.
+
+// ── Rules as pairs of functions ────────────────────────────────────────────
+// Each rule can both generate a sequence and validate one. The validator is
+// what the uniqueness check calls — the generator alone can't prove anything.
+function generatePeriod2(colors, length) {
+  var out = [];
+  for (var i = 0; i &lt; length; i++) out.push(colors[i % 2]);
+  return out;                                        // A B A B A B
+}
+function isValidPeriod2(seq, params) {
+  for (var i = 0; i &lt; seq.length; i++) {
+    if (seq[i] !== params.colors[i % 2]) return false;
+  }
+  return true;
+}
+
+function generatePeriod3(colors, length) {
+  var out = [];
+  for (var i = 0; i &lt; length; i++) out.push(colors[i % 3]);
+  return out;                                        // A B C A B C
+}
+function isValidPeriod3(seq, params) {
+  for (var i = 0; i &lt; seq.length; i++) {
+    if (seq[i] !== params.colors[i % 3]) return false;
+  }
+  return true;
+}
+
+// Growing run: one filler, then a marker, then two fillers, then a marker...
+function generateGrowingMarker(filler, marker, startStep, length) {
+  var out = [], run = startStep;
+  while (out.length &lt; length) {
+    for (var i = 0; i &lt; run &amp;&amp; out.length &lt; length; i++) out.push(filler);
+    if (out.length &lt; length) out.push(marker);
+    run++;
+  }
+  return out;
+}
+function isValidGrowingMarker(seq, params) {
+  var expected = generateGrowingMarker(params.filler, params.marker, params.startStep, seq.length);
+  return seq.every(function (v, i) { return v === expected[i]; });
+}
+
+// ── The uniqueness check ───────────────────────────────────────────────────
+// Swap in every colour the player can see — not just the ones used in the
+// sequence. A puzzle that is unique among its own two colours but ambiguous
+// once the fifth palette colour appears on screen is still a broken puzzle.
+function isUnique(seqWithoutLast, answer, palette, isValidFn, params) {
+  var works = palette.filter(function (c) {
+    return isValidFn(seqWithoutLast.concat([c]), params);
+  });
+  return works.length === 1 &amp;&amp; works[0] === answer;
+}
+
+// ── Difficulty via palette growth ──────────────────────────────────────────
+// The rules barely get harder; the number of plausible wrong answers does.
+function paletteAtBoard(boardNum, allColors) {
+  var size = Math.min(allColors.length, 2 + Math.floor(boardNum / 3));
+  return allColors.slice(0, size);
+}
+
+// ── Generate until unique ──────────────────────────────────────────────────
+function generateBoard(boardNum, allColors, rules, rng) {
+  var palette = paletteAtBoard(boardNum, allColors);
+
+  for (var attempt = 0; attempt &lt; 500; attempt++) {
+    var rule   = rules[Math.floor(rng() * rules.length)];
+    var built  = rule.generate(palette, 6 + (boardNum % 4), rng);
+    if (!built) continue;
+
+    var seq    = built.sequence;
+    var answer = seq[seq.length - 1];
+    var stem   = seq.slice(0, -1);
+
+    if (isUnique(stem, answer, palette, rule.isValid, built.params)) {
+      return { sequence: stem, answer: answer, palette: palette, rule: rule.name };
+    }
+  }
+  return null;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 18 -->
+  <section class="mechanic" id="word-path">
+    <div class="mechanic-head">
+      <span class="mechanic-num">18</span>
+      <h2>Winding Word Path with 4-Directional Adjacency</h2>
+      <a class="anchor-link" href="#word-path" aria-label="Link to Winding Word Path">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="relation.html">Relation</a><a href="spell.html">Spell</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Traces a winding path through a grid of letters, validating that each step is 4-directionally adjacent to the previous, no cell is reused within a word, and the accumulated letters spell a valid target word. Used for both player interaction and puzzle generation.</p>
+    <ul class="concepts">
+      <li>4-directional adjacency</li><li>Visited-cell tracking</li><li>Backtrack-one-step interaction</li><li>Auto-validation on completion</li>
+    </ul>
+    <p class="code-caption">The click state machine, attemptWordValidation(), and path rendering.</p>
+    <div class="code-box"><pre><code>// A 5 x 5 grid of letters holding several hidden words, each one winding
+// through orthogonally adjacent tiles. The path is a plain array of indices.
+
+var N = 5;
+var idx = function (r, c) { return r * N + c; };
+var rOf = function (i) { return Math.floor(i / N); };
+var cOf = function (i) { return i % N; };
+
+// Manhattan distance of 1. Add the diagonals here and Boggle rules apply
+// instead — one line, entirely different game.
+function adjacent(a, b) {
+  return Math.abs(rOf(a) - rOf(b)) + Math.abs(cOf(a) - cOf(b)) === 1;
+}
+
+var pathSel = [];        // indices, in trace order
+var found   = {};        // word -> path
+var locked  = {};        // index -> true, cells belonging to found words
+
+// ── Click state machine ────────────────────────────────────────────────────
+// Four cases, in this order. Getting the order wrong is what makes these
+// interactions feel sticky — tapping the head must mean "undo", never "reuse".
+function onCellClick(i) {
+  if (locked[i]) return;
+
+  if (!pathSel.length) { pathSel = [i]; render(); return; }
+
+  var head = pathSel[pathSel.length - 1];
+
+  if (i === head)                { pathSel.pop();  render(); return; }  // backtrack
+  if (pathSel.indexOf(i) !== -1) { pathSel = [];   render(); return; }  // revisit → cancel
+  if (!adjacent(i, head))        { pathSel = [];   render(); return; }  // jump    → cancel
+
+  pathSel.push(i);
+  render();
+  attemptWordValidation();
+}
+
+function currentWord() {
+  return pathSel.map(function (i) { return letterAt(i); }).join('');
+}
+
+// ── Validation ─────────────────────────────────────────────────────────────
+// The tempting rule — "validate as soon as the path length matches any target
+// word" — makes the game unplayable. Tracing CLOUDY, the path spells CLO at
+// three tiles; if FOG is also hidden, the attempt gets destroyed at step 3.
+//
+// So: a length match that spells nothing is simply not an answer yet. The path
+// is only rejected once it can no longer become ANY remaining word, which is
+// when it grows past the longest one still unfound.
+function attemptWordValidation() {
+  var remaining = allWords.filter(function (w) { return !found[w]; });
+  if (!remaining.length) return;
+
+  var spelled = currentWord();
+
+  for (var i = 0; i &lt; remaining.length; i++) {
+    if (remaining[i] === spelled) { triggerWordFound(remaining[i], pathSel.slice()); return; }
+  }
+
+  var longest = Math.max.apply(null, remaining.map(function (w) { return w.length; }));
+  if (spelled.length &gt;= longest) triggerWrongAttempt();
+}
+
+function triggerWordFound(word, path) {
+  found[word] = path;
+  path.forEach(function (i) { locked[i] = true; });
+  pathSel = [];
+  render();
+}
+
+// ── Rendering the trace ────────────────────────────────────────────────────
+// An SVG polyline through cell centres in viewBox units — it scales with the
+// board and never needs a pixel measurement or a resize listener.
+function renderPathLine(lineEl) {
+  if (pathSel.length &lt; 2) { lineEl.setAttribute('points', ''); return; }
+  var step = 100 / N;
+  lineEl.setAttribute('points', pathSel.map(function (i) {
+    return (cOf(i) * step + step / 2).toFixed(2) + ',' +
+           (rOf(i) * step + step / 2).toFixed(2);
+  }).join(' '));
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 19 -->
+  <section class="mechanic" id="progressive-reveal">
+    <div class="mechanic-head">
+      <span class="mechanic-num">19</span>
+      <h2>Progressive Reveal with Round-Lock</h2>
+      <a class="anchor-link" href="#progressive-reveal" aria-label="Link to Progressive Reveal with Round-Lock">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="cropped.html">Cropped</a><a href="excerpt.html">Excerpt</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Reveals a puzzle artifact (an image crop, a literary excerpt) in stages, with the player committing to one guess across all stages. Stores the result locally so the puzzle cannot be replayed on the same day.</p>
+    <ul class="concepts">
+      <li>Stage-indexed reveal</li><li>Single-guess commitment</li><li>Date-keyed result storage</li><li>Stale-entry cleanup on load</li>
+    </ul>
+    <p class="code-caption">revealStage(), commitGuess(), saveResult(), and loadTodayResult().</p>
+    <div class="code-box"><pre><code>// The tension is entirely in the trade: reveal more and the answer gets easier,
+// but the score you can still earn drops. One guess, spent whenever you like.
+
+var LS_PREFIX = 'reveal_result_';
+
+// Image stages are just background-size steps — 800% is a few pixels blown up
+// to fill the frame, 100% is the whole picture. No image processing at all.
+var STAGE_BG_SIZES = ['800%', '400%', '220%', '140%', '100%'];
+
+var currentStage = 0;
+var guessLocked  = false;
+
+// ── Reveal ─────────────────────────────────────────────────────────────────
+function revealStage(imgEl) {
+  if (guessLocked || currentStage &gt;= STAGE_BG_SIZES.length - 1) return;
+  currentStage++;
+  imgEl.style.backgroundSize = STAGE_BG_SIZES[currentStage];
+  return currentStage;
+}
+
+// Text version: the same idea over sentence offsets stored with the passage,
+// so stage boundaries land on real sentence ends rather than mid-clause.
+function buildTextStages(entry) {
+  var p = entry.passage;
+  return [
+    p.trim().split(/\s+/).slice(0, 3).join(' ') + '…',
+    p.slice(0, entry.stage2SentenceEnd).trim(),
+    p.slice(0, entry.stage3SentenceEnd).trim(),
+    p.trim()
+  ];
+}
+
+// ── Commit ─────────────────────────────────────────────────────────────────
+// Lock first, then do everything else. Any await, animation or network call
+// before the lock is a window for a double-submit.
+function commitGuess(chosen, correct) {
+  if (guessLocked) return;
+  guessLocked = true;
+
+  var result = {
+    outcome: chosen.id === correct.id ? 'correct' : 'incorrect',
+    stage:   currentStage + 1,                    // 1-based, for the share grid
+    elapsedSec: Math.round((Date.now() - startTime) / 1000),
+    correctTitle: correct.title
+  };
+
+  saveResult(result);
+  showResult(result);
+  return result;
+}
+
+// ── Persistence ────────────────────────────────────────────────────────────
+function todayKey() { return new Date().toISOString().slice(0, 10); }
+
+function saveResult(result) {
+  try {
+    localStorage.setItem(LS_PREFIX + todayKey(), JSON.stringify(result));
+  } catch (e) {}                                   // private mode — fail open
+}
+
+function loadTodayResult() {
+  try {
+    var raw = localStorage.getItem(LS_PREFIX + todayKey());
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function cleanupStale() {
+  var doomed = [];
+  try {
+    for (var i = 0; i &lt; localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k &amp;&amp; k.indexOf(LS_PREFIX) === 0 &amp;&amp; k !== LS_PREFIX + todayKey()) doomed.push(k);
+    }
+    doomed.forEach(function (k) { localStorage.removeItem(k); });
+  } catch (e) {}
+}
+
+// ── Share grid ─────────────────────────────────────────────────────────────
+// One square per stage, only the committed stage coloured. It shows how early
+// they guessed without leaking anything about the answer itself.
+function getShareGrid(correct, stageGuessedAt, totalStages) {
+  var out = '';
+  for (var i = 0; i &lt; totalStages; i++) {
+    out += (i === stageGuessedAt) ? (correct ? '🟩' : '🟥') : '⬜';
+  }
+  return out;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 20 -->
+  <section class="mechanic" id="gutenberg-fetch">
+    <div class="mechanic-head">
+      <span class="mechanic-num">20</span>
+      <h2>Live Gutenberg Text Fetch with Typo Injection</h2>
+      <a class="anchor-link" href="#gutenberg-fetch" aria-label="Link to Live Gutenberg Text Fetch">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="proof.html">Proof</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Fetches plain text from Project Gutenberg's cache endpoint using stored character offsets, then injects a pre-planned typo by regex-replacing the original word with a corrupted version. The index stores metadata and offsets rather than the prose itself.</p>
+    <ul class="concepts">
+      <li>Character-offset slicing</li><li>Regex word-boundary replacement</li><li>Metadata-only index</li><li>Timeout with graceful fallback</li>
+    </ul>
+    <p class="code-caption">loadTodaysPassage(), the typo injection pair, and the fetch timeout pattern.</p>
+    <div class="code-box"><pre><code>// The index holds a Gutenberg id, a character offset, a length and the two
+// forms of one word. The prose is fetched and sliced at load — so the index
+// stays a few kilobytes no matter how many passages it points at.
+
+var FETCH_TIMEOUT_MS = 5000;
+
+// ── Fetch with a real timeout ──────────────────────────────────────────────
+// fetch() has no timeout option and will hang indefinitely on a dead socket.
+// AbortController is the only way to bound it.
+function fetchWithTimeout(url, ms) {
+  var ctrl  = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, ms) : null;
+  return fetch(url, ctrl ? { signal: ctrl.signal } : {})
+    .then(function (r) { if (timer) clearTimeout(timer); return r; })
+    .catch(function (e) { if (timer) clearTimeout(timer); throw e; });
+}
+
+// ── Cleanup ────────────────────────────────────────────────────────────────
+// Gutenberg plain text is hard-wrapped and uses _underscores_ for italics.
+// Both have to go or the passage renders as ragged nonsense.
+function cleanSlice(raw) {
+  return raw
+    .replace(/\r/g, '')
+    .replace(/\n/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/_/g, '')
+    .trim();
+}
+
+function escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&amp;');
+}
+
+// ── Typo injection ─────────────────────────────────────────────────────────
+// Two flavours, both chosen to look like genuine print errors rather than
+// keyboard mashing. Never touch position 0 — a wrong first letter is spotted
+// instantly and the round is over before it starts.
+var SUBS = { a: 'e', e: 'a', i: 'l', l: 'i', m: 'n', n: 'm', o: 'c', c: 'o', r: 'n', s: 'z', t: 'f', u: 'v' };
+
+function makeSubstitution(word) {
+  for (var i = 1; i &lt; word.length; i++) {
+    var rep = SUBS[word[i]];
+    if (rep) return word.slice(0, i) + rep + word.slice(i + 1);
+  }
+  return null;
+}
+
+function makeTransposition(word) {
+  var mid = Math.floor(word.length / 2);
+  for (var i = mid; i &gt;= 1; i--) {                    // swap outward from the middle
+    if (word[i] !== word[i - 1]) {
+      return word.slice(0, i - 1) + word[i] + word[i - 1] + word.slice(i + 1);
+    }
+  }
+  for (var j = mid; j &lt; word.length - 1; j++) {
+    if (word[j] !== word[j + 1]) {
+      return word.slice(0, j) + word[j + 1] + word[j] + word.slice(j + 2);
+    }
+  }
+  return null;
+}
+
+// \b…\b and a non-global regex: replace the FIRST whole-word occurrence only.
+// Without the boundaries, "the" inside "there" gets mangled too. The index
+// guarantees the target word appears exactly once in the passage.
+function injectTypo(passage, original, corrupted) {
+  return passage.replace(new RegExp('\\b' + escRe(original) + '\\b'), corrupted);
+}
+
+// ── Load today's passage ───────────────────────────────────────────────────
+function loadTodaysPassage(entry) {
+  var url = 'https://www.gutenberg.org/cache/epub/' + entry.gutenbergId +
+            '/pg' + entry.gutenbergId + '.txt';
+
+  return fetchWithTimeout(url, FETCH_TIMEOUT_MS)
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function (raw) {
+      var passage = cleanSlice(raw.slice(entry.charStart, entry.charStart + entry.charLen));
+      return {
+        text:     injectTypo(passage, entry.typoWordOriginal, entry.typoWordCorrupted),
+        typoWord: entry.typoWordCorrupted,
+        title:    entry.title,
+        author:   entry.author
+      };
+    })
+    .catch(function () {
+      // Network down, CORS, timeout — ship a bundled fallback rather than an
+      // error screen. The player never learns which path they got.
+      return getFallbackPassage(entry);
+    });
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 21 -->
+  <section class="mechanic" id="boggle-dice">
+    <div class="mechanic-head">
+      <span class="mechanic-num">21</span>
+      <h2>Boggle-Dice Letter Frequency Distribution</h2>
+      <a class="anchor-link" href="#boggle-dice" aria-label="Link to Boggle-Dice Letter Frequency Distribution">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="wordup.html">Word Up!</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates a set of letters using real Boggle dice frequency ratios, ensuring vowel/consonant balance and appropriate letter rarity. Q is automatically paired with U as a single tile unit, matching physical Boggle convention.</p>
+    <ul class="concepts">
+      <li>Weighted die-face sampling</li><li>Q/Qu pairing</li><li>Daily seed for a shared global set</li><li>ET calendar day boundary</li>
+    </ul>
+    <p class="code-caption">generateDailyLetters() with Boggle die weights and the Qu pairing logic.</p>
+    <div class="code-box"><pre><code>// Sampling 16 letters from the alphabet by frequency gives unplayable boards —
+// six vowels in a row, or no vowel at all. The physical Boggle dice already
+// solve this: each die is a hand-tuned mini-distribution, and drawing one face
+// from each guarantees the mix. Use the real dice.
+
+var BOGGLE_DICE = [
+  ['A', 'A', 'E', 'E', 'G', 'N'],
+  ['E', 'L', 'R', 'T', 'T', 'Y'],
+  ['A', 'O', 'O', 'T', 'T', 'W'],
+  ['A', 'B', 'B', 'J', 'O', 'O'],
+  ['E', 'H', 'R', 'T', 'V', 'W'],
+  ['C', 'I', 'M', 'O', 'T', 'U'],
+  ['D', 'I', 'S', 'T', 'T', 'Y'],
+  ['E', 'I', 'O', 'S', 'S', 'T'],
+  ['D', 'E', 'L', 'R', 'V', 'Y'],
+  ['A', 'C', 'H', 'O', 'P', 'S'],
+  ['H', 'I', 'M', 'N', 'Qu', 'U'],   // the Q face is 'Qu' — one tile, two letters
+  ['E', 'E', 'I', 'N', 'S', 'U'],
+  ['E', 'E', 'G', 'H', 'N', 'W'],
+  ['A', 'F', 'F', 'K', 'P', 'S'],
+  ['H', 'L', 'N', 'N', 'R', 'Z'],
+  ['D', 'E', 'I', 'L', 'R', 'X']
+];
+
+// ── Daily seed ─────────────────────────────────────────────────────────────
+// Everyone gets the same letters on the same day. Rolling at midnight ET
+// rather than UTC keeps the puzzle from flipping mid-evening in the US.
+function getEtDateKey() {
+  var ts   = Date.now() - 60000;
+  var year = new Date(ts).getUTCFullYear();
+  var mar1     = new Date(Date.UTC(year,  2, 1)).getUTCDay();
+  var dstStart = Date.UTC(year,  2, 1 + (7 - mar1) % 7 + 7, 7, 0, 0);
+  var nov1     = new Date(Date.UTC(year, 10, 1)).getUTCDay();
+  var dstEnd   = Date.UTC(year, 10, 1 + (7 - nov1) % 7,     6, 0, 0);
+  var offsetMs = (ts &gt;= dstStart &amp;&amp; ts &lt; dstEnd) ? -4 * 3600000 : -5 * 3600000;
+  var et       = new Date(ts + offsetMs);
+  return et.getUTCFullYear() + '-' +
+         String(et.getUTCMonth() + 1).padStart(2, '0') + '-' +
+         String(et.getUTCDate()).padStart(2, '0');
+}
+
+function hashString(s) {
+  var h = 0;
+  for (var i = 0; i &lt; s.length; i++) h = ((h &lt;&lt; 5) - h + s.charCodeAt(i)) | 0;
+  return h &gt;&gt;&gt; 0;
+}
+
+function makePrng(seed) {
+  var state = (seed &gt;&gt;&gt; 0) || 2463534242;
+  return function () {
+    state = ((state * 1664525) + 1013904223) &gt;&gt;&gt; 0;
+    return state / 4294967296;
+  };
+}
+
+// ── The draw ───────────────────────────────────────────────────────────────
+// Shuffle the dice, take the first `count`, roll each once. Shuffling the dice
+// (not the letters) is what preserves the distribution guarantee.
+function generateDailyLetters(count) {
+  count = count || 9;
+  var rng  = makePrng(hashString('letters-' + getEtDateKey()));
+  var dice = BOGGLE_DICE.map(function (d) { return d.slice(); });
+
+  for (var i = dice.length - 1; i &gt; 0; i--) {
+    var j = Math.floor(rng() * (i + 1));
+    var tmp = dice[i]; dice[i] = dice[j]; dice[j] = tmp;
+  }
+
+  var grid = [];
+  for (var k = 0; k &lt; count; k++) grid.push(dice[k][Math.floor(rng() * 6)]);
+  return grid;
+}
+
+// 'Qu' is one tile everywhere it matters: it renders as one cell, contributes
+// two characters to the word, and counts as two letters when scoring.
+function tileToLetters(tile) { return tile === 'Qu' ? 'QU' : tile; }
+function tileLength(tile)    { return tile === 'Qu' ? 2 : 1; }
+
+function buildWord(path, grid) {
+  return path.map(function (i) { return tileToLetters(grid[i]); }).join('');
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 22 -->
+  <section class="mechanic" id="permutation-parity">
+    <div class="mechanic-head">
+      <span class="mechanic-num">22</span>
+      <h2>Permutation Parity Check for Sliding Puzzles</h2>
+      <a class="anchor-link" href="#permutation-parity" aria-label="Link to Permutation Parity Check">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="hare-line.html">Hare Line</a><a href="coil.html">Coil</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Determines whether a shuffled N-puzzle board is solvable by counting inversions in the tile permutation. Exactly half of all random shuffles are mathematically unsolvable; swapping any two non-blank tiles flips parity to make it solvable.</p>
+    <ul class="concepts">
+      <li>Inversion counting O(N²)</li><li>Parity class determination</li><li>Blank-row adjustment for even widths</li><li>One-swap correction</li>
+    </ul>
+    <p class="code-caption">countInversions(), isSolvable() for both grid widths, and fixParity().</p>
+    <div class="code-box"><pre><code>// Sliding a tile is a transposition of the blank with that tile. Any sequence
+// of moves that returns the blank to its starting square performs an even
+// number of transpositions — so the permutation's parity is invariant. That is
+// the whole proof, and the whole reason half of all shuffles are impossible.
+
+// ── Inversions ─────────────────────────────────────────────────────────────
+// An inversion is any pair that appears out of order in the flattened board.
+// O(N^2) is fine — a 5 x 5 board is 276 comparisons, once per shuffle.
+function countInversions(seq) {
+  var inv = 0;
+  for (var i = 0; i &lt; seq.length - 1; i++) {
+    for (var j = i + 1; j &lt; seq.length; j++) {
+      if (seq[i] &gt; seq[j]) inv++;
+    }
+  }
+  return inv;
+}
+
+// Flatten to comparable values, dropping the blank.
+// For a board of duplicate icons rather than distinct numbers, map each icon
+// type to a rank — parity still works on the multiset.
+function flatten(grid, valueOf) {
+  var seq = [];
+  for (var r = 0; r &lt; grid.length; r++) {
+    for (var c = 0; c &lt; grid[r].length; c++) {
+      if (grid[r][c] !== null) seq.push(valueOf(grid[r][c]));
+    }
+  }
+  return seq;
+}
+
+// ── Solvability ────────────────────────────────────────────────────────────
+// Odd width  (3x3, 5x5): solvable iff inversions are even. The blank's row
+//                        does not matter — moving it vertically changes the
+//                        inversion count by an even number.
+// Even width (4x4):      the blank's row DOES matter. Solvable iff
+//                        (inversions + row index of blank counted from the
+//                        bottom) is odd.
+function isSolvable(grid, valueOf) {
+  var width = grid[0].length;
+  var inv   = countInversions(flatten(grid, valueOf));
+
+  if (width % 2 === 1) return inv % 2 === 0;
+
+  var blankRow = 0;
+  for (var r = 0; r &lt; grid.length; r++) {
+    for (var c = 0; c &lt; width; c++) if (grid[r][c] === null) blankRow = r;
+  }
+  var rowFromBottom = grid.length - blankRow;
+  return (inv + rowFromBottom) % 2 === 1;
+}
+
+// ── Correction ─────────────────────────────────────────────────────────────
+// Swapping any two non-blank tiles flips parity exactly once. One swap always
+// suffices — reshuffling until you get lucky wastes half your attempts, and
+// swapping two identical icons does nothing at all, so find a distinct pair.
+function fixParity(grid) {
+  var cells = [];
+  for (var r = 0; r &lt; grid.length; r++) {
+    for (var c = 0; c &lt; grid[r].length; c++) {
+      if (grid[r][c] !== null) cells.push([r, c]);
+    }
+  }
+  for (var i = 0; i &lt; cells.length; i++) {
+    for (var j = i + 1; j &lt; cells.length; j++) {
+      var a = cells[i], b = cells[j];
+      if (grid[a[0]][a[1]] === grid[b[0]][b[1]]) continue;   // identical — no-op
+      var tmp = grid[a[0]][a[1]];
+      grid[a[0]][a[1]] = grid[b[0]][b[1]];
+      grid[b[0]][b[1]] = tmp;
+      return grid;
+    }
+  }
+  return grid;
+}
+
+function makeSolvableBoard(grid, valueOf) {
+  return isSolvable(grid, valueOf) ? grid : fixParity(grid);
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 23 -->
+  <section class="mechanic" id="spiral-svg">
+    <div class="mechanic-head">
+      <span class="mechanic-num">23</span>
+      <h2>Archimedean Spiral SVG Generation</h2>
+      <a class="anchor-link" href="#spiral-svg" aria-label="Link to Archimedean Spiral SVG Generation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="coil.html">Coil</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates a mathematically precise Archimedean spiral as an SVG path using parametric equations, then slices it into tile viewports using SVG viewBox cropping. No external image assets needed — the spiral is always crisp at any resolution.</p>
+    <ul class="concepts">
+      <li>Parametric spiral (r = aθ)</li><li>Point sampling density</li><li>Path construction from a point array</li><li>viewBox tile cropping</li>
+    </ul>
+    <p class="code-caption">generateSpiralPath() and generateTileSVG() with viewBox offset.</p>
+    <div class="code-box"><pre><code>// An Archimedean spiral has constant spacing between turns: r = a * theta.
+// Sample it densely enough and a polyline is visually indistinguishable from a
+// curve — with none of the control-point math that Bezier arcs would need.
+
+var _pathCache = {};
+
+function generateSpiralPath(totalSize) {
+  if (_pathCache[totalSize]) return _pathCache[totalSize];
+
+  var cx            = totalSize / 2;
+  var cy            = totalSize / 2;
+  var maxRadius     = totalSize * 0.46;    // leave a margin at the edges
+  var turns         = 11;
+  var pointsPerTurn = 240;                 // ~1.5 degrees per point
+  var totalPoints   = Math.floor(turns * pointsPerTurn);
+  var d             = '';
+
+  for (var i = 0; i &lt;= totalPoints; i++) {
+    var angle  = (i / pointsPerTurn) * Math.PI * 2;
+    var radius = (i / totalPoints) * maxRadius;     // radius grows linearly with angle
+    // One decimal place is below display resolution and cuts the path string
+    // roughly in half — worth it at 2,640 points.
+    var x = Math.round((cx + Math.cos(angle) * radius) * 10) / 10;
+    var y = Math.round((cy + Math.sin(angle) * radius) * 10) / 10;
+    d += i === 0 ? ('M ' + x + ' ' + y) : (' L ' + x + ' ' + y);
+  }
+
+  _pathCache[totalSize] = d;
+  return d;
+}
+
+// Whole spiral, one SVG.
+function generateSpiralSVG(size) {
+  var d = generateSpiralPath(size);
+  return '&lt;svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size +
+         '" viewBox="0 0 ' + size + ' ' + size + '"&gt;' +
+           '&lt;rect width="' + size + '" height="' + size + '" fill="#E8E8E8"/&gt;' +
+           '&lt;path d="' + d + '" stroke="#1A3A6B" stroke-width="' + (size * 0.006) +
+           '" fill="none" stroke-linecap="round" stroke-linejoin="round"/&gt;' +
+         '&lt;/svg&gt;';
+}
+
+// ── One tile ───────────────────────────────────────────────────────────────
+// Same path data, a viewBox windowed onto its own square. Each tile is a view
+// of the whole spiral, not a fragment of it — so the geometry is computed once
+// and the tiles stay perfectly aligned no matter how they are shuffled.
+function generateTileSVG(totalSize, tileSize, offsetX, offsetY) {
+  var d      = generateSpiralPath(totalSize);
+  var clipId = 'cl-' + offsetX + '-' + offsetY;      // ids are document-global
+
+  return '&lt;svg xmlns="http://www.w3.org/2000/svg"' +
+         ' width="' + tileSize + '" height="' + tileSize + '"' +
+         ' viewBox="' + offsetX + ' ' + offsetY + ' ' + tileSize + ' ' + tileSize + '"&gt;' +
+           '&lt;defs&gt;&lt;clipPath id="' + clipId + '"&gt;' +
+             '&lt;rect x="' + offsetX + '" y="' + offsetY +
+             '" width="' + tileSize + '" height="' + tileSize + '"/&gt;' +
+           '&lt;/clipPath&gt;&lt;/defs&gt;' +
+           '&lt;rect x="' + offsetX + '" y="' + offsetY +
+           '" width="' + tileSize + '" height="' + tileSize + '" fill="#E8E8E8"/&gt;' +
+           '&lt;path d="' + d + '" stroke="#1A3A6B" stroke-width="' + (totalSize * 0.006) +
+           '" fill="none" stroke-linecap="round" stroke-linejoin="round"' +
+           ' clip-path="url(#' + clipId + ')"/&gt;' +
+         '&lt;/svg&gt;';
+}
+
+// Build a full board of tiles.
+function generateTiles(gridPixelSize, cols, rows) {
+  var tileW = gridPixelSize / cols;
+  var tileH = gridPixelSize / rows;
+  var tiles = [];
+  for (var r = 0; r &lt; rows; r++) {
+    for (var c = 0; c &lt; cols; c++) {
+      tiles.push({
+        row: r, col: c,
+        svg: generateTileSVG(gridPixelSize, tileW, c * tileW, r * tileH)
+      });
+    }
+  }
+  return tiles;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 24 -->
+  <section class="mechanic" id="electric-network">
+    <div class="mechanic-head">
+      <span class="mechanic-num">24</span>
+      <h2>Electricity Network Animation</h2>
+      <a class="anchor-link" href="#electric-network" aria-label="Link to Electricity Network Animation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="circuit.html">Circuit</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Animates an electric current traveling through a connected pipe network using BFS outward from a source cell, lighting up each connection in sequence with increasing brightness across multiple pulse iterations.</p>
+    <ul class="concepts">
+      <li>BFS depth as animation timing</li><li>Multi-pass intensity scaling</li><li>Spark effects at junctions</li><li>Watchdog for hidden tabs</li>
+    </ul>
+    <p class="code-caption">runElectricPulse() with BFS wavefront timing and junction sparks.</p>
+    <div class="code-box"><pre><code>// BFS depth is the animation clock. Each cell's distance from the source
+// becomes its delay, so the light spreads outward at a constant speed through
+// a network of any shape — no hand-authored keyframes, no path following.
+
+function runElectricPulse(cells, adjacency, pulseNumber, onComplete) {
+  var DURATION = 600;                       // whole pulse, start to fully dark
+  var TAIL     = 180;                       // how long one cell stays lit
+
+  // Successive pulses run brighter — three passes read as the current
+  // "charging up" rather than three identical flashes.
+  var intensity = pulseNumber / 3;
+  var alpha     = 0.5 + intensity * 0.5;
+  var peak      = 0.6 + intensity * 1.1;    // deliberately above 1.0
+  var glowPx    = 8 + intensity * 10;
+
+  // Start somewhere that actually has connections, or the pulse goes nowhere.
+  var candidates = [];
+  adjacency.forEach(function (a, i) { if (a.length) candidates.push(i); });
+  if (!candidates.length) { onComplete(); return; }
+  var start = candidates[Math.floor(Math.random() * candidates.length)];
+
+  // ── BFS: depth per cell ──────────────────────────────────────────────────
+  var depth = cells.map(function () { return -1; });
+  depth[start] = 0;
+  var queue = [start], head = 0, maxDepth = 0;
+  while (head &lt; queue.length) {
+    var cur = queue[head++];
+    adjacency[cur].forEach(function (n) {
+      if (depth[n] !== -1) return;
+      depth[n] = depth[cur] + 1;
+      if (depth[n] &gt; maxDepth) maxDepth = depth[n];
+      queue.push(n);
+    });
+  }
+
+  // Spread the wavefront so the LAST cell finishes decaying exactly at
+  // DURATION, whatever the network's diameter.
+  var step = maxDepth &gt; 0 ? (DURATION - TAIL) / maxDepth : 0;
+
+  // Resolve elements once. Querying the DOM per frame per cell is the next
+  // bottleneck after the traversal itself.
+  var els     = cells.map(function (c) { return c.el.querySelector('.pipes'); });
+  var sparked = cells.map(function () { return false; });
+
+  var t0   = performance.now();
+  var done = false;
+
+  function finish() {
+    if (done) return;
+    done = true;
+    els.forEach(function (el) { if (el) el.style.cssText = ''; });
+    onComplete();
+  }
+
+  function frame(now) {
+    var elapsed = now - t0;
+
+    for (var i = 0; i &lt; cells.length; i++) {
+      var el = els[i];
+      if (!el || depth[i] === -1) continue;
+
+      var local = elapsed - depth[i] * step;             // this cell's own clock
+      var lit   = local &gt;= 0 &amp;&amp; local &lt; TAIL;
+
+      if (lit) {
+        var f = 1 - (local / TAIL);                      // 1 → 0 decay
+        el.style.filter  = 'brightness(' + (1 + peak * f) + ')';
+        el.style.opacity = String(alpha);
+        el.style.textShadow = '0 0 ' + (glowPx * f) + 'px currentColor';
+
+        if (!sparked[i] &amp;&amp; cells[i].isJunction) {        // spark once per junction
+          sparked[i] = true;
+          createSpark(cells[i]);
+        }
+      } else if (local &gt;= TAIL) {
+        el.style.cssText = '';
+      }
+    }
+
+    if (elapsed &lt; DURATION) requestAnimationFrame(frame);
+    else finish();
+  }
+
+  requestAnimationFrame(frame);
+
+  // rAF is suspended entirely while the tab is hidden. Without this watchdog,
+  // a player who switches away mid-pulse comes back to a stalled chain and a
+  // win overlay that never arrives. Whichever fires first wins; `done` keeps
+  // it to exactly one call.
+  setTimeout(finish, DURATION + 400);
+}
+
+// Web Animations API — no CSS class juggling, and the element cleans itself up.
+function createSpark(cell) {
+  var spark = document.createElement('span');
+  spark.className = 'spark';
+  cell.el.appendChild(spark);
+  var anim = spark.animate(
+    [{ transform: 'scale(0.2)', opacity: 1 }, { transform: 'scale(2.2)', opacity: 0 }],
+    { duration: 320, easing: 'ease-out' }
+  );
+  anim.onfinish = function () { spark.remove(); };
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 25 -->
+  <section class="mechanic" id="always-solvable">
+    <div class="mechanic-head">
+      <span class="mechanic-num">25</span>
+      <h2>Always-Solvable Piece Generation</h2>
+      <a class="anchor-link" href="#always-solvable" aria-label="Link to Always-Solvable Piece Generation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="zone.html">Zone</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Before offering the player a set of three pieces, verifies that each piece has at least one valid physical placement on the current board. Rejects and regenerates any piece that cannot fit anywhere, guaranteeing the player is never stuck by an unplaceable piece.</p>
+    <ul class="concepts">
+      <li>Placement enumeration</li><li>Board-state-aware generation</li><li>Rejection sampling</li><li>Honest game-over detection</li>
+    </ul>
+    <p class="code-caption">isPiecePlaceable(), generateThreePieces() with its rejection loop, and isGameOver().</p>
+    <div class="code-box"><pre><code>// Losing because you played badly is a game. Losing because the generator
+// handed you a piece that fit nowhere on the board is a bug wearing a game's
+// clothes. The fix is to make generation aware of the board state.
+
+// ── Can this piece go anywhere at all? ─────────────────────────────────────
+// Enumerate every legal origin. On a 9 x 9 board with pieces up to 5 cells
+// long that is at most 81 origin checks — cheap enough to run per candidate.
+function isPiecePlaceable(grid, piece) {
+  var maxRow = grid.length      - piece.shape.length;
+  var maxCol = grid[0].length   - piece.shape[0].length;
+  for (var r = 0; r &lt;= maxRow; r++) {
+    for (var c = 0; c &lt;= maxCol; c++) {
+      if (canPlace(grid, piece, r, c)) return true;      // one fit is enough
+    }
+  }
+  return false;
+}
+
+// ── Rejection sampling ─────────────────────────────────────────────────────
+// Draw, test, keep or discard. The attempt cap matters: on a nearly-full board
+// NOTHING fits, and without it this loop never returns. Exhausting the cap is
+// itself the signal that the board is finished.
+function generateThreePieces(grid, PIECES) {
+  var pieces   = [];
+  var attempts = 0;
+
+  while (pieces.length &lt; 3 &amp;&amp; attempts &lt; 1000) {
+    attempts++;
+    var candidate = PIECES[Math.floor(Math.random() * PIECES.length)];
+    if (isPiecePlaceable(grid, candidate)) {
+      pieces.push({
+        shape: candidate.shape.map(function (row) { return row.slice(); }),
+        color: candidate.color
+      });
+    }
+  }
+
+  return pieces.length &lt; 3 ? null : pieces;              // null → genuine game over
+}
+
+// ── The honest caveat ──────────────────────────────────────────────────────
+// Each piece is verified against the board as it stands. Once the player
+// places the first of the three, the board changes and the other two may no
+// longer fit. Guaranteeing all three remain placeable in every play order
+// means searching the placement tree — far more expensive, and it strips out
+// the tension that makes the mode work. Verify per-piece; re-verify on refill.
+function isGameOver(grid, pieces) {
+  return pieces.every(function (p) { return !isPiecePlaceable(grid, p); });
+}
+
+// ── The turn loop ──────────────────────────────────────────────────────────
+// Refill only when the tray is empty — refilling after each placement removes
+// the planning problem entirely.
+function onPiecePlaced(state, piece, row, col) {
+  state.grid = placePiece(state.grid, piece, row, col);
+
+  var cleared = clearFullZones(state.grid);
+  state.grid  = cleared.newGrid;
+  state.score += cleared.score;
+
+  state.tray = state.tray.filter(function (p) { return p !== piece; });
+
+  if (state.tray.length === 0) {
+    var next = generateThreePieces(state.grid, PIECES);
+    if (!next) { state.over = true; return state; }
+    state.tray = next;
+  }
+
+  if (isGameOver(state.grid, state.tray)) state.over = true;
+  return state;
+}</code></pre></div>
+  </section>
+
+  <hr class="doc-rule">
+
+  <p style="font-size:0.88rem;color:#6b7280;">Every snippet above is distilled from code running in production on this site. Play the games they came from at <a href="index.html">the arcade</a>, or read the project story on the <a href="about.html">About page</a>.</p>
+
+</main>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/dev.js"></script>
+</body>
+</html>

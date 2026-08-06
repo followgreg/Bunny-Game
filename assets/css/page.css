@@ -1,0 +1,212 @@
+/* ============================================================
+   Bunny Game — page.css
+   Shared chrome + typography for the standing document pages
+   (dev.html, about.html, privacy.html). Game pages use shared.css;
+   this file is deliberately separate because documents scroll and
+   games do not.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #ffffff;
+  color: #1f2937;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Header (matches the game pages) ── */
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  height: 48px;
+  min-height: 48px;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+#header h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f9fafb;
+  white-space: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+#header h1 a { min-width: 0; }
+
+#header h1 img {
+  height: 44px !important;
+  width: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e293b;
+  border: 1px solid #2d3f55;
+  color: #94a3b8;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-btn:hover  { background: #334155; color: #f1f5f9; }
+.icon-btn:active { background: #3b4f6a; color: #fff; }
+
+/* Same mobile rule the game headers use — buttons hold their width,
+   the logo is the only thing allowed to shrink. */
+@media (max-width: 480px) {
+  #header { padding: 0 10px; gap: 8px; overflow: hidden; }
+  #header h1 img { height: 32px !important; }
+  .header-controls { gap: 4px; }
+  .header-controls .icon-btn {
+    font-size: 0.72rem;
+    padding: 0 9px;
+    min-height: 32px;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Document body ── */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 44px 24px 72px;
+}
+
+.doc-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.doc-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #2563eb;
+  margin-bottom: 14px;
+}
+
+.doc-lede {
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: #374151;
+  margin-bottom: 22px;
+}
+
+main p {
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: #374151;
+  margin-bottom: 18px;
+}
+
+main h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 40px 0 14px;
+}
+
+main h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 28px 0 10px;
+}
+
+main a { color: #1d4ed8; text-decoration: underline; text-underline-offset: 2px; }
+main a:hover { color: #2563eb; }
+
+main ul { margin: 0 0 18px 20px; }
+main li { font-size: 0.96rem; line-height: 1.7; color: #374151; margin-bottom: 8px; }
+
+hr.doc-rule {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 44px 0;
+}
+
+/* ── Callout box ── */
+.callout {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin: 0 0 32px;
+}
+.callout h3 { margin: 0 0 8px; font-size: 0.95rem; }
+.callout p  { font-size: 0.88rem; line-height: 1.7; color: #475569; margin: 0 0 10px; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ── Footer (dark, matches game pages) ── */
+#footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 8px 14px;
+  background: #0f172a;
+  border-top: 1px solid #1e293b;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  color: #64748b;
+  flex-wrap: wrap;
+  text-align: center;
+}
+#footer a { color: #94a3b8; text-decoration: none; }
+#footer a:hover { color: #e2e8f0; }
+
+@media (max-width: 560px) {
+  #footer .ft-mail,
+  #footer .ft-mail-dot { display: none; }
+}
+
+@media (max-width: 600px) {
+  main { padding: 32px 18px 56px; }
+  .doc-title { font-size: 1.7rem; }
+}

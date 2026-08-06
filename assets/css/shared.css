@@ -683,7 +683,10 @@ a.mode-tab[data-mode="poise"]:hover {
 .dir-close-btn:hover  { background: #3b82f6; }
 .dir-close-btn:active { background: #1d4ed8; }
 
-/* ── Footer ── */
+/* ── Footer ──
+   Injected (or normalised) by nav.js on every page: About · Dev · Privacy.
+   Height is deliberately identical to the old inline footer so game pages
+   that already carried one keep exactly the space they had. */
 #footer {
   display: flex;
   align-items: center;
@@ -691,11 +694,26 @@ a.mode-tab[data-mode="poise"]:hover {
   gap: 8px;
   height: 26px;
   min-height: 26px;
+  padding: 0 10px;
   background: #0f172a;
   border-top: 1px solid #1e293b;
   flex-shrink: 0;
   font-size: 0.65rem;
   color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
 }
 #footer a { color: #475569; text-decoration: none; }
 #footer a:hover { color: #94a3b8; }
+
+/* Narrow screens: the links are the point — drop the email, then the copyright,
+   rather than letting the row overflow. */
+@media (max-width: 560px) {
+  #footer { gap: 6px; }
+  #footer .ft-mail,
+  #footer .ft-mail-dot { display: none; }
+}
+@media (max-width: 360px) {
+  #footer .ft-copy { display: none; }
+  #footer .ft-copy + .ft-dot { display: none; }
+}

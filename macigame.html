@@ -42,7 +42,9 @@
     #header {
       display: flex;
       align-items: center;
-      padding: 0 20px;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 14px;
       height: 48px;
       min-height: 48px;
       background: #0f172a;
@@ -54,6 +56,48 @@
       display: flex;
       align-items: center;
       text-decoration: none;
+    }
+
+    /* Shared header buttons, injected by nav.js */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #1e293b;
+      border: 1px solid #2d3f55;
+      color: #94a3b8;
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      transition: background 0.12s, color 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:hover  { background: #334155; color: #f1f5f9; }
+    .icon-btn:active { background: #3b4f6a; color: #fff; }
+
+    @media (max-width: 480px) {
+      #header { padding: 0 10px; gap: 8px; overflow: hidden; }
+      #header > a img { height: 24px !important; }
+      .header-controls { gap: 4px; }
+      .header-controls .icon-btn {
+        font-size: 0.72rem;
+        padding: 0 9px;
+        min-height: 32px;
+        flex-shrink: 0;
+      }
     }
 
     /* ── Content ── */
@@ -117,8 +161,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
       gap: 8px;
-      height: 40px;
+      padding: 8px 14px;
+      min-height: 40px;
       background: #0f172a;
       border-top: 1px solid #1e293b;
       flex-shrink: 0;
@@ -137,6 +183,7 @@
   <a href="index.html">
     <img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:28px;filter:brightness(0) invert(1);display:block;">
   </a>
+  <div class="header-controls"></div>
 </div>
 
 <main>
@@ -161,5 +208,6 @@
   <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
 </footer>
 
+<script src="assets/js/nav.js"></script>
 </body>
 </html>

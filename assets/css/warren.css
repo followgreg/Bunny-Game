@@ -26,7 +26,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 74px); /* header 48 + shared footer 26 */
   background: var(--w-bg);
   padding: 0 0 env(safe-area-inset-bottom);
   font-family: 'DM Sans', sans-serif;
