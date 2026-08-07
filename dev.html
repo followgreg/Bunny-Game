@@ -196,7 +196,7 @@ function solveWarnsdorff(cells, startR, startC) {
       <a class="anchor-link" href="#hex-grid" aria-label="Link to Hex Grid Coordinate System">#</a>
     </div>
     <p class="mechanic-row used-in"><span class="label">Used in:</span>
-      <a href="honey.html">Honey</a><a href="circuit.html">Circuit</a></p>
+      <a href="honey.html">Honey</a><a href="circuit.html">Circuit</a><a href="cluster.html">Cluster</a><a href="gumball.html">Gumball</a></p>
     <p class="mechanic-row"><span class="label">What it does:</span> Implements axial coordinates for a hexagonal grid, including neighbor lookup, hex-to-pixel conversion, and radius-based board generation. The foundation for any honeycomb-style game.</p>
     <ul class="concepts">
       <li>Axial (q,r) coordinates</li><li>Pointy-top hexagons</li><li>6-directional adjacency</li><li>Radius-bounded boards</li>
@@ -1238,7 +1238,7 @@ function makePrng(seed) {
       <a class="anchor-link" href="#flood-fill" aria-label="Link to Flood-Fill Connectivity Check">#</a>
     </div>
     <p class="mechanic-row used-in"><span class="label">Used in:</span>
-      <a href="honey.html">Honey</a><a href="circuit.html">Circuit</a><a href="lava.html">Lava</a></p>
+      <a href="honey.html">Honey</a><a href="circuit.html">Circuit</a><a href="lava.html">Lava</a><a href="gumball.html">Gumball</a></p>
     <p class="mechanic-row"><span class="label">What it does:</span> BFS-based flood fill from all edge cells simultaneously to determine which cells are connected to the frame or boundary. Any cell not reachable is structurally disconnected. Used for both puzzle generation and win-condition verification.</p>
     <ul class="concepts">
       <li>Multi-source BFS</li><li>Set-based visited tracking</li><li>4-directional adjacency</li><li>Spanning-tree edge counting</li>

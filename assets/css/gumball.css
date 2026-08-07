@@ -1,0 +1,154 @@
+/* ============================================================
+   Gumball — a Cluster variant with one marble to dig out
+   ============================================================ */
+
+#canvas-wrap {
+  background: #080d18;
+  padding: 8px;
+}
+
+#game-canvas {
+  border-radius: 10px;
+  image-rendering: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ── Splash ── */
+#gb-start {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  background: rgba(8, 13, 24, 0.86);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  text-align: center;
+}
+#gb-start.gb-hide { display: none; }
+
+.gb-splash-logo {
+  width: min(280px, 68vw);
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+
+.gb-splash-line {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #94a3b8;
+  max-width: 33ch;
+}
+
+/* The marble, at splash size, so the thing the game is about is on screen
+   before the first shot rather than introduced mid-board. */
+.gb-splash-marble {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 27%, rgba(255,255,255,0.85) 0%, transparent 26%),
+    radial-gradient(ellipse at 62% 62%, rgba(226,232,240,0.16) 0%, transparent 45%),
+    radial-gradient(circle at 40% 38%, #6b7a90 0%, #2c3e50 55%, #0b1017 100%);
+  box-shadow:
+    inset -3px -3px 6px rgba(0,0,0,0.55),
+    inset 1px 1px 3px rgba(255,255,255,0.28),
+    0 3px 10px rgba(0,0,0,0.75);
+}
+
+.gb-btn {
+  background: #2563eb;
+  border: none;
+  color: #fff;
+  padding: 13px 40px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.gb-btn:hover  { background: #3b82f6; }
+.gb-btn:active { background: #1d4ed8; }
+
+/* ── Level-clear card — sits over the board between levels ── */
+#gb-clear {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -46%);
+  z-index: 55;
+  padding: 20px 30px;
+  border-radius: 14px;
+  background: rgba(8, 13, 24, 0.93);
+  border: 1px solid #2d4060;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+#gb-clear.gb-on {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+#gb-clear-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #4ade80;
+}
+#gb-clear-sub {
+  margin: 7px 0 0;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+/* ── Toast ── */
+#gb-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translate(-50%, 12px);
+  z-index: 50;
+  max-width: min(320px, 86%);
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid #2d4060;
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s, transform 0.22s;
+}
+#gb-toast.gb-toast-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ── End-of-run breakdown rows carry a label/value pair ── */
+#modal-breakdown .bd-row span { color: #94a3b8; }
+
+/* Four stats do not fit a 375px phone at the shared bar's spacing — Best was
+   clipping off the right edge. Tighten the gutters rather than drop a stat. */
+@media (max-width: 460px) {
+  #stats { padding: 0 10px; }
+  #stats .stat-item {
+    padding-right: 9px;
+    margin-right: 9px;
+  }
+  #stats .stat-label { font-size: 0.6rem; letter-spacing: 0.04em; }
+  #stats .stat-value { font-size: 0.8rem; }
+}
