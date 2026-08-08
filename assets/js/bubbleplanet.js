@@ -287,6 +287,7 @@
   var aim = -Math.PI / 2;     // straight up
   var score = 0;
   var lastResolve = null;     // what the most recent shot cleared
+  var dealing = false;        // true while a board is being laid out
 
   var planetLocal = { x: 0, y: 0, radius: PLANET_R };
   var bounds = { left: 0, right: LW, top: 0, bottom: LH };
@@ -331,11 +332,18 @@
     recompute();
     syncWorld();
 
+    // Laying out a board is not play, and it must not be mistaken for it. This
+    // runs through the same arrivals code that now pops matching groups, and
+    // reset() is called while the previous run's phase is still 'playing' — so
+    // without the flag the splash board scores itself as it is dealt, and a
+    // player hitting New mid-game starts on a non-zero score.
+    dealing = true;
     for (var i = 0; i < count; i++) {
       spawnIncoming(1);
       var guard = 0;
       while (incoming.length && guard++ < 6000) stepIncoming(1 / 240);
     }
+    dealing = false;
 
     smoothColors();
     recompute();
@@ -949,7 +957,19 @@
           hit.approach = { x: f.vx, y: f.vy };
           incoming.splice(i, 1);
           var nb = new Bubble(0, 0, f.color);
-          if (attachBubble(nb, hit)) landed.push(nb);
+          if (attachBubble(nb, hit)) {
+            landed.push(nb);
+            // An arrival that completes a colour group blows it up and pays for
+            // it, exactly as a shot would.
+            //
+            // Only while the board is in play, though. Board layout runs through
+            // this same code, and a board that pops itself as it is being dealt
+            // never finishes arriving — the swarm would eat its own work.
+            if (phase === 'playing' && !dealing) {
+              var res = resolve(nb);
+              if (res && res.direct.length) creditResolve(res);
+            }
+          }
           done = true;
         }
       }
@@ -1032,7 +1052,7 @@
   var FLOAT_RISE = 60;        // px a floating score climbs over its life
 
   var PTS_BOARD = 1000;
-  var MAX_PER_SHOT = 15;
+  var MAX_PER_SHOT = 5;    // arrivals never exceed five, on any board
   var FEED_EVERY = 1;         // shots between arrivals
   var STAGGER = 0.08;         // 80ms between arrivals after a shot
   var SWARM_STAGGER = 0.04;   // 40ms during a board assembly
@@ -1040,23 +1060,21 @@
   var BOARD_CONFIG = {
     1: { bubblesPerShot: 3, startingClusterSize: 20 },
     2: { bubblesPerShot: 5, startingClusterSize: 24 },
-    3: { bubblesPerShot: 6, startingClusterSize: 28 },
-    4: { bubblesPerShot: 7, startingClusterSize: 32 },
-    5: { bubblesPerShot: 8, startingClusterSize: 36 }
+    3: { bubblesPerShot: 5, startingClusterSize: 28 },
+    4: { bubblesPerShot: 5, startingClusterSize: 32 },
+    5: { bubblesPerShot: 5, startingClusterSize: 36 }
   };
 
-  // Past the table, one more bubble a shot per board and the cluster size pegged.
-  //
-  // The table runs 3, 5, 6, 7, 8 — so from board 2 it is board + 3, and carrying
-  // that on gives board 6 nine a shot. The spec's own formula for 6+ reads
-  // `3 + boardNumber + 1`, which returns ten and puts a two-step jump at exactly
-  // the seam the surrounding comment says increments by one. Continuing the
-  // table's slope is what the comment describes, so that is what runs here.
+  // Arrivals are capped at five on every board. The table below still climbs to
+  // five and then holds, so board 2 onward all run at five and the difficulty
+  // after that comes from the board getting bigger rather than from the feed
+  // getting heavier. Above five the mass outgrows the frame faster than any
+  // player can cut it back, which made every later board a formality.
   function getBoardConfig(n) {
-    if (n <= 5) return BOARD_CONFIG[n];
+    var cfg = n <= 5 ? BOARD_CONFIG[n] : { bubblesPerShot: 5, startingClusterSize: 40 };
     return {
-      bubblesPerShot: Math.min(n + 3, MAX_PER_SHOT),
-      startingClusterSize: 40
+      bubblesPerShot: Math.min(cfg.bubblesPerShot, MAX_PER_SHOT),
+      startingClusterSize: cfg.startingClusterSize
     };
   }
 
@@ -1115,12 +1133,16 @@
   }
 
   // Everything that happens once a shot has come to rest.
+  // Counters, floating score and combo badge for any resolve, whoever caused it.
+  function creditResolve(result) {
+    matched += result.direct.length;
+    cascaded += result.cascade.length;
+    showResolve(result);
+    updateHud();
+  }
+
   function afterShot(result) {
-    if (result && result.direct && result.direct.length) {
-      matched += result.direct.length;
-      cascaded += result.cascade.length;
-      showResolve(result);
-    }
+    if (result && result.direct && result.direct.length) creditResolve(result);
 
     updateHud();
 
@@ -1139,7 +1161,7 @@
     if (!n) return;
 
     showFloatingScore('+' + s.total, cx / n, cy / n, '#FFD700', 26);
-    if (s.comboLabel) showComboText(s.comboLabel, cx / n, cy / n - 42);
+    if (s.comboLabel) showComboText(s.comboLabel, cx / n, cy / n - 52);
   }
 
   function showFloatingScore(text, x, y, color, size) {
@@ -1232,6 +1254,10 @@
     }
     for (i = combos.length - 1; i >= 0; i--) {
       combos[i].t += dt;
+      // Rises at the same rate as the floating score below it. Left static, the
+      // score climbs into the badge and the two print on top of each other,
+      // which is exactly what happened on the first pass.
+      combos[i].y -= (FLOAT_RISE / FLOAT_LIFE) * dt;
       if (combos[i].t > COMBO_LIFE) combos.splice(i, 1);
     }
     if (flash > 0) flash = Math.max(0, flash - dt / (flashMs / 1000));
@@ -1273,6 +1299,17 @@
 
     if (phase === 'clearing') stepClear(dt);
     else if (phase === 'assembling') stepAssemble(dt);
+
+    // An arrival can now empty the board as well as a shot can, and the clear has
+    // to be caught here because nothing else is watching after a shot has already
+    // resolved. Anything still queued is dropped: the player earned the clear, so
+    // the rest of the wave should not be allowed to land on an empty planet and
+    // take it back.
+    if (phase === 'playing' && !shot && isBoardCleared(bubbles)) {
+      pending.length = 0;
+      incoming.length = 0;
+      beginBoardClear();
+    }
 
     // The mass is turning the whole time, so a cluster that was clear a moment
     // ago can bring an arm round into a wall with no shot involved at all.
@@ -1658,6 +1695,7 @@
     drawRingArc(0, Math.PI, 0.60, 6);          // near half, over the cluster
 
     drawShooter();
+    drawScoreReadout();
     drawSparks();
     drawFloats();
     drawCombos();
@@ -1758,6 +1796,39 @@
   }
 
   // ── Effects ───────────────────────────────────────────────────────────────
+
+  // The score, big and centred across the top of the board. It used to live in
+  // the stats bar as one cell among four, which is a strange place for the only
+  // number the player is actually chasing.
+  function drawScoreReadout() {
+    if (phase === 'idle') return;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+
+    var txt = String(score);
+    ctx.font = '700 54px -apple-system, system-ui, sans-serif';
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = 'rgba(13, 5, 33, 0.9)';
+    ctx.strokeText(txt, LW / 2, 62);
+    ctx.shadowColor = 'rgba(232, 255, 0, 0.55)';
+    ctx.shadowBlur = 22;
+    ctx.fillStyle = '#E8FF00';
+    ctx.fillText(txt, LW / 2, 62);
+    ctx.shadowBlur = 0;
+
+    // Best sits under it, quiet — a target rather than a running number.
+    if (best > 0) {
+      ctx.font = '700 12px -apple-system, system-ui, sans-serif';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(13, 5, 33, 0.85)';
+      ctx.strokeText('BEST ' + best, LW / 2, 82);
+      ctx.fillStyle = 'rgba(182, 168, 216, 0.9)';
+      ctx.fillText('BEST ' + best, LW / 2, 82);
+    }
+    ctx.restore();
+  }
 
   function drawSparks() {
     for (var i = 0; i < sparks.length; i++) {
@@ -1864,11 +1935,12 @@
 
   function updateHud() {
     recordBest();
-    if (!elScore) return;
-    elScore.textContent   = score;
-    elBoard.textContent   = board;
-    elBubbles.textContent = bubbles.length;
-    elBest.textContent    = best || '—';
+    // The score reads off the board itself now, so the bar may not carry a Score
+    // cell at all; each stat is written only if the page ships one.
+    if (elScore)   elScore.textContent   = score;
+    if (elBoard)   elBoard.textContent   = board;
+    if (elBubbles) elBubbles.textContent = bubbles.length;
+    if (elBest)    elBest.textContent    = best || '—';
   }
 
   var toastTimer = null;

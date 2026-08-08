@@ -146,21 +146,8 @@ body {
   transform: translate(-50%, 0);
 }
 
-/* ── Score, front and centre ──────────────────────────────────────────────
-   The score is the thing the player is actually chasing, so it is given the
-   fluorescent yellow of the logo and roughly twice the weight of the other
-   stats. Best sits next to it in the same bar, deliberately quieter — it is a
-   target, not a running number. */
-#val-score {
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: #E8FF00;
-  text-shadow: 0 0 14px rgba(232, 255, 0, 0.45);
-  line-height: 1.1;
-}
-
-#stats .stat-item:first-child .stat-label { color: rgba(232, 255, 0, 0.65); }
-
+/* The score is drawn large and centred on the board itself, so the stats bar
+   carries only Board / Bubbles / Best. */
 #val-best {
   color: #d9cff2;
   font-weight: 700;
@@ -188,10 +175,4 @@ body {
   }
   #stats .stat-label { font-size: 0.6rem; letter-spacing: 0.04em; }
   #stats .stat-value { font-size: 0.8rem; }
-
-  /* The tightening rule above is `#stats .stat-value`, which out-specifies the
-     plain `#val-score` id and was flattening the score to the same 0.8rem as
-     everything else. The score keeps its prominence on a phone too — just less
-     of it, since there are four stats to fit across 375px. */
-  #stats #val-score { font-size: 1.15rem; }
 }
