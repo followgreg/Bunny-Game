@@ -446,7 +446,7 @@
   // they were not sharing was the step size, and that is what made the line lie:
   // the preview marched 2px at a time and the shot 4.8px, so the two found first
   // contact at different points along the same path. They now march identically.
-  var MARCH_STEP = 3;         // px per sample
+  var MARCH_STEP = 1;         // px per sample — 1px for exactness
   var MAX_AIM_BOUNCES = 2;    // banks drawn on the preview
 
   function advanceBubble(p, dist) {
@@ -481,12 +481,71 @@
       if (hit) {
         points.push({ x: p.x, y: p.y });
         hit.contactPoint = { x: p.x, y: p.y };
-        return { contact: hit, points: points };
+        return { contact: hit, points: points, dir: { x: p.dx, y: p.dy } };
       }
     }
 
     points.push({ x: p.x, y: p.y });
-    return { contact: null, points: points };
+    return { contact: null, points: points, dir: { x: p.dx, y: p.dy } };
+  }
+
+  // ── Where a bubble comes to rest ──────────────────────────────────────────
+  //
+  // The single place a resting position is decided. Both the aiming preview and
+  // the fired bubble call it, so the ghost circle is drawn from the same number
+  // the bubble is placed at — not a near-miss of it.
+  //
+  // This was the mismatch: the preview drew its circle at the contact point, the
+  // position at which the march first detected overlap, while the bubble was
+  // placed at the backed-off position where it actually sits. Those differ by up
+  // to a step plus the back-off distance, which is exactly the gap a player sees
+  // when a bubble that looked like it fit does not.
+  //
+  // Works in the planet's local frame, because that is where the cluster lives.
+  function restingFromContact(contactWorld, approachWorld, radius, hit) {
+    toLocal(contactWorld.x, contactWorld.y, _l);
+    var probe = { x: _l.x, y: _l.y, radius: radius };
+
+    if (approachWorld) {
+      var c = Math.cos(theta), s = Math.sin(theta);
+      var ax = approachWorld.x * c + approachWorld.y * s;
+      var ay = -approachWorld.x * s + approachWorld.y * c;
+      if (backOff(probe, ax, ay)) return probe;
+    }
+
+    // Nowhere clear along the approach: seat it tangent to whatever it struck and
+    // push it out of anything else. Only `probe` moves — the cluster is untouched,
+    // so the preview can run this too.
+    var anchor = hit && hit.type === 'planet' ? planetLocal : (hit && hit.bubble);
+    if (anchor) {
+      var angle = Math.atan2(probe.y - anchor.y, probe.x - anchor.x);
+      if (!isFinite(angle)) angle = 0;
+      var seat = anchor.radius + radius;
+      probe.x = anchor.x + seat * Math.cos(angle);
+      probe.y = anchor.y + seat * Math.sin(angle);
+      relaxPlacement(probe, anchor);
+    }
+    return probe;
+  }
+
+  // Trace plus resting position, in world coordinates. The one entry point for
+  // "where would a shot fired on this heading end up".
+  function findAttachmentPosition(startX, startY, angle, radius) {
+    var trace = traceShot(startX, startY, angle, radius);
+    if (!trace.contact) {
+      return { points: trace.points, contact: null, hitType: 'miss',
+               restingX: null, restingY: null };
+    }
+    var rest = restingFromContact(trace.contact.contactPoint, trace.dir, radius, trace.contact);
+    toWorld(rest.x, rest.y, _w);
+    return {
+      points: trace.points,
+      contact: trace.contact,
+      hitType: trace.contact.type,
+      hitTarget: trace.contact.type === 'planet' ? planetLocal : trace.contact.bubble,
+      restingX: _w.x,
+      restingY: _w.y
+    };
   }
 
   function findFirstContact(firedBubble, trajectory) {
@@ -500,43 +559,22 @@
   // The fired bubble sits touching whatever it hit, on the bearing it arrived
   // from — not snapped to any grid.
   function attachBubble(firedBubble, contact) {
-    toLocal(contact.contactPoint.x, contact.contactPoint.y, _l);
-    var cx = _l.x, cy = _l.y;
-
     // The honest placement, when the caller knows which way the bubble was
     // travelling: rewind along its own path to the exact moment it first made
     // contact. The step loop only detects a hit once the bubble is already a
     // little inside something, and the position one step earlier was in clear
     // space, so the first-touch position is somewhere between the two — and it
     // is non-overlapping by construction, which is the whole point.
-    var placed = false;
-    if (contact.approach) {
-      var c = Math.cos(theta), s = Math.sin(theta);
-      var ax = contact.approach.x * c + contact.approach.y * s;
-      var ay = -contact.approach.x * s + contact.approach.y * c;
-      firedBubble.x = cx;
-      firedBubble.y = cy;
-      placed = backOff(firedBubble, ax, ay);
-    }
+    var rest = restingFromContact(contact.contactPoint, contact.approach,
+                                  firedBubble.radius, contact);
+    firedBubble.x = rest.x;
+    firedBubble.y = rest.y;
 
-    // Fallback for a caller that only has a contact point: seat it tangent to
-    // whatever it struck, on the bearing it arrived from, then push it out of
-    // anything else it landed inside.
-    if (!placed) {
-      var anchor = contact.type === 'planet' ? planetLocal : contact.bubble;
-      var angle = Math.atan2(cy - anchor.y, cx - anchor.x);
-      if (!isFinite(angle)) angle = 0;
-      var seat = anchor.radius + firedBubble.radius;
-      firedBubble.x = anchor.x + seat * Math.cos(angle);
-      firedBubble.y = anchor.y + seat * Math.sin(angle);
-      relaxPlacement(firedBubble, anchor);
-
-      // Last check. A bubble that is still buried after all that has no legal
-      // place on this board; refusing it keeps the mass consistent, where
-      // forcing it in would corrupt every graph read taken afterwards.
-      if (penetration(firedBubble.x, firedBubble.y, firedBubble.radius) > TOUCH_SLOP) {
-        return null;
-      }
+    // A bubble still buried after all that has no legal place on this board;
+    // refusing it keeps the mass consistent, where forcing it in would corrupt
+    // every graph read taken afterwards.
+    if (penetration(firedBubble.x, firedBubble.y, firedBubble.radius) > TOUCH_SLOP) {
+      return null;
     }
 
     firedBubble.connected = true;
@@ -1067,6 +1105,12 @@
   var clearTimer = 0;
   var endReason = null;
 
+  // One colour for every bubble that arrives on this board. Chosen when the
+  // board starts and held until it is cleared, so the threat a player is playing
+  // against stays the same shape for the whole board instead of changing under
+  // them shot by shot.
+  var boardIncomingColor = null;
+
   // Each tier louder than the last: hotter colour, bigger type. INSANITY! is the
   // only one that keeps moving once it has landed.
   var COMBO_TIERS = {
@@ -1117,13 +1161,11 @@
   function queueArrivals(count, stagger, swarm) {
     var bearings = pickSpreadBearings(count, !!swarm);
 
-    // Every bubble in one wave arrives the same colour, chosen once per shot, so
-    // a wave reads as a single event rather than confetti — and a wave of one
-    // colour is a threat the player can actually plan around.
+    // Arrivals take the board's locked colour, not a fresh one per wave.
     //
     // Board layout is exempt. It runs through this same queue, and a whole board
     // dealt in one colour would be a solid block of it.
-    var waveColor = swarm ? null : pick(palette());
+    var waveColor = swarm ? null : boardIncomingColor;
 
     for (var i = 0; i < count; i++) {
       pending.push({ delay: i * stagger, swarm: !!swarm,
@@ -1239,6 +1281,7 @@
     if (clearTimer > 0.8) {
       board++;
       bubblesPerShot = bubblesPerShotFor(board);
+      boardIncomingColor = pick(palette());
       phase = 'assembling';
       clearTimer = 0;
       beginAssembly(board, SWARM_STAGGER);
@@ -1384,6 +1427,7 @@
     reset();
     board = 1;
     bubblesPerShot = bubblesPerShotFor(1);
+    boardIncomingColor = pick(palette());
     shotsFired = 0;
     matched = 0; cascaded = 0; boardsCleared = 0;
     endReason = null;
@@ -1769,8 +1813,8 @@
   // ── Aim and shooter ───────────────────────────────────────────────────────
 
   function drawAim() {
-    var trace = traceShot(SHOOTER_X, SHOOTER_Y, aim, R);
-    var pts = trace.points;
+    var aimResult = findAttachmentPosition(SHOOTER_X, SHOOTER_Y, aim, R);
+    var pts = aimResult.points;
 
     ctx.save();
     ctx.setLineDash([6, 8]);
@@ -1782,10 +1826,14 @@
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // A ghost of the bubble where it would come to rest.
-    var end = pts[pts.length - 1];
+    // A ghost of the bubble where it will actually come to rest — the same
+    // number the shot is placed at, at the bubble's true size, so what fits in
+    // the preview is what fits on the board.
+    var end = aimResult.contact
+      ? { x: aimResult.restingX, y: aimResult.restingY }
+      : pts[pts.length - 1];
     ctx.beginPath();
-    ctx.arc(end.x, end.y, R * 0.88, 0, TAU);
+    ctx.arc(end.x, end.y, R, 0, TAU);
     ctx.strokeStyle = 'rgba(232, 255, 0, 0.55)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
@@ -2205,6 +2253,7 @@
     spinStep: spinStep,
     spawnIncoming: spawnIncoming,
     traceShot: traceShot,
+    findAttachmentPosition: findAttachmentPosition,
     findFirstContact: findFirstContact,
     attachBubble: attachBubble,
     contactAt: contactAt,
@@ -2244,6 +2293,7 @@
         score: score, best: best,
         phase: phase, board: board,
         bubblesPerShot: bubblesPerShot,
+        boardIncomingColor: boardIncomingColor,
         boardsCleared: boardsCleared,
         shotsFired: shotsFired,
         matched: matched, cascaded: cascaded,
