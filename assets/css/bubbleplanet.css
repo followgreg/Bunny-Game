@@ -27,6 +27,12 @@ body {
 }
 
 /* ── Splash ── */
+/* The three rows are logo / directions / Play, and Play must survive any
+   viewport. The directions paragraph is long, and on a short window (landscape
+   phone, small laptop, an embedded frame) the stack overflowed its container and
+   pushed the Play button down behind the footer — unreachable, with no way to
+   start the game. The paragraph is the only row allowed to give: it shrinks and
+   scrolls on its own, so the logo and the button always hold their place. */
 #bp-start {
   position: absolute;
   inset: 0;
@@ -36,13 +42,17 @@ body {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  padding: 24px;
+  padding: 20px 24px;
   background: rgba(26, 10, 46, 0.88);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   text-align: center;
+  overflow: hidden;
 }
 #bp-start.bp-hide { display: none; }
+
+#bp-start > .bp-splash-logo,
+#bp-start > .bp-btn { flex: 0 0 auto; }
 
 /* The logo ships black, like every other logo here. Masking rather than
    filtering it gets the fluorescent yellow exactly, instead of chasing it
@@ -67,7 +77,31 @@ body {
   font-size: 0.9rem;
   line-height: 1.6;
   color: #b6a8d8;
-  max-width: 34ch;
+  max-width: 40ch;
+  /* min-height:0 is what actually lets a flex item shrink below its content —
+     without it the paragraph refuses to give and the button is pushed out. */
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Short windows: give the logo and the copy less room so the button keeps its
+   place rather than the stack growing past the frame. */
+@media (max-height: 620px) {
+  #bp-start { gap: 12px; padding: 14px 20px; }
+  .bp-splash-logo { width: min(210px, 46vw); }
+  .bp-splash-line { font-size: 0.82rem; line-height: 1.5; max-width: 46ch; }
+  .bp-btn { padding: 10px 32px; }
+}
+
+/* Very short — a landscape phone. The wordmark yields the most, since the copy
+   is the part that has to stay readable. */
+@media (max-height: 440px) {
+  #bp-start { gap: 9px; padding: 10px 18px; }
+  .bp-splash-logo { width: min(158px, 34vw); }
+  .bp-splash-line { font-size: 0.76rem; line-height: 1.45; max-width: 54ch; }
+  .bp-btn { padding: 9px 28px; font-size: 0.88rem; }
 }
 
 .bp-btn {
