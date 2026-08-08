@@ -228,6 +228,27 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Bubble Planet: cosmic purple, fluorescent yellow wordmark. The logo ships
+       black like every other one here, and it is masked rather than filtered so
+       the yellow lands exactly on the brand colour instead of near it. */
+    .lc-bubbleplanet { background: #1A0A2E; border-color: rgba(232,255,0,0.28); }
+    .lc-bubbleplanet .lobby-card-name { color: #E8FF00; }
+    .lc-bubbleplanet .lobby-card-desc { color: rgba(242,236,255,0.58); }
+    .bp-card-logo {
+      display: block;
+      height: 48px;
+      width: 125px;
+      background-color: #E8FF00;
+      -webkit-mask-image: url('assets/logos/bubbleplanet_logo.svg');
+              mask-image: url('assets/logos/bubbleplanet_logo.svg');
+      -webkit-mask-size: contain;
+              mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+              mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+              mask-position: center;
+    }
+
     /* Nation Divided: Top Cut's card, since they are the same game — siblings
        should look like siblings in the lobby */
     .lc-nationdivided { background: #F5F0E8; border-color: rgba(228,87,46,0.30); }
@@ -582,6 +603,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-bubbleplanet" data-categories="arcade,target" data-date="2026-08-07" href="bubbleplanet.html">
+        <div class="lobby-card-logo">
+          <span class="bp-card-logo" role="img" aria-label="Bubble Planet"></span>
+        </div>
+        <p class="lobby-card-desc">Match bubbles. Defend the planet.</p>
       </a>
 
       <a class="lobby-card lc-gumball" data-categories="arcade,puzzle,matching,target" data-date="2026-08-06" href="gumball.html">

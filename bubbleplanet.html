@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bubble Planet — an arcade bubble shooter — Bunny Game</title>
+  <meta name="description" content="Fire bubbles at the alien planet.">
+  <meta property="og:title" content="Bubble Planet — an arcade bubble shooter — Bunny Game">
+  <meta property="og:description" content="Fire bubbles at the alien planet.">
+  <meta property="og:url" content="https://www.thebunnygame.com/bubbleplanet">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/bubbleplanet-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/bubbleplanet-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/bubbleplanet">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#1A0A2E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/bubbleplanet.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="stats">
+  <div class="stat-item">
+    <span class="stat-label">Score</span>
+    <span class="stat-value" id="val-score">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Board</span>
+    <span class="stat-value" id="val-board">1</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Bubbles</span>
+    <span class="stat-value" id="val-bubbles">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Best</span>
+    <span class="stat-value" id="val-best">—</span>
+  </div>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="game-canvas"></canvas>
+
+  <div id="bp-toast"></div>
+
+  <div id="bp-start">
+    <span class="bp-splash-logo" role="img" aria-label="Bubble Planet"></span>
+    <p class="bp-splash-line">Bubble Planet puts you in charge of defending an alien planet from incoming bubbles. Aim and fire from the bottom (your shots can bounce off the side walls.) Match 3 or more of the same color to blast them off into space. Chain reactions score big. Clear the entire planet to earn bonuses and face the next wave. The game ends when the cluster reaches the walls. How long can you hold the planet?</p>
+    <button class="bp-btn" id="bp-play-btn">Play</button>
+  </div>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="macigame.html">About</a>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <div id="perf-banner" class="hidden"></div>
+    <h2 id="modal-title">THE CLUSTER HIT THE WALL</h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub"   id="modal-sub"></p>
+    <div class="breakdown" id="modal-breakdown"></div>
+    <button class="play-again-btn" id="play-again-btn">Play Again</button>
+    <button class="share-btn" id="share-btn">Share Score</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+<script src="assets/js/bubbleplanet.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* ============================================================
+   Bubble Planet — a bubble shooter in orbit
+   ============================================================ */
+
+/* The deep-space wash behind the whole page. The two ellipses give the void a
+   direction — a lit nebula shoulder up on the left, a darker well down on the
+   right — so the board does not sit on a flat rectangle of purple. */
+body {
+  background-color: #1A0A2E;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, #2D1B69 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, #0D0521 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+#canvas-wrap {
+  background: transparent;
+  padding: 8px;
+}
+
+#game-canvas {
+  border-radius: 10px;
+  image-rendering: auto;
+  box-shadow: 0 10px 44px rgba(0, 0, 0, 0.6);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ── Splash ── */
+#bp-start {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  background: rgba(26, 10, 46, 0.88);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  text-align: center;
+}
+#bp-start.bp-hide { display: none; }
+
+/* The logo ships black, like every other logo here. Masking rather than
+   filtering it gets the fluorescent yellow exactly, instead of chasing it
+   through a hue-rotate chain that lands near-but-not-on the brand colour. */
+.bp-splash-logo {
+  display: block;
+  width: min(300px, 70vw);
+  aspect-ratio: 71.22 / 27.409;
+  background-color: #E8FF00;
+  -webkit-mask-image: url('../logos/bubbleplanet_logo.svg');
+          mask-image: url('../logos/bubbleplanet_logo.svg');
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  filter: drop-shadow(0 0 18px rgba(232, 255, 0, 0.35));
+}
+
+.bp-splash-line {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #b6a8d8;
+  max-width: 34ch;
+}
+
+.bp-btn {
+  background: #7C3AED;
+  border: none;
+  color: #fff;
+  padding: 13px 40px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.bp-btn:hover  { background: #8B5CF6; }
+.bp-btn:active { background: #6D28D9; }
+
+/* ── Toast ── */
+#bp-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translate(-50%, 12px);
+  z-index: 50;
+  max-width: min(320px, 86%);
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(26, 10, 46, 0.94);
+  border: 1px solid #4c3a7a;
+  color: #d9cff2;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s, transform 0.22s;
+}
+#bp-toast.bp-toast-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ── Score, front and centre ──────────────────────────────────────────────
+   The score is the thing the player is actually chasing, so it is given the
+   fluorescent yellow of the logo and roughly twice the weight of the other
+   stats. Best sits next to it in the same bar, deliberately quieter — it is a
+   target, not a running number. */
+#val-score {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #E8FF00;
+  text-shadow: 0 0 14px rgba(232, 255, 0, 0.45);
+  line-height: 1.1;
+}
+
+#stats .stat-item:first-child .stat-label { color: rgba(232, 255, 0, 0.65); }
+
+#val-best {
+  color: #d9cff2;
+  font-weight: 700;
+}
+
+/* ── End-of-run breakdown rows carry a label/value pair ── */
+#modal-breakdown .bd-row span { color: #b6a8d8; }
+
+/* The modal's own score line, matched to the bar so the number the player has
+   been watching all run is the same number they land on. */
+#modal-score {
+  color: #E8FF00;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 0 18px rgba(232, 255, 0, 0.4);
+}
+
+/* Four stats do not fit a 375px phone at the shared bar's spacing — Best clips
+   off the right edge. Tighten the gutters rather than drop a stat. */
+@media (max-width: 460px) {
+  #stats { padding: 0 10px; }
+  #stats .stat-item {
+    padding-right: 9px;
+    margin-right: 9px;
+  }
+  #stats .stat-label { font-size: 0.6rem; letter-spacing: 0.04em; }
+  #stats .stat-value { font-size: 0.8rem; }
+
+  /* The tightening rule above is `#stats .stat-value`, which out-specifies the
+     plain `#val-score` id and was flattening the score to the same 0.8rem as
+     everything else. The score keeps its prominence on a phone too — just less
+     of it, since there are four stats to fit across 375px. */
+  #stats #val-score { font-size: 1.15rem; }
+}
