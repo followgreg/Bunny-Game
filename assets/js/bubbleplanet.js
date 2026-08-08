@@ -438,31 +438,54 @@
   // off the side walls, and stop at the first thing it would touch. This is the
   // spec's findFirstContact and the aiming line both — `points` is the polyline
   // the dotted line is drawn from.
+  // One step of travel, shared by the aiming preview and the live shot.
+  //
+  // It is the bubble's CENTRE that travels, so it turns at walls inset by its own
+  // radius rather than at the wall surface. Both callers were already doing that
+  // correctly and both were already testing contact at radius + radius — what
+  // they were not sharing was the step size, and that is what made the line lie:
+  // the preview marched 2px at a time and the shot 4.8px, so the two found first
+  // contact at different points along the same path. They now march identically.
+  var MARCH_STEP = 3;         // px per sample
+  var MAX_AIM_BOUNCES = 2;    // banks drawn on the preview
+
+  function advanceBubble(p, dist) {
+    p.x += p.dx * dist;
+    p.y += p.dy * dist;
+
+    var left  = p.radius;
+    var right = LW - p.radius;
+
+    // Reflect by forcing the sign rather than negating, so a step that lands
+    // past a wall cannot flip twice and stick to it.
+    if (p.x <= left)  { p.x = left;  p.dx = Math.abs(p.dx);  return true; }
+    if (p.x >= right) { p.x = right; p.dx = -Math.abs(p.dx); return true; }
+    return false;
+  }
+
   function traceShot(startX, startY, angle, radius) {
-    var x = startX, y = startY;
-    var dx = Math.cos(angle), dy = Math.sin(angle);
-    var step = 2;
-    var points = [{ x: x, y: y }];
+    var p = { x: startX, y: startY,
+              dx: Math.cos(angle), dy: Math.sin(angle), radius: radius };
+    var points = [{ x: p.x, y: p.y }];
     var bounces = 0;
 
     for (var i = 0; i < 4000; i++) {
-      x += dx * step;
-      y += dy * step;
+      if (advanceBubble(p, MARCH_STEP)) {
+        points.push({ x: p.x, y: p.y });
+        if (++bounces > MAX_AIM_BOUNCES) break;
+      }
 
-      if (x < radius)      { x = radius;      dx = -dx; points.push({ x: x, y: y }); if (++bounces > 4) break; }
-      if (x > LW - radius) { x = LW - radius; dx = -dx; points.push({ x: x, y: y }); if (++bounces > 4) break; }
+      if (p.y < -radius * 2) break;   // off the top is a clean miss
 
-      if (y < -radius * 2) break;   // off the top is a clean miss
-
-      var hit = contactAt(x, y, radius);
+      var hit = contactAt(p.x, p.y, radius);
       if (hit) {
-        points.push({ x: x, y: y });
-        hit.contactPoint = { x: x, y: y };
+        points.push({ x: p.x, y: p.y });
+        hit.contactPoint = { x: p.x, y: p.y };
         return { contact: hit, points: points };
       }
     }
 
-    points.push({ x: x, y: y });
+    points.push({ x: p.x, y: p.y });
     return { contact: null, points: points };
   }
 
@@ -757,21 +780,28 @@
   // Walk the projectile forward in short steps, advancing the cluster with it,
   // so a fast shot cannot tunnel through a one-bubble-thick wall and so the
   // mass it hits is the mass that has turned underneath it in flight.
+  // The live shot walks the identical path: same step length, same reflection,
+  // same contact test. The one thing the preview cannot know about is the spin —
+  // the cluster keeps turning while the bubble is in the air, so a board that is
+  // moving will land the shot somewhere the frozen line did not predict. That is
+  // the mechanic, not a defect; against a parked board the two agree exactly.
   function stepShot(dt) {
-    var remaining = dt;
     var speed = Math.hypot(shot.vx, shot.vy);
-    var maxStep = (R * 0.22) / speed;
+    if (!speed) return null;
+
+    var p = { x: shot.x, y: shot.y,
+              dx: shot.vx / speed, dy: shot.vy / speed, radius: R };
+    var remaining = dt * speed;      // distance to cover this frame
 
     while (remaining > 0 && shot) {
-      var d = Math.min(remaining, maxStep);
+      var d = Math.min(remaining, MARCH_STEP);
       remaining -= d;
 
-      shot.x += shot.vx * d;
-      shot.y += shot.vy * d;
-      spinStep(d);
+      advanceBubble(p, d);
+      shot.x = p.x; shot.y = p.y;
+      shot.vx = p.dx * speed; shot.vy = p.dy * speed;
 
-      if (shot.x < R)      { shot.x = R;      shot.vx = -shot.vx; }
-      if (shot.x > LW - R) { shot.x = LW - R; shot.vx = -shot.vx; }
+      spinStep(d / speed);
 
       if (shot.y < -R * 2) { shot = null; return { missed: true }; }
 
@@ -884,7 +914,7 @@
     return out;
   }
 
-  function spawnIncoming(count, bearing, greedy) {
+  function spawnIncoming(count, bearing, greedy, color) {
     var bearings = bearing === undefined ? pickSpreadBearings(count, greedy) : [bearing];
     for (var i = 0; i < count; i++) {
       var a = bearings[i % bearings.length];
@@ -904,7 +934,7 @@
         x: x, y: y,
         vx: Math.cos(toward) * INCOMING_SPEED,
         vy: Math.sin(toward) * INCOMING_SPEED,
-        color: pick(palette()),
+        color: color || pick(palette()),
         radius: R
       });
     }
@@ -1086,8 +1116,18 @@
   // decides whether the mass grows round or grows a spike.
   function queueArrivals(count, stagger, swarm) {
     var bearings = pickSpreadBearings(count, !!swarm);
+
+    // Every bubble in one wave arrives the same colour, chosen once per shot, so
+    // a wave reads as a single event rather than confetti — and a wave of one
+    // colour is a threat the player can actually plan around.
+    //
+    // Board layout is exempt. It runs through this same queue, and a whole board
+    // dealt in one colour would be a solid block of it.
+    var waveColor = swarm ? null : pick(palette());
+
     for (var i = 0; i < count; i++) {
-      pending.push({ delay: i * stagger, swarm: !!swarm, bearing: bearings[i] });
+      pending.push({ delay: i * stagger, swarm: !!swarm,
+                     bearing: bearings[i], color: waveColor });
     }
   }
 
@@ -1096,8 +1136,9 @@
       pending[i].delay -= dt;
       if (pending[i].delay <= 0) {
         var bearing = pending[i].bearing;
+        var color = pending[i].color;
         pending.splice(i, 1);
-        spawnIncoming(1, bearing);
+        spawnIncoming(1, bearing, false, color);
       }
     }
   }
@@ -2071,6 +2112,7 @@
 
     canvas.addEventListener('pointermove', function (e) {
       if (e.pointerType !== 'mouse' && !pointerDown) return;
+      e.preventDefault();
       var p = pointerPos(e);
       setAim(p.x, p.y);
     });
@@ -2083,12 +2125,29 @@
     });
     canvas.addEventListener('pointerup', function (e) {
       if (!pointerDown) return;
+      e.preventDefault();
       pointerDown = false;
       var p = pointerPos(e);
       setAim(p.x, p.y);
       fireShot();
     });
     canvas.addEventListener('pointercancel', function () { pointerDown = false; });
+
+    // Aiming stays on pointer events — one code path for mouse and touch, which
+    // is what the rest of the collection uses. Registering mouse *and* touch
+    // handlers instead would run the game logic twice on a phone, since a touch
+    // also synthesises a mouse event.
+    //
+    // These touch listeners therefore carry no game logic at all. They exist to
+    // cancel the browser's own gesture, and they must be passive:false or
+    // preventDefault is ignored on touchmove in current browsers — which is the
+    // one that matters, because the drag is the aim.
+    ['touchstart', 'touchmove', 'touchend'].forEach(function (type) {
+      canvas.addEventListener(type, function (e) { e.preventDefault(); },
+                              { passive: false });
+    });
+    canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    canvas.addEventListener('selectstart', function (e) { e.preventDefault(); });
 
     document.getElementById('help-btn').addEventListener('click', function () {
       openDirections(DIRECTIONS_TEXT);

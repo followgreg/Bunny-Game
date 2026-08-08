@@ -26,6 +26,20 @@ body {
   touch-action: none;
 }
 
+/* Aiming is a press-and-drag held over the board, which iOS and Android both
+   read as an attempt to select something: a long press raises the callout menu
+   and the blue selection wash, and the drag that follows aims nothing. Nothing
+   in the play area is text worth selecting, so none of it is selectable. */
+canvas,
+#canvas-wrap,
+#bp-start,
+#bp-toast {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ── Splash ── */
 /* The three rows are logo / directions / Play, and Play must survive any
    viewport. The directions paragraph is long, and on a short window (landscape
