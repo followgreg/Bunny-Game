@@ -879,7 +879,8 @@
       vx: Math.cos(aim) * SPEED,
       vy: Math.sin(aim) * SPEED,
       color: color || pick(palette()),
-      radius: R
+      radius: R,
+      carry: 0
     };
     return shot;
   }
@@ -898,11 +899,19 @@
 
     var p = { x: shot.x, y: shot.y,
               dx: shot.vx / speed, dy: shot.vy / speed, radius: R };
-    var remaining = dt * speed;      // distance to cover this frame
 
-    while (remaining > 0 && shot) {
-      var d = Math.min(remaining, MARCH_STEP);
-      remaining -= d;
+    // Whole steps only, with the leftover carried into the next frame. Taking a
+    // short final step to use up the frame's distance would shift the sample
+    // grid by a fraction every frame, so the shot would test for contact at
+    // different points along the path than the preview did — and in a tight
+    // pocket that is enough to send the two to different resting places.
+    // Carrying the remainder keeps both on the same 1px grid from the muzzle.
+    var remaining = dt * speed + (shot.carry || 0);
+    shot.carry = remaining % MARCH_STEP;
+    var steps = Math.floor(remaining / MARCH_STEP);
+
+    while (steps-- > 0 && shot) {
+      var d = MARCH_STEP;
 
       advanceBubble(p, d);
       shot.x = p.x; shot.y = p.y;
@@ -1104,7 +1113,7 @@
             // never finishes arriving — the swarm would eat its own work.
             if (phase === 'playing' && !dealing) {
               var res = resolve(nb);
-              if (res && res.direct.length) creditResolve(res);
+              if (res && res.direct.length) creditResolve(res, 1);
             }
           }
           done = true;
@@ -1180,6 +1189,13 @@
   // them shot by shot.
   var boardIncomingColor = null;
 
+  // Consecutive shots that popped something. Only the player's own shots count:
+  // arrivals can pop groups of their own now, and a streak you did not earn is
+  // not a streak. A shot that pops nothing — including one that sails off the
+  // top — ends it.
+  var streak = 0;
+  var STREAK_WIPE = 5;        // five in a row takes the whole board
+
   // Each tier louder than the last: hotter colour, bigger type. INSANITY! is the
   // only one that keeps moving once it has landed.
   var COMBO_TIERS = {
@@ -1187,7 +1203,8 @@
     'DOUBLE COMBO':    { color: '#FF8C00', size: 28 },
     'MEGA COMBO':      { color: '#FF4500', size: 33 },
     'LUDICROUS COMBO': { color: '#FF0080', size: 38 },
-    'INSANITY!':       { color: '#FF00FF', size: 46, pulse: true }
+    'INSANITY!':       { color: '#FF00FF', size: 46, pulse: true },
+    '5 IN A ROW!':     { color: '#FF00FF', size: 42, pulse: true }
   };
 
   var COMBO_LIFE = 1.5;       // seconds on screen before it goes
@@ -1237,6 +1254,7 @@
     bubblesPerShot = cfg.bubblesPerShot;
     feedEvery = cfg.feedEvery;
     shotsSinceFeed = 0;
+    streak = 0;                // a streak does not carry across boards
 
     // The board's own colours, planet and bubbles both. Set before the incoming
     // colour is drawn, or the wave would lock to a colour from the last board.
@@ -1306,15 +1324,37 @@
 
   // Everything that happens once a shot has come to rest.
   // Counters, floating score and combo badge for any resolve, whoever caused it.
-  function creditResolve(result) {
+  // `mult` is the streak multiplier and belongs to the player's shot only. The
+  // base score is already banked by resolve(), so what is added here is the
+  // bonus on top of it.
+  function creditResolve(result, mult) {
     matched += result.direct.length;
     cascaded += result.cascade.length;
-    showResolve(result);
+
+    var bonus = 0;
+    if (mult > 1) {
+      bonus = result.score.total * (mult - 1);
+      score += bonus;
+    }
+    showResolve(result, mult, bonus);
     updateHud();
   }
 
   function afterShot(result) {
-    if (result && result.direct && result.direct.length) creditResolve(result);
+    var cleared = !!(result && result.direct && result.direct.length);
+
+    if (cleared) {
+      streak++;
+      creditResolve(result, Math.min(streak, STREAK_WIPE));
+    } else {
+      streak = 0;
+    }
+
+    // Five clearing shots back to back takes the rest of the board with it.
+    if (streak >= STREAK_WIPE) {
+      wipeBoard();
+      streak = 0;
+    }
 
     updateHud();
 
@@ -1331,16 +1371,26 @@
     saveGameState();
   }
 
-  function showResolve(result) {
+  function showResolve(result, mult, bonus) {
     var s = result.score;
     var cx = 0, cy = 0, n = 0, i;
     for (i = 0; i < result.direct.length; i++) { cx += result.direct[i].wx; cy += result.direct[i].wy; n++; }
     for (i = 0; i < result.cascade.length; i++) { cx += result.cascade[i].wx; cy += result.cascade[i].wy; n++; }
     if (!n) return;
 
-    showFloatingScore('+' + s.total, cx / n, cy / n, '#FFD700', 26);
+    var shown = s.total * (mult || 1);
+    showFloatingScore('+' + shown, cx / n, cy / n, '#FFD700', 26);
+
+    // The multiplier is stated on the pop that earned it, not just in the corner
+    // — a bonus the player has to infer from a running total is not a reward.
+    if (mult > 1) {
+      showFloatingScore(mult + '\u00D7 STREAK', cx / n, cy / n + 26,
+                        STREAK_COLORS[mult] || '#FF00FF', 20);
+    }
     if (s.comboLabel) showComboText(s.comboLabel, cx / n, cy / n - 52);
   }
+
+  var STREAK_COLORS = { 2: '#FFD700', 3: '#FF8C00', 4: '#FF4500', 5: '#FF00FF' };
 
   function showFloatingScore(text, x, y, color, size) {
     floats.push({ x: x, y: y, text: text, color: color || '#FFD700',
@@ -1353,6 +1403,29 @@
     combos.push({ text: label, x: x, y: y, t: 0,
                   color: tier.color, size: tier.size, pulse: !!tier.pulse });
     burst(x, y + 42, Math.min(48, tier.size), tier.color);
+  }
+
+  // The fifth clearing shot in a row blasts everything still on the board off
+  // into space. It pays the cascade rate, because that is what it is: the whole
+  // mass cut loose at once. Emptying the board also hands the player the board
+  // bonus and the next level, which is the real prize.
+  function wipeBoard() {
+    var remaining = bubbles.slice();
+    if (!remaining.length) return;
+
+    var bonus = remaining.length * PTS_CASCADE;
+    score += bonus;
+    cascaded += remaining.length;
+
+    remaining.forEach(function (b) { launchEscape(b, true); });
+    removeBubbles(remaining);
+    recompute();
+    syncWorld();
+
+    burst(PLANET_X, PLANET_Y, 70, '#FF00FF');
+    showComboText('5 IN A ROW!', PLANET_X, PLANET_Y - 96);
+    showFloatingScore('+' + bonus + ' WIPE', PLANET_X, PLANET_Y - 30, '#00FF7F', 28);
+    flashScreen('#FF00FF', 380);
   }
 
   // ── Board clear ───────────────────────────────────────────────────────────
@@ -1529,6 +1602,7 @@
     shotsFired = 0;
     matched = 0; cascaded = 0; boardsCleared = 0;
     endReason = null;
+    streak = 0;
     queue.length = 0;
     fillQueue();
 
@@ -1576,6 +1650,7 @@
         bubblesPerShot: bubblesPerShot,
         feedEvery: feedEvery,
         shotsSinceFeed: shotsSinceFeed,
+        streak: streak,
         currentBoardIncomingColor: boardIncomingColor,
         currentBubbleColor: queue[0] || null,
         nextBubbleColor: queue[1] || null,
@@ -1634,6 +1709,7 @@
     bubblesPerShot = saved.bubblesPerShot || bubblesPerShotFor(board);
     feedEvery      = saved.feedEvery || getBoardConfig(board).feedEvery;
     shotsSinceFeed = saved.shotsSinceFeed || 0;
+    streak         = saved.streak || 0;
     boardIncomingColor = saved.currentBoardIncomingColor || null;
     shotsFired     = saved.shotsFired || 0;
     matched        = saved.matched || 0;
@@ -2115,9 +2191,23 @@
       ctx.fillText(label, 12, 20);
 
       // The locked colour as a dot, so the player can see what is coming rather
-      // than have to remember it. No dot from board 8 — there is no answer to give.
+      // than have to remember it.
       if (boardIncomingColor) {
         drawBubble(12 + ctx.measureText(label).width + 14, 16, boardIncomingColor, 0.34);
+      }
+
+      // The streak, opposite. Worth showing even at one, because the player has
+      // to know a streak is running before they can decide to protect it — and
+      // at four they need to know the next one takes the board.
+      if (streak > 0) {
+        var next = streak + 1;
+        var txt = streak === STREAK_WIPE - 1
+          ? 'NEXT CLEAR WIPES THE BOARD'
+          : streak + '\u00D7 STREAK \u00B7 NEXT ' + next + '\u00D7';
+        ctx.textAlign = 'right';
+        ctx.font = '700 10px -apple-system, system-ui, sans-serif';
+        ctx.fillStyle = STREAK_COLORS[Math.min(next, STREAK_WIPE)] || '#FFD700';
+        ctx.fillText(txt, LW - 12, 20);
       }
     }
   }
@@ -2331,9 +2421,11 @@
     'Bubble Planet puts you in charge of defending an alien planet from incoming '  +
     'bubbles. Aim and fire from the bottom (your shots can bounce off the side '     +
     'walls.) Match 3 or more of the same color to blast them off into space. '       +
-    'Chain reactions score big. Clear the entire planet to earn bonuses and face '   +
-    'the next wave. The game ends when the cluster reaches the walls. '              +
-    'How long can you hold the planet?';
+    'Chain reactions score big. Clear on consecutive shots and the bonus '           +
+    'multiplies: two in a row doubles that clear, three triples it, four quadruples ' +
+    'it, and a fifth blasts the whole planet clear. Clear the entire planet to earn ' +
+    'bonuses and face the next wave. The game ends when the cluster reaches the '     +
+    'walls. How long can you hold the planet?';
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
@@ -2560,6 +2652,7 @@
         bubblesPerShot: bubblesPerShot,
         feedEvery: feedEvery,
         shotsSinceFeed: shotsSinceFeed,
+        streak: streak,
         boardIncomingColor: boardIncomingColor,
         boardsCleared: boardsCleared,
         shotsFired: shotsFired,
