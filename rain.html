@@ -451,7 +451,7 @@
 
     <div id="rain-start">
       <span class="rain-splash-logo" role="img" aria-label="Rain"></span>
-      <p class="rain-splash-line">It is coming down hard and you are only halfway across. Your rabbit walks right on his own — all you do is steer. Tap LEFT and RIGHT to slide out from under the falling streaks, and hold LEFT to back up when a wall of water closes in front of you. Reach the far kerb to clear the level. Three hits and the night is over.</p>
+      <p class="rain-splash-line">It is coming down hard and your rabbit has a street to cross. He moves only while you hold a button — LEFT and RIGHT walk him, letting go stops him dead. Wait out the heavy stuff, then run for the gap. A streak that catches him costs a life and sends him back to the near kerb. Three lives a street, replaced every time you make it across.</p>
       <button class="rain-btn" id="rain-play-btn">Play</button>
     </div>
   </div>
@@ -503,11 +503,16 @@
   // ── Tuning ────────────────────────────────────────────────────────────────
   // Position is a percentage of the crossing, so none of this has to care what
   // shape the window is.
-  var DRIFT      = 6.2;    // %/s the rabbit walks right on his own
-  var STEER      = 13.6;   // %/s the player adds on top — LEFT nets -7.4
-  var LIVES      = 3;
+  // He does not move at all on his own. A held button is the only thing that
+  // shifts him, and letting go stops him dead.
+  var SPEED      = 19.5;   // %/s while a direction is held
+  var LIVES      = 3;      // per board — a cleared board hands all three back
   var INVULN     = 1.25;   // s of grace after a hit
   var WALK_FRAMES = 12;
+
+  // The city sits back off the black rather than competing with the rain and
+  // the rabbit, which are the only things at full white.
+  var INK = '#4d4d4d';
 
   function gapMin(lv)  { return Math.max(210, 850  * Math.pow(0.90, lv - 1)); }
   function gapMax(lv)  { return Math.max(350, 1450 * Math.pow(0.90, lv - 1)); }
@@ -519,15 +524,16 @@
   function roman(n) { return n <= 20 ? ROMAN[n] : String(n); }
 
   var DIRECTIONS_TEXT =
-    'A 1920s rabbit is crossing town in a downpour and he will not stop walking. ' +
-    'He drifts right on his own; your only job is to steer. Tap LEFT and RIGHT ' +
-    '(or use the arrow keys) to slide him out from under the falling streaks — ' +
-    'holding LEFT beats his forward drift, so you can back all the way up if the ' +
-    'street ahead is a wall of water. The thick white streaks are the ones that ' +
-    'hurt; the fine drizzle is only weather. A streak that catches him costs a ' +
-    'life, and he keeps his ground rather than starting the crossing again. ' +
-    'Reach the far kerb to clear the level. Each level brings a new corner of the ' +
-    'city and heavier rain. Three hits and the night is over.';
+    'A 1920s rabbit has to get across town in a downpour. He moves only while ' +
+    'you hold a button: LEFT walks him left, RIGHT walks him right, and letting ' +
+    'go stops him where he stands. Arrow keys work too. Standing still is a ' +
+    'move — wait for a gap, then run for it. The thick white streaks are the ' +
+    'ones that hurt; the fine drizzle is only weather. A streak that catches ' +
+    'him costs a life and puts him back at the near kerb to start the crossing ' +
+    'again, on the same street. You get three lives per street, and clearing ' +
+    'one hands all three back for the next. Lose all three without reaching the ' +
+    'far side and the night is over. Each street is a new corner of the city, ' +
+    'and the rain gets heavier every time.';
 
   // ── DOM ───────────────────────────────────────────────────────────────────
   var canvas    = document.getElementById('game-canvas');
@@ -639,8 +645,10 @@
 
     // Ears, splayed wide enough to clear the crown and drawn before the hat
     // covers their lower half
-    ear(g, -0.014, -0.630, -0.128, -0.975, 0.032);
-    ear(g,  0.066, -0.630,  0.150, -0.938, 0.030);
+    // Splayed hard, because a solid fill has no outline to separate them from
+    // the crown — the black notch between ear and hat has to be real.
+    ear(g, -0.026, -0.655, -0.152, -0.985, 0.030);
+    ear(g,  0.072, -0.655,  0.174, -0.944, 0.029);
 
     // Trenchcoat — narrow through the shoulders, knee length, with the tail
     // dragged back behind him
@@ -657,104 +665,44 @@
     // Front leg over the coat
     leg(g, swing, 0.042);
 
-    // Collar, turned up against the rain
+    // Collar, turned up against the rain. Kept low and pulled back so the
+    // muzzle has clear air under it instead of welding to the shoulder.
     g.beginPath();
-    g.moveTo(-0.118, -0.556); g.lineTo(-0.104, -0.646); g.lineTo(-0.030, -0.592);
+    g.moveTo(-0.118, -0.556); g.lineTo(-0.106, -0.638); g.lineTo(-0.034, -0.588);
     g.closePath(); g.fill();
     g.beginPath();
-    g.moveTo(0.142, -0.552); g.lineTo(0.128, -0.640); g.lineTo(0.062, -0.590);
+    g.moveTo(0.138, -0.552); g.lineTo(0.120, -0.622); g.lineTo(0.056, -0.586);
     g.closePath(); g.fill();
 
-    // Skull, mostly tucked under the brim, and a muzzle in profile
+    // Skull, tucked right under the brim, and a long muzzle in profile so the
+    // head reads as a head and not a lump
     g.beginPath();
-    g.ellipse(0.030, -0.648, 0.084, 0.062, -0.05, 0, TAU);
+    g.ellipse(0.026, -0.646, 0.079, 0.058, -0.05, 0, TAU);
     g.fill();
     g.beginPath();
-    g.moveTo(0.062, -0.692);
-    g.bezierCurveTo(0.152, -0.684, 0.180, -0.644, 0.156, -0.612);
-    g.bezierCurveTo(0.130, -0.588, 0.062, -0.584, 0.036, -0.596);
+    g.moveTo(0.058, -0.690);
+    g.bezierCurveTo(0.156, -0.682, 0.192, -0.646, 0.166, -0.616);
+    g.bezierCurveTo(0.140, -0.592, 0.062, -0.588, 0.034, -0.598);
     g.closePath();
     g.fill();
 
-    // Fedora — a wide brim and a pinched crown, the widest thing on him
+    // Fedora — a wide thin brim and a tall crown. Both have to be big shapes,
+    // since the silhouette carries all of it.
     g.beginPath();
-    g.ellipse(0.030, -0.700, 0.203, 0.030, -0.045, 0, TAU);
+    g.ellipse(0.028, -0.706, 0.206, 0.027, -0.045, 0, TAU);
     g.fill();
     g.beginPath();
-    g.moveTo(-0.058, -0.702);
-    g.lineTo(-0.048, -0.836);
-    g.quadraticCurveTo(-0.030, -0.886, 0.014, -0.874);
-    g.quadraticCurveTo(0.038, -0.866, 0.062, -0.878);
-    g.quadraticCurveTo(0.100, -0.892, 0.108, -0.836);
-    g.lineTo(0.116, -0.702);
+    g.moveTo(-0.048, -0.708);
+    g.lineTo(-0.040, -0.848);
+    g.quadraticCurveTo(-0.022, -0.902, 0.016, -0.888);
+    g.quadraticCurveTo(0.038, -0.878, 0.058, -0.896);
+    g.quadraticCurveTo(0.090, -0.912, 0.098, -0.848);
+    g.lineTo(0.106, -0.708);
     g.closePath();
     g.fill();
 
-    // ── Hard-edged detail, punched in black ──
-    // Opaque black inside the silhouette reads as shadow on the white version
-    // of him and as highlight on the black version. Both come free from the
-    // blend, which is the whole reason he is built this way.
-    g.fillStyle = '#000';
-    g.strokeStyle = '#000';
-
-    // Hat band, and the crease that keeps the crown off the ears
-    g.beginPath();
-    g.moveTo(-0.058, -0.706);
-    g.lineTo(0.116, -0.706);
-    g.lineTo(0.113, -0.742);
-    g.lineTo(-0.055, -0.742);
-    g.closePath();
-    g.fill();
-    // The whole crown outline, so the ears read as passing behind the hat
-    // rather than growing out of it
-    g.lineWidth = 0.012;
-    g.beginPath();
-    g.moveTo(-0.058, -0.742);
-    g.lineTo(-0.048, -0.836);
-    g.quadraticCurveTo(-0.030, -0.886, 0.014, -0.874);
-    g.quadraticCurveTo(0.038, -0.866, 0.062, -0.878);
-    g.quadraticCurveTo(0.100, -0.892, 0.108, -0.836);
-    g.lineTo(0.114, -0.742);
-    g.stroke();
-
-    // Inner ear, on the near one only
-    g.lineWidth = 0.010;
-    g.beginPath();
-    g.moveTo(0.106, -0.812);
-    g.quadraticCurveTo(0.124, -0.862, 0.138, -0.902);
-    g.stroke();
-
-    // Eye under the brim, and a nose at the tip of the muzzle
-    g.beginPath();
-    g.arc(0.062, -0.652, 0.0135, 0, TAU);
-    g.fill();
-    g.beginPath();
-    g.arc(0.164, -0.640, 0.0105, 0, TAU);
-    g.fill();
-    g.lineWidth = 0.010;
-    g.beginPath();
-    g.moveTo(0.152, -0.618);
-    g.lineTo(0.112, -0.612);
-    g.stroke();
-
-    // Coat: the opening, the belt, and the seam that keeps the arm from
-    // merging into the body
-    g.lineWidth = 0.012;
-    g.beginPath();
-    g.moveTo(0.052, -0.564);
-    g.bezierCurveTo(0.080, -0.500, 0.086, -0.430, 0.082, -0.320);
-    g.stroke();
-    g.lineWidth = 0.014;
-    g.beginPath();
-    g.moveTo(-0.140, -0.408);
-    g.lineTo(0.148, -0.420);
-    g.stroke();
-    g.lineWidth = 0.011;
-    g.beginPath();
-    g.moveTo(0.112, -0.548);
-    g.bezierCurveTo(0.128, -0.492, 0.128, -0.456, 0.122, -0.424);
-    g.stroke();
-
+    // No interior linework. He is one solid fill, and the blend is what turns
+    // him black when he steps into the lamplight.
     g.restore();
   }
 
@@ -880,9 +828,9 @@
         var bx = b.x * w, bw = b.w * w, bt = b.top * h;
         ctx.fillStyle = '#000';
         ctx.fillRect(bx, bt, bw, far - bt);
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.strokeStyle = INK; ctx.lineWidth = 2;
         ctx.strokeRect(bx + 1, bt + 1, bw - 2, far - bt);
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = INK;
         b.win.forEach(function (p) {
           if (p[1] * h > far - 12) return;
           ctx.fillRect(p[0] * w, p[1] * h, 7, 9);
@@ -890,7 +838,7 @@
       });
       d.towers.forEach(function (t) {
         var tx = t.x * w, ty = t.top * h;
-        ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.fillStyle = '#000'; ctx.strokeStyle = INK; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.rect(tx - 17, ty - 40, 34, 30); ctx.fill(); ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(tx - 21, ty - 40); ctx.lineTo(tx, ty - 55); ctx.lineTo(tx + 21, ty - 40);
@@ -900,7 +848,7 @@
         ctx.moveTo(tx + 12, ty - 10); ctx.lineTo(tx + 15, ty);
         ctx.stroke();
       });
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2;
       d.masts.forEach(function (m) {
         var mx = m * w, my = 0.05 * h;
         ctx.beginPath();
@@ -913,17 +861,17 @@
     } else if (d.variant === 1) {
       // Distant back wall
       ctx.fillStyle = '#000'; ctx.fillRect(0.185 * w, 0, 0.63 * w, far);
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(0.185 * w, 0.06 * h); ctx.lineTo(0.815 * w, 0.06 * h); ctx.stroke();
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       d.backWin.forEach(function (p) { ctx.fillRect(p[0] * w, p[1] * h, 8, 11); });
       // The two close walls, with fire escapes on their inner faces
       d.escapes.forEach(function (e) {
         var ex = e.edge * w, dir = e.left ? -1 : 1;
         ctx.fillStyle = '#000';
         ctx.fillRect(e.left ? 0 : ex, 0, e.left ? ex : w - ex, far);
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        ctx.strokeStyle = INK; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(ex, 0); ctx.lineTo(ex, far); ctx.stroke();
         ctx.lineWidth = 2;
         var span = dir * 0.068 * w, step = 0.125 * h;
@@ -953,9 +901,9 @@
       // Bare bulb on a wire, swinging
       var sway = Math.sin(d.t * 1.1) * 0.012 * w;
       var bx = d.bulbX * w + sway, by = 0.20 * h;
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(d.bulbX * w, 0); ctx.lineTo(bx, by); ctx.stroke();
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = INK;
       ctx.beginPath(); ctx.arc(bx, by + 8, 9, 0, TAU); ctx.fill();
       ctx.beginPath();
       ctx.moveTo(bx - 26, by + 4); ctx.lineTo(bx + 26, by + 4);
@@ -969,14 +917,14 @@
         ctx.fillStyle = '#000';
         ctx.fillRect(b.x * w, b.top * h, b.w * w, far - b.top * h);
       });
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2;
       d.skyline.forEach(function (b) {
         var bx = b.x * w + 1, bw = b.w * w - 2, bt = b.top * h + 1;
         ctx.beginPath();
         ctx.moveTo(bx, far); ctx.lineTo(bx, bt);
         ctx.lineTo(bx + bw, bt); ctx.lineTo(bx + bw, far);
         ctx.stroke();
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = INK;
         b.win.forEach(function (p) {
           if (p[1] * h > far - 14) return;
           ctx.fillRect(p[0] * w, p[1] * h, 8, 10);
@@ -988,15 +936,15 @@
       var tx0 = d.trainX * w, tw = 0.9 * w, tyB = d.deckTop * h, tyT = tyB - 0.10 * h;
       if (tx0 < w && tx0 + tw > 0) {
         ctx.fillStyle = '#000'; ctx.fillRect(tx0, tyT, tw, tyB - tyT);
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.strokeStyle = INK; ctx.lineWidth = 2;
         ctx.strokeRect(tx0, tyT, tw, tyB - tyT);
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = INK;
         for (var wx = tx0 + 18; wx < tx0 + tw - 22; wx += 42) {
           ctx.fillRect(wx, tyT + 12, 24, 0.045 * h);
         }
       }
       // Columns down to the kerb
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.fillStyle = '#000';
+      ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.fillStyle = '#000';
       d.cols.forEach(function (c) {
         var cx = c * w;
         ctx.fillRect(cx - 13, d.deckBot * h, 26, far - d.deckBot * h);
@@ -1009,7 +957,7 @@
       // The deck: two rails with an X-truss between
       var dt0 = d.deckTop * h, db = d.deckBot * h;
       ctx.fillStyle = '#000'; ctx.fillRect(0, dt0, w, db - dt0);
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+      ctx.strokeStyle = INK; ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(0, dt0); ctx.lineTo(w, dt0);
       ctx.moveTo(0, db);  ctx.lineTo(w, db);
@@ -1024,7 +972,7 @@
 
     } else if (d.variant === 3) {
       // River, hinted with hard dashes below the far rail
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2;
       // Water, glimpsed in a band just beyond the railing
       d.riv.forEach(function (r) {
         var ry = far - 38 - r[1] * 0.13 * h;
@@ -1053,7 +1001,7 @@
       // Towers
       d.towers.forEach(function (t) {
         var tx = t * w;
-        ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        ctx.fillStyle = '#000'; ctx.strokeStyle = INK; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.rect(tx - 26, tTop, 52, far - tTop); ctx.fill(); ctx.stroke();
         ctx.lineWidth = 2;
         for (var a = 1; a <= 3; a++) {
@@ -1065,7 +1013,7 @@
         ctx.closePath(); ctx.fillStyle = '#000'; ctx.fill(); ctx.stroke();
       });
       // Railing along the far edge of the deck
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(0, far - 30); ctx.lineTo(w, far - 30); ctx.stroke();
       for (var px = 8; px < w; px += 34) {
@@ -1078,7 +1026,7 @@
         ctx.fillStyle = '#000';
         ctx.fillRect(b.x * w, b.top * h, b.w * w, far - b.top * h);
       });
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
       d.far.forEach(function (b) {
         var bx = b.x * w + 0.75, bw = b.w * w - 1.5, bt = b.top * h;
         ctx.beginPath();
@@ -1089,9 +1037,9 @@
       d.shops.forEach(function (s) {
         var sx = s.x * w, sw = s.w * w, st = s.top * h;
         ctx.fillStyle = '#000'; ctx.fillRect(sx, st, sw, far - st);
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.strokeStyle = INK; ctx.lineWidth = 2;
         ctx.strokeRect(sx + 1, st + 1, sw - 2, far - st);
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = INK;
         ctx.fillRect(sx + 0.14 * sw, far - 0.072 * h, 0.14 * sw, 0.072 * h);  // lit doorway
         s.win.forEach(function (p) {                                          // upstairs windows
           if (p[1] * h > far - 0.20 * h) return;
@@ -1104,7 +1052,7 @@
           ctx.moveTo(sx + 5, ay0); ctx.lineTo(sx + sw - 5, ay0);
           ctx.lineTo(sx + sw - 5 - inset, ay0 + ah); ctx.lineTo(sx + 5 + inset, ay0 + ah);
           ctx.closePath(); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#fff';
+          ctx.fillStyle = INK;
           var span = sw - 10, band = span / 5;
           for (var i2 = 0; i2 < 2; i2++) {
             var fx = sx + 5 + band * (1 + i2 * 2);
@@ -1118,13 +1066,13 @@
       // Lampposts, which are what makes the pools on the road
       d.posts.forEach(function (p) {
         var px2 = p * w, top = far - 0.30 * h;
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        ctx.strokeStyle = INK; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(px2, far); ctx.lineTo(px2, top); ctx.stroke();
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(px2 - 16, top + 4); ctx.quadraticCurveTo(px2, top - 10, px2 + 16, top + 4);
         ctx.stroke();
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = INK;
         ctx.beginPath();
         ctx.moveTo(px2 - 13, top + 2); ctx.lineTo(px2 + 13, top + 2);
         ctx.lineTo(px2 + 7, top + 17); ctx.lineTo(px2 - 7, top + 17);
@@ -1135,10 +1083,11 @@
     // ── The road, common to every backdrop ──
     ctx.fillStyle = '#000';
     ctx.fillRect(0, far, w, h - far);
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.strokeStyle = INK; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, far); ctx.lineTo(w, far); ctx.stroke();
 
-    // Pools of light — the thing the rabbit inverts against
+    // Pools of light — the thing the rabbit inverts against, so these stay
+    // pure white while the city around them stays receded.
     ctx.fillStyle = '#fff';
     d.lights.forEach(function (L) {
       var x0 = L.x * w, x1 = (L.x + L.w) * w, spread = (x1 - x0) * 0.22;
@@ -1152,7 +1101,7 @@
     });
 
     // Near kerb line
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.strokeStyle = INK; ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, geom.streetY + geom.kerb);
     ctx.lineTo(w, geom.streetY + geom.kerb);
@@ -1287,7 +1236,7 @@
     }
 
     if (lv === 1) {
-      hintEl.textContent = 'Hold LEFT to back out of trouble';
+      hintEl.textContent = 'Hold to walk · let go to stop';
       hintEl.classList.add('show');
       // Long enough to still be readable once the title card has wiped off
       setTimeout(function () { hintEl.classList.remove('show'); }, 5600);
@@ -1309,27 +1258,14 @@
     void flashEl.offsetWidth;
     flashEl.classList.add('fire');
 
-    // Clear whatever is already on top of him, then step him sideways to the
-    // nearest patch of street nothing is falling on. He keeps his ground.
+    // Clear whatever is already on top of him. The board itself does not
+    // change — he just starts the crossing again from the near kerb.
     streaks = streaks.filter(function (s) { return s.y < H * 0.30; });
 
     if (lives <= 0) { gameOver(); return; }
 
-    var safe = rabbitX, bestGap = -1;
-    for (var d2 = 0; d2 <= 20; d2 += 2) {
-      for (var sgn = -1; sgn <= 1; sgn += 2) {
-        var cand = clamp(rabbitX + sgn * d2, 1, 98);
-        var gap = 999;
-        for (var i = 0; i < streaks.length; i++) {
-          gap = Math.min(gap, Math.abs(streaks[i].x - cand));
-        }
-        if (gap > bestGap) { bestGap = gap; safe = cand; }
-        if (bestGap > 14) break;
-        if (d2 === 0) break;
-      }
-      if (bestGap > 14) break;
-    }
-    rabbitX = safe;
+    rabbitX = 0;
+    walk = 0;
     invuln = INVULN;
   }
 
@@ -1372,17 +1308,26 @@
 
     if (invuln > 0) invuln -= dt;
 
-    // Steering
+    // Steering. Nothing moves him but a held button, and letting go stops him
+    // in place — the walk cycle snaps back to standing rather than coasting.
     var steer = (held.right ? 1 : 0) - (held.left ? 1 : 0);
-    var vx = DRIFT + steer * STEER;
-    rabbitX += vx * dt;
-    if (rabbitX < 0) rabbitX = 0;
-    walk += dt * (2.9 + Math.abs(vx) * 0.20);
+    var vx = steer * SPEED;
+    if (steer === 0) {
+      walk = 0;
+    } else {
+      rabbitX += vx * dt;
+      if (rabbitX < 0) rabbitX = 0;
+      // Stepping backwards runs the cycle backwards, so holding LEFT does not
+      // look like he is moonwalking.
+      walk += dt * 6.0 * steer;
+    }
 
     if (rabbitX >= 100) {
       rabbitX = 100;
       var next = level + 1;
       phase = 'wipe';
+      // Clearing a board hands back a full set of lives for the next one
+      lives = LIVES;
       setTimeout(function () { startLevel(next, true); }, 220);
       updateHud();
       return;
@@ -1493,7 +1438,11 @@
     if (sprites && phase !== 'idle') {
       var blink = invuln > 0 && Math.floor(invuln * 12) % 2 === 0;
       if (!blink) {
-        var f = sprites.frames[Math.floor(walk / TAU * WALK_FRAMES) % WALK_FRAMES];
+        // walk runs negative when he is backing up, so wrap rather than index
+        // off the front of the array
+        var fi = Math.floor(walk / TAU * WALK_FRAMES) % WALK_FRAMES;
+        if (fi < 0) fi += WALK_FRAMES;
+        var f = sprites.frames[fi];
         ctx.drawImage(f, cx - sprites.ox, geom.streetY - sprites.oy, sprites.w, sprites.h);
       }
     }
