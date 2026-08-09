@@ -1127,28 +1127,36 @@
 
   var PTS_BOARD = 1000;
   var MAX_PER_SHOT = 5;    // arrivals never exceed five, on any board
-  var FEED_EVERY = 1;         // shots between arrivals
+  var feedEvery = 5;          // shots between waves, set per board
+  var shotsSinceFeed = 0;
   var STAGGER = 0.08;         // 80ms between arrivals after a shot
   var SWARM_STAGGER = 0.04;   // 40ms during a board assembly
 
+  // The difficulty curve runs in two halves. Boards 1–3 raise how many bubbles
+  // arrive; boards 4–7 hold the count at five and raise how often they come,
+  // from every fifth shot to every shot. Board 8 has nothing left to tighten, so
+  // it takes away the one mercy left: the colour lock.
   var BOARD_CONFIG = {
-    1: { bubblesPerShot: 3, startingClusterSize: 20 },
-    2: { bubblesPerShot: 5, startingClusterSize: 24 },
-    3: { bubblesPerShot: 5, startingClusterSize: 28 },
-    4: { bubblesPerShot: 5, startingClusterSize: 32 },
-    5: { bubblesPerShot: 5, startingClusterSize: 36 }
+    1: { bubblesPerShot: 3, feedEvery: 5, startingClusterSize: 20 },
+    2: { bubblesPerShot: 4, feedEvery: 5, startingClusterSize: 24 },
+    3: { bubblesPerShot: 5, feedEvery: 5, startingClusterSize: 28 },
+    4: { bubblesPerShot: 5, feedEvery: 4, startingClusterSize: 32 },
+    5: { bubblesPerShot: 5, feedEvery: 3, startingClusterSize: 36 },
+    6: { bubblesPerShot: 5, feedEvery: 2, startingClusterSize: 40 },
+    7: { bubblesPerShot: 5, feedEvery: 1, startingClusterSize: 40 }
   };
 
-  // Arrivals are capped at five on every board. The table below still climbs to
-  // five and then holds, so board 2 onward all run at five and the difficulty
-  // after that comes from the board getting bigger rather than from the feed
-  // getting heavier. Above five the mass outgrows the frame faster than any
-  // player can cut it back, which made every later board a formality.
+  // Past the table there is nothing further to tighten, so board 8 and beyond
+  // run board 7's rate with the colour lock off — arrivals stop being one
+  // predictable colour and go back to whatever they like.
   function getBoardConfig(n) {
-    var cfg = n <= 5 ? BOARD_CONFIG[n] : { bubblesPerShot: 5, startingClusterSize: 40 };
+    var cfg = n <= 7 ? BOARD_CONFIG[n]
+                     : { bubblesPerShot: 5, feedEvery: 1, startingClusterSize: 40 };
     return {
       bubblesPerShot: Math.min(cfg.bubblesPerShot, MAX_PER_SHOT),
-      startingClusterSize: cfg.startingClusterSize
+      feedEvery: cfg.feedEvery,
+      startingClusterSize: cfg.startingClusterSize,
+      lockColor: n <= 7
     };
   }
 
@@ -1158,13 +1166,24 @@
   // Bearings are chosen for the batch here, at queue time, rather than by each
   // arrival as it launches — see pickSpreadBearings for why that distinction
   // decides whether the mass grows round or grows a spike.
+  // Everything a board's difficulty consists of, set in one place.
+  function applyBoardConfig(n) {
+    var cfg = getBoardConfig(n);
+    bubblesPerShot = cfg.bubblesPerShot;
+    feedEvery = cfg.feedEvery;
+    shotsSinceFeed = 0;
+    // From board 8 the lock comes off and arrivals go back to random colours.
+    boardIncomingColor = cfg.lockColor ? pick(palette()) : null;
+  }
+
   function queueArrivals(count, stagger, swarm) {
     var bearings = pickSpreadBearings(count, !!swarm);
 
-    // Arrivals take the board's locked colour, not a fresh one per wave.
+    // Arrivals take the board's locked colour. A null lock — board 8 and beyond —
+    // leaves each bubble to pick its own, which is the point of that board.
     //
-    // Board layout is exempt. It runs through this same queue, and a whole board
-    // dealt in one colour would be a solid block of it.
+    // Board layout is exempt either way. It runs through this same queue, and a
+    // whole board dealt in one colour would be a solid block of it.
     var waveColor = swarm ? null : boardIncomingColor;
 
     for (var i = 0; i < count; i++) {
@@ -1233,7 +1252,11 @@
     if (wallHit()) { finish('wall'); return; }
     if (shooterBlocked()) { finish('reached'); return; }
 
-    if (shotsFired % FEED_EVERY === 0) queueArrivals(bubblesPerShot, STAGGER, false);
+    shotsSinceFeed++;
+    if (shotsSinceFeed >= feedEvery) {
+      shotsSinceFeed = 0;
+      queueArrivals(bubblesPerShot, STAGGER, false);
+    }
   }
 
   function showResolve(result) {
@@ -1280,8 +1303,7 @@
     // to finish first leaves a dead half-second staring at an empty board.
     if (clearTimer > 0.8) {
       board++;
-      bubblesPerShot = bubblesPerShotFor(board);
-      boardIncomingColor = pick(palette());
+      applyBoardConfig(board);
       phase = 'assembling';
       clearTimer = 0;
       beginAssembly(board, SWARM_STAGGER);
@@ -1426,8 +1448,7 @@
   function startGame() {
     reset();
     board = 1;
-    bubblesPerShot = bubblesPerShotFor(1);
-    boardIncomingColor = pick(palette());
+    applyBoardConfig(1);
     shotsFired = 0;
     matched = 0; cascaded = 0; boardsCleared = 0;
     endReason = null;
@@ -1875,12 +1896,26 @@
       ctx.fillText('NEXT', nx, ny + R * 1.75);
     }
 
-    // How many arrive behind the next shot — the pressure, stated plainly.
+    // What is coming, and when. "PER SHOT" was true only while every shot fed the
+    // board; now that a wave can be five shots away the counter has to say so —
+    // knowing the wave lands on the next shot is most of the tactical
+    // information on the screen.
     if (phase === 'playing') {
+      var left = feedEvery - shotsSinceFeed;
+      var label = feedEvery === 1
+        ? '+' + bubblesPerShot + ' EVERY SHOT'
+        : '+' + bubblesPerShot + (left <= 1 ? ' NEXT SHOT' : ' IN ' + left);
+
       ctx.textAlign = 'left';
       ctx.font = '700 10px -apple-system, system-ui, sans-serif';
-      ctx.fillStyle = 'rgba(232, 255, 0, 0.75)';
-      ctx.fillText('+' + bubblesPerShot + ' PER SHOT', 12, 20);
+      ctx.fillStyle = left <= 1 ? 'rgba(255, 69, 0, 0.95)' : 'rgba(232, 255, 0, 0.75)';
+      ctx.fillText(label, 12, 20);
+
+      // The locked colour as a dot, so the player can see what is coming rather
+      // than have to remember it. No dot from board 8 — there is no answer to give.
+      if (boardIncomingColor) {
+        drawBubble(12 + ctx.measureText(label).width + 14, 16, boardIncomingColor, 0.34);
+      }
     }
   }
 
@@ -2272,7 +2307,6 @@
     showFloatingScore: showFloatingScore,
     flashScreen: flashScreen,
     comboTiers: function () { return Object.keys(COMBO_TIERS); },
-    setFeedEvery: function (n) { FEED_EVERY = n; },
     setSlop: function (v) { TOUCH_SLOP = v; },
     getPalette: function () { return PALETTE; },
 
@@ -2293,6 +2327,8 @@
         score: score, best: best,
         phase: phase, board: board,
         bubblesPerShot: bubblesPerShot,
+        feedEvery: feedEvery,
+        shotsSinceFeed: shotsSinceFeed,
         boardIncomingColor: boardIncomingColor,
         boardsCleared: boardsCleared,
         shotsFired: shotsFired,
