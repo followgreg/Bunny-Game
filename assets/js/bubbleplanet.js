@@ -34,13 +34,82 @@
   var COLORS = ['#FF4757', '#2ED573', '#1E90FF', '#FF6B81', '#FFA502', '#A55EEA'];
   // Red, Green, Blue, Pink, Orange, Purple
 
-  // Three of the six are in play. Six colours made a match a one-in-six accident:
-  // measured over full runs the player cleared about two bubbles a shot against
-  // three arriving, so the mass only ever grew. At three colours the same player
-  // pops more than twice as often and cascades roughly double. Sprites are still
-  // built for all six, so this costs the render path nothing.
-  var PALETTE = 3;
-  function palette() { return COLORS.slice(0, PALETTE); }
+  // ── Level palettes ────────────────────────────────────────────────────────
+  //
+  // Fifty boards, each with its own planet and its own three bubbles. Generated
+  // rather than picked by hand, and checked: the planet hue walks the wheel by
+  // the golden angle so no two nearby boards look alike, and the three bubbles
+  // sit 120 degrees apart from each other and at least 42 off the planet, so a
+  // bubble never disappears against the thing it is resting on. Measured across
+  // all fifty, the closest two bubbles on any one board are 99 apart. Their
+  // lightness varies a little too, so they differ by more than hue alone, which
+  // is what keeps them apart for a colour-blind player.
+  //
+  // p = planet gradient, light to deep - r = ring - l = landmasses - b = bubbles
+  var LEVEL_THEMES = [
+    { p: ['#54de7c', '#239f47', '#10411f'], r: '#f236ea', l: '#da2f9a', b: ['#49c2f3', '#ea2eb3', '#ccf764'] },
+    { p: ['#a554de', '#6b239f', '#2d1041'], r: '#b3f236', l: '#68da2f', b: ['#f34990', '#7dea2e', '#64a1f7'] },
+    { p: ['#decd54', '#9f8f23', '#413b10'], r: '#367cf2', l: '#2f36da', b: ['#5ef349', '#2e46ea', '#f76476'] },
+    { p: ['#54c7de', '#238a9f', '#103941'], r: '#f23645', l: '#da5a2f', b: ['#6549f3', '#ea4e2e', '#64f77d'] },
+    { p: ['#de549f', '#9f2366', '#41102b'], r: '#36f25d', l: '#2fda8c', b: ['#f39749', '#2eea85', '#a764f7'] },
+    { p: ['#76de54', '#429f23', '#1d4110'], r: '#9436f2', l: '#be2fda', b: ['#49f3c9', '#bb2eea', '#f7d264'] },
+    { p: ['#5a54de', '#28239f', '#121041'], r: '#f2cb36', l: '#c5da2f', b: ['#f349ec', '#e2ea2e', '#64f1f7'] },
+    { p: ['#de8254', '#9f4c23', '#412110'], r: '#36e2f2', l: '#2f93da', b: ['#baf349', '#2eabea', '#f764c6'] },
+    { p: ['#54deab', '#239f71', '#10412f'], r: '#f236ab', l: '#da2f61', b: ['#4989f3', '#ea2e75', '#9bf764'] },
+    { p: ['#d354de', '#95239f', '#3d1041'], r: '#74f236', l: '#2fda2f', b: ['#f34957', '#3eea2e', '#6470f7'] },
+    { p: ['#c1de54', '#859f23', '#374110'], r: '#363df2', l: '#612fda', b: ['#49f36d', '#562eea', '#f78364'] },
+    { p: ['#5499de', '#23619f', '#102941'], r: '#f26536', l: '#da932f', b: ['#9e49f3', '#ea8d2e', '#64f7ae'] },
+    { p: ['#de5470', '#9f233d', '#41101a'], r: '#36f29c', l: '#2fdac5', b: ['#f3d049', '#2eeac3', '#d864f7'] },
+    { p: ['#54de5f', '#239f2d', '#104114'], r: '#d336f2', l: '#da2fbd', b: ['#49e5f3', '#ea2eda', '#eaf764'] },
+    { p: ['#8854de', '#52239f', '#231041'], r: '#daf236', l: '#8bda2f', b: ['#f349b3', '#a3ea2e', '#64bff7'] },
+    { p: ['#deb054', '#9f7623', '#413110'], r: '#36a3f2', l: '#2f59da', b: ['#81f349', '#2e6cea', '#f76495'] },
+    { p: ['#54ded9', '#239f9a', '#10413f'], r: '#f2366c', l: '#da362f', b: ['#4950f3', '#ea2e36', '#6af764'] },
+    { p: ['#de54bb', '#9f2380', '#411035'], r: '#36f236', l: '#2fda68', b: ['#f37449', '#2eea5e', '#8964f7'] },
+    { p: ['#93de54', '#5b9f23', '#274110'], r: '#6d36f2', l: '#9a2fda', b: ['#49f3a6', '#952eea', '#f7b464'] },
+    { p: ['#546ade', '#23379f', '#101841'], r: '#f2a436', l: '#dacc2f', b: ['#d749f3', '#eacb2e', '#64f7df'] },
+    { p: ['#de6554', '#9f3323', '#411710'], r: '#36f2db', l: '#2fb6da', b: ['#def349', '#2ed2ea', '#f764e4'] },
+    { p: ['#54de8e', '#239f57', '#104125'], r: '#f236d2', l: '#da2f84', b: ['#49acf3', '#ea2e9b', '#b9f764'] },
+    { p: ['#b654de', '#7b239f', '#331041'], r: '#9bf236', l: '#52da2f', b: ['#f3497a', '#64ea2e', '#648ef7'] },
+    { p: ['#dede54', '#9f9f23', '#414110'], r: '#3664f2', l: '#3e2fda', b: ['#49f349', '#2f2eea', '#f76464'] },
+    { p: ['#54b5de', '#237a9f', '#103341'], r: '#f23e36', l: '#da702f', b: ['#7b49f3', '#ea662e', '#64f78f'] },
+    { p: ['#de548d', '#9f2356', '#411025'], r: '#36f275', l: '#2fdaa2', b: ['#f3ad49', '#2eea9d', '#ba64f7'] },
+    { p: ['#64de54', '#329f23', '#164110'], r: '#ac36f2', l: '#d42fda', b: ['#49f3df', '#d32eea', '#f7e564'] },
+    { p: ['#6b54de', '#38239f', '#191041'], r: '#f2e336', l: '#afda2f', b: ['#f349d6', '#caea2e', '#64def7'] },
+    { p: ['#de9454', '#9f5c23', '#412710'], r: '#36caf2', l: '#2f7dda', b: ['#a5f349', '#2e93ea', '#f764b3'] },
+    { p: ['#54debc', '#239f80', '#104135'], r: '#f23693', l: '#da2f4b', b: ['#4973f3', '#ea2e5c', '#88f764'] },
+    { p: ['#de54d8', '#9f2399', '#41103f'], r: '#5cf236', l: '#2fda45', b: ['#f35149', '#2eea37', '#6b64f7'] },
+    { p: ['#b0de54', '#759f23', '#314110'], r: '#4636f2', l: '#772fda', b: ['#49f382', '#6e2eea', '#f79664'] },
+    { p: ['#5487de', '#23519f', '#102241'], r: '#f27d36', l: '#daa92f', b: ['#b449f3', '#eaa52e', '#64f7c0'] },
+    { p: ['#de545f', '#9f232d', '#411014'], r: '#36f2b4', l: '#2fdada', b: ['#f3e649', '#2eeadc', '#eb64f7'] },
+    { p: ['#54de71', '#239f3d', '#10411b'], r: '#eb36f2', l: '#da2fa8', b: ['#49cff3', '#ea2ec2', '#d8f764'] },
+    { p: ['#9a54de', '#61239f', '#291041'], r: '#c2f236', l: '#75da2f', b: ['#f3499d', '#8bea2e', '#64adf7'] },
+    { p: ['#dec254', '#9f8623', '#413710'], r: '#368bf2', l: '#2f43da', b: ['#6cf349', '#2e54ea', '#f76482'] },
+    { p: ['#54d2de', '#23949f', '#103d41'], r: '#f23654', l: '#da4c2f', b: ['#5849f3', '#ea3f2e', '#64f771'] },
+    { p: ['#de54aa', '#9f2370', '#41102f'], r: '#36f24e', l: '#2fda7e', b: ['#f38a49', '#2eea76', '#9c64f7'] },
+    { p: ['#81de54', '#4c9f23', '#204110'], r: '#8536f2', l: '#b02fda', b: ['#49f3bb', '#ad2eea', '#f7c764'] },
+    { p: ['#5459de', '#23279f', '#101241'], r: '#f2bc36', l: '#d2da2f', b: ['#ed49f3', '#eae42e', '#64f7f2'] },
+    { p: ['#de7754', '#9f4323', '#411d10'], r: '#36f1f2', l: '#2fa0da', b: ['#c8f349', '#2ebaea', '#f764d1'] },
+    { p: ['#54dea0', '#239f67', '#10412b'], r: '#f236ba', l: '#da2f6e', b: ['#4996f3', '#ea2e83', '#a6f764'] },
+    { p: ['#c854de', '#8b239f', '#391041'], r: '#83f236', l: '#3cda2f', b: ['#f34964', '#4cea2e', '#647cf7'] },
+    { p: ['#ccde54', '#8f9f23', '#3b4110'], r: '#364cf2', l: '#542fda', b: ['#49f35f', '#472eea', '#f77764'] },
+    { p: ['#54a4de', '#236a9f', '#102d41'], r: '#f25636', l: '#da862f', b: ['#9149f3', '#ea7e2e', '#64f7a2'] },
+    { p: ['#de547b', '#9f2346', '#41101e'], r: '#36f28d', l: '#2fdab8', b: ['#f3c349', '#2eeab5', '#cd64f7'] },
+    { p: ['#54de55', '#239f24', '#104111'], r: '#c436f2', l: '#da2fcb', b: ['#49f2f3', '#ea2ee9', '#f6f764'] },
+    { p: ['#7d54de', '#48239f', '#1f1041'], r: '#e9f236', l: '#99da2f', b: ['#f349c1', '#b2ea2e', '#64cbf7'] },
+    { p: ['#dea554', '#9f6c23', '#412d10'], r: '#36b2f2', l: '#2f67da', b: ['#8ff349', '#2e7bea', '#f764a0'] }
+  ];
+
+  // Past fifty the table cycles. Fifty boards is far beyond any run reached so
+  // far, and a repeat at that depth is better than an unchecked colour.
+  function themeFor(n) {
+    var i = (n - 1) % LEVEL_THEMES.length;
+    return LEVEL_THEMES[(i + LEVEL_THEMES.length) % LEVEL_THEMES.length];
+  }
+
+  var theme = LEVEL_THEMES[0];
+
+  // Three colours in play, and which three depends on the board.
+  function palette() { return theme.b; }
 
   // ── Board / physics tunables ──────────────────────────────────────────────
 
@@ -1132,31 +1201,27 @@
   var STAGGER = 0.08;         // 80ms between arrivals after a shot
   var SWARM_STAGGER = 0.04;   // 40ms during a board assembly
 
-  // The difficulty curve runs in two halves. Boards 1–3 raise how many bubbles
-  // arrive; boards 4–7 hold the count at five and raise how often they come,
-  // from every fifth shot to every shot. Board 8 has nothing left to tighten, so
-  // it takes away the one mercy left: the colour lock.
+  // The feed is fixed for the whole game: three bubbles, one colour, every fifth
+  // shot, on every board. What changes from board to board is the size of the
+  // cluster you start against — and the colours, which are the level's own.
+  var WAVE_SIZE  = 3;
+  var WAVE_EVERY = 5;
+
   var BOARD_CONFIG = {
-    1: { bubblesPerShot: 3, feedEvery: 5, startingClusterSize: 20 },
-    2: { bubblesPerShot: 4, feedEvery: 5, startingClusterSize: 24 },
-    3: { bubblesPerShot: 5, feedEvery: 5, startingClusterSize: 28 },
-    4: { bubblesPerShot: 5, feedEvery: 4, startingClusterSize: 32 },
-    5: { bubblesPerShot: 5, feedEvery: 3, startingClusterSize: 36 },
-    6: { bubblesPerShot: 5, feedEvery: 2, startingClusterSize: 40 },
-    7: { bubblesPerShot: 5, feedEvery: 1, startingClusterSize: 40 }
+    1: { startingClusterSize: 20 },
+    2: { startingClusterSize: 24 },
+    3: { startingClusterSize: 28 },
+    4: { startingClusterSize: 32 },
+    5: { startingClusterSize: 36 }
   };
 
-  // Past the table there is nothing further to tighten, so board 8 and beyond
-  // run board 7's rate with the colour lock off — arrivals stop being one
-  // predictable colour and go back to whatever they like.
   function getBoardConfig(n) {
-    var cfg = n <= 7 ? BOARD_CONFIG[n]
-                     : { bubblesPerShot: 5, feedEvery: 1, startingClusterSize: 40 };
+    var cfg = n <= 5 ? BOARD_CONFIG[n] : { startingClusterSize: 40 };
     return {
-      bubblesPerShot: Math.min(cfg.bubblesPerShot, MAX_PER_SHOT),
-      feedEvery: cfg.feedEvery,
+      bubblesPerShot: WAVE_SIZE,
+      feedEvery: WAVE_EVERY,
       startingClusterSize: cfg.startingClusterSize,
-      lockColor: n <= 7
+      lockColor: true
     };
   }
 
@@ -1172,8 +1237,13 @@
     bubblesPerShot = cfg.bubblesPerShot;
     feedEvery = cfg.feedEvery;
     shotsSinceFeed = 0;
-    // From board 8 the lock comes off and arrivals go back to random colours.
-    boardIncomingColor = cfg.lockColor ? pick(palette()) : null;
+
+    // The board's own colours, planet and bubbles both. Set before the incoming
+    // colour is drawn, or the wave would lock to a colour from the last board.
+    theme = themeFor(n);
+    if (ctx) buildSprites();
+
+    boardIncomingColor = pick(palette());
   }
 
   function queueArrivals(count, stagger, swarm) {
@@ -1556,6 +1626,10 @@
     Bubble.nextId = maxId + 1;
 
     board          = saved.currentBoard || 1;
+    // The palette is derived from the board, not stored, so a save can never
+    // carry colours that disagree with the level it belongs to.
+    theme = themeFor(board);
+    if (ctx) buildSprites();
     score          = saved.currentScore || 0;
     bubblesPerShot = saved.bubblesPerShot || bubblesPerShotFor(board);
     feedEvery      = saved.feedEvery || getBoardConfig(board).feedEvery;
@@ -1621,6 +1695,11 @@
   var SPRITE_BOX = 0;
   var lastTime = null, raf = null;
   var clock = 0;
+
+  function rgba(hex, a) {
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
 
   function shade(hex, amt) {
     var n = parseInt(hex.slice(1), 16);
@@ -1690,61 +1769,70 @@
   // hundred radial gradients a frame is not worth paying for, and the light
   // source is fixed, so the glint is the same on every one.
 
-  function buildSprites() {
+  // Built on demand and cached by colour. Pre-building a fixed palette no longer
+  // works now that every board brings three new colours — and a cache keyed by
+  // colour costs nothing, since a board only ever uses three.
+  function spriteFor(color) {
+    if (sprites[color]) return sprites[color];
+
     SPRITE_BOX = R * 2 + 6;
     var px = Math.ceil(SPRITE_BOX * DPR);
+    var c = document.createElement('canvas');
+    c.width = px; c.height = px;
+    var g = c.getContext('2d');
+    g.scale(DPR, DPR);
+    var m = SPRITE_BOX / 2;
 
-    COLORS.forEach(function (color) {
-      var c = document.createElement('canvas');
-      c.width = px; c.height = px;
-      var g = c.getContext('2d');
-      g.scale(DPR, DPR);
-      var m = SPRITE_BOX / 2;
+    var grad = g.createRadialGradient(m - R * 0.30, m - R * 0.35, R * 0.05, m, m, R);
+    grad.addColorStop(0,   shade(color, 0.60));
+    grad.addColorStop(0.4, color);
+    grad.addColorStop(1,   shade(color, -0.40));
 
-      var grad = g.createRadialGradient(m - R * 0.30, m - R * 0.35, R * 0.05, m, m, R);
-      grad.addColorStop(0,   shade(color, 0.60));
-      grad.addColorStop(0.4, color);
-      grad.addColorStop(1,   shade(color, -0.40));
+    g.beginPath();
+    g.arc(m, m, R, 0, TAU);
+    g.fillStyle = grad;
+    g.fill();
 
-      g.beginPath();
-      g.arc(m, m, R, 0, TAU);
-      g.fillStyle = grad;
-      g.fill();
+    // Rim light. Against a near-black sky a coloured sphere loses its edge
+    // completely without it.
+    g.beginPath();
+    g.arc(m, m, R - 0.75, 0, TAU);
+    g.strokeStyle = 'rgba(255,255,255,0.20)';
+    g.lineWidth = 1.5;
+    g.stroke();
 
-      // Rim light. Against a near-black sky a coloured sphere loses its edge
-      // completely without it.
-      g.beginPath();
-      g.arc(m, m, R - 0.75, 0, TAU);
-      g.strokeStyle = 'rgba(255,255,255,0.20)';
-      g.lineWidth = 1.5;
-      g.stroke();
+    // The glint is an ellipse, not a circle — a round dot reads as a hole
+    // punched in the sphere, a raked ellipse reads as a lit surface.
+    g.beginPath();
+    g.ellipse(m - R * 0.30, m - R * 0.34, R * 0.26, R * 0.16, -0.6, 0, TAU);
+    g.fillStyle = 'rgba(255,255,255,0.70)';
+    g.fill();
 
-      // The glint is an ellipse, not a circle — a round dot reads as a hole
-      // punched in the sphere, a raked ellipse reads as a lit surface.
-      g.beginPath();
-      g.ellipse(m - R * 0.30, m - R * 0.34, R * 0.26, R * 0.16, -0.6, 0, TAU);
-      g.fillStyle = 'rgba(255,255,255,0.70)';
-      g.fill();
+    // A second, much smaller catchlight below it. One highlight looks painted
+    // on; two read as glass.
+    g.beginPath();
+    g.arc(m + R * 0.28, m + R * 0.30, R * 0.10, 0, TAU);
+    g.fillStyle = 'rgba(255,255,255,0.18)';
+    g.fill();
 
-      // A second, much smaller catchlight below it. One highlight looks painted
-      // on; two read as glass.
-      g.beginPath();
-      g.arc(m + R * 0.28, m + R * 0.30, R * 0.10, 0, TAU);
-      g.fillStyle = 'rgba(255,255,255,0.18)';
-      g.fill();
+    sprites[color] = c;
+    return c;
+  }
 
-      sprites[color] = c;
-    });
+  function buildSprites() {
+    sprites = {};
+    SPRITE_BOX = R * 2 + 6;
+    palette().forEach(spriteFor);
   }
 
   function drawBubble(x, y, color, scale, alpha) {
     var s = SPRITE_BOX * (scale === undefined ? 1 : scale);
     if (alpha !== undefined && alpha < 1) {
       ctx.globalAlpha = Math.max(0, alpha);
-      ctx.drawImage(sprites[color], x - s / 2, y - s / 2, s, s);
+      ctx.drawImage(spriteFor(color), x - s / 2, y - s / 2, s, s);
       ctx.globalAlpha = 1;
     } else {
-      ctx.drawImage(sprites[color], x - s / 2, y - s / 2, s, s);
+      ctx.drawImage(spriteFor(color), x - s / 2, y - s / 2, s, s);
     }
   }
 
@@ -1776,7 +1864,7 @@
     ctx.scale(1, RING_SQUASH);
     ctx.beginPath();
     ctx.arc(0, 0, RING_R, from, to);
-    ctx.strokeStyle = 'rgba(0, 255, 200, ' + alpha + ')';
+    ctx.strokeStyle = rgba(theme.r, alpha);
     ctx.lineWidth = width / RING_SQUASH;   // undo the squash on the stroke
     ctx.lineCap = 'round';
     ctx.stroke();
@@ -1788,9 +1876,9 @@
       PLANET_X - PLANET_R * 0.3, PLANET_Y - PLANET_R * 0.3, PLANET_R * 0.1,
       PLANET_X, PLANET_Y, PLANET_R
     );
-    grad.addColorStop(0,   '#A78BFA');
-    grad.addColorStop(0.4, '#7C3AED');
-    grad.addColorStop(1,   '#2D1B69');
+    grad.addColorStop(0,   theme.p[0]);
+    grad.addColorStop(0.4, theme.p[1]);
+    grad.addColorStop(1,   theme.p[2]);
 
     // A teal atmosphere bloom, so the planet sits in the void rather than on it.
     ctx.save();
@@ -1798,8 +1886,8 @@
     ctx.arc(PLANET_X, PLANET_Y, PLANET_R * 1.22, 0, TAU);
     var halo = ctx.createRadialGradient(PLANET_X, PLANET_Y, PLANET_R * 0.92,
                                         PLANET_X, PLANET_Y, PLANET_R * 1.22);
-    halo.addColorStop(0, 'rgba(0,255,200,0.20)');
-    halo.addColorStop(1, 'rgba(0,255,200,0)');
+    halo.addColorStop(0, rgba(theme.r, 0.20));
+    halo.addColorStop(1, rgba(theme.r, 0));
     ctx.fillStyle = halo;
     ctx.fill();
     ctx.restore();
@@ -1830,7 +1918,7 @@
       ctx.rotate(t.rot);
       ctx.beginPath();
       ctx.ellipse(0, 0, t.rx * PLANET_R, t.ry * PLANET_R, 0, 0, TAU);
-      ctx.fillStyle = 'rgba(45, 212, 191, ' + t.a + ')';
+      ctx.fillStyle = rgba(theme.l, t.a);
       ctx.fill();
       ctx.restore();
     }
@@ -1983,18 +2071,18 @@
     ctx.translate(SHOOTER_X, SHOOTER_Y);
     ctx.rotate(aim);
     var bg = ctx.createLinearGradient(0, 0, R * 2.2, 0);
-    bg.addColorStop(0, '#4c3a7a');
-    bg.addColorStop(1, '#7C3AED');
+    bg.addColorStop(0, theme.p[2]);
+    bg.addColorStop(1, theme.p[1]);
     ctx.fillStyle = bg;
     ctx.fillRect(0, -R * 0.40, R * 2.2, R * 0.80);
     ctx.restore();
 
     ctx.beginPath();
     ctx.arc(SHOOTER_X, SHOOTER_Y, R * 1.5, 0, TAU);
-    ctx.fillStyle = '#2D1B69';
+    ctx.fillStyle = theme.p[2];
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.45)';
+    ctx.strokeStyle = rgba(theme.r, 0.45);
     ctx.stroke();
 
     if (!shot && queue.length) drawBubble(SHOOTER_X, SHOOTER_Y, queue[0]);
@@ -2442,14 +2530,16 @@
     restoreGameState: restoreGameState,
     fireShot: fireShot,
     phase: function () { return phase; },
-    setPalette: function (n) { PALETTE = Math.max(2, Math.min(COLORS.length, n)); },
     getBoardConfig: getBoardConfig,
+    palette: palette,
+    themeFor: themeFor,
+    theme: function () { return theme; },
+    levelThemeCount: function () { return LEVEL_THEMES.length; },
     showComboText: showComboText,
     showFloatingScore: showFloatingScore,
     flashScreen: flashScreen,
     comboTiers: function () { return Object.keys(COMBO_TIERS); },
     setSlop: function (v) { TOUCH_SLOP = v; },
-    getPalette: function () { return PALETTE; },
 
     settle: function (max) {
       var n = 0, cap = max || 20000;
