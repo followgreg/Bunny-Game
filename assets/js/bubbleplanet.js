@@ -1256,10 +1256,17 @@
     shotsSinceFeed = 0;
     streak = 0;                // a streak does not carry across boards
 
-    // The board's own colours, planet and bubbles both. Set before the incoming
-    // colour is drawn, or the wave would lock to a colour from the last board.
+    // The board's own colours, planet and bubbles both. Set before anything else
+    // draws a colour, or it would draw from the board just finished.
     theme = themeFor(n);
     if (ctx) buildSprites();
+
+    // The loaded and on-deck bubbles have to go with it. fillQueue only tops the
+    // queue up, so without this the player carries the last board's colours onto
+    // the new one and fires bubbles that are not in its palette at all — a fourth
+    // and fifth colour on the board, and ones that can never match anything.
+    queue.length = 0;
+    fillQueue();
 
     boardIncomingColor = pick(palette());
   }
@@ -1597,21 +1604,25 @@
 
   function startGame() {
     reset();
+
+    // The splash board goes before anything reads the board for colours.
+    // applyBoardConfig refills the shot queue, and nextColor prefers colours it
+    // can actually see — so with the previous run's cluster still standing, the
+    // new game loads its first two shots in the *old* board's palette and puts
+    // four and five colours on a board that should only ever have three.
+    bubbles.length = 0;
+    recompute();
+    syncWorld();
+
     board = 1;
-    applyBoardConfig(1);
+    applyBoardConfig(1);          // sets the palette, and refills the queue from it
     shotsFired = 0;
     matched = 0; cascaded = 0; boardsCleared = 0;
     endReason = null;
     streak = 0;
-    queue.length = 0;
-    fillQueue();
 
-    // Board 1 is dealt the same way every board after it is: the splash board
-    // built by reset() is cleared off and the swarm flies in, so the run opens on
-    // the same sequence a board clear does.
-    bubbles.length = 0;
-    recompute();
-    syncWorld();
+    // Board 1 is dealt the same way every board after it is: the swarm flies in,
+    // so the run opens on the same sequence a board clear does.
     phase = 'assembling';
     clearTimer = 0;
     beginAssembly(1, SWARM_STAGGER);
