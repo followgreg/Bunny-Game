@@ -45,6 +45,18 @@
      bar and footer keep the site's own chrome; only the playfield goes noir.
      ========================================================================== */
 
+  /* shared.css sets user-select unprefixed, which WebKit does not honour, so
+     a long press anywhere on the page can start selecting. This is a game you
+     play by holding buttons down — scoped to this page rather than fixing it
+     in the shared sheet, which sixty other games depend on. */
+  body {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    -webkit-touch-callout: none;
+  }
+
   /* The playfield is the one part of the page that is pure black. shared.css
      ships #canvas-wrap white with padding, which would letterbox the street. */
   #canvas-wrap {
@@ -303,15 +315,31 @@
     text-transform: uppercase;
     cursor: pointer;
     touch-action: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
     transition: background 0.06s, color 0.06s;
   }
+  /* These are held down, often for seconds at a time, which is exactly the
+     gesture every browser reads as "select this text". shared.css sets
+     user-select unprefixed, which WebKit ignores, so the prefixes matter here
+     and the callout has to go too or iOS offers a Copy bubble mid-run. */
+  #rain-controls,
+  #rain-controls * {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
   .rain-key + .rain-key { box-shadow: -2px 0 0 #fff; }
+  /* The label is never the event target, so a drag off the glyph cannot start
+     a selection or lose the press */
+  .rain-key .rain-chev,
+  .rain-key { -webkit-user-drag: none; }
+  .rain-key > * { pointer-events: none; }
   .rain-key .rain-chev { font-size: 1.15rem; line-height: 1; opacity: 0.75; }
   .rain-key.is-down { background: #fff; color: #000; }
   .rain-key.is-down .rain-chev { opacity: 1; }
@@ -1480,6 +1508,11 @@
     el.addEventListener('pointercancel', release);
     el.addEventListener('lostpointercapture', release);
     el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    // A held button is a press, never a text drag. CSS covers most of it, but
+    // a fast double-tap still reaches for the word underneath.
+    el.addEventListener('selectstart', function (e) { e.preventDefault(); });
+    el.addEventListener('dragstart',   function (e) { e.preventDefault(); });
+    el.addEventListener('mousedown',   function (e) { e.preventDefault(); });
   }
   bindKey(keyLeft, 'left');
   bindKey(keyRight, 'right');
