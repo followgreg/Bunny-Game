@@ -1358,6 +1358,14 @@
     }
 
     // Five clearing shots back to back takes the rest of the board with it.
+    //
+    // Note what this does to the feed, because it is intended and not a bug.
+    // The wave counter and the streak counter both run to five, so a player who
+    // pops something on every shot trips them on the same shot — and the board
+    // clear returns below before the feed block is reached, then the new board
+    // resets both counters. A player clearing every shot therefore never faces a
+    // wave at all, while a player who misses does. Play it perfectly and you are
+    // never interrupted: that is the reward, decided deliberately.
     if (streak >= STREAK_WIPE) {
       wipeBoard();
       streak = 0;
