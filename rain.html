@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Rain — a noir dodging game — Bunny Game</title>
+  <meta name="description" content="Cross the street before the rain gets you.">
+  <meta property="og:title" content="Rain — a noir dodging game — Bunny Game">
+  <meta property="og:description" content="Cross the street before the rain gets you.">
+  <meta property="og:url" content="https://www.thebunnygame.com/rain">
+  <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/rain-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.thebunnygame.com/assets/og-images/rain-og.png">
+  <link rel="canonical" href="https://www.thebunnygame.com/rain">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/blue-bunny.svg">
+  <link rel="apple-touch-icon" href="Icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bunny Game">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7HC7SYBNKX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7HC7SYBNKX');
+  </script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2168282760431730"
+       crossorigin="anonymous"></script>
+
+  <style>
+  /* ==========================================================================
+     Rain — everything below is scoped to this page. The shared header, stats
+     bar and footer keep the site's own chrome; only the playfield goes noir.
+     ========================================================================== */
+
+  /* The playfield is the one part of the page that is pure black. shared.css
+     ships #canvas-wrap white with padding, which would letterbox the street. */
+  #canvas-wrap {
+    background: #000;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* The stage is the black rectangle the game lives in. It stretches to the
+     wrap on a phone and is capped on a monitor. */
+  #rain-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    image-rendering: auto;
+    cursor: default;
+  }
+
+  /* ── Lives, top corner ────────────────────────────────────────────────── */
+  /* Both HUD corners sit on a black plate — a lit window or a passing train
+     can put white directly behind them. */
+  #rain-lives {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    z-index: 3;
+    pointer-events: none;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.30);
+    padding: 5px 8px;
+  }
+  .rain-life svg {
+    display: block;
+    width: 15px;
+    height: 19px;
+    fill: #fff;
+  }
+  .rain-life.spent svg { fill: #fff; opacity: 0.17; }
+
+  /* The level tag opposite the lives — title-card type, kept small. */
+  #rain-level-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    pointer-events: none;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 0.82rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    color: #fff;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.30);
+    padding: 8px 8px 8px 12px;
+  }
+
+  /* ── The one-off hint on level 1 ──────────────────────────────────────── */
+  /* An intertitle plate, so the copy survives landing on a pool of light */
+  #rain-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    transform: translateX(-50%);
+    z-index: 3;
+    pointer-events: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #000;
+    border: 1px solid #fff;
+    padding: 8px 14px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.5s;
+    text-align: center;
+  }
+  #rain-hint.show { opacity: 0.82; }
+
+  /* ── Hit flash ────────────────────────────────────────────────────────── */
+  #rain-flash {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #rain-flash.fire { animation: rain-flash-frame 220ms steps(1, end) 1; }
+  @keyframes rain-flash-frame {
+    0%   { opacity: 1; }
+    36%  { opacity: 1; }
+    37%  { opacity: 0.55; }
+    68%  { opacity: 0.55; }
+    69%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  /* ── Title-card wipe ──────────────────────────────────────────────────── */
+  #rain-wipe {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  #rain-wipe.on { visibility: visible; }
+  .rain-wipe-panel {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    transform: translateX(101%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  #rain-wipe.in  .rain-wipe-panel { animation: rain-wipe-in  360ms cubic-bezier(.7,0,.3,1) forwards; }
+  #rain-wipe.out .rain-wipe-panel { animation: rain-wipe-out 360ms cubic-bezier(.7,0,.3,1) forwards; }
+  @keyframes rain-wipe-in  { from { transform: translateX(101%); } to { transform: translateX(0); } }
+  @keyframes rain-wipe-out { from { transform: translateX(0); }    to { transform: translateX(-101%); } }
+
+  .rain-card-kicker {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0.55;
+    padding-left: 0.4em;
+  }
+  .rain-card-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(2.6rem, 13vw, 5rem);
+    line-height: 0.94;
+    letter-spacing: 0.06em;
+    color: #fff;
+    text-align: center;
+  }
+  .rain-card-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0.45;
+    padding-left: 0.26em;
+  }
+  /* The rule under the title, drawn the width of the type */
+  .rain-card-rule {
+    width: min(58%, 260px);
+    height: 2px;
+    background: #fff;
+    opacity: 0.9;
+  }
+
+  /* ── Start splash ─────────────────────────────────────────────────────── */
+  #rain-start {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 22px 24px calc(22px + env(safe-area-inset-bottom));
+    text-align: center;
+    overflow-y: auto;
+  }
+  #rain-start.hidden { display: none; }
+
+  /* The wordmark ships as near-black ink, so it is masked to white rather
+     than filtered — same trick the lobby card uses. */
+  .rain-splash-logo {
+    display: block;
+    width: min(58vw, 230px);
+    height: calc(min(58vw, 230px) / 2.088);
+    background-color: #fff;
+    -webkit-mask-image: url('assets/logos/rain_logo.svg');
+            mask-image: url('assets/logos/rain_logo.svg');
+    -webkit-mask-size: contain;
+            mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+            mask-position: center;
+    flex-shrink: 0;
+  }
+  .rain-splash-line {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.68;
+    color: rgba(255,255,255,0.62);
+    max-width: 40ch;
+  }
+  .rain-btn {
+    background: #fff;
+    border: 1px solid #fff;
+    color: #000;
+    padding: 13px 34px;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s, color 0.12s;
+  }
+  .rain-btn:hover  { background: #cfcfcf; border-color: #cfcfcf; }
+  .rain-btn:active { background: #9a9a9a; border-color: #9a9a9a; }
+
+  /* ── Steering bar ─────────────────────────────────────────────────────── */
+  #rain-controls {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+    background: #000;
+    border-top: 2px solid #fff;
+    padding: 0;
+    touch-action: none;
+  }
+  .rain-key {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 84px;
+    background: #000;
+    border: none;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: background 0.06s, color 0.06s;
+  }
+  .rain-key + .rain-key { box-shadow: -2px 0 0 #fff; }
+  .rain-key .rain-chev { font-size: 1.15rem; line-height: 1; opacity: 0.75; }
+  .rain-key.is-down { background: #fff; color: #000; }
+  .rain-key.is-down .rain-chev { opacity: 1; }
+
+  /* ── Game-over modal, in noir ─────────────────────────────────────────── */
+  #overlay { background: rgba(0,0,0,0.86); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  #overlay .modal {
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 2px;
+    box-shadow: none;
+    padding: 30px 26px 24px;
+  }
+  #overlay .modal h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.22;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  #overlay .modal-score {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.45rem, 6.6vw, 1.95rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  #overlay .modal-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 24px;
+    padding-left: 0.26em;
+  }
+  #overlay .play-again-btn {
+    background: #fff;
+    color: #000;
+    border-radius: 2px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+  }
+  #overlay .play-again-btn:hover  { background: #cfcfcf; }
+  #overlay .play-again-btn:active { background: #9a9a9a; }
+  #overlay .share-btn {
+    border: 1px solid rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.75);
+    border-radius: 2px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 0.74rem;
+  }
+  #overlay .share-btn:hover  { border-color: #fff; color: #fff; }
+  #overlay .share-btn:active { background: rgba(255,255,255,0.12); }
+
+  /* ── Desktop ──────────────────────────────────────────────────────────
+     One layout change at 760px: the street is capped so it does not stretch
+     into a letterbox on a wide monitor, and the two keys shrink to a pair
+     that sits under it rather than spanning the whole window. */
+  @media (min-width: 760px) {
+    #rain-stage {
+      max-width: 1040px;
+      border-left: 1px solid rgba(255,255,255,0.14);
+      border-right: 1px solid rgba(255,255,255,0.14);
+    }
+    #rain-controls {
+      justify-content: center;
+      gap: 0;
+      border-top-width: 1px;
+    }
+    .rain-key {
+      flex: 0 0 auto;
+      width: 230px;
+      height: 58px;
+      font-size: 0.78rem;
+    }
+    .rain-key:first-child { border-left: 1px solid rgba(255,255,255,0.2); }
+    .rain-key:last-child  { border-right: 1px solid rgba(255,255,255,0.2); }
+    .rain-splash-logo { width: 300px; height: 143px; }
+    .rain-splash-line { font-size: 0.88rem; }
+    #rain-lives { top: 13px; left: 14px; }
+    .rain-life svg { width: 17px; height: 22px; }
+    #rain-level-tag { top: 13px; right: 14px; font-size: 0.95rem; }
+    #rain-hint { font-size: 0.74rem; }
+  }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
+  <div class="header-controls">
+    <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
+    <button class="icon-btn" id="new-btn">↺ New</button>
+  </div>
+</div>
+
+<div id="nav-root"></div>
+
+<div id="stats">
+  <div class="stat-item">
+    <span class="stat-label">Level</span>
+    <span class="stat-value" id="val-level">1</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Across</span>
+    <span class="stat-value" id="val-across">0%</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Best</span>
+    <span class="stat-value" id="val-best">—</span>
+  </div>
+</div>
+
+<div id="canvas-wrap">
+  <div id="rain-stage">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="rain-lives" aria-label="Lives"></div>
+    <div id="rain-level-tag">I</div>
+    <div id="rain-hint"></div>
+
+    <div id="rain-wipe">
+      <div class="rain-wipe-panel">
+        <span class="rain-card-kicker" id="rain-card-kicker">Level</span>
+        <span class="rain-card-title" id="rain-card-title">II</span>
+        <span class="rain-card-rule"></span>
+        <span class="rain-card-sub" id="rain-card-sub">Rooftops</span>
+      </div>
+    </div>
+
+    <div id="rain-start">
+      <span class="rain-splash-logo" role="img" aria-label="Rain"></span>
+      <p class="rain-splash-line">It is coming down hard and you are only halfway across. Your rabbit walks right on his own — all you do is steer. Tap LEFT and RIGHT to slide out from under the falling streaks, and hold LEFT to back up when a wall of water closes in front of you. Reach the far kerb to clear the level. Three hits and the night is over.</p>
+      <button class="rain-btn" id="rain-play-btn">Play</button>
+    </div>
+  </div>
+</div>
+
+<div id="rain-controls">
+  <button class="rain-key" id="rain-left" aria-label="Move left"><span class="rain-chev">◀</span>Left</button>
+  <button class="rain-key" id="rain-right" aria-label="Move right">Right<span class="rain-chev">▶</span></button>
+</div>
+
+<footer id="footer">
+  <span>©2026 Never Stop Creating, LLC</span>
+  <span>·</span>
+  <a href="mailto:info@neverstopcreatingllc.com">info@neverstopcreatingllc.com</a>
+  <span>·</span>
+  <a href="about.html">About</a>
+</footer>
+
+<div id="rain-flash"></div>
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <h2 id="modal-title">You didn't make it out of the rain.</h2>
+    <p class="modal-score" id="modal-score"></p>
+    <p class="modal-sub"   id="modal-sub"></p>
+    <button class="play-again-btn" id="play-again-btn">Try Again</button>
+    <button class="share-btn" id="share-btn">Share</button>
+  </div>
+</div>
+
+<div id="directions-overlay" class="hidden">
+  <div class="directions-modal">
+    <p class="dir-heading">How to Play</p>
+    <div class="dir-pane" id="directions-text"></div>
+    <button class="dir-close-btn" id="dir-close-btn">Got It</button>
+  </div>
+</div>
+
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/shared.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var TAU = Math.PI * 2;
+  var BEST_KEY = 'rain_bestLevel';
+
+  // ── Tuning ────────────────────────────────────────────────────────────────
+  // Position is a percentage of the crossing, so none of this has to care what
+  // shape the window is.
+  var DRIFT      = 6.2;    // %/s the rabbit walks right on his own
+  var STEER      = 13.6;   // %/s the player adds on top — LEFT nets -7.4
+  var LIVES      = 3;
+  var INVULN     = 1.25;   // s of grace after a hit
+  var WALK_FRAMES = 12;
+
+  function gapMin(lv)  { return Math.max(210, 850  * Math.pow(0.90, lv - 1)); }
+  function gapMax(lv)  { return Math.max(350, 1450 * Math.pow(0.90, lv - 1)); }
+  function fallRate(lv){ return Math.min(1.55, 0.95 + 0.055 * (lv - 1)); }  // screen heights/s
+
+  var SCENES = ['Rooftops', 'The Alley', 'Under the El', 'The Bridge', 'The Avenue'];
+  var ROMAN = ['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII',
+               'XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'];
+  function roman(n) { return n <= 20 ? ROMAN[n] : String(n); }
+
+  var DIRECTIONS_TEXT =
+    'A 1920s rabbit is crossing town in a downpour and he will not stop walking. ' +
+    'He drifts right on his own; your only job is to steer. Tap LEFT and RIGHT ' +
+    '(or use the arrow keys) to slide him out from under the falling streaks — ' +
+    'holding LEFT beats his forward drift, so you can back all the way up if the ' +
+    'street ahead is a wall of water. The thick white streaks are the ones that ' +
+    'hurt; the fine drizzle is only weather. A streak that catches him costs a ' +
+    'life, and he keeps his ground rather than starting the crossing again. ' +
+    'Reach the far kerb to clear the level. Each level brings a new corner of the ' +
+    'city and heavier rain. Three hits and the night is over.';
+
+  // ── DOM ───────────────────────────────────────────────────────────────────
+  var canvas    = document.getElementById('game-canvas');
+  var ctx       = canvas.getContext('2d');
+  var stage     = document.getElementById('rain-stage');
+  var livesEl   = document.getElementById('rain-lives');
+  var tagEl     = document.getElementById('rain-level-tag');
+  var hintEl    = document.getElementById('rain-hint');
+  var wipeEl    = document.getElementById('rain-wipe');
+  var cardKick  = document.getElementById('rain-card-kicker');
+  var cardTitle = document.getElementById('rain-card-title');
+  var cardSub   = document.getElementById('rain-card-sub');
+  var startEl   = document.getElementById('rain-start');
+  var flashEl   = document.getElementById('rain-flash');
+  var overlayEl = document.getElementById('overlay');
+  var elLevel   = document.getElementById('val-level');
+  var elAcross  = document.getElementById('val-across');
+  var elBest    = document.getElementById('val-best');
+  var keyLeft   = document.getElementById('rain-left');
+  var keyRight  = document.getElementById('rain-right');
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var W = 0, H = 0, DPR = 1;
+  var geom = {};
+  var phase = 'idle';        // idle | play | wipe | over
+  var level = 1;
+  var lives = LIVES;
+  var best  = 0;
+  var rabbitX = 0;           // 0..100 across the crossing
+  var walk = 0;
+  var invuln = 0;
+  var streaks = [];
+  var drizzle = [];
+  var splashes = [];
+  var spawnTimer = 0;
+  var scene = null;
+  var sprites = null;
+  var spriteH = 0;
+  var held = { left: false, right: false };
+  var lastT = 0;
+  var lastDt = 1 / 60;
+  var running = false;
+
+  // ── Small helpers ─────────────────────────────────────────────────────────
+  function mulberry(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+  // ==========================================================================
+  // The rabbit
+  // He is drawn once per walk frame into an offscreen sprite, then stamped onto
+  // the street with the 'difference' blend. That is what makes him flip from
+  // white to black the moment he steps into a pool of lamplight: white on black
+  // stays white, white on white comes back black, and the hard-edged detail
+  // inside him inverts with it.
+  // ==========================================================================
+
+  // A rabbit ear: narrow, with a rounded tip rather than a point.
+  function ear(g, bx, by, tx, ty, wd) {
+    var mid = by * 0.45 + ty * 0.55;
+    g.beginPath();
+    g.moveTo(bx - wd, by);
+    g.bezierCurveTo(tx - wd * 1.5, mid, tx - wd * 1.15, ty + wd * 1.1, tx, ty);
+    g.bezierCurveTo(tx + wd * 1.15, ty + wd * 1.1, tx + wd * 1.5, mid, bx + wd, by);
+    g.closePath();
+    g.fill();
+  }
+
+  function leg(g, swing, hipX) {
+    var lift  = Math.max(0, swing) * 0.045;
+    var footX = hipX + swing * 0.100;
+    var footY = -lift;
+    g.lineWidth = 0.056;
+    g.beginPath();
+    g.moveTo(hipX, -0.310);
+    g.quadraticCurveTo(hipX + swing * 0.050, -0.150, footX, footY - 0.016);
+    g.stroke();
+    g.beginPath();                                   // shoe, pointing his way
+    g.moveTo(footX - 0.034, footY - 0.028);
+    g.lineTo(footX + 0.060, footY - 0.022);
+    g.quadraticCurveTo(footX + 0.078, footY - 0.003, footX + 0.050, footY);
+    g.lineTo(footX - 0.038, footY);
+    g.closePath();
+    g.fill();
+  }
+
+  function drawRabbitInto(g, S, ph) {
+    var swing = Math.sin(ph);
+    var wave  = Math.sin(ph + 0.7) * 0.018;
+
+    g.save();
+    g.scale(S, S);
+    // A shear about the soles, so he leans into the weather instead of
+    // standing to attention in it.
+    g.transform(1, 0, -0.055, 1, 0, 0);
+    g.lineJoin = 'round';
+    g.lineCap  = 'round';
+    g.fillStyle = '#fff';
+    g.strokeStyle = '#fff';
+
+    // Back leg first, so the coat falls over it
+    leg(g, -swing, -0.040);
+
+    // Ears, splayed wide enough to clear the crown and drawn before the hat
+    // covers their lower half
+    ear(g, -0.014, -0.630, -0.128, -0.975, 0.032);
+    ear(g,  0.066, -0.630,  0.150, -0.938, 0.030);
+
+    // Trenchcoat — narrow through the shoulders, knee length, with the tail
+    // dragged back behind him
+    g.beginPath();
+    g.moveTo(-0.128, -0.572);
+    g.bezierCurveTo(-0.150, -0.498, -0.146, -0.432, -0.132, -0.374);
+    g.bezierCurveTo(-0.170, -0.332, -0.214, -0.292, -0.238, -0.242 + wave);
+    g.lineTo(-0.152, -0.262 + wave);
+    g.bezierCurveTo(-0.086, -0.300, 0.030, -0.312, 0.132, -0.298);
+    g.bezierCurveTo(0.152, -0.392, 0.148, -0.492, 0.138, -0.572);
+    g.closePath();
+    g.fill();
+
+    // Front leg over the coat
+    leg(g, swing, 0.042);
+
+    // Collar, turned up against the rain
+    g.beginPath();
+    g.moveTo(-0.118, -0.556); g.lineTo(-0.104, -0.646); g.lineTo(-0.030, -0.592);
+    g.closePath(); g.fill();
+    g.beginPath();
+    g.moveTo(0.142, -0.552); g.lineTo(0.128, -0.640); g.lineTo(0.062, -0.590);
+    g.closePath(); g.fill();
+
+    // Skull, mostly tucked under the brim, and a muzzle in profile
+    g.beginPath();
+    g.ellipse(0.030, -0.648, 0.084, 0.062, -0.05, 0, TAU);
+    g.fill();
+    g.beginPath();
+    g.moveTo(0.062, -0.692);
+    g.bezierCurveTo(0.152, -0.684, 0.180, -0.644, 0.156, -0.612);
+    g.bezierCurveTo(0.130, -0.588, 0.062, -0.584, 0.036, -0.596);
+    g.closePath();
+    g.fill();
+
+    // Fedora — a wide brim and a pinched crown, the widest thing on him
+    g.beginPath();
+    g.ellipse(0.030, -0.700, 0.203, 0.030, -0.045, 0, TAU);
+    g.fill();
+    g.beginPath();
+    g.moveTo(-0.058, -0.702);
+    g.lineTo(-0.048, -0.836);
+    g.quadraticCurveTo(-0.030, -0.886, 0.014, -0.874);
+    g.quadraticCurveTo(0.038, -0.866, 0.062, -0.878);
+    g.quadraticCurveTo(0.100, -0.892, 0.108, -0.836);
+    g.lineTo(0.116, -0.702);
+    g.closePath();
+    g.fill();
+
+    // ── Hard-edged detail, punched in black ──
+    // Opaque black inside the silhouette reads as shadow on the white version
+    // of him and as highlight on the black version. Both come free from the
+    // blend, which is the whole reason he is built this way.
+    g.fillStyle = '#000';
+    g.strokeStyle = '#000';
+
+    // Hat band, and the crease that keeps the crown off the ears
+    g.beginPath();
+    g.moveTo(-0.058, -0.706);
+    g.lineTo(0.116, -0.706);
+    g.lineTo(0.113, -0.742);
+    g.lineTo(-0.055, -0.742);
+    g.closePath();
+    g.fill();
+    // The whole crown outline, so the ears read as passing behind the hat
+    // rather than growing out of it
+    g.lineWidth = 0.012;
+    g.beginPath();
+    g.moveTo(-0.058, -0.742);
+    g.lineTo(-0.048, -0.836);
+    g.quadraticCurveTo(-0.030, -0.886, 0.014, -0.874);
+    g.quadraticCurveTo(0.038, -0.866, 0.062, -0.878);
+    g.quadraticCurveTo(0.100, -0.892, 0.108, -0.836);
+    g.lineTo(0.114, -0.742);
+    g.stroke();
+
+    // Inner ear, on the near one only
+    g.lineWidth = 0.010;
+    g.beginPath();
+    g.moveTo(0.106, -0.812);
+    g.quadraticCurveTo(0.124, -0.862, 0.138, -0.902);
+    g.stroke();
+
+    // Eye under the brim, and a nose at the tip of the muzzle
+    g.beginPath();
+    g.arc(0.062, -0.652, 0.0135, 0, TAU);
+    g.fill();
+    g.beginPath();
+    g.arc(0.164, -0.640, 0.0105, 0, TAU);
+    g.fill();
+    g.lineWidth = 0.010;
+    g.beginPath();
+    g.moveTo(0.152, -0.618);
+    g.lineTo(0.112, -0.612);
+    g.stroke();
+
+    // Coat: the opening, the belt, and the seam that keeps the arm from
+    // merging into the body
+    g.lineWidth = 0.012;
+    g.beginPath();
+    g.moveTo(0.052, -0.564);
+    g.bezierCurveTo(0.080, -0.500, 0.086, -0.430, 0.082, -0.320);
+    g.stroke();
+    g.lineWidth = 0.014;
+    g.beginPath();
+    g.moveTo(-0.140, -0.408);
+    g.lineTo(0.148, -0.420);
+    g.stroke();
+    g.lineWidth = 0.011;
+    g.beginPath();
+    g.moveTo(0.112, -0.548);
+    g.bezierCurveTo(0.128, -0.492, 0.128, -0.456, 0.122, -0.424);
+    g.stroke();
+
+    g.restore();
+  }
+
+  function buildSprites(S) {
+    var pad = Math.ceil(S * 0.10);
+    var wpx = Math.ceil(S * 0.80) + pad * 2;
+    var hpx = Math.ceil(S) + pad * 2;
+    var frames = [];
+    for (var i = 0; i < WALK_FRAMES; i++) {
+      var c = document.createElement('canvas');
+      c.width  = Math.round(wpx * DPR);
+      c.height = Math.round(hpx * DPR);
+      var g = c.getContext('2d');
+      g.scale(DPR, DPR);
+      g.translate(wpx / 2, hpx - pad);
+      drawRabbitInto(g, S, (i / WALK_FRAMES) * TAU);
+      frames.push(c);
+    }
+    return { frames: frames, w: wpx, h: hpx, ox: wpx / 2, oy: hpx - pad };
+  }
+
+  // ==========================================================================
+  // City backdrops — five of them, cycled. Each generates once per level in
+  // normalised coordinates so a resize never reshuffles the skyline.
+  // ==========================================================================
+
+  function windows(rnd, x, w, top, base, dens, dx, dy) {
+    dx = dx || 0.020; dy = dy || 0.055;
+    var out = [], cols = Math.max(1, Math.floor(w / dx)), rows = Math.floor((base - top) / dy);
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        if (rnd() > dens) continue;
+        out.push([x + dx * 0.4 + c * dx, top + dy * 0.5 + r * dy]);
+      }
+    }
+    return out;
+  }
+
+  function makeScene(lv) {
+    var v = (lv - 1) % 5;
+    var rnd = mulberry(9001 + v * 131 + Math.floor((lv - 1) / 5) * 17);
+    var d = { variant: v, name: SCENES[v], lights: [], t: 0 };
+
+    if (v === 0) {                                   // ── Rooftops ──
+      d.bldgs = [];
+      var x = -0.04;
+      while (x < 1.04) {
+        var w = 0.07 + rnd() * 0.11;
+        var top = 0.06 + rnd() * 0.40;
+        d.bldgs.push({ x: x, w: w, top: top, win: windows(rnd, x, w, top, 1, 0.22) });
+        x += w + (rnd() < 0.3 ? 0.012 : 0);
+      }
+      d.towers = [];
+      for (var i = 0; i < 3; i++) {
+        var b = d.bldgs[(2 + i * 3) % d.bldgs.length];
+        d.towers.push({ x: b.x + b.w * 0.5, top: b.top });
+      }
+      d.masts = [0.13, 0.46, 0.71, 0.93];
+      d.lights = [{ x: 0.23, w: 0.15 }, { x: 0.68, w: 0.17 }];
+
+    } else if (v === 1) {                            // ── The Alley ──
+      d.escapes = [];
+      for (var s = 0; s < 2; s++) {
+        var lft = s === 0;
+        d.escapes.push({ left: lft, edge: lft ? 0.185 : 0.815, floors: 4 });
+      }
+      d.backWin = windows(rnd, 0.215, 0.57, 0.13, 0.60, 0.45, 0.072, 0.098);
+      d.bulbX = 0.42 + rnd() * 0.16;
+      d.lights = [{ x: d.bulbX - 0.11, w: 0.22 }];
+
+    } else if (v === 2) {                            // ── Under the El ──
+      d.cols = [0.10, 0.38, 0.66, 0.94];
+      d.deckTop = 0.10; d.deckBot = 0.235;
+      d.trainX = -0.5;
+      d.skyline = [];
+      var kx = -0.03;
+      while (kx < 1.03) {
+        var kw = 0.13 + rnd() * 0.09, ktop = 0.33 + rnd() * 0.18;
+        d.skyline.push({ x: kx, w: kw, top: ktop, win: windows(rnd, kx, kw, ktop, 1, 0.30, 0.030, 0.052) });
+        kx += kw;
+      }
+      d.lights = [{ x: 0.17, w: 0.12 }, { x: 0.45, w: 0.12 }, { x: 0.73, w: 0.12 }];
+
+    } else if (v === 3) {                            // ── The Bridge ──
+      d.towers = [0.24, 0.76];
+      d.towerTop = 0.09;
+      d.lights = [{ x: 0.15, w: 0.15 }, { x: 0.63, w: 0.16 }];
+      d.riv = [];
+      for (var q = 0; q < 30; q++) d.riv.push([rnd(), rnd(), 0.02 + rnd() * 0.055]);
+
+    } else {                                         // ── The Avenue ──
+      d.posts = [0.08, 0.33, 0.58, 0.83];
+      d.shops = [];
+      var sx = -0.04;
+      while (sx < 1.04) {
+        var sw = 0.19 + rnd() * 0.10, stp = 0.33 + rnd() * 0.14;
+        d.shops.push({
+          x: sx, w: sw, top: stp,
+          awning: rnd() < 0.55,
+          ay: 0.135 + rnd() * 0.055,
+          win: windows(rnd, sx, sw, stp, 0.60, 0.4, 0.055, 0.075)
+        });
+        sx += sw;
+      }
+      d.far = [];
+      for (var f = 0; f < 12; f++) d.far.push({ x: f * 0.09 - 0.02, w: 0.075, top: 0.12 + rnd() * 0.15 });
+      d.lights = d.posts.map(function (p) { return { x: p - 0.055, w: 0.11 }; });
+    }
+    return d;
+  }
+
+  // Draws the backdrop above the kerb plus the lit pools on the road.
+  function drawScene(d, dt) {
+    var w = W, h = H, far = geom.farY, street = geom.streetY;
+    d.t += dt;
+
+    ctx.lineJoin = 'miter';
+    ctx.lineCap  = 'butt';
+
+    if (d.variant === 0) {
+      // Skyline, each block black with a white edge so it stays line art
+      d.bldgs.forEach(function (b) {
+        var bx = b.x * w, bw = b.w * w, bt = b.top * h;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(bx, bt, bw, far - bt);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.strokeRect(bx + 1, bt + 1, bw - 2, far - bt);
+        ctx.fillStyle = '#fff';
+        b.win.forEach(function (p) {
+          if (p[1] * h > far - 12) return;
+          ctx.fillRect(p[0] * w, p[1] * h, 7, 9);
+        });
+      });
+      d.towers.forEach(function (t) {
+        var tx = t.x * w, ty = t.top * h;
+        ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.rect(tx - 17, ty - 40, 34, 30); ctx.fill(); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(tx - 21, ty - 40); ctx.lineTo(tx, ty - 55); ctx.lineTo(tx + 21, ty - 40);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(tx - 12, ty - 10); ctx.lineTo(tx - 15, ty);
+        ctx.moveTo(tx + 12, ty - 10); ctx.lineTo(tx + 15, ty);
+        ctx.stroke();
+      });
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      d.masts.forEach(function (m) {
+        var mx = m * w, my = 0.05 * h;
+        ctx.beginPath();
+        ctx.moveTo(mx, my); ctx.lineTo(mx, my + 0.10 * h);
+        ctx.moveTo(mx - 9, my + 0.030 * h); ctx.lineTo(mx + 9, my + 0.030 * h);
+        ctx.moveTo(mx - 6, my + 0.056 * h); ctx.lineTo(mx + 6, my + 0.056 * h);
+        ctx.stroke();
+      });
+
+    } else if (d.variant === 1) {
+      // Distant back wall
+      ctx.fillStyle = '#000'; ctx.fillRect(0.185 * w, 0, 0.63 * w, far);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0.185 * w, 0.06 * h); ctx.lineTo(0.815 * w, 0.06 * h); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      d.backWin.forEach(function (p) { ctx.fillRect(p[0] * w, p[1] * h, 8, 11); });
+      // The two close walls, with fire escapes on their inner faces
+      d.escapes.forEach(function (e) {
+        var ex = e.edge * w, dir = e.left ? -1 : 1;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(e.left ? 0 : ex, 0, e.left ? ex : w - ex, far);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(ex, 0); ctx.lineTo(ex, far); ctx.stroke();
+        ctx.lineWidth = 2;
+        var span = dir * 0.068 * w, step = 0.125 * h;
+        for (var f = 0; f < e.floors; f++) {
+          var y = (0.14 + f * 0.125) * h;
+          var inner = ex + span;
+          ctx.beginPath();
+          ctx.moveTo(ex, y); ctx.lineTo(inner, y);            // platform
+          ctx.moveTo(ex, y - 22); ctx.lineTo(inner, y - 22);  // rail
+          ctx.stroke();
+          for (var r = 0; r <= 3; r++) {
+            var rx = ex + span * (r / 3);
+            ctx.beginPath(); ctx.moveTo(rx, y); ctx.lineTo(rx, y - 22); ctx.stroke();
+          }
+          if (y + step < far) {                               // stair to the next floor
+            ctx.beginPath();
+            ctx.moveTo(inner, y); ctx.lineTo(ex + span * 0.25, y + step);
+            ctx.stroke();
+          } else {                                            // drop ladder at the bottom
+            ctx.beginPath();
+            ctx.moveTo(ex + span * 0.25, y); ctx.lineTo(ex + span * 0.25, far - 12);
+            ctx.moveTo(ex + span * 0.75, y); ctx.lineTo(ex + span * 0.75, far - 12);
+            ctx.stroke();
+          }
+        }
+      });
+      // Bare bulb on a wire, swinging
+      var sway = Math.sin(d.t * 1.1) * 0.012 * w;
+      var bx = d.bulbX * w + sway, by = 0.20 * h;
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(d.bulbX * w, 0); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(bx, by + 8, 9, 0, TAU); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(bx - 26, by + 4); ctx.lineTo(bx + 26, by + 4);
+      ctx.lineTo(bx + 11, by - 12); ctx.lineTo(bx - 11, by - 12);
+      ctx.closePath(); ctx.fill();
+
+    } else if (d.variant === 2) {
+      // Far blocks: filled first, then stroked open at the bottom so the row
+      // does not turn into a picket fence of shared edges.
+      d.skyline.forEach(function (b) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(b.x * w, b.top * h, b.w * w, far - b.top * h);
+      });
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      d.skyline.forEach(function (b) {
+        var bx = b.x * w + 1, bw = b.w * w - 2, bt = b.top * h + 1;
+        ctx.beginPath();
+        ctx.moveTo(bx, far); ctx.lineTo(bx, bt);
+        ctx.lineTo(bx + bw, bt); ctx.lineTo(bx + bw, far);
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        b.win.forEach(function (p) {
+          if (p[1] * h > far - 14) return;
+          ctx.fillRect(p[0] * w, p[1] * h, 8, 10);
+        });
+      });
+      // The train first, so the deck rail stays on top of it
+      d.trainX += dt * 0.30;
+      if (d.trainX > 1.9) d.trainX = -1.4;
+      var tx0 = d.trainX * w, tw = 0.9 * w, tyB = d.deckTop * h, tyT = tyB - 0.10 * h;
+      if (tx0 < w && tx0 + tw > 0) {
+        ctx.fillStyle = '#000'; ctx.fillRect(tx0, tyT, tw, tyB - tyT);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.strokeRect(tx0, tyT, tw, tyB - tyT);
+        ctx.fillStyle = '#fff';
+        for (var wx = tx0 + 18; wx < tx0 + tw - 22; wx += 42) {
+          ctx.fillRect(wx, tyT + 12, 24, 0.045 * h);
+        }
+      }
+      // Columns down to the kerb
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.fillStyle = '#000';
+      d.cols.forEach(function (c) {
+        var cx = c * w;
+        ctx.fillRect(cx - 13, d.deckBot * h, 26, far - d.deckBot * h);
+        ctx.strokeRect(cx - 13, d.deckBot * h, 26, far - d.deckBot * h);
+        ctx.beginPath();
+        ctx.moveTo(cx - 24, far); ctx.lineTo(cx - 13, far - 22);
+        ctx.moveTo(cx + 24, far); ctx.lineTo(cx + 13, far - 22);
+        ctx.stroke();
+      });
+      // The deck: two rails with an X-truss between
+      var dt0 = d.deckTop * h, db = d.deckBot * h;
+      ctx.fillStyle = '#000'; ctx.fillRect(0, dt0, w, db - dt0);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, dt0); ctx.lineTo(w, dt0);
+      ctx.moveTo(0, db);  ctx.lineTo(w, db);
+      ctx.stroke();
+      ctx.lineWidth = 2;
+      for (var x2 = 0; x2 < w; x2 += 46) {
+        ctx.beginPath();
+        ctx.moveTo(x2, dt0); ctx.lineTo(x2 + 46, db);
+        ctx.moveTo(x2 + 46, dt0); ctx.lineTo(x2, db);
+        ctx.stroke();
+      }
+
+    } else if (d.variant === 3) {
+      // River, hinted with hard dashes below the far rail
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      // Water, glimpsed in a band just beyond the railing
+      d.riv.forEach(function (r) {
+        var ry = far - 38 - r[1] * 0.13 * h;
+        ctx.beginPath(); ctx.moveTo(r[0] * w, ry); ctx.lineTo((r[0] + r[2]) * w, ry); ctx.stroke();
+      });
+      // Cables: a catenary through both towers and out past the edges
+      var tTop = d.towerTop * h, anchor = far - 8;
+      function cable(off) {
+        ctx.beginPath();
+        ctx.moveTo(-0.05 * w, anchor);
+        ctx.quadraticCurveTo(d.towers[0] * w * 0.55, tTop + off + 0.16 * h, d.towers[0] * w, tTop + off);
+        ctx.quadraticCurveTo(w * 0.5, tTop + off + 0.22 * h, d.towers[1] * w, tTop + off);
+        ctx.quadraticCurveTo(w * 0.94, tTop + off + 0.16 * h, 1.05 * w, anchor);
+        ctx.stroke();
+      }
+      ctx.lineWidth = 3; cable(0);
+      ctx.lineWidth = 1.5; cable(0.030 * h);
+      // Suspenders, dropped from the main cable to the deck
+      var qx0 = d.towers[0] * w, qx1 = d.towers[1] * w, qcx = w * 0.5, qcy = tTop + 0.22 * h;
+      for (var u = 0.09; u < 0.95; u += 0.091) {
+        var iu = 1 - u;
+        var qx = iu * iu * qx0 + 2 * iu * u * qcx + u * u * qx1;
+        var qy = iu * iu * tTop + 2 * iu * u * qcy + u * u * tTop;
+        ctx.beginPath(); ctx.moveTo(qx, qy); ctx.lineTo(qx, far - 30); ctx.stroke();
+      }
+      // Towers
+      d.towers.forEach(function (t) {
+        var tx = t * w;
+        ctx.fillStyle = '#000'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.rect(tx - 26, tTop, 52, far - tTop); ctx.fill(); ctx.stroke();
+        ctx.lineWidth = 2;
+        for (var a = 1; a <= 3; a++) {
+          var ay = tTop + (far - tTop) * (a / 4);
+          ctx.beginPath(); ctx.moveTo(tx - 26, ay); ctx.lineTo(tx + 26, ay); ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(tx - 34, tTop); ctx.lineTo(tx, tTop - 24); ctx.lineTo(tx + 34, tTop);
+        ctx.closePath(); ctx.fillStyle = '#000'; ctx.fill(); ctx.stroke();
+      });
+      // Railing along the far edge of the deck
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, far - 30); ctx.lineTo(w, far - 30); ctx.stroke();
+      for (var px = 8; px < w; px += 34) {
+        ctx.beginPath(); ctx.moveTo(px, far - 30); ctx.lineTo(px, far); ctx.stroke();
+      }
+
+    } else {
+      // Distant skyline, then the storefront row
+      d.far.forEach(function (b) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(b.x * w, b.top * h, b.w * w, far - b.top * h);
+      });
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+      d.far.forEach(function (b) {
+        var bx = b.x * w + 0.75, bw = b.w * w - 1.5, bt = b.top * h;
+        ctx.beginPath();
+        ctx.moveTo(bx, far); ctx.lineTo(bx, bt);
+        ctx.lineTo(bx + bw, bt); ctx.lineTo(bx + bw, far);
+        ctx.stroke();
+      });
+      d.shops.forEach(function (s) {
+        var sx = s.x * w, sw = s.w * w, st = s.top * h;
+        ctx.fillStyle = '#000'; ctx.fillRect(sx, st, sw, far - st);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.strokeRect(sx + 1, st + 1, sw - 2, far - st);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(sx + 0.14 * sw, far - 0.072 * h, 0.14 * sw, 0.072 * h);  // lit doorway
+        s.win.forEach(function (p) {                                          // upstairs windows
+          if (p[1] * h > far - 0.20 * h) return;
+          ctx.fillRect(p[0] * w, p[1] * h, 9, 11);
+        });
+        if (s.awning) {                                                       // awning, two bands
+          var ay0 = far - s.ay * h, ah = 0.040 * h, inset = 10;
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.moveTo(sx + 5, ay0); ctx.lineTo(sx + sw - 5, ay0);
+          ctx.lineTo(sx + sw - 5 - inset, ay0 + ah); ctx.lineTo(sx + 5 + inset, ay0 + ah);
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fff';
+          var span = sw - 10, band = span / 5;
+          for (var i2 = 0; i2 < 2; i2++) {
+            var fx = sx + 5 + band * (1 + i2 * 2);
+            ctx.beginPath();
+            ctx.moveTo(fx, ay0); ctx.lineTo(fx + band, ay0);
+            ctx.lineTo(fx + band - inset, ay0 + ah); ctx.lineTo(fx - inset, ay0 + ah);
+            ctx.closePath(); ctx.fill();
+          }
+        }
+      });
+      // Lampposts, which are what makes the pools on the road
+      d.posts.forEach(function (p) {
+        var px2 = p * w, top = far - 0.30 * h;
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(px2, far); ctx.lineTo(px2, top); ctx.stroke();
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px2 - 16, top + 4); ctx.quadraticCurveTo(px2, top - 10, px2 + 16, top + 4);
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(px2 - 13, top + 2); ctx.lineTo(px2 + 13, top + 2);
+        ctx.lineTo(px2 + 7, top + 17); ctx.lineTo(px2 - 7, top + 17);
+        ctx.closePath(); ctx.fill();
+      });
+    }
+
+    // ── The road, common to every backdrop ──
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, far, w, h - far);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, far); ctx.lineTo(w, far); ctx.stroke();
+
+    // Pools of light — the thing the rabbit inverts against
+    ctx.fillStyle = '#fff';
+    d.lights.forEach(function (L) {
+      var x0 = L.x * w, x1 = (L.x + L.w) * w, spread = (x1 - x0) * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(x0, far);
+      ctx.lineTo(x1, far);
+      ctx.lineTo(x1 + spread, h);
+      ctx.lineTo(x0 - spread, h);
+      ctx.closePath();
+      ctx.fill();
+    });
+
+    // Near kerb line
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, geom.streetY + geom.kerb);
+    ctx.lineTo(w, geom.streetY + geom.kerb);
+    ctx.stroke();
+  }
+
+  // ==========================================================================
+  // Layout
+  // ==========================================================================
+
+  function resize() {
+    var r = stage.getBoundingClientRect();
+    W = Math.max(240, Math.round(r.width));
+    H = Math.max(220, Math.round(r.height));
+    DPR = Math.min(2.5, window.devicePixelRatio || 1);
+    canvas.width  = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    var rh = clamp(Math.min(H * 0.24, W * 0.30), 54, 178);
+    geom = {
+      streetY: Math.round(H * 0.78),
+      farY:    Math.round(H * 0.66),
+      kerb:    Math.round(Math.min(26, H * 0.055)),
+      rh:      rh,
+      margin:  rh * 0.42
+    };
+    if (spriteH !== Math.round(rh)) {
+      spriteH = Math.round(rh);
+      sprites = buildSprites(spriteH);
+    }
+    seedDrizzle();
+  }
+
+  function rabbitPx() {
+    return geom.margin + (rabbitX / 100) * (W - geom.margin * 2);
+  }
+
+  // ==========================================================================
+  // Rain
+  // ==========================================================================
+
+  function seedDrizzle() {
+    drizzle = [];
+    var n = Math.round((W * H) / 9000);
+    for (var i = 0; i < n; i++) {
+      drizzle.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        len: 10 + Math.random() * 26,
+        v: 620 + Math.random() * 520
+      });
+    }
+  }
+
+  function spawnStreak() {
+    var lv = level;
+    var len = (0.10 + Math.random() * 0.17) * H;
+    streaks.push({
+      x: 1.5 + Math.random() * 97,
+      y: -len - Math.random() * H * 0.1,
+      len: len,
+      // Wide enough that a killing streak never reads as drizzle, and scaled
+      // up on a big stage so it stays the same size relative to the street.
+      w: clamp(W / 375, 1, 2.2) * (3.4 + Math.random() * 2.4),
+      v: fallRate(lv) * H * (0.86 + Math.random() * 0.30),
+      land: geom.streetY + (H - geom.streetY) * (0.25 + Math.random() * 0.7),
+      dead: false
+    });
+  }
+
+  function scheduleSpawn() {
+    spawnTimer = (gapMin(level) + Math.random() * (gapMax(level) - gapMin(level))) / 1000;
+  }
+
+  // ==========================================================================
+  // Level flow
+  // ==========================================================================
+
+  function setLives() {
+    livesEl.innerHTML = '';
+    for (var i = 0; i < LIVES; i++) {
+      var s = document.createElement('span');
+      s.className = 'rain-life' + (i < lives ? '' : ' spent');
+      s.innerHTML =
+        '<svg viewBox="0 0 20 24" aria-hidden="true">' +
+        '<ellipse cx="6.4" cy="6.4" rx="2.2" ry="5.7" transform="rotate(-12 6.4 6.4)"/>' +
+        '<ellipse cx="12.9" cy="6.2" rx="2.1" ry="5.5" transform="rotate(9 12.9 6.2)"/>' +
+        '<ellipse cx="9.7" cy="15.6" rx="6.3" ry="5.9"/>' +
+        '</svg>';
+      livesEl.appendChild(s);
+    }
+  }
+
+  function updateHud() {
+    elLevel.textContent  = level;
+    elAcross.textContent = Math.max(0, Math.round(rabbitX)) + '%';
+    elBest.textContent   = best ? 'Lv ' + best : '—';
+    tagEl.textContent    = roman(level);
+  }
+
+  function startLevel(lv, wipeIt) {
+    level = lv;
+    scene = makeScene(lv);
+    rabbitX = 0;
+    walk = 0;
+    invuln = 0;
+    streaks = [];
+    splashes = [];
+    scheduleSpawn();
+    updateHud();
+    setLives();
+
+    if (wipeIt) {
+      phase = 'wipe';
+      cardKick.textContent  = 'Level';
+      cardTitle.textContent = roman(lv);
+      cardSub.textContent   = SCENES[(lv - 1) % 5];
+      wipeEl.classList.remove('in', 'out');
+      void wipeEl.offsetWidth;
+      wipeEl.classList.add('on', 'in');
+      setTimeout(function () {
+        wipeEl.classList.remove('in');
+        wipeEl.classList.add('out');
+        setTimeout(function () {
+          wipeEl.classList.remove('on', 'out');
+          if (phase === 'wipe') phase = 'play';
+        }, 380);
+      }, 1000);
+    } else {
+      phase = 'play';
+    }
+
+    if (lv === 1) {
+      hintEl.textContent = 'Hold LEFT to back out of trouble';
+      hintEl.classList.add('show');
+      // Long enough to still be readable once the title card has wiped off
+      setTimeout(function () { hintEl.classList.remove('show'); }, 5600);
+    }
+    if (typeof gtag === 'function') gtag('event', 'rain_level', { level: lv });
+  }
+
+  function newGame() {
+    overlayEl.classList.add('hidden');
+    startEl.classList.add('hidden');
+    lives = LIVES;
+    startLevel(1, true);
+  }
+
+  function takeHit() {
+    lives--;
+    setLives();
+    flashEl.classList.remove('fire');
+    void flashEl.offsetWidth;
+    flashEl.classList.add('fire');
+
+    // Clear whatever is already on top of him, then step him sideways to the
+    // nearest patch of street nothing is falling on. He keeps his ground.
+    streaks = streaks.filter(function (s) { return s.y < H * 0.30; });
+
+    if (lives <= 0) { gameOver(); return; }
+
+    var safe = rabbitX, bestGap = -1;
+    for (var d2 = 0; d2 <= 20; d2 += 2) {
+      for (var sgn = -1; sgn <= 1; sgn += 2) {
+        var cand = clamp(rabbitX + sgn * d2, 1, 98);
+        var gap = 999;
+        for (var i = 0; i < streaks.length; i++) {
+          gap = Math.min(gap, Math.abs(streaks[i].x - cand));
+        }
+        if (gap > bestGap) { bestGap = gap; safe = cand; }
+        if (bestGap > 14) break;
+        if (d2 === 0) break;
+      }
+      if (bestGap > 14) break;
+    }
+    rabbitX = safe;
+    invuln = INVULN;
+  }
+
+  function gameOver() {
+    phase = 'over';
+    var isNew = level > best;
+    if (isNew) {
+      best = level;
+      try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
+    }
+    updateHud();
+    document.getElementById('modal-score').textContent = 'Reached Level ' + level;
+    document.getElementById('modal-sub').textContent   = SCENES[(level - 1) % 5] +
+      ' · ' + (isNew ? 'New Best' : 'Best Lv ' + best);
+    overlayEl.classList.remove('hidden');
+    if (typeof gtag === 'function') gtag('event', 'rain_game_over', { level: level });
+  }
+
+  function shareLine() {
+    return 'RAIN\nReached Level ' + level + '\nthebunnygame.com/rain';
+  }
+
+  // ==========================================================================
+  // Loop
+  // ==========================================================================
+
+  function update(dt) {
+    // Drizzle keeps moving whatever the state — the weather does not pause for
+    // a title card.
+    for (var i = 0; i < drizzle.length; i++) {
+      var g = drizzle[i];
+      g.y += g.v * dt;
+      if (g.y - g.len > H) { g.y = -g.len; g.x = Math.random() * W; }
+    }
+    for (var s = splashes.length - 1; s >= 0; s--) {
+      splashes[s].life -= dt;
+      if (splashes[s].life <= 0) splashes.splice(s, 1);
+    }
+    if (phase !== 'play') return;
+
+    if (invuln > 0) invuln -= dt;
+
+    // Steering
+    var steer = (held.right ? 1 : 0) - (held.left ? 1 : 0);
+    var vx = DRIFT + steer * STEER;
+    rabbitX += vx * dt;
+    if (rabbitX < 0) rabbitX = 0;
+    walk += dt * (2.9 + Math.abs(vx) * 0.20);
+
+    if (rabbitX >= 100) {
+      rabbitX = 100;
+      var next = level + 1;
+      phase = 'wipe';
+      setTimeout(function () { startLevel(next, true); }, 220);
+      updateHud();
+      return;
+    }
+
+    // Rain
+    spawnTimer -= dt;
+    if (spawnTimer <= 0) {
+      spawnStreak();
+      if (level >= 4 && Math.random() < 0.28) spawnStreak();
+      if (level >= 8 && Math.random() < 0.20) spawnStreak();
+      scheduleSpawn();
+    }
+
+    var bandTop = geom.streetY - geom.rh * 0.84;
+    var bandBot = geom.streetY;
+    var halfPct = (geom.rh * 0.155) / (W - geom.margin * 2) * 100;
+
+    for (var k = streaks.length - 1; k >= 0; k--) {
+      var st = streaks[k];
+      st.y += st.v * dt;
+
+      if (!st.dead && invuln <= 0 &&
+          st.y > bandTop && st.y - st.len < bandBot &&
+          Math.abs(st.x - rabbitX) < halfPct + (st.w * 0.5) / (W - geom.margin * 2) * 100) {
+        st.dead = true;
+        takeHit();
+        if (phase !== 'play') return;
+        // takeHit replaces the array, so k no longer indexes anything sane
+        break;
+      }
+
+      if (st.y >= st.land) {
+        splashes.push({ x: (st.x / 100) * (W - geom.margin * 2) + geom.margin, y: st.land, life: 0.22 });
+        streaks.splice(k, 1);
+      } else if (st.y - st.len > H) {
+        streaks.splice(k, 1);
+      }
+    }
+
+    updateHud();
+  }
+
+  function render() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    if (scene) drawScene(scene, lastDt);
+
+    // Spotlight vignette, kept gentle so the pools stay readable
+    var cx = rabbitPx();
+    var grd = ctx.createRadialGradient(cx, geom.streetY - geom.rh * 0.35, Math.min(W, H) * 0.12,
+                                       cx, geom.streetY - geom.rh * 0.35, Math.max(W, H) * 1.05);
+    grd.addColorStop(0, 'rgba(0,0,0,0)');
+    grd.addColorStop(0.62, 'rgba(0,0,0,0.05)');
+    grd.addColorStop(1, 'rgba(0,0,0,0.38)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    // Drizzle — weather, not hazard
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'butt';
+    ctx.beginPath();
+    for (var i = 0; i < drizzle.length; i++) {
+      var g = drizzle[i];
+      ctx.moveTo(g.x, g.y - g.len);
+      ctx.lineTo(g.x, g.y);
+    }
+    ctx.stroke();
+
+    // Splashes
+    if (splashes.length) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (var s = 0; s < splashes.length; s++) {
+        var sp = splashes[s], k = 1 - sp.life / 0.22, r = 3 + k * 9;
+        ctx.moveTo(sp.x - r, sp.y - r * 0.35); ctx.lineTo(sp.x - r * 0.45, sp.y);
+        ctx.moveTo(sp.x + r, sp.y - r * 0.35); ctx.lineTo(sp.x + r * 0.45, sp.y);
+      }
+      ctx.globalAlpha = 0.75;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    // ── Everything from here inverts against what is behind it ──
+    ctx.globalCompositeOperation = 'difference';
+
+    // Hazard streaks, all in one path so two of them crossing does not punch a
+    // hole in each other.
+    if (streaks.length) {
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      var inner = W - geom.margin * 2;
+      for (var t = 0; t < streaks.length; t++) {
+        var st = streaks[t];
+        var px = geom.margin + (st.x / 100) * inner;
+        var top = Math.max(0, st.y - st.len);
+        var bot = Math.min(st.land, st.y);
+        if (bot > top) ctx.rect(px - st.w * 0.5, top, st.w, bot - top);
+      }
+      ctx.fill();
+    }
+
+    // The rabbit
+    if (sprites && phase !== 'idle') {
+      var blink = invuln > 0 && Math.floor(invuln * 12) % 2 === 0;
+      if (!blink) {
+        var f = sprites.frames[Math.floor(walk / TAU * WALK_FRAMES) % WALK_FRAMES];
+        ctx.drawImage(f, cx - sprites.ox, geom.streetY - sprites.oy, sprites.w, sprites.h);
+      }
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function frame(now) {
+    if (!running) return;
+    var dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0.016;
+    lastT = now;
+    lastDt = dt;
+    update(dt);
+    render();
+    requestAnimationFrame(frame);
+  }
+
+  // ==========================================================================
+  // Input
+  // ==========================================================================
+
+  function bindKey(el, side) {
+    el.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      held[side] = true;
+      el.classList.add('is-down');
+    });
+    function release(e) {
+      if (e) e.preventDefault();
+      held[side] = false;
+      el.classList.remove('is-down');
+    }
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', release);
+    el.addEventListener('lostpointercapture', release);
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+  bindKey(keyLeft, 'left');
+  bindKey(keyRight, 'right');
+
+  function keySide(code) {
+    if (code === 'ArrowLeft'  || code === 'KeyA') return 'left';
+    if (code === 'ArrowRight' || code === 'KeyD') return 'right';
+    return null;
+  }
+  window.addEventListener('keydown', function (e) {
+    var side = keySide(e.code);
+    if (side) {
+      e.preventDefault();
+      held[side] = true;
+      (side === 'left' ? keyLeft : keyRight).classList.add('is-down');
+      return;
+    }
+    if ((e.code === 'Space' || e.code === 'Enter') &&
+        (phase === 'idle' || phase === 'over')) {
+      e.preventDefault();
+      newGame();
+    }
+  });
+  window.addEventListener('keyup', function (e) {
+    var side = keySide(e.code);
+    if (!side) return;
+    e.preventDefault();
+    held[side] = false;
+    (side === 'left' ? keyLeft : keyRight).classList.remove('is-down');
+  });
+  window.addEventListener('blur', function () {
+    held.left = held.right = false;
+    keyLeft.classList.remove('is-down');
+    keyRight.classList.remove('is-down');
+  });
+
+  document.getElementById('rain-play-btn').addEventListener('click', newGame);
+  document.getElementById('play-again-btn').addEventListener('click', newGame);
+  document.getElementById('new-btn').addEventListener('click', newGame);
+  document.getElementById('help-btn').addEventListener('click', function () {
+    openDirections(DIRECTIONS_TEXT);
+  });
+  document.getElementById('share-btn').addEventListener('click', function () {
+    shareText(shareLine(), 'Rain — Bunny Game');
+  });
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });
+
+  // ==========================================================================
+  // Boot
+  // ==========================================================================
+
+  try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) { best = 0; }
+
+  resize();
+  setLives();
+  scene = makeScene(1);
+  updateHud();
+  running = true;
+  lastT = 0;
+  requestAnimationFrame(frame);
+
+  // Fonts land after first paint on a cold load; the title card is type-led, so
+  // re-measure once they are in.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+})();
+</script>
+</body>
+</html>

@@ -228,6 +228,26 @@
     .lc-classic .lobby-card-name { color: #111111; }
     .lc-classic .lobby-card-desc { color: rgba(0,0,0,0.55); }
 
+    /* Rain: pure black card, white wordmark. Same masking trick as Bubble
+       Planet, since the logo ships as near-black ink like the rest. */
+    .lc-rain { background: #000000; border-color: rgba(255,255,255,0.30); }
+    .lc-rain .lobby-card-name { color: #ffffff; }
+    .lc-rain .lobby-card-desc { color: rgba(255,255,255,0.58); }
+    .rain-card-logo {
+      display: block;
+      height: 48px;
+      width: 100px;
+      background-color: #ffffff;
+      -webkit-mask-image: url('assets/logos/rain_logo.svg');
+              mask-image: url('assets/logos/rain_logo.svg');
+      -webkit-mask-size: contain;
+              mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+              mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+              mask-position: center;
+    }
+
     /* Bubble Planet: cosmic purple, fluorescent yellow wordmark. The logo ships
        black like every other one here, and it is masked rather than filtered so
        the yellow lands exactly on the brand colour instead of near it. */
@@ -603,6 +623,13 @@
           <img src="assets/logos/classic_logo.svg" alt="Classic">
         </div>
         <p class="lobby-card-desc">Click matching tiles to clear the board.</p>
+      </a>
+
+      <a class="lobby-card lc-rain" data-categories="arcade,bunny,timed" data-date="2026-08-09" href="rain.html">
+        <div class="lobby-card-logo">
+          <span class="rain-card-logo" role="img" aria-label="Rain"></span>
+        </div>
+        <p class="lobby-card-desc">Cross the street. Dodge the downpour.</p>
       </a>
 
       <a class="lobby-card lc-bubbleplanet" data-categories="arcade,target" data-date="2026-08-07" href="bubbleplanet.html">
