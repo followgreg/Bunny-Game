@@ -1256,7 +1256,9 @@
     if (shotsSinceFeed >= feedEvery) {
       shotsSinceFeed = 0;
       queueArrivals(bubblesPerShot, STAGGER, false);
+      return;                 // a wave is inbound; save once it has landed
     }
+    saveGameState();
   }
 
   function showResolve(result) {
@@ -1318,6 +1320,7 @@
       phase = 'playing';
       clearTimer = 0;
       fillQueue();
+      saveGameState();
       toast('Board ' + board + ' — ' + bubblesPerShot + ' bubbles fly in per shot');
     }
   }
@@ -1398,8 +1401,12 @@
     // silently missed and play carries on over a board the player had emptied.
     if (landed) afterShot(landed.refused || landed.missed ? null : landed);
 
+    var waveWasInbound = pending.length || incoming.length;
     stepPending(dt);
     stepIncoming(dt);
+    // The moment the last arrival lands, the board is at rest again and worth
+    // keeping. Saving as each one lands would write five times for one wave.
+    if (waveWasInbound && !pending.length && !incoming.length) saveGameState();
     stepEscapes(dt);
     stepParticles(dt);
 
@@ -1469,11 +1476,119 @@
     updateHud();
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  //  Save / restore
+  //
+  //  Bubble Planet has more to keep than the other games here, because the board
+  //  is not a grid of indices — it is a free-placement physics object. Every
+  //  bubble's exact position has to survive, along with the ids, since the
+  //  connection graph keys off them and the graph is what decides matches and
+  //  cascades. The graph itself is not saved: it is derived from positions, and
+  //  a derived thing stored alongside its source is a thing that can disagree
+  //  with it.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  var SAVE_KEY = 'bubbleplanet_gameState';
+
+  function saveGameState() {
+    // Only a board in play is worth resuming. Saving mid-flight or mid-assembly
+    // would restore into a half-finished animation with bubbles in the air.
+    if (phase !== 'playing' || shot || incoming.length || pending.length) return;
+
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        v: 1,
+        clusterBubbles: bubbles.map(function (b) {
+          return { x: b.x, y: b.y, color: b.color, id: b.id, radius: b.radius };
+        }),
+        currentBoard: board,
+        currentScore: score,
+        bubblesPerShot: bubblesPerShot,
+        feedEvery: feedEvery,
+        shotsSinceFeed: shotsSinceFeed,
+        currentBoardIncomingColor: boardIncomingColor,
+        currentBubbleColor: queue[0] || null,
+        nextBubbleColor: queue[1] || null,
+        clusterRotationAngle: theta,
+        // Run totals, so a resumed game's end card is not a fresh one.
+        shotsFired: shotsFired,
+        matched: matched,
+        cascaded: cascaded,
+        boardsCleared: boardsCleared,
+        bestScore: best,
+        savedAt: Date.now()
+      }));
+    } catch (e) {}
+  }
+
+  function loadGameState() {
+    try {
+      var raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      var st = JSON.parse(raw);
+      // A save with no bubbles is a cleared board mid-transition, not a game.
+      if (!st || !st.clusterBubbles || !st.clusterBubbles.length) return null;
+      return st;
+    } catch (e) { return null; }
+  }
+
+  function clearGameState() {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+  }
+
+  function restoreGameState(saved) {
+    reset();
+
+    bubbles.length = 0;
+    for (var i = 0; i < saved.clusterBubbles.length; i++) {
+      var sb = saved.clusterBubbles[i];
+      var b = new Bubble(sb.x, sb.y, sb.color);
+      b.id = sb.id;                      // the graph keys off these
+      b.radius = sb.radius || R;
+      b.connected = true;
+      bubbles.push(b);
+    }
+
+    // New bubbles must not collide with restored ids, or the graph will treat two
+    // different bubbles as one node.
+    var maxId = -1;
+    for (i = 0; i < bubbles.length; i++) if (bubbles[i].id > maxId) maxId = bubbles[i].id;
+    Bubble.nextId = maxId + 1;
+
+    board          = saved.currentBoard || 1;
+    score          = saved.currentScore || 0;
+    bubblesPerShot = saved.bubblesPerShot || bubblesPerShotFor(board);
+    feedEvery      = saved.feedEvery || getBoardConfig(board).feedEvery;
+    shotsSinceFeed = saved.shotsSinceFeed || 0;
+    boardIncomingColor = saved.currentBoardIncomingColor || null;
+    shotsFired     = saved.shotsFired || 0;
+    matched        = saved.matched || 0;
+    cascaded       = saved.cascaded || 0;
+    boardsCleared  = saved.boardsCleared || 0;
+
+    theta = saved.clusterRotationAngle || 0;
+    omega = 0;                           // resume parked, not mid-spin
+    syncWorld();
+    recompute();
+
+    queue.length = 0;
+    if (saved.currentBubbleColor) queue.push(saved.currentBubbleColor);
+    if (saved.nextBubbleColor) queue.push(saved.nextBubbleColor);
+    fillQueue();
+
+    endReason = null;
+    phase = 'playing';
+    if (startEl) startEl.classList.add('bp-hide');
+    if (overlayEl) overlayEl.classList.add('hidden');
+    updateHud();
+  }
+
   function finish(reason) {
     if (phase === 'over') return;
     phase = 'over';
     endReason = reason;
 
+    clearGameState();
     recordBest();
     updateHud();
     flashScreen('#FF0000', 300);
@@ -2235,9 +2350,31 @@
     document.getElementById('help-btn').addEventListener('click', function () {
       openDirections(DIRECTIONS_TEXT);
     });
-    document.getElementById('new-btn').addEventListener('click', startGame);
-    document.getElementById('bp-play-btn').addEventListener('click', startGame);
+    // The header's New always starts fresh, and throws away any save with it.
+    document.getElementById('new-btn').addEventListener('click', function () {
+      clearGameState();
+      startGame();
+    });
     document.getElementById('play-again-btn').addEventListener('click', startGame);
+
+    // The splash's primary button is Continue when there is something to
+    // continue, and Play when there is not.
+    var resumable = loadGameState();
+    var playBtn  = document.getElementById('bp-play-btn');
+    var freshBtn = document.getElementById('bp-fresh-btn');
+
+    if (resumable) {
+      playBtn.textContent = 'Continue (Board ' + resumable.currentBoard + ' · ' +
+                            resumable.currentScore.toLocaleString() + ' pts)';
+      freshBtn.classList.remove('hidden');
+      playBtn.addEventListener('click', function () { restoreGameState(resumable); });
+      freshBtn.addEventListener('click', function () {
+        clearGameState();
+        startGame();
+      });
+    } else {
+      playBtn.addEventListener('click', startGame);
+    }
     document.getElementById('share-btn').addEventListener('click', function () {
       shareText(shareLine(), 'Bubble Planet — Bunny Game');
     });
@@ -2299,6 +2436,10 @@
     // Runs an in-flight shot and anything in the air to completion without
     // waiting on frames — the test hook and the headless harness both use it.
     startGame: startGame,
+    saveGameState: saveGameState,
+    loadGameState: loadGameState,
+    clearGameState: clearGameState,
+    restoreGameState: restoreGameState,
     fireShot: fireShot,
     phase: function () { return phase; },
     setPalette: function (n) { PALETTE = Math.max(2, Math.min(COLORS.length, n)); },
