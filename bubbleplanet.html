@@ -45,6 +45,17 @@
 <div id="header">
   <h1><img src="Icons/BunnyGameLogo.svg" alt="Bunny Game" style="height:30px;filter:brightness(0) invert(1);display:block;"></h1>
   <div class="header-controls">
+    <button class="icon-btn" id="mute-btn" aria-label="Mute sound" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+        <g class="mute-waves" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M16.5 8.5a5 5 0 0 1 0 7"/>
+          <path d="M19 6a9 9 0 0 1 0 12"/>
+        </g>
+        <line class="mute-slash" x1="4" y1="20" x2="20" y2="4"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+    </button>
     <button class="icon-btn" id="help-btn" aria-label="How to play">?</button>
     <button class="icon-btn" id="new-btn">↺ New</button>
   </div>
@@ -66,6 +77,8 @@
     <span class="stat-value" id="val-best">—</span>
   </div>
 </div>
+
+<audio id="bp-music" src="assets/audio/bubbleplanet-theme.mp3" loop preload="auto"></audio>
 
 <div id="canvas-wrap">
   <canvas id="game-canvas"></canvas>

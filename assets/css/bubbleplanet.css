@@ -161,6 +161,37 @@ canvas,
    order is the only thing deciding which background wins, and the ghost has to
    come second or it renders as a second solid button. */
 
+/* ── Mute ──────────────────────────────────────────────────────────────────
+   Drawn rather than set in an emoji. A speaker glyph renders monochrome — or as
+   a hollow box — on any system without a colour emoji font, which is a poor
+   showing for the one control a player reaches for in a hurry. Inline SVG looks
+   the same everywhere and takes the button's own colour.
+
+   Sound on: the speaker keeps the game's yellow, waves showing. Muted: the
+   waves go, a slash appears, and the whole thing dims — three signals, so the
+   state is never ambiguous at 20px. */
+#mute-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  min-width: 2.6em;
+  color: #E8FF00;
+}
+#mute-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+#mute-btn .mute-slash { opacity: 0; }
+
+#mute-btn[aria-pressed="true"] {
+  color: #b6a8d8;
+  opacity: 0.7;
+}
+#mute-btn[aria-pressed="true"] .mute-waves { opacity: 0; }
+#mute-btn[aria-pressed="true"] .mute-slash { opacity: 1; }
+
 /* ── Toast ── */
 #bp-toast {
   position: absolute;

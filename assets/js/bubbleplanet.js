@@ -930,6 +930,7 @@
 
       if ((shot.deflections || 0) < MAX_DEFLECTIONS && deflectOffSatellite(p)) {
         shot.deflections = (shot.deflections || 0) + 1;
+        sfx('deflect');
       }
 
       shot.x = p.x; shot.y = p.y;
@@ -1265,6 +1266,7 @@
           var q = { x: f.x, y: f.y, dx: f.vx / sp2, dy: f.vy / sp2, radius: R };
           if (deflectOffSatellite(q)) {
             f.deflections = (f.deflections || 0) + 1;
+            sfx('deflect');
             f.x = q.x; f.y = q.y;
             f.vx = q.dx * sp2; f.vy = q.dy * sp2;
           }
@@ -1278,6 +1280,7 @@
           var nb = new Bubble(0, 0, f.color);
           if (attachBubble(nb, hit)) {
             landed.push(nb);
+            if (phase === 'playing' && !dealing) sfx('land');
             // An arrival that completes a colour group blows it up and pays for
             // it, exactly as a shot would.
             //
@@ -1508,6 +1511,7 @@
     fillQueue();
     shotsFired++;
     fire(color);
+    sfx('fire');
     return true;
   }
 
@@ -1519,6 +1523,10 @@
   function creditResolve(result, mult) {
     matched += result.direct.length;
     cascaded += result.cascade.length;
+
+    sfx('pop', result.direct.length);
+    if (result.cascade.length) sfx('cascade', result.cascade.length);
+    if (mult > 1) sfx('combo', mult);
 
     var bonus = 0;
     if (mult > 1) {
@@ -1570,6 +1578,7 @@
 
     if (cleanMiss) {
       queueArrivals(MISS_PENALTY, STAGGER, false);
+      sfx('miss');
       showFloatingScore('MISSED \u2014 +' + MISS_PENALTY, SHOOTER_X, SHOOTER_Y - 70,
                         '#FF4500', 22);
       // The miss still counts as a shot against the feed, so a missed fifth shot
@@ -1617,9 +1626,16 @@
                   size: size || 26, t: 0 });
   }
 
+  var COMBO_RUNGS = {
+    'COMBO': 3, 'DOUBLE COMBO': 4, 'MEGA COMBO': 5,
+    'LUDICROUS COMBO': 6, 'INSANITY!': 7,
+    '5 IN A ROW!': 7, '1000 POINTS!': 7
+  };
+
   function showComboText(label, x, y) {
     var tier = COMBO_TIERS[label];
     if (!tier) return;
+    sfx('combo', COMBO_RUNGS[label] || 3);
     combos.push({ text: label, x: x, y: y, t: 0,
                   color: tier.color, size: tier.size, pulse: !!tier.pulse });
     burst(x, y + 42, Math.min(48, tier.size), tier.color);
@@ -1643,6 +1659,7 @@
     syncWorld();
 
     burst(PLANET_X, PLANET_Y, 70, '#FF00FF');
+    sfx('wipe');
     showComboText('5 IN A ROW!', PLANET_X, PLANET_Y - 96);
     showFloatingScore('+' + bonus + ' WIPE', PLANET_X, PLANET_Y - 30, '#00FF7F', 28);
     flashScreen('#FF00FF', 380);
@@ -1655,6 +1672,7 @@
     boardsCleared++;
     score += PTS_BOARD;
     flashScreen('#FFD700', 400);
+    sfx('boardClear');
     clearTimer = 0;
     celebration = { text: 'BOARD ' + board + ' CLEARED!', t: 0 };
     showFloatingScore('+' + PTS_BOARD + ' BOARD BONUS!', PLANET_X, PLANET_Y - 40, '#00FF7F', 28);
@@ -1853,6 +1871,7 @@
     phase = 'assembling';
     clearTimer = 0;
     beginAssembly(1, SWARM_STAGGER);
+    startMusic();
     if (startEl) startEl.classList.add('bp-hide');
     if (overlayEl) overlayEl.classList.add('hidden');
     updateHud();
@@ -1979,6 +1998,7 @@
 
     endReason = null;
     phase = 'playing';
+    startMusic();
     if (startEl) startEl.classList.add('bp-hide');
     if (overlayEl) overlayEl.classList.add('hidden');
     updateHud();
@@ -1992,6 +2012,8 @@
     clearGameState();
     recordBest();
     updateHud();
+    stopMusic();
+    sfx('over');
     flashScreen('#FF0000', 300);
     overHold = 0.4;
   }
@@ -2037,6 +2059,222 @@
       r *= (1 + amt); g *= (1 + amt); b *= (1 + amt);
     }
     return 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  Sound
+  //
+  //  The effects are synthesised rather than loaded: a dozen short cartoon
+  //  noises would be a dozen more requests and a dozen more files to keep in
+  //  step with the art, and an oscillator gives something the samples cannot —
+  //  pitch that rises with the thing it is describing. A three-bubble pop and a
+  //  twelve-bubble cascade are the same event at different sizes, so they are
+  //  the same sound at different pitches.
+  //
+  //  The music is a real file, played through an <audio> element. It is long
+  //  and needs no per-note control, so decoding megabytes into a Web Audio
+  //  buffer would only cost memory.
+  //
+  //  Everything here no-ops without a browser, so the headless suites are
+  //  untouched by it.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  var audioCtx = null;
+  var muted = false;
+  var musicEl = null;
+  var muteBtn = null;
+
+  var MUSIC_VOL = 0.32;       // sits under the effects rather than over them
+  var SFX_VOL   = 0.22;
+
+  function getCtx() {
+    if (typeof window === 'undefined') return null;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    // Browsers hand back a suspended context until a gesture unlocks it.
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  // One voice: a pitch envelope and a volume envelope. Everything below is built
+  // out of these, which is what keeps the whole set sounding related.
+  function blip(opts) {
+    if (muted) return;
+    var c = getCtx();
+    if (!c) return;
+
+    var t0 = c.currentTime + (opts.delay || 0);
+    var dur = opts.dur || 0.12;
+
+    var osc = c.createOscillator();
+    osc.type = opts.type || 'sine';
+    osc.frequency.setValueAtTime(opts.from, t0);
+    if (opts.to && opts.to !== opts.from) {
+      // Exponential, because pitch is heard logarithmically — a linear sweep
+      // bunches all its movement at the top and sounds like a click.
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, opts.to), t0 + dur);
+    }
+
+    var g = c.createGain();
+    var peak = (opts.gain === undefined ? 1 : opts.gain) * SFX_VOL;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(peak, t0 + Math.min(0.012, dur * 0.2));
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  // A short burst of filtered noise, for the parts that are texture rather than
+  // pitch — the click of a launch, the sparkle on a fanfare.
+  function noise(opts) {
+    if (muted) return;
+    var c = getCtx();
+    if (!c) return;
+
+    var t0 = c.currentTime + (opts.delay || 0);
+    var dur = opts.dur || 0.08;
+    var frames = Math.max(1, Math.floor(c.sampleRate * dur));
+    var buf = c.createBuffer(1, frames, c.sampleRate);
+    var data = buf.getChannelData(0);
+    for (var i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames);
+
+    var src = c.createBufferSource();
+    src.buffer = buf;
+
+    var f = c.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.setValueAtTime(opts.freq || 1200, t0);
+    f.Q.value = opts.q || 1.2;
+
+    var g = c.createGain();
+    g.gain.setValueAtTime((opts.gain === undefined ? 0.5 : opts.gain) * SFX_VOL, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+    src.connect(f); f.connect(g); g.connect(c.destination);
+    src.start(t0);
+  }
+
+  var SFX = {
+    // A rising pea-shooter, with a click of air at the front.
+    fire: function () {
+      blip({ from: 300, to: 900, dur: 0.10, type: 'triangle', gain: 0.55 });
+      noise({ freq: 1800, dur: 0.05, gain: 0.25 });
+    },
+
+    // The pop. Pitch rises with the size of the group, so a big clear sounds
+    // bigger without being louder — this is the compounding, in its simplest form.
+    pop: function (n) {
+      var size = Math.min(n || 3, 12);
+      var base = 420 + (size - 3) * 34;
+      blip({ from: base, to: base * 0.45, dur: 0.13, type: 'sine', gain: 0.7 });
+      blip({ from: base * 1.5, to: base * 0.7, dur: 0.09, type: 'triangle',
+             gain: 0.3, delay: 0.01 });
+    },
+
+    // Bubbles cut loose from the planet: a falling-away shimmer, one note per
+    // bubble up to a sensible ceiling.
+    cascade: function (n) {
+      var notes = Math.min(n || 1, 8);
+      for (var i = 0; i < notes; i++) {
+        blip({ from: 900 - i * 55, to: 300, dur: 0.22, type: 'sine',
+               gain: 0.32, delay: i * 0.035 });
+      }
+    },
+
+    // The streak ladder, and the combo tiers: an arpeggio that climbs a step
+    // further for every level of the thing it is announcing.
+    combo: function (step) {
+      var rungs = Math.max(2, Math.min(step || 2, 7));
+      for (var i = 0; i < rungs; i++) {
+        var f = 392 * Math.pow(2, i / 4);       // stacked whole-ish tones
+        blip({ from: f, to: f * 1.01, dur: 0.16, type: 'square',
+               gain: 0.16, delay: i * 0.055 });
+        blip({ from: f * 2, to: f * 2, dur: 0.12, type: 'sine',
+               gain: 0.10, delay: i * 0.055 });
+      }
+    },
+
+    // A board gone. A major triad walked up, with sparkle over the top.
+    boardClear: function () {
+      [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) {
+        blip({ from: f, to: f, dur: 0.42, type: 'triangle', gain: 0.30, delay: i * 0.09 });
+      });
+      noise({ freq: 5200, dur: 0.5, gain: 0.16, q: 0.7, delay: 0.28 });
+    },
+
+    // The whole board taken at once — the triad again, a fifth higher and with
+    // more of it, so it reads as the same event escalated.
+    wipe: function () {
+      [659.25, 830.61, 987.77, 1318.5, 1567.98].forEach(function (f, i) {
+        blip({ from: f, to: f, dur: 0.46, type: 'triangle', gain: 0.30, delay: i * 0.07 });
+      });
+      noise({ freq: 6000, dur: 0.6, gain: 0.2, q: 0.6, delay: 0.2 });
+    },
+
+    // A shot thrown away. The one falling gesture in the set.
+    miss: function () {
+      blip({ from: 380, to: 130, dur: 0.30, type: 'sawtooth', gain: 0.28 });
+    },
+
+    // Metal. Short, bright, and nothing like a bubble.
+    deflect: function () {
+      blip({ from: 1800, to: 1200, dur: 0.09, type: 'square', gain: 0.16 });
+      noise({ freq: 3400, dur: 0.06, gain: 0.16, q: 3 });
+    },
+
+    // A bubble joining the mass. Deliberately almost nothing — it happens three
+    // at a time and would turn into a rattle.
+    land: function () {
+      blip({ from: 240, to: 170, dur: 0.06, type: 'sine', gain: 0.16 });
+    },
+
+    // The run ending.
+    over: function () {
+      [440, 349.23, 261.63].forEach(function (f, i) {
+        blip({ from: f, to: f * 0.98, dur: 0.5, type: 'triangle',
+               gain: 0.3, delay: i * 0.16 });
+      });
+    }
+  };
+
+  function sfx(name, arg) {
+    if (muted) return;
+    var fn = SFX[name];
+    if (fn) { try { fn(arg); } catch (e) {} }
+  }
+
+  // ── Music ─────────────────────────────────────────────────────────────────
+
+  function startMusic() {
+    if (!musicEl || muted) return;
+    musicEl.volume = MUSIC_VOL;
+    // Autoplay is blocked until the page has had a gesture, and play() rejects
+    // rather than throwing. Swallowed on purpose: the next Play or Continue is
+    // a gesture and will start it.
+    var p = musicEl.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+
+  function stopMusic() {
+    if (!musicEl) return;
+    musicEl.pause();
+  }
+
+  function setMuted(on) {
+    muted = !!on;
+    if (musicEl) musicEl.muted = muted;
+    if (muteBtn) {
+      // The icon is SVG and swaps on the attribute, so nothing here touches
+      // the button's contents.
+      muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      muteBtn.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
+    }
+    try { localStorage.setItem('bubbleplanet_muted', muted ? '1' : '0'); } catch (e) {}
+    if (!muted && phase !== 'idle' && phase !== 'over') startMusic();
   }
 
   // ── Star field ────────────────────────────────────────────────────────────
@@ -2798,6 +3036,25 @@
 
     try { best = parseInt(localStorage.getItem('bubbleplanet_bestScore'), 10) || 0; } catch (e) { best = 0; }
 
+    musicEl = document.getElementById('bp-music');
+    muteBtn = document.getElementById('mute-btn');
+    var savedMute = false;
+    try { savedMute = localStorage.getItem('bubbleplanet_muted') === '1'; } catch (e) {}
+    setMuted(savedMute);
+
+    if (muteBtn) {
+      muteBtn.addEventListener('click', function () {
+        setMuted(!muted);
+        if (!muted) sfx('pop', 3);      // a note back, so unmuting proves itself
+      });
+    }
+
+    // The tab going away should not leave music playing behind it.
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopMusic();
+      else if (phase !== 'idle' && phase !== 'over') startMusic();
+    });
+
     // Aim continuously on a mouse; on touch, aim while the finger is down and
     // fire when it lifts — the same drag-then-release the other pointer games use.
     var pointerDown = false;
@@ -2930,6 +3187,9 @@
     // Runs an in-flight shot and anything in the air to completion without
     // waiting on frames — the test hook and the headless harness both use it.
     startGame: startGame,
+    setMuted: setMuted,
+    isMuted: function () { return muted; },
+    sfx: sfx,
     saveGameState: saveGameState,
     loadGameState: loadGameState,
     clearGameState: clearGameState,
