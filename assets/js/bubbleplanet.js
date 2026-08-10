@@ -538,10 +538,21 @@
     var points = [{ x: p.x, y: p.y }];
     var bounces = 0;
 
+    var deflections = 0;
+
     for (var i = 0; i < 4000; i++) {
       if (advanceBubble(p, MARCH_STEP)) {
         points.push({ x: p.x, y: p.y });
         if (++bounces > MAX_AIM_BOUNCES) break;
+      }
+
+      // The line has to show the bend, or it promises a path the shot will not
+      // take. Note the preview reads the satellites where they are now: they
+      // keep orbiting while the bubble is in the air, so — exactly like the
+      // spinning cluster — this is a snapshot, not a guarantee.
+      if (deflections < MAX_DEFLECTIONS && deflectOffSatellite(p)) {
+        deflections++;
+        points.push({ x: p.x, y: p.y });
       }
 
       if (p.y < -radius * 2) break;   // off the top is a clean miss
@@ -914,6 +925,11 @@
       var d = MARCH_STEP;
 
       advanceBubble(p, d);
+
+      if ((shot.deflections || 0) < MAX_DEFLECTIONS && deflectOffSatellite(p)) {
+        shot.deflections = (shot.deflections || 0) + 1;
+      }
+
       shot.x = p.x; shot.y = p.y;
       shot.vx = p.dx * speed; shot.vy = p.dy * speed;
 
@@ -1065,6 +1081,138 @@
     return Math.min(tx, ty);
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  //  Satellites
+  //
+  //  A satellite is not a bubble. Nothing sticks to it, it never matches, and it
+  //  is never in the cluster array — so the connection graph and the orphan
+  //  cascade cannot see it at all, which is exactly the treatment Gumball gives
+  //  its marble. All it does is deflect: anything that touches it bounces off at
+  //  a mirrored angle and carries on flying.
+  //
+  //  Satellites live in world space and orbit the planet on their own clock.
+  //  They deliberately do not turn with the cluster — the cluster's spin is the
+  //  player's doing, and a satellite that inherited it would be unreadable.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // The brief specifies an orbit radius of 140. That would put the satellite
+  // inside the mass: measured, the cluster already reaches 216–241px on the
+  // boards where satellites appear, so at 140 it would sit buried among the
+  // bubbles and deflect almost nothing on the way in. 275 keeps it in the open
+  // band between the cluster and the wall at 320, where it is actually an
+  // obstacle. It stays constant across every board, as the brief asks, so the
+  // player can build the spatial habit.
+  var SAT_ORBIT_R = 275;
+  var SAT_RADIUS  = 14;
+  var MAX_DEFLECTIONS = 4;    // a bubble cannot be trapped bouncing forever
+
+  // Count and speed by board. Speeds are the brief's radians-per-frame, which
+  // this converts to radians per second — the engine runs on elapsed time, not
+  // on frames, so a per-frame figure would run four times too fast inside the
+  // headless stepper and would drift with the display's refresh rate.
+  var SAT_TIERS = [
+    { from: 1,  count: 0, speed: 0      },
+    { from: 5,  count: 1, speed: 0.004  },
+    { from: 9,  count: 1, speed: 0.007  },
+    { from: 13, count: 2, speed: 0.006  },
+    { from: 17, count: 2, speed: 0.009  },
+    { from: 21, count: 3, speed: 0.008  }
+  ];
+
+  var SAT_FRAMES_PER_SEC = 60;
+
+  function satelliteTierFor(n) {
+    var tier = SAT_TIERS[0];
+    for (var i = 0; i < SAT_TIERS.length; i++) {
+      if (n >= SAT_TIERS[i].from) tier = SAT_TIERS[i];
+    }
+    return tier;
+  }
+
+  var satellites = [];
+
+  function applySatellites(n) {
+    var tier = satelliteTierFor(n);
+    satellites.length = 0;
+
+    // One offset for the whole set, drawn once. Drawing it per satellite —
+    // which is what this did first — gives each its own random angle and the
+    // even spread never happens: a pair came out 132 degrees apart instead of
+    // 180, which is the clumping the spread exists to prevent.
+    var base = Math.random() * TAU;
+
+    // One direction for the whole set, drawn per board. Alternating directions —
+    // which this did first — means the even spacing holds for a single instant
+    // and then decays: a pair set 180 degrees apart closes to 47 within a few
+    // seconds and periodically clumps, which is the thing the spread exists to
+    // prevent. Turning together, the gaps are preserved for the whole board and
+    // the pattern stays learnable.
+    var spin = Math.random() < 0.5 ? 1 : -1;
+
+    for (var i = 0; i < tier.count; i++) {
+      satellites.push({
+        id: 'satellite_' + (i + 1),
+        orbitRadius: SAT_ORBIT_R,
+        // Spread evenly so a pair never clumps: two sit opposite, three form a
+        // triangle.
+        orbitAngle: base + (i / tier.count) * TAU,
+        orbitSpeed: tier.speed * SAT_FRAMES_PER_SEC,
+        radius: SAT_RADIUS,
+        direction: spin,
+        spin: 0
+      });
+    }
+  }
+
+  function stepSatellites(dt) {
+    for (var i = 0; i < satellites.length; i++) {
+      var s = satellites[i];
+      s.orbitAngle += s.orbitSpeed * s.direction * dt;
+      if (s.orbitAngle > TAU) s.orbitAngle -= TAU;
+      if (s.orbitAngle < 0) s.orbitAngle += TAU;
+      s.spin += dt * 2.2;         // its own rotation, so it reads as machinery
+    }
+  }
+
+  function satellitePos(s, out) {
+    out.x = PLANET_X + s.orbitRadius * Math.cos(s.orbitAngle);
+    out.y = PLANET_Y + s.orbitRadius * Math.sin(s.orbitAngle);
+    return out;
+  }
+
+  var _s = { x: 0, y: 0 };
+
+  // Mirror reflection about the line joining the two centres. Returns true if it
+  // deflected, having already turned the heading and lifted the bubble clear of
+  // the satellite's surface — without that last part the next step would find
+  // the same overlap and the bubble would stutter against it instead of leaving.
+  function deflectOffSatellite(p) {
+    for (var i = 0; i < satellites.length; i++) {
+      var s = satellites[i];
+      satellitePos(s, _s);
+
+      var dx = p.x - _s.x, dy = p.y - _s.y;
+      var d = Math.sqrt(dx * dx + dy * dy);
+      var need = p.radius + s.radius;
+      if (d >= need) continue;
+      if (d < 1e-6) { dx = 1; dy = 0; d = 1; }
+
+      var nx = dx / d, ny = dy / d;
+      var dot = p.dx * nx + p.dy * ny;
+      // Only turn something travelling into it. A bubble already on its way out
+      // would otherwise be reflected straight back in.
+      if (dot < 0) {
+        p.dx -= 2 * dot * nx;
+        p.dy -= 2 * dot * ny;
+      }
+
+      p.x = _s.x + nx * (need + 0.5);
+      p.y = _s.y + ny * (need + 0.5);
+      return true;
+    }
+    return false;
+  }
+
   // ── Board assembly ────────────────────────────────────────────────────────
   //
   // A new board is dealt as a swarm: startingClusterSize bubbles launched from
@@ -1096,6 +1244,19 @@
         remaining -= d;
         f.x += f.vx * d;
         f.y += f.vy * d;
+
+        // Arrivals bounce off satellites the same way a shot does, before they
+        // ever reach the mass — which is what scatters where a wave ends up on
+        // the later boards.
+        if ((f.deflections || 0) < MAX_DEFLECTIONS) {
+          var sp2 = Math.hypot(f.vx, f.vy) || 1;
+          var q = { x: f.x, y: f.y, dx: f.vx / sp2, dy: f.vy / sp2, radius: R };
+          if (deflectOffSatellite(q)) {
+            f.deflections = (f.deflections || 0) + 1;
+            f.x = q.x; f.y = q.y;
+            f.vx = q.dx * sp2; f.vy = q.dy * sp2;
+          }
+        }
 
         var hit = contactAt(f.x, f.y, R);
         if (hit) {
@@ -1269,6 +1430,7 @@
     fillQueue();
 
     boardIncomingColor = pick(palette());
+    applySatellites(n);
   }
 
   function queueArrivals(count, stagger, swarm) {
@@ -1560,6 +1722,7 @@
     if (landed) afterShot(landed.refused || landed.missed ? null : landed);
 
     var waveWasInbound = pending.length || incoming.length;
+    stepSatellites(dt);
     stepPending(dt);
     stepIncoming(dt);
     // The moment the last arrival lands, the board is at rest again and worth
@@ -1599,6 +1762,7 @@
     pending.length = 0;
     floats.length = 0;
     sparks.length = 0;
+    satellites.length = 0;
     flash = 0;
     combos.length = 0;
     overHold = -1;
@@ -1670,6 +1834,9 @@
         feedEvery: feedEvery,
         shotsSinceFeed: shotsSinceFeed,
         streak: streak,
+        // Count and speed come back from the board; only where they happen to be
+        // is genuinely state worth keeping.
+        satelliteAngles: satellites.map(function (x) { return x.orbitAngle; }),
         currentBoardIncomingColor: boardIncomingColor,
         currentBubbleColor: queue[0] || null,
         nextBubbleColor: queue[1] || null,
@@ -1729,6 +1896,13 @@
     feedEvery      = saved.feedEvery || getBoardConfig(board).feedEvery;
     shotsSinceFeed = saved.shotsSinceFeed || 0;
     streak         = saved.streak || 0;
+
+    applySatellites(board);
+    if (saved.satelliteAngles) {
+      for (var k = 0; k < satellites.length && k < saved.satelliteAngles.length; k++) {
+        satellites[k].orbitAngle = saved.satelliteAngles[k];
+      }
+    }
     boardIncomingColor = saved.currentBoardIncomingColor || null;
     shotsFired     = saved.shotsFired || 0;
     matched        = saved.matched || 0;
@@ -2086,12 +2260,18 @@
     // buys back the planet's silhouette.
     drawRingArc(Math.PI, TAU, 0.38, 6);        // far half, behind the planet
     drawPlanetBody();
+    drawOrbitPath();
 
     bubbles.forEach(function (b) { drawBubble(b.wx, b.wy, b.color); });
 
     incoming.forEach(function (f) { drawBubble(f.x, f.y, f.color); });
 
     drawEscapes();
+
+    // Satellites sit over the mass. They are obstacles in the flight path, so
+    // being hidden behind a bubble would make them unreadable exactly when the
+    // player needs to see them.
+    drawSatellites();
 
     if (phase === 'playing' && !shot) drawAim();
     if (shot) drawBubble(shot.x, shot.y, shot.color);
@@ -2126,6 +2306,63 @@
       ctx.globalAlpha = 1;
 
       drawBubble(e.x, e.y, e.color, 1 - k * 0.75, 1 - k);
+    }
+  }
+
+  // The orbit path, drawn faintly behind the cluster. It is the tell: the player
+  // can read where the thing will be before it gets there, which is the whole
+  // difference between an obstacle and an ambush.
+  function drawOrbitPath() {
+    if (!satellites.length) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(PLANET_X, PLANET_Y, SAT_ORBIT_R, 0, TAU);
+    ctx.strokeStyle = 'rgba(226, 232, 240, 0.16)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 9]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function drawSatellites() {
+    for (var i = 0; i < satellites.length; i++) {
+      var s = satellites[i];
+      satellitePos(s, _s);
+      var r = s.radius;
+
+      ctx.save();
+      ctx.translate(_s.x, _s.y);
+
+      // A cold metal bead — deliberately nothing like a bubble, since the one
+      // thing it must never be mistaken for is something you can match.
+      var g = ctx.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.1, 0, 0, r);
+      g.addColorStop(0, '#f1f5f9');
+      g.addColorStop(0.45, '#94a3b8');
+      g.addColorStop(1, '#334155');
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, TAU);
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = 'rgba(15,23,42,0.75)';
+      ctx.stroke();
+
+      // Panels that turn with it. A still grey circle reads as a dead bubble;
+      // something rotating reads as live hardware.
+      ctx.rotate(s.spin);
+      ctx.strokeStyle = 'rgba(15,23,42,0.55)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.95, 0);
+      ctx.lineTo(r * 0.95, 0);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(0, 255, 200, 0.85)';
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.22, 0, TAU);
+      ctx.fill();
+      ctx.restore();
     }
   }
 
@@ -2644,6 +2881,9 @@
     getBoardConfig: getBoardConfig,
     palette: palette,
     themeFor: themeFor,
+    satelliteTierFor: satelliteTierFor,
+    satelliteList: function () { return satellites; },
+    satelliteOrbitRadius: function () { return SAT_ORBIT_R; },
     theme: function () { return theme; },
     levelThemeCount: function () { return LEVEL_THEMES.length; },
     showComboText: showComboText,
@@ -2673,6 +2913,8 @@
         shotsSinceFeed: shotsSinceFeed,
         streak: streak,
         boardIncomingColor: boardIncomingColor,
+        satellites: satellites.length,
+        satelliteSpeed: satellites.length ? satellites[0].orbitSpeed : 0,
         boardsCleared: boardsCleared,
         shotsFired: shotsFired,
         matched: matched, cascaded: cascaded,
