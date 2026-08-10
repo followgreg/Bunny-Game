@@ -1567,7 +1567,7 @@
     // wave at all, while a player who misses does. Play it perfectly and you are
     // never interrupted: that is the reward, decided deliberately.
     if (streak >= STREAK_WIPE) {
-      wipeBoard();
+      wipeBoard('5 IN A ROW!');
       streak = 0;
     }
 
@@ -1646,9 +1646,20 @@
   // into space. It pays the cascade rate, because that is what it is: the whole
   // mass cut loose at once. Emptying the board also hands the player the board
   // bonus and the next level, which is the real prize.
-  function wipeBoard() {
+  //
+  // Two things can earn a wipe — the streak and a thousand points on one board —
+  // and the banner has to name the one that did. It used to say the streak
+  // either way: the thousand-point route announced itself and then called this,
+  // which printed the streak banner on the very same pixels, so the two sat on
+  // top of each other and neither could be read. The sparks and the flash take
+  // their colour from the same reason — a yellow banner over a magenta burst is
+  // still claiming a streak.
+  function wipeBoard(reason) {
     var remaining = bubbles.slice();
     if (!remaining.length) return;
+
+    var label = reason || '5 IN A ROW!';
+    var tint = (COMBO_TIERS[label] && COMBO_TIERS[label].color) || '#FF00FF';
 
     var bonus = remaining.length * PTS_CASCADE;
     score += bonus;
@@ -1659,11 +1670,11 @@
     recompute();
     syncWorld();
 
-    burst(PLANET_X, PLANET_Y, 70, '#FF00FF');
+    burst(PLANET_X, PLANET_Y, 70, tint);
     sfx('wipe');
-    showComboText('5 IN A ROW!', PLANET_X, PLANET_Y - 96);
+    showComboText(label, PLANET_X, PLANET_Y - 96);
     showFloatingScore('+' + bonus + ' WIPE', PLANET_X, PLANET_Y - 30, '#00FF7F', 28);
-    flashScreen('#FF00FF', 380);
+    flashScreen(tint, 380);
   }
 
   // ── Board clear ───────────────────────────────────────────────────────────
@@ -1812,8 +1823,7 @@
     // underneath a shot or a wave that is still in the air.
     if (phase === 'playing' && !shot && !pending.length && !incoming.length &&
         bubbles.length && (score - boardScoreStart) >= BOARD_SCORE_WIPE) {
-      showComboText('1000 POINTS!', PLANET_X, PLANET_Y - 96);
-      wipeBoard();
+      wipeBoard('1000 POINTS!');
       streak = 0;
     }
 
@@ -3432,7 +3442,7 @@
         streak = STREAK_WIPE - 1;
       },
       step: function (sc, dt, t) {
-        if (t > 1.15 && !sc.wiped) { sc.wiped = true; wipeBoard(); }
+        if (t > 1.15 && !sc.wiped) { sc.wiped = true; wipeBoard('5 IN A ROW!'); }
       }
     },
 
