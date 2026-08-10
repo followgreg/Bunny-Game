@@ -192,6 +192,130 @@ canvas,
 #mute-btn[aria-pressed="true"] .mute-waves { opacity: 0; }
 #mute-btn[aria-pressed="true"] .mute-slash { opacity: 1; }
 
+/* ── Walkthrough ───────────────────────────────────────────────────────────
+   Sits over the board like the splash does, so the first thing a new player
+   sees is taught inside the game's own frame rather than in a dialog floating
+   over it. Screens are stacked and cross-faded, which keeps the panel a fixed
+   size — sliding a shorter screen in would make the buttons jump. */
+#bp-tour {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: rgba(13, 5, 33, 0.96);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#bp-tour.hidden { display: none; }
+
+#bp-tour-skip {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #b6a8d8;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+#bp-tour-skip:hover { color: #E8FF00; }
+
+/* The stage holds its tallest screen so nothing below it moves between steps. */
+.bp-tour-stage {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  flex: 0 1 auto;
+  min-height: 0;
+  display: grid;
+}
+.bp-tour-screen {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+}
+.bp-tour-screen.is-on { opacity: 1; visibility: visible; }
+
+.bp-tour-screen h3 {
+  margin: 0;
+  color: #E8FF00;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.bp-tour-art {
+  width: 100%;
+  background: rgba(26, 10, 46, 0.85);
+  border: 1px solid #4c3a7a;
+  border-radius: 10px;
+  padding: 8px;
+}
+.bp-tour-art svg { display: block; width: 100%; height: auto; }
+.bp-tour-screen p {
+  margin: 0;
+  color: #b6a8d8;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  max-width: 42ch;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.bp-tour-dots { display: flex; gap: 8px; flex: 0 0 auto; }
+.bp-tour-dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 255, 0, 0.55);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.bp-tour-dots button.is-on { background: #E8FF00; }
+
+.bp-tour-nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.bp-tour-nav .bp-btn { padding: 10px 30px; font-size: 0.88rem; }
+#bp-tour-prev.is-hidden { visibility: hidden; }
+
+/* Short windows: the picture yields first, then the copy, so the buttons and
+   dots always stay on screen. */
+@media (max-height: 620px) {
+  #bp-tour { gap: 10px; padding: 12px 16px; }
+  .bp-tour-screen h3 { font-size: 0.95rem; }
+  .bp-tour-screen p { font-size: 0.78rem; line-height: 1.45; }
+  .bp-tour-art { padding: 4px; }
+}
+@media (max-height: 440px) {
+  .bp-tour-art { display: none; }
+  .bp-tour-screen p { max-width: 54ch; }
+}
+
 /* ── Sound panel ───────────────────────────────────────────────────────────
    Hangs under the header button rather than taking over the screen: it is a
    two-line adjustment, not a page, and a full modal would make turning the

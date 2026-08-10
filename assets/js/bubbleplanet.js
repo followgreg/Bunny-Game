@@ -3275,21 +3275,58 @@
     overlayEl.classList.remove('hidden');
   }
 
+  // ── Walkthrough ───────────────────────────────────────────────────────────
+  //
+  // Shown once, unasked, the first time anyone plays, and after that only when
+  // the ? is pressed. The flag is written on the way out — by Play! or by Skip —
+  // so someone who closes the tab midway through is taught again rather than
+  // silently skipped.
+
+  var SEEN_KEY = 'bubbleplanet_seen';
+  var tourEl = null, tourScreens = null, tourDots = null;
+  var tourPrev = null, tourNext = null;
+  var tourAt = 0;
+
+  function shouldShowDirections() {
+    try { return !localStorage.getItem(SEEN_KEY); } catch (e) { return false; }
+  }
+
+  function markSeen() {
+    try { localStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
+  }
+
+  function showTourScreen(n) {
+    if (!tourScreens || !tourScreens.length) return;
+    tourAt = Math.max(0, Math.min(n, tourScreens.length - 1));
+
+    for (var i = 0; i < tourScreens.length; i++) {
+      tourScreens[i].classList.toggle('is-on', i === tourAt);
+      if (tourDots[i]) tourDots[i].classList.toggle('is-on', i === tourAt);
+    }
+
+    // Nothing to go back to on the first screen, and the last one is the way in.
+    tourPrev.classList.toggle('is-hidden', tourAt === 0);
+    tourNext.textContent = tourAt === tourScreens.length - 1 ? 'Play!' : 'Next';
+  }
+
+  function openTour() {
+    if (!tourEl) return;
+    showTourScreen(0);
+    tourEl.classList.remove('hidden');
+  }
+
+  function closeTour() {
+    if (!tourEl) return;
+    tourEl.classList.add('hidden');
+    markSeen();
+  }
+
   function shareLine() {
     return 'Bubble Planet — scored ' + score + ' points across ' + board +
       ' board' + (board === 1 ? '' : 's') + '. Can you beat that? ' +
       'https://www.thebunnygame.com/bubbleplanet';
   }
 
-  var DIRECTIONS_TEXT =
-    'Bubble Planet puts you in charge of defending an alien planet from incoming '  +
-    'bubbles. Aim and fire from the bottom (your shots can bounce off the side '     +
-    'walls.) Match 3 or more of the same color to blast them off into space. '       +
-    'Chain reactions score big. Clear on consecutive shots and the bonus '           +
-    'multiplies: two in a row doubles that clear, three triples it, four quadruples ' +
-    'it, and a fifth blasts the whole planet clear. Clear the entire planet to earn ' +
-    'bonuses and face the next wave. The game ends when the cluster reaches the '     +
-    'walls. How long can you hold the planet?';
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
@@ -3458,9 +3495,44 @@
     canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
     canvas.addEventListener('selectstart', function (e) { e.preventDefault(); });
 
+    // ── Walkthrough wiring ──────────────────────────────────────────────────
+    tourEl      = document.getElementById('bp-tour');
+    tourScreens = tourEl ? tourEl.querySelectorAll('.bp-tour-screen') : null;
+    tourDots    = document.getElementById('bp-tour-dots')
+                    ? document.getElementById('bp-tour-dots').querySelectorAll('button') : [];
+    tourPrev    = document.getElementById('bp-tour-prev');
+    tourNext    = document.getElementById('bp-tour-next');
+
     document.getElementById('help-btn').addEventListener('click', function () {
-      openDirections(DIRECTIONS_TEXT);
+      openTour();
     });
+
+    if (tourEl) {
+      tourPrev.addEventListener('click', function () { showTourScreen(tourAt - 1); });
+      tourNext.addEventListener('click', function () {
+        if (tourAt === tourScreens.length - 1) closeTour();
+        else showTourScreen(tourAt + 1);
+      });
+      document.getElementById('bp-tour-skip').addEventListener('click', closeTour);
+
+      for (var d = 0; d < tourDots.length; d++) {
+        (function (i) {
+          tourDots[i].addEventListener('click', function () { showTourScreen(i); });
+        }(d));
+      }
+
+      // Arrows page through it, and Escape leaves — the same keys the panel uses.
+      document.addEventListener('keydown', function (e) {
+        if (tourEl.classList.contains('hidden')) return;
+        if (e.key === 'ArrowRight') showTourScreen(tourAt + 1);
+        else if (e.key === 'ArrowLeft') showTourScreen(tourAt - 1);
+        else if (e.key === 'Escape') closeTour();
+      });
+
+      // First visit only: the walkthrough sits in front of the title screen,
+      // which is waiting behind it either way.
+      if (shouldShowDirections()) openTour();
+    }
     // The header's New always starts fresh, and throws away any save with it.
     document.getElementById('new-btn').addEventListener('click', function () {
       clearGameState();
