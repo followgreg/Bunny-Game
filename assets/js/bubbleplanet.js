@@ -555,7 +555,9 @@
         points.push({ x: p.x, y: p.y });
       }
 
-      if (p.y < -radius * 2) break;   // off the top is a clean miss
+      // Off either end is a clean miss — a deflection can send the line back down
+      // past the launcher just as it can send the shot there.
+      if (p.y < -radius * 2 || p.y > LH + radius * 2) break;
 
       var hit = contactAt(p.x, p.y, radius);
       if (hit) {
@@ -935,7 +937,13 @@
 
       spinStep(d / speed);
 
-      if (shot.y < -R * 2) { shot = null; return { missed: true }; }
+      // Off either end is a spent shot. The top used to be the only way out,
+      // because a bubble fired upward and banking off side walls can never
+      // travel back down — until a satellite turns it round. Without the floor
+      // check a deflected shot falls forever, never resolving, and the shooter
+      // never reloads: measured, it reached 125,000px below a 760px board and
+      // was still in flight.
+      if (shot.y < -R * 2 || shot.y > LH + R * 2) { shot = null; return { missed: true }; }
 
       var hit = contactAt(shot.x, shot.y, R);
       if (hit) {
