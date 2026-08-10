@@ -16,6 +16,22 @@ logo = logo
   .replace(/<defs>[\s\S]*?<\/defs>/g, '')
   .replace(/class="st0"/g, 'fill="#E8FF00"');
 
+// The face, from the same two files the game draws it from. Its stylesheet is
+// stripped and the class inlined for the same reason the logo's is: a <style>
+// block dropped into another document styles everything in it, and both files
+// happen to call their one class st0.
+let eyes = readFileSync(join(__dirname, 'assets/icons/bubbleplanet_eyes.svg'), 'utf8');
+eyes = eyes
+  .replace(/<\?xml[^>]*\?>\s*/g, '')
+  .replace(/<svg[^>]*>/, '')
+  .replace(/<\/svg>/, '')
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/<style>[\s\S]*?<\/style>/g, '')
+  .replace(/<defs>[\s\S]*?<\/defs>/g, '')
+  .replace(/class="st0"/g, 'fill="#ffffff"');
+
+const EYES_VB = 144;
+
 const W = 1200, H = 630;
 const BG = '#1A0A2E';
 const NEB = '#2D1B69';
@@ -119,6 +135,12 @@ const craters = [[-0.30, -0.20, 0.15], [0.20, 0.30, 0.10], [-0.10, 0.40, 0.08], 
     `<circle cx="${(PX + ox * PR).toFixed(1)}" cy="${(PY + oy * PR).toFixed(1)}"
        r="${(r * PR).toFixed(1)}" fill="#140A32" fill-opacity="0.55"/>`).join('');
 
+// Sized and placed the way drawFace does it: 95% of the planet's diameter,
+// centred, and drawn over the surface rather than clipped into it — the sphere
+// turns, the face does not.
+const FACE_SIZE = PR * 2 * 0.95;
+const face = `<g transform="translate(${(PX - FACE_SIZE / 2).toFixed(1)} ${(PY - FACE_SIZE / 2).toFixed(1)}) scale(${(FACE_SIZE / EYES_VB).toFixed(4)})">${eyes}</g>`;
+
 const continents = [[0.10, -0.34, 0.52, 0.20, -20, 0.34], [-0.28, 0.26, 0.38, 0.16, 32, 0.28]]
   .map(([ox, oy, rx, ry, rot, a]) =>
     `<ellipse cx="${(PX + ox * PR).toFixed(1)}" cy="${(PY + oy * PR).toFixed(1)}"
@@ -163,6 +185,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   <circle cx="${PX}" cy="${PY}" r="${PR * 1.26}" fill="url(#halo)"/>
   <circle cx="${PX}" cy="${PY}" r="${PR}" fill="url(#planet)"/>
   <g clip-path="url(#pclip)">${continents}${craters}</g>
+  ${face}
 
   ${cluster}
   ${escaping}
@@ -244,6 +267,7 @@ const art = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX.toFixed(1)}
   <circle cx="${PX}" cy="${PY}" r="${PR * 1.26}" fill="url(#halo)"/>
   <circle cx="${PX}" cy="${PY}" r="${PR}" fill="url(#planet)"/>
   <g clip-path="url(#pclip)">${continents}${craters}</g>
+  ${face}
 
   ${cluster}
   ${escaping}
