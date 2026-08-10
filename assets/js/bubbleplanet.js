@@ -943,7 +943,11 @@
       // check a deflected shot falls forever, never resolving, and the shooter
       // never reloads: measured, it reached 125,000px below a 760px board and
       // was still in flight.
-      if (shot.y < -R * 2 || shot.y > LH + R * 2) { shot = null; return { missed: true }; }
+      if (shot.y < -R * 2 || shot.y > LH + R * 2) {
+        var wasDeflected = (shot.deflections || 0) > 0;
+        shot = null;
+        return { missed: true, deflected: wasDeflected };
+      }
 
       var hit = contactAt(shot.x, shot.y, R);
       if (hit) {
@@ -1373,7 +1377,8 @@
     'MEGA COMBO':      { color: '#FF4500', size: 33 },
     'LUDICROUS COMBO': { color: '#FF0080', size: 38 },
     'INSANITY!':       { color: '#FF00FF', size: 46, pulse: true },
-    '5 IN A ROW!':     { color: '#FF00FF', size: 42, pulse: true }
+    '5 IN A ROW!':     { color: '#FF00FF', size: 42, pulse: true },
+    '1000 POINTS!':    { color: '#E8FF00', size: 42, pulse: true }
   };
 
   var COMBO_LIFE = 1.5;       // seconds on screen before it goes
@@ -1381,6 +1386,9 @@
   var FLOAT_RISE = 60;        // px a floating score climbs over its life
 
   var PTS_BOARD = 1000;
+  var MISS_PENALTY = 3;       // bubbles sent in for a shot that misses the board
+  var BOARD_SCORE_WIPE = 1000; // points earned on one board that clear it outright
+  var boardScoreStart = 0;    // the running score when this board began
   var MAX_PER_SHOT = 5;    // arrivals never exceed five, on any board
   var feedEvery = 5;          // shots between waves, set per board
   var shotsSinceFeed = 0;
@@ -1429,6 +1437,10 @@
     // draws a colour, or it would draw from the board just finished.
     theme = themeFor(n);
     if (ctx) buildSprites();
+
+    // Reset after the board bonus has been paid, so the thousand that ends one
+    // board cannot immediately end the next.
+    boardScoreStart = score;
 
     // The loaded and on-deck bubbles have to go with it. fillQueue only tops the
     // queue up, so without this the player carries the last board's colours onto
@@ -1517,7 +1529,16 @@
     updateHud();
   }
 
-  function afterShot(result) {
+  function afterShot(landed) {
+    // A landing carries a resolve; a miss and a refusal carry neither.
+    var result = landed && landed.direct ? landed : null;
+
+    // A shot that sailed off the board under its own steam is the player's
+    // mistake and costs them a wave. One a satellite turned away is not — being
+    // deflected is the obstacle doing its job, and charging for it would punish
+    // the player for the board's furniture.
+    var cleanMiss = !!(landed && landed.missed && !landed.deflected);
+
     var cleared = !!(result && result.direct && result.direct.length);
 
     if (cleared) {
@@ -1546,6 +1567,20 @@
     if (isBoardCleared(bubbles)) { beginBoardClear(); return; }
     if (wallHit()) { finish('wall'); return; }
     if (shooterBlocked()) { finish('reached'); return; }
+
+    if (cleanMiss) {
+      queueArrivals(MISS_PENALTY, STAGGER, false);
+      showFloatingScore('MISSED \u2014 +' + MISS_PENALTY, SHOOTER_X, SHOOTER_Y - 70,
+                        '#FF4500', 22);
+      // The miss still counts as a shot against the feed, so a missed fifth shot
+      // brings its wave as well as the penalty.
+      shotsSinceFeed++;
+      if (shotsSinceFeed >= feedEvery) {
+        shotsSinceFeed = 0;
+        queueArrivals(bubblesPerShot, STAGGER, false);
+      }
+      return;
+    }
 
     shotsSinceFeed++;
     if (shotsSinceFeed >= feedEvery) {
@@ -1727,7 +1762,7 @@
     // the arrivals instead and a bubble that happens to land on the same frame
     // refills the cluster before the board-clear check reads it, so the clear is
     // silently missed and play carries on over a board the player had emptied.
-    if (landed) afterShot(landed.refused || landed.missed ? null : landed);
+    if (landed) afterShot(landed);
 
     var waveWasInbound = pending.length || incoming.length;
     stepSatellites(dt);
@@ -1741,6 +1776,18 @@
 
     if (phase === 'clearing') stepClear(dt);
     else if (phase === 'assembling') stepAssemble(dt);
+
+    // A thousand points earned on one board takes the rest of it. Checked here,
+    // in one place, rather than at each of the several points that can add to the
+    // score — a shot, an arrival, a cascade — so no route to a thousand is
+    // missed. It waits for the board to be still, so the wipe is not triggered
+    // underneath a shot or a wave that is still in the air.
+    if (phase === 'playing' && !shot && !pending.length && !incoming.length &&
+        bubbles.length && (score - boardScoreStart) >= BOARD_SCORE_WIPE) {
+      showComboText('1000 POINTS!', PLANET_X, PLANET_Y - 96);
+      wipeBoard();
+      streak = 0;
+    }
 
     // An arrival can now empty the board as well as a shot can, and the clear has
     // to be caught here because nothing else is watching after a shot has already
@@ -1842,6 +1889,7 @@
         feedEvery: feedEvery,
         shotsSinceFeed: shotsSinceFeed,
         streak: streak,
+        boardScoreStart: boardScoreStart,
         // Count and speed come back from the board; only where they happen to be
         // is genuinely state worth keeping.
         satelliteAngles: satellites.map(function (x) { return x.orbitAngle; }),
@@ -1904,6 +1952,8 @@
     feedEvery      = saved.feedEvery || getBoardConfig(board).feedEvery;
     shotsSinceFeed = saved.shotsSinceFeed || 0;
     streak         = saved.streak || 0;
+    boardScoreStart = saved.boardScoreStart === undefined
+      ? saved.currentScore || 0 : saved.boardScoreStart;
 
     applySatellites(board);
     if (saved.satelliteAngles) {
@@ -2920,6 +2970,7 @@
         feedEvery: feedEvery,
         shotsSinceFeed: shotsSinceFeed,
         streak: streak,
+        boardScore: score - boardScoreStart,
         boardIncomingColor: boardIncomingColor,
         satellites: satellites.length,
         satelliteSpeed: satellites.length ? satellites[0].orbitSpeed : 0,
