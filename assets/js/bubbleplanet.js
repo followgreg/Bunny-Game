@@ -2083,6 +2083,8 @@
 
   var audioCtx = null;
   var sfxBus = null;          // every effect goes through here, so one gain rules them
+  var musicGain = null;       // and the music through here, for the same reason
+  var musicSrc = null;
   var musicEl = null;
   var muteBtn = null;
   var audioPanel = null;
@@ -2115,6 +2117,7 @@
       sfxBus.connect(limiter);
       limiter.connect(audioCtx.destination);
     }
+    routeMusic();
     // Browsers hand back a suspended context until a gesture unlocks it.
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
@@ -2272,9 +2275,36 @@
 
   // ── Music ─────────────────────────────────────────────────────────────────
 
+  // Setting volume on the <audio> element is not enough. iOS ignores it outright
+  // — the property accepts the value and changes nothing — so on a phone the
+  // music slider did exactly nothing. Routing the element through a gain node
+  // gives one control that behaves the same everywhere.
+  //
+  // createMediaElementSource may only be called once for an element, hence the
+  // guard; after it, the element's sound reaches the speakers only via the graph.
+  function routeMusic() {
+    if (musicSrc || !audioCtx || !musicEl) return;
+    try {
+      musicSrc = audioCtx.createMediaElementSource(musicEl);
+      musicGain = audioCtx.createGain();
+      musicGain.gain.value = audio.musicOn ? audio.musicVol : 0;
+      musicSrc.connect(musicGain);
+      musicGain.connect(audioCtx.destination);
+      // The element runs wide open now; the gain node is the volume.
+      musicEl.volume = 1;
+    } catch (e) {
+      // No Web Audio, or the element is already routed: fall back to the
+      // element's own volume, which is right everywhere except iOS.
+      musicSrc = null;
+      musicGain = null;
+    }
+  }
+
   function startMusic() {
     if (!musicEl || !audio.musicOn) return;
-    musicEl.volume = audio.musicVol;
+    getCtx();                       // unlocks the context and routes the music
+    if (musicGain) musicGain.gain.value = audio.musicVol;
+    else musicEl.volume = audio.musicVol;
     // Autoplay is blocked until the page has had a gesture, and play() rejects
     // rather than throwing. Swallowed on purpose: the next Play or Continue is
     // a gesture and will start it.
@@ -2294,7 +2324,8 @@
   // coming out of the speakers can never drift apart.
   function applyAudio() {
     if (musicEl) {
-      musicEl.volume = audio.musicVol;
+      if (musicGain) musicGain.gain.value = audio.musicOn ? audio.musicVol : 0;
+      else musicEl.volume = audio.musicVol;
       if (!audio.musicOn) stopMusic();
       else if (inPlay()) startMusic();
     }
@@ -2328,8 +2359,11 @@
 
     mOn.checked = audio.musicOn;
     sOn.checked = audio.sfxOn;
-    mVol.value = Math.round(audio.musicVol * 100);
-    sVol.value = Math.round(audio.sfxVol * 100);
+    // Writing a value into the slider the player is currently dragging fights
+    // the drag — the thumb jumps back under the finger. The one being used is
+    // already showing the right number, so it is left alone.
+    if (document.activeElement !== mVol) mVol.value = Math.round(audio.musicVol * 100);
+    if (document.activeElement !== sVol) sVol.value = Math.round(audio.sfxVol * 100);
     mVal.textContent = Math.round(audio.musicVol * 100) + '%';
     sVal.textContent = Math.round(audio.sfxVol * 100) + '%';
     mOn.closest('.bp-audio-row').classList.toggle('bp-off', !audio.musicOn);
@@ -3208,21 +3242,31 @@
       var mVol = document.getElementById('bp-music-vol');
       var sVol = document.getElementById('bp-sfx-vol');
 
+      // Switching a channel back on when its slider is at zero would leave it
+      // checked and still silent, so it is given a level to come back to.
       mOn.addEventListener('change', function () {
         audio.musicOn = mOn.checked;
+        if (audio.musicOn && audio.musicVol === 0) audio.musicVol = 0.25;
         applyAudio();
       });
       sOn.addEventListener('change', function () {
         audio.sfxOn = sOn.checked;
+        if (audio.sfxOn && audio.sfxVol === 0) audio.sfxVol = 1;
         applyAudio();
         if (audio.sfxOn) sfx('pop', 3);     // a note back, so the choice proves itself
       });
+
+      // Dragging a slider to zero is a player saying "off", so the switch goes
+      // with it — and lifting it off zero turns the channel back on, or the
+      // slider would move against a dead channel.
       mVol.addEventListener('input', function () {
         audio.musicVol = mVol.value / 100;
+        audio.musicOn = audio.musicVol > 0;
         applyAudio();
       });
       sVol.addEventListener('input', function () {
         audio.sfxVol = sVol.value / 100;
+        audio.sfxOn = audio.sfxVol > 0;
         applyAudio();
       });
       // Dragging a slider is how you judge a level, so play one on release
@@ -3375,7 +3419,13 @@
     startGame: startGame,
     setMuted: setMuted,
     isMuted: function () { return !audio.musicOn && !audio.sfxOn; },
-    audioState: function () { return JSON.parse(JSON.stringify(audio)); },
+    audioState: function () {
+      var st = JSON.parse(JSON.stringify(audio));
+      st.musicGain = musicGain ? musicGain.gain.value : null;
+      st.sfxGain = sfxBus ? sfxBus.gain.value : null;
+      st.routed = !!musicSrc;
+      return st;
+    },
     setAudio: function (patch) {
       for (var k in patch) if (audio.hasOwnProperty(k)) audio[k] = patch[k];
       applyAudio();
