@@ -270,7 +270,14 @@ canvas,
   border-radius: 10px;
   padding: 8px;
 }
-.bp-tour-art svg { display: block; width: 100%; height: auto; }
+/* The diorama's frame. Fixed ratio so the slice of board each scene shows is
+   the one it was composed for, whatever the panel's width. */
+.bp-tour-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 6px;
+}
 .bp-tour-screen p {
   margin: 0;
   color: #b6a8d8;

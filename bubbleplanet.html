@@ -145,26 +145,7 @@
 
     <section class="bp-tour-screen is-on" data-screen="1">
       <h3>Match 3 to Pop</h3>
-      <div class="bp-tour-art">
-        <svg viewBox="0 0 200 120" aria-hidden="true">
-          <circle cx="100" cy="60" r="20" fill="#7C3AED"/>
-          <circle cx="94" cy="54" r="3.5" fill="#12061f"/><circle cx="108" cy="54" r="3.5" fill="#12061f"/>
-          <circle cx="95.4" cy="52.6" r="1.2" fill="#fff"/><circle cx="109.4" cy="52.6" r="1.2" fill="#fff"/>
-          <path d="M95 66q6 5 12 0" stroke="#12061f" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-          <circle cx="72" cy="42" r="9" fill="#1E90FF"/>
-          <circle cx="128" cy="42" r="9" fill="#FFA502"/>
-          <circle cx="72" cy="80" r="9" fill="#FFA502"/>
-          <g>
-            <circle cx="100" cy="26" r="9" fill="#FF4757"/>
-            <circle cx="124" cy="74" r="9" fill="#FF4757"/>
-            <circle cx="112" cy="86" r="9" fill="#FF4757"/>
-            <circle cx="118" cy="80" r="26" fill="none" stroke="#E8FF00" stroke-width="2.4"
-                    stroke-dasharray="5 4"/>
-          </g>
-          <circle cx="100" cy="108" r="7" fill="#FF4757"/>
-          <path d="M100 100V92" stroke="#E8FF00" stroke-width="2" stroke-dasharray="3 3"/>
-        </svg>
-      </div>
+      <div class="bp-tour-art"><canvas class="bp-tour-canvas" data-scene="match"></canvas></div>
       <p>Fire bubbles at the planet's cluster. When 3 or more of the same colour touch, they
          explode off into space — and anything they were holding up flies off too. Chain
          reactions score big.</p>
@@ -172,95 +153,28 @@
 
     <section class="bp-tour-screen" data-screen="2">
       <h3>Bounce Off the Walls</h3>
-      <div class="bp-tour-art">
-        <svg viewBox="0 0 200 120" aria-hidden="true">
-          <rect x="6" y="4" width="188" height="112" rx="6" fill="none"
-                stroke="#4c3a7a" stroke-width="2"/>
-          <circle cx="100" cy="46" r="17" fill="#7C3AED"/>
-          <circle cx="95" cy="41" r="3" fill="#12061f"/><circle cx="107" cy="41" r="3" fill="#12061f"/>
-          <circle cx="78" cy="34" r="8" fill="#2ED573"/>
-          <circle cx="122" cy="34" r="8" fill="#1E90FF"/>
-          <circle cx="76" cy="60" r="8" fill="#FF4757"/>
-          <path d="M100 108L186 62L128 30" stroke="#E8FF00" stroke-width="2.2" fill="none"
-                stroke-dasharray="5 4" stroke-linecap="round"/>
-          <circle cx="186" cy="62" r="4" fill="#E8FF00"/>
-          <circle cx="100" cy="108" r="7" fill="#1E90FF"/>
-        </svg>
-      </div>
+      <div class="bp-tour-art"><canvas class="bp-tour-canvas" data-scene="bounce"></canvas></div>
       <p>Your shot bounces off the left and right walls. Use wall shots to reach bubbles
          hidden around the back of the cluster.</p>
     </section>
 
     <section class="bp-tour-screen" data-screen="3">
       <h3>New Bubbles Every 5 Shots</h3>
-      <div class="bp-tour-art">
-        <svg viewBox="0 0 200 120" aria-hidden="true">
-          <circle cx="100" cy="62" r="18" fill="#7C3AED"/>
-          <circle cx="95" cy="57" r="3" fill="#12061f"/><circle cx="107" cy="57" r="3" fill="#12061f"/>
-          <circle cx="82" cy="48" r="8" fill="#2ED573"/>
-          <circle cx="118" cy="48" r="8" fill="#FFA502"/>
-          <g fill="#FF4757">
-            <circle cx="22" cy="26" r="8"/><circle cx="178" cy="30" r="8"/><circle cx="104" cy="112" r="8"/>
-          </g>
-          <g stroke="#FF4757" stroke-width="1.8" stroke-dasharray="4 4" opacity="0.75">
-            <path d="M30 32L76 52"/><path d="M170 36L124 54"/><path d="M104 104L102 84"/>
-          </g>
-          <rect x="62" y="4" width="76" height="18" rx="9" fill="#1A0A2E" stroke="#E8FF00"
-                stroke-width="1.6"/>
-          <text x="100" y="17" text-anchor="middle" font-family="DM Sans, sans-serif"
-                font-size="11" font-weight="700" fill="#E8FF00">+3 IN 5</text>
-        </svg>
-      </div>
+      <div class="bp-tour-art"><canvas class="bp-tour-canvas" data-scene="wave"></canvas></div>
       <p>Every 5 shots, 3 new bubbles fly in from deep space and join the cluster — all the
          same colour. Miss a shot completely and 3 extra arrive as a penalty.</p>
     </section>
 
     <section class="bp-tour-screen" data-screen="4">
       <h3>5 in a Row Clears Everything</h3>
-      <div class="bp-tour-art">
-        <svg viewBox="0 0 200 120" aria-hidden="true">
-          <circle cx="100" cy="66" r="17" fill="#7C3AED"/>
-          <circle cx="95" cy="61" r="3" fill="#12061f"/><circle cx="107" cy="61" r="3" fill="#12061f"/>
-          <path d="M95 72q6 5 12 0" stroke="#12061f" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <g>
-            <circle cx="46" cy="40" r="7" fill="#FF4757" opacity="0.9"/>
-            <circle cx="154" cy="42" r="7" fill="#1E90FF" opacity="0.9"/>
-            <circle cx="38" cy="86" r="6" fill="#2ED573" opacity="0.75"/>
-            <circle cx="162" cy="88" r="6" fill="#FFA502" opacity="0.75"/>
-            <circle cx="100" cy="18" r="6" fill="#A55EEA" opacity="0.75"/>
-          </g>
-          <g stroke="#FF00FF" stroke-width="1.6" opacity="0.6">
-            <path d="M84 54L54 42"/><path d="M116 54L146 44"/>
-            <path d="M86 78L48 84"/><path d="M114 78L152 86"/><path d="M100 50L100 26"/>
-          </g>
-          <rect x="56" y="98" width="88" height="18" rx="9" fill="#1A0A2E" stroke="#FF00FF"
-                stroke-width="1.8"/>
-          <text x="100" y="111" text-anchor="middle" font-family="DM Sans, sans-serif"
-                font-size="11" font-weight="700" fill="#FF00FF">5× STREAK</text>
-        </svg>
-      </div>
+      <div class="bp-tour-art"><canvas class="bp-tour-canvas" data-scene="wipe"></canvas></div>
       <p>Pop something on 5 shots in a row and the whole board is blasted off into space,
          plus a huge bonus. Keep the streak alive to earn the wipe.</p>
     </section>
 
     <section class="bp-tour-screen" data-screen="5">
       <h3>Clear the Board to Advance</h3>
-      <div class="bp-tour-art">
-        <svg viewBox="0 0 200 120" aria-hidden="true">
-          <circle cx="100" cy="66" r="30" fill="#FFD700" opacity="0.16"/>
-          <circle cx="100" cy="66" r="21" fill="#FFD700" opacity="0.12"/>
-          <circle cx="100" cy="66" r="18" fill="#7C3AED"/>
-          <circle cx="94" cy="60" r="3.4" fill="#12061f"/><circle cx="108" cy="60" r="3.4" fill="#12061f"/>
-          <circle cx="95.4" cy="58.6" r="1.2" fill="#fff"/><circle cx="109.4" cy="58.6" r="1.2" fill="#fff"/>
-          <path d="M94 72q7 6 14 0" stroke="#12061f" stroke-width="1.7" fill="none" stroke-linecap="round"/>
-          <ellipse cx="100" cy="66" rx="30" ry="9" fill="none" stroke="#00FFC8"
-                   stroke-width="2.4" opacity="0.75"/>
-          <text x="100" y="26" text-anchor="middle" font-family="DM Sans, sans-serif"
-                font-size="13" font-weight="700" fill="#00FF7F">+1000 BOARD BONUS!</text>
-          <text x="100" y="112" text-anchor="middle" font-family="DM Sans, sans-serif"
-                font-size="11" font-weight="700" fill="#E8FF00">BOARD CLEARED</text>
-        </svg>
-      </div>
+      <div class="bp-tour-art"><canvas class="bp-tour-canvas" data-scene="clear"></canvas></div>
       <p>Clear every bubble off the planet for 1000 bonus points and the next board. Each
          one starts with a bigger cluster. How many can you survive?</p>
     </section>

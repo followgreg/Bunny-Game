@@ -1903,6 +1903,7 @@
   var SAVE_KEY = 'bubbleplanet_gameState';
 
   function saveGameState() {
+    if (drawingDiorama) return;   // a walkthrough scene is not a game in progress
     // Only a board in play is worth resuming. Saving mid-flight or mid-assembly
     // would restore into a half-finished animation with bubbles in the air.
     if (phase !== 'playing' || shot || incoming.length || pending.length) return;
@@ -2277,6 +2278,7 @@
   };
 
   function sfx(name, arg) {
+    if (drawingDiorama) return;   // a picture of the game makes no noise
     if (!audio.sfxOn) return;
     var fn = SFX[name];
     if (fn) { try { fn(arg); } catch (e) {} }
@@ -2835,12 +2837,10 @@
 
   // ── Frame ─────────────────────────────────────────────────────────────────
 
-  function render() {
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctx.clearRect(0, 0, LW, LH);
-
-    // Backdrop: the same two-ellipse wash the page carries, so the board reads
-    // as a window onto the same sky rather than a panel sitting on it.
+  // Backdrop: the same two-ellipse wash the page carries, so the board reads
+  // as a window onto the same sky rather than a panel sitting on it. Split out
+  // so a walkthrough diorama sits in the same sky as the board it describes.
+  function drawBackdrop() {
     ctx.fillStyle = '#1A0A2E';
     ctx.fillRect(0, 0, LW, LH);
 
@@ -2859,6 +2859,13 @@
     ctx.fillRect(0, 0, LW, LH);
 
     drawStars();
+  }
+
+  function render() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, LW, LH);
+
+    drawBackdrop();
 
     // The ring is split by depth, and the near half is drawn after the cluster.
     // Drawn before it, the ring is invisible in play: it sits at 1.6 planet
@@ -3044,36 +3051,45 @@
     // knowing the wave lands on the next shot is most of the tactical
     // information on the screen.
     if (phase === 'playing') {
-      var left = feedEvery - shotsSinceFeed;
-      var label = feedEvery === 1
-        ? '+' + bubblesPerShot + ' EVERY SHOT'
-        : '+' + bubblesPerShot + (left <= 1 ? ' NEXT SHOT' : ' IN ' + left);
-
-      ctx.textAlign = 'left';
-      ctx.font = '700 10px -apple-system, system-ui, sans-serif';
-      ctx.fillStyle = left <= 1 ? 'rgba(255, 69, 0, 0.95)' : 'rgba(232, 255, 0, 0.75)';
-      ctx.fillText(label, 12, 20);
-
-      // The locked colour as a dot, so the player can see what is coming rather
-      // than have to remember it.
-      if (boardIncomingColor) {
-        drawBubble(12 + ctx.measureText(label).width + 14, 16, boardIncomingColor, 0.34);
-      }
-
-      // The streak, opposite. Worth showing even at one, because the player has
-      // to know a streak is running before they can decide to protect it — and
-      // at four they need to know the next one takes the board.
-      if (streak > 0) {
-        var next = streak + 1;
-        var txt = streak === STREAK_WIPE - 1
-          ? 'NEXT CLEAR WIPES THE BOARD'
-          : streak + '\u00D7 STREAK \u00B7 NEXT ' + next + '\u00D7';
-        ctx.textAlign = 'right';
-        ctx.font = '700 10px -apple-system, system-ui, sans-serif';
-        ctx.fillStyle = STREAK_COLORS[Math.min(next, STREAK_WIPE)] || '#FFD700';
-        ctx.fillText(txt, LW - 12, 20);
-      }
+      drawFeedLabel(12, 20);
+      drawStreakLabel(LW - 12, 20);
     }
+  }
+
+  // Placed by the caller only because a walkthrough diorama frames a slice of
+  // the board rather than all of it. Every other choice — the wording, the
+  // colour, the dot — lives here, once, for both callers.
+  function drawFeedLabel(x, y) {
+    var left = feedEvery - shotsSinceFeed;
+    var label = feedEvery === 1
+      ? '+' + bubblesPerShot + ' EVERY SHOT'
+      : '+' + bubblesPerShot + (left <= 1 ? ' NEXT SHOT' : ' IN ' + left);
+
+    ctx.textAlign = 'left';
+    ctx.font = '700 10px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = left <= 1 ? 'rgba(255, 69, 0, 0.95)' : 'rgba(232, 255, 0, 0.75)';
+    ctx.fillText(label, x, y);
+
+    // The locked colour as a dot, so the player can see what is coming rather
+    // than have to remember it.
+    if (boardIncomingColor) {
+      drawBubble(x + ctx.measureText(label).width + 14, y - 4, boardIncomingColor, 0.34);
+    }
+  }
+
+  // The streak, opposite. Worth showing even at one, because the player has to
+  // know a streak is running before they can decide to protect it — and at four
+  // they need to know the next one takes the board.
+  function drawStreakLabel(x, y) {
+    if (streak <= 0) return;
+    var next = streak + 1;
+    var txt = streak === STREAK_WIPE - 1
+      ? 'NEXT CLEAR WIPES THE BOARD'
+      : streak + '\u00D7 STREAK \u00B7 NEXT ' + next + '\u00D7';
+    ctx.textAlign = 'right';
+    ctx.font = '700 10px -apple-system, system-ui, sans-serif';
+    ctx.fillStyle = STREAK_COLORS[Math.min(next, STREAK_WIPE)] || '#FFD700';
+    ctx.fillText(txt, x, y);
   }
 
   // ── Effects ───────────────────────────────────────────────────────────────
@@ -3212,9 +3228,375 @@
     ctx.globalAlpha = 1;
   }
 
+  // ── Walkthrough dioramas ──────────────────────────────────────────────────
+  //
+  // The pictures in the directions are the game drawing itself. They were
+  // hand-drawn SVG first — flat circles, a smiley, a dashed line — which
+  // described the game without looking like it, and would have gone on
+  // describing the old one the first time a planet or a palette changed.
+  //
+  // So each screen is a scene set up in the engine's own state and handed to
+  // the functions the board already uses: spriteFor's glass, drawPlanetBody's
+  // craters, halo and kawaii face, drawAim's real traced trajectory, the same
+  // escape tails, the same combo badges, the same HUD labels. The clusters are
+  // built by firing real shots at them, so every bubble sits where the contact
+  // rule puts it, and the pops are real calls to stepShot, land and resolve —
+  // the same match, the same orphan cascade, the same scoring.
+  //
+  // Two things make borrowing the engine safe. Its globals are swapped in and
+  // put back around every frame, which works because drawing is synchronous:
+  // the game's own frame cannot land in the middle of one. And while a scene is
+  // running, the few engine calls that reach outside the canvas — sound, the
+  // HUD, the save — are switched off at their own front doors, so a scene can
+  // call the real thing and nothing leaks into the player's game.
+  var drawingDiorama = false;
+
+  function engineSnapshot() {
+    return {
+      bubbles: bubbles, theta: theta, omega: omega, inertia: inertia, maxR: maxR,
+      shot: shot, incoming: incoming, pending: pending, escapes: escapes,
+      aim: aim, satellites: satellites, phase: phase, queue: queue,
+      floats: floats, sparks: sparks, combos: combos,
+      flash: flash, flashColor: flashColor, flashMs: flashMs,
+      celebration: celebration, boardIncomingColor: boardIncomingColor,
+      streak: streak, feedEvery: feedEvery, shotsSinceFeed: shotsSinceFeed,
+      bubblesPerShot: bubblesPerShot, theme: theme, score: score, board: board,
+      dangerNow: dangerNow, sweat: sweat, blinkT: blinkT,
+      lastResolve: lastResolve, dealing: dealing, nextId: Bubble.nextId,
+      // The run statistics travel as a family. A scene's pops ran through the
+      // same resolve() the player's do, so without these the walkthrough quietly
+      // added its own clears to the breakdown at the end of the run.
+      matched: matched, cascaded: cascaded, boardsCleared: boardsCleared,
+      shotsFired: shotsFired, boardScoreStart: boardScoreStart
+    };
+  }
+
+  function engineRestore(s) {
+    bubbles = s.bubbles; theta = s.theta; omega = s.omega;
+    inertia = s.inertia; maxR = s.maxR;
+    shot = s.shot; incoming = s.incoming; pending = s.pending; escapes = s.escapes;
+    aim = s.aim; satellites = s.satellites; phase = s.phase; queue = s.queue;
+    floats = s.floats; sparks = s.sparks; combos = s.combos;
+    flash = s.flash; flashColor = s.flashColor; flashMs = s.flashMs;
+    celebration = s.celebration; boardIncomingColor = s.boardIncomingColor;
+    streak = s.streak; feedEvery = s.feedEvery; shotsSinceFeed = s.shotsSinceFeed;
+    bubblesPerShot = s.bubblesPerShot; theme = s.theme; score = s.score;
+    board = s.board; dangerNow = s.dangerNow; sweat = s.sweat; blinkT = s.blinkT;
+    lastResolve = s.lastResolve; dealing = s.dealing; Bubble.nextId = s.nextId;
+    matched = s.matched; cascaded = s.cascaded; boardsCleared = s.boardsCleared;
+    shotsFired = s.shotsFired; boardScoreStart = s.boardScoreStart;
+  }
+
+  function blankScene() {
+    return {
+      bubbles: [], theta: 0, omega: 0, inertia: 40 * R * R, maxR: 0,
+      shot: null, incoming: [], pending: [], escapes: [],
+      aim: -Math.PI / 2, satellites: [], phase: 'playing', queue: [],
+      floats: [], sparks: [], combos: [],
+      flash: 0, flashColor: '#FFD700', flashMs: 400,
+      celebration: null, boardIncomingColor: null,
+      streak: 0, feedEvery: WAVE_EVERY, shotsSinceFeed: 0,
+      bubblesPerShot: WAVE_SIZE, theme: LEVEL_THEMES[0], score: 0, board: 1,
+      dangerNow: 0, sweat: [], blinkT: -1,
+      lastResolve: null, dealing: false, nextId: 0,
+      matched: 0, cascaded: 0, boardsCleared: 0,
+      shotsFired: 0, boardScoreStart: 0
+    };
+  }
+
+  // Borrow the engine, run fn against this scene, hand everything back.
+  function withScene(scene, fn) {
+    var mine = engineSnapshot();
+    drawingDiorama = true;
+    engineRestore(scene.state);
+    try {
+      fn();
+    } finally {
+      scene.state = engineSnapshot();
+      drawingDiorama = false;
+      engineRestore(mine);
+    }
+  }
+
+  // A diorama's cluster is the board builder's own work — the same swarm of
+  // arrivals, sticking on first contact, smoothed into colour patches. Building
+  // the mass out of shots from the shooter instead piles it all under the
+  // planet, since every lane arrives from below; a real board wraps it.
+  //
+  // It deals a fresh one each time round the loop, so the pictures are never
+  // quite the same twice, exactly as no two boards are.
+  function seedShot(angle, color) {
+    var hit = findAttachmentPosition(SHOOTER_X, SHOOTER_Y, angle, R);
+    if (!hit.contact) return null;
+    return attachBubble(new Bubble(0, 0, color), hit.contact);
+  }
+
+  var SCENES = {
+    // Three of a colour touch and go. Played out in full: aim, fire, land, pop,
+    // and the planet blinking at the moment the bubbles leave.
+    match: {
+      period: 4.4,
+      // Framed low enough to hold the resting ghost under the mass, which is
+      // where a shot up the middle ends up.
+      view: { cx: PLANET_X, cy: PLANET_Y + 32, w: 560 },
+      aiming: true,
+      build: function (sc) {
+        var p = palette();
+
+        // The demo shot goes straight up, and two of its colour are planted
+        // either side of that lane so it lands making a three. The offset is
+        // searched rather than picked: a pair that reads as adjacent to the eye
+        // is not necessarily within the graph's reach, and a picture of a shot
+        // that pops nothing would teach the wrong rule.
+        var offsets = [0.11, 0.14, 0.09, 0.17, 0.07, 0.20];
+        for (var k = 0; k < offsets.length; k++) {
+          buildClusterBySwarm(12);
+          seedShot(-Math.PI / 2 - offsets[k], p[2]);
+          seedShot(-Math.PI / 2 + offsets[k], p[2]);
+
+          var hit = findAttachmentPosition(SHOOTER_X, SHOOTER_Y, -Math.PI / 2, R);
+          if (!hit.contact) continue;
+          var probe = attachBubble(new Bubble(0, 0, p[2]), hit.contact);
+          if (!probe) continue;
+          var group = findMatchingGroup(probe, bubbles,
+                                        buildConnectionGraph(bubbles, planetLocal));
+          removeBubbles([probe]);
+          recompute(); syncWorld();
+          if (group.length >= MIN_MATCH) break;
+        }
+
+        sc.color = p[2];
+        aim = -Math.PI / 2;
+        queue = [p[2], p[0]];
+      },
+      step: function (sc, dt, t) {
+        if (t > 1.25 && !sc.fired) { sc.fired = true; fire(sc.color); }
+        if (shot) {
+          var res = stepShot(dt);
+          // The blink is the planet's tell that something popped, so it belongs
+          // on the frame the bubbles actually leave.
+          if (res && res.direct && res.direct.length) {
+            blink();
+            showFloatingScore('+' + res.score.total,
+                              res.direct[0].wx, res.direct[0].wy - 14, '#FFD700', 26);
+          }
+        }
+      }
+    },
+
+    // The aim sweeps slowly across a lane that banks off the right wall, so the
+    // dotted line and the ghost move exactly as they do under a player's thumb.
+    bounce: {
+      period: 6.0,
+      view: { cx: PLANET_X, cy: 372, w: LW },
+      aiming: true,
+      build: function (sc) {
+        var p = palette();
+        buildClusterBySwarm(14);
+        queue = [p[1], p[2]];
+      },
+      step: function (sc, dt, t) {
+        aim = -0.70 + Math.sin(t * (TAU / 6.0)) * 0.075;
+      }
+    },
+
+    // A wave arriving: the real staggered spawn, the real bearings, the real
+    // landing rule, under the real counter.
+    wave: {
+      period: 5.0,
+      view: { cx: PLANET_X, cy: PLANET_Y + 6, w: 560 },
+      feedLabel: true,
+      build: function (sc) {
+        var p = palette();
+        buildClusterBySwarm(12);
+        boardIncomingColor = p[2];
+        feedEvery = WAVE_EVERY;
+        shotsSinceFeed = 0;
+        bubblesPerShot = WAVE_SIZE;
+      },
+      step: function (sc, dt, t) {
+        if (t > 0.7 && !sc.sent) { sc.sent = true; queueArrivals(WAVE_SIZE, 0.28, false); }
+        stepPending(dt);
+        stepIncoming(dt);
+      }
+    },
+
+    // The fifth clearing shot in a row. Run through wipeBoard itself, so the
+    // badge, the bonus, the magenta flash and every escape are the real ones.
+    wipe: {
+      period: 4.6,
+      view: { cx: PLANET_X, cy: PLANET_Y, w: 620 },
+      streakLabel: true,
+      build: function (sc) {
+        buildClusterBySwarm(16);
+        streak = STREAK_WIPE - 1;
+      },
+      step: function (sc, dt, t) {
+        if (t > 1.15 && !sc.wiped) { sc.wiped = true; wipeBoard(); }
+      }
+    },
+
+    // An empty planet and what it pays. The last bubbles are still leaving when
+    // the celebration lands, the way they are in play.
+    clear: {
+      period: 4.8,
+      view: { cx: PLANET_X, cy: PLANET_Y - 10, w: 520 },
+      build: function (sc) {
+        buildClusterBySwarm(10);
+        board = 1;
+      },
+      step: function (sc, dt, t) {
+        if (t > 0.35 && !sc.emptied) {
+          sc.emptied = true;
+          var last = bubbles.slice();
+          last.forEach(function (b) { launchEscape(b, true); });
+          removeBubbles(last);
+          recompute(); syncWorld();
+        }
+        if (t > 0.95 && !sc.paid) {
+          sc.paid = true;
+          phase = 'clearing';
+          flashScreen('#FFD700', 400);
+          celebration = { text: 'BOARD ' + board + ' CLEARED!', t: 0 };
+          showFloatingScore('+' + PTS_BOARD + ' BOARD BONUS!',
+                            PLANET_X, PLANET_Y - 40, '#00FF7F', 28);
+          burst(PLANET_X, PLANET_Y, 60, '#FFD700');
+        }
+      }
+    }
+  };
+
+  // Everything a scene owns that is not engine state: its canvas, its clock and
+  // the one-shot flags its script sets.
+  function makeScene(name, canvas) {
+    var def = SCENES[name];
+    var sc = { def: def, canvas: canvas, state: blankScene(), t: 0 };
+    resetScene(sc);
+    return sc;
+  }
+
+  function resetScene(sc) {
+    sc.state = blankScene();
+    sc.t = 0;
+    sc.fired = sc.sent = sc.wiped = sc.emptied = sc.paid = false;
+    withScene(sc, function () { sc.def.build(sc); });
+  }
+
+  // The particle steppers the scenes need, without stepParticles' business:
+  // that one also reads the danger level, runs the sweat, counts down the
+  // game-over hold and can raise the modal, none of which belong in a picture.
+  function stepSceneEffects(dt) {
+    var i;
+    for (i = sparks.length - 1; i >= 0; i--) {
+      var s = sparks[i];
+      s.t += dt;
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      s.vx *= 0.97; s.vy *= 0.97;
+      if (s.t > s.life) sparks.splice(i, 1);
+    }
+    for (i = floats.length - 1; i >= 0; i--) {
+      floats[i].t += dt;
+      floats[i].y -= (FLOAT_RISE / FLOAT_LIFE) * dt;
+      if (floats[i].t > FLOAT_LIFE) floats.splice(i, 1);
+    }
+    for (i = combos.length - 1; i >= 0; i--) {
+      combos[i].t += dt;
+      combos[i].y -= (FLOAT_RISE / FLOAT_LIFE) * dt;
+      if (combos[i].t > COMBO_LIFE) combos.splice(i, 1);
+    }
+    stepEscapes(dt);
+    stepBlink(dt);
+    if (celebration) {
+      celebration.t += dt;
+      if (celebration.t > 1.6) celebration = null;
+    }
+    if (flash > 0) flash = Math.max(0, flash - dt / (flashMs / 1000));
+  }
+
+  // The board's own draw order, over the slice of it this scene frames.
+  function paintScene(sc, view) {
+    drawBackdrop();
+    drawRingArc(Math.PI, TAU, 0.38, 6);
+    drawPlanetBody();
+
+    bubbles.forEach(function (b) { drawBubble(b.wx, b.wy, b.color); });
+    incoming.forEach(function (f) { drawBubble(f.x, f.y, f.color); });
+    drawEscapes();
+
+    if (sc.def.aiming && !shot) drawAim();
+    if (shot) drawBubble(shot.x, shot.y, shot.color);
+
+    drawRingArc(0, Math.PI, 0.60, 6);
+
+    // The HUD labels sit at the board's corners; a scene frames a slice, so
+    // they are placed at the same inset from the corners of what it shows.
+    //
+    // And they are drawn back up to something like their real on-screen size.
+    // Everything else in a diorama is the board shrunk to fit a picture, which
+    // is fine for a planet and fatal for 10px type: at a third scale the wave
+    // counter is a smudge, and reading it is the entire point of the screen.
+    if (sc.def.feedLabel || sc.def.streakLabel) {
+      var k = 1.05 / view.scale;
+      ctx.save();
+      ctx.translate(view.x + 12, view.y + 22);
+      ctx.scale(k, k);
+      if (sc.def.feedLabel) drawFeedLabel(0, 0);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(view.x + view.w - 12, view.y + 22);
+      ctx.scale(k, k);
+      if (sc.def.streakLabel) drawStreakLabel(0, 0);
+      ctx.restore();
+    }
+
+    drawSparks();
+    drawFloats();
+    drawCombos();
+    drawCelebration();
+    drawFlash();
+  }
+
+  function stepScene(sc, dt) {
+    var cv = sc.canvas;
+    var box = cv.getBoundingClientRect();
+    if (!box.width || !box.height) return;      // not laid out yet
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var pw = Math.round(box.width * dpr), ph = Math.round(box.height * dpr);
+    if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+
+    var g = cv.getContext('2d');
+    var scale = box.width / sc.def.view.w;
+    var view = {
+      w: sc.def.view.w,
+      h: box.height / scale,
+      x: sc.def.view.cx - sc.def.view.w / 2,
+      y: 0,
+      scale: scale
+    };
+    view.y = sc.def.view.cy - view.h / 2;
+
+    sc.t += dt;
+    if (sc.t >= sc.def.period) { resetScene(sc); return; }
+
+    var mine = ctx;
+    withScene(sc, function () {
+      ctx = g;
+      ctx.setTransform(dpr * scale, 0, 0, dpr * scale,
+                       -view.x * dpr * scale, -view.y * dpr * scale);
+      ctx.clearRect(view.x, view.y, view.w, view.h);
+      sc.def.step(sc, dt, sc.t);
+      stepSceneEffects(dt);
+      paintScene(sc, view);
+    });
+    ctx = mine;
+  }
+
   // ── HUD, toast, modal ─────────────────────────────────────────────────────
 
   function updateHud() {
+    if (drawingDiorama) return;   // the walkthrough's scores are not the player's
     recordBest();
     // The score reads off the board itself now, so the bar may not carry a Score
     // cell at all; each stat is written only if the page ships one.
@@ -3295,6 +3677,37 @@
     try { localStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
   }
 
+  // The scenes, built from whatever canvases the page ships, so a screen
+  // without one simply has no picture rather than breaking the walkthrough.
+  var tourScenes = [];
+  var tourRaf = 0, tourLast = 0;
+
+  function buildTourScenes() {
+    var canvases = tourEl.querySelectorAll('.bp-tour-canvas');
+    tourScenes = [];
+    for (var i = 0; i < canvases.length; i++) {
+      var name = canvases[i].getAttribute('data-scene');
+      if (SCENES[name]) tourScenes.push(makeScene(name, canvases[i]));
+    }
+  }
+
+  // Only the screen on show is stepped. The others are paused where they are and
+  // restarted when they come round, so each one is met at the beginning of its
+  // loop rather than halfway through a pop nobody saw start.
+  function tourFrame(now) {
+    if (!tourEl || tourEl.classList.contains('hidden')) { tourRaf = 0; return; }
+    var dt = Math.min((now - tourLast) / 1000, 0.05);
+    tourLast = now;
+    if (dt > 0 && tourScenes[tourAt]) stepScene(tourScenes[tourAt], dt);
+    tourRaf = requestAnimationFrame(tourFrame);
+  }
+
+  function startTourFrames() {
+    if (tourRaf) return;
+    tourLast = performance.now();
+    tourRaf = requestAnimationFrame(tourFrame);
+  }
+
   function showTourScreen(n) {
     if (!tourScreens || !tourScreens.length) return;
     tourAt = Math.max(0, Math.min(n, tourScreens.length - 1));
@@ -3307,17 +3720,22 @@
     // Nothing to go back to on the first screen, and the last one is the way in.
     tourPrev.classList.toggle('is-hidden', tourAt === 0);
     tourNext.textContent = tourAt === tourScreens.length - 1 ? 'Play!' : 'Next';
+
+    if (tourScenes[tourAt]) resetScene(tourScenes[tourAt]);
   }
 
   function openTour() {
     if (!tourEl) return;
+    if (!tourScenes.length) buildTourScenes();
+    tourEl.classList.remove('hidden');   // before the reset: a hidden canvas has no box to measure
     showTourScreen(0);
-    tourEl.classList.remove('hidden');
+    startTourFrames();
   }
 
   function closeTour() {
     if (!tourEl) return;
     tourEl.classList.add('hidden');
+    if (tourRaf) { cancelAnimationFrame(tourRaf); tourRaf = 0; }
     markSeen();
   }
 
@@ -3653,6 +4071,40 @@
     flashScreen: flashScreen,
     comboTiers: function () { return Object.keys(COMBO_TIERS); },
     setSlop: function (v) { TOUCH_SLOP = v; },
+
+    // Walkthrough test hooks. A diorama borrows the entire engine and is meant
+    // to hand every part of it back; runSceneDry runs a scene's script with no
+    // canvas, so the harness can compare the engine either side of it and prove
+    // the picture left no mark on the game.
+    sceneNames: function () { return Object.keys(SCENES); },
+    runSceneDry: function (name, seconds) {
+      var sc = { def: SCENES[name], canvas: null, state: blankScene(), t: 0 };
+      resetScene(sc);
+      var dt = 1 / 60;
+      for (var elapsed = 0; elapsed < (seconds || 3); elapsed += dt) {
+        sc.t += dt;
+        withScene(sc, function () {
+          sc.def.step(sc, dt, sc.t);
+          stepSceneEffects(dt);
+        });
+      }
+      return {
+        bubbles: sc.state.bubbles.length,
+        escapes: sc.state.escapes.length,
+        incoming: sc.state.incoming.length,
+        floats: sc.state.floats.length,
+        combos: sc.state.combos.length,
+        sparks: sc.state.sparks.length,
+        score: sc.state.score,
+        streak: sc.state.streak,
+        celebration: sc.state.celebration && sc.state.celebration.text,
+        colors: (function () {
+          var seen = {};
+          sc.state.bubbles.forEach(function (b) { seen[b.color] = 1; });
+          return Object.keys(seen).length;
+        })()
+      };
+    },
 
     settle: function (max) {
       var n = 0, cap = max || 20000;
