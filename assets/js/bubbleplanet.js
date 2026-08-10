@@ -1752,6 +1752,14 @@
       if (combos[i].t > COMBO_LIFE) combos.splice(i, 1);
     }
     stepBlink(dt);
+
+    // Measured here rather than while drawing. The beads spawn from it, and a
+    // spawn that depends on the renderer stops happening the moment the frame
+    // loop is throttled — a background tab, or anything that steps the game
+    // without painting it. Read once per step so the planet, the halo and the
+    // beads all agree within a frame.
+    dangerNow = (phase === 'playing' || phase === 'clearing') ? dangerLevel() : 0;
+    stepSweat(dt);
     if (flash > 0) flash = Math.max(0, flash - dt / (flashMs / 1000));
 
     // The modal is held back until the red flash has been seen. Presenting it on
@@ -1837,6 +1845,7 @@
     pending.length = 0;
     floats.length = 0;
     sparks.length = 0;
+    sweat.length = 0;
     satellites.length = 0;
     flash = 0;
     combos.length = 0;
@@ -2548,6 +2557,94 @@
 
   function blink() { blinkT = 0; }
 
+  // ── Danger ────────────────────────────────────────────────────────────────
+  //
+  // How close the mass has come to a side wall, from 0 at a comfortable distance
+  // to 1 at the moment of losing. Measured on the nearest bubble to either wall
+  // rather than on the cluster's radius, for the same reason the loss condition
+  // is: a mass growing in a harmless direction is not in danger, and one arm
+  // swinging round is.
+  //
+  // The range is set so a freshly dealt board reads as safe — the later ones
+  // already sit within about ninety pixels of a wall, and a planet that panicked
+  // from the first shot would be telling the player nothing.
+  var DANGER_RANGE = 80;
+  var dangerNow = 0;
+  var sweat = [];
+  var sweatTimer = 0;
+
+  function dangerLevel() {
+    if (!bubbles.length) return 0;
+    var nearest = Infinity;
+    for (var i = 0; i < bubbles.length; i++) {
+      var b = bubbles[i];
+      var clear = Math.min(b.wx - b.radius, LW - b.wx - b.radius);
+      if (clear < nearest) nearest = clear;
+    }
+    if (nearest >= DANGER_RANGE) return 0;
+    return clamp(1 - nearest / DANGER_RANGE, 0, 1);
+  }
+
+  function stepSweat(dt) {
+    var i;
+    for (i = sweat.length - 1; i >= 0; i--) {
+      var d = sweat[i];
+      d.t += dt;
+      d.y += d.vy * dt;
+      d.vy += 240 * dt;              // it runs, then drips
+      if (d.t > d.life) sweat.splice(i, 1);
+    }
+
+    // Beads appear only once the planet is properly worried, and faster the
+    // worse it gets.
+    if (dangerNow < 0.3) return;
+    sweatTimer -= dt;
+    if (sweatTimer > 0) return;
+    sweatTimer = 0.55 - dangerNow * 0.3;
+
+    var side = Math.random() < 0.5 ? -1 : 1;
+    sweat.push({
+      // Just off the cheek, clear of the eyes, so the beads never sit on the face.
+      x: PLANET_X + side * PLANET_R * (0.62 + Math.random() * 0.16),
+      y: PLANET_Y - PLANET_R * (0.34 + Math.random() * 0.18),
+      vy: 12 + Math.random() * 18,
+      r: PLANET_R * (0.12 + Math.random() * 0.045),
+      t: 0,
+      life: 0.75 + Math.random() * 0.35
+    });
+  }
+
+  // The anime bead: a rounded body drawn up to a point, with a highlight so it
+  // reads as liquid rather than as a pale dot.
+  function drawSweat() {
+    for (var i = 0; i < sweat.length; i++) {
+      var d = sweat[i];
+      var k = d.t / d.life;
+      var a = k < 0.18 ? k / 0.18 : 1 - Math.pow((k - 0.18) / 0.82, 2);
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, a) * 0.95;
+      ctx.translate(d.x, d.y);
+
+      ctx.beginPath();
+      ctx.moveTo(0, -d.r * 2.1);
+      ctx.bezierCurveTo(d.r * 0.95, -d.r * 0.5, d.r, d.r * 0.35, 0, d.r);
+      ctx.bezierCurveTo(-d.r, d.r * 0.35, -d.r * 0.95, -d.r * 0.5, 0, -d.r * 2.1);
+      ctx.fillStyle = 'rgba(150, 220, 255, 0.9)';
+      ctx.fill();
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(-d.r * 0.3, -d.r * 0.1, d.r * 0.26, 0, TAU);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function stepBlink(dt) {
     if (blinkT < 0) return;
     blinkT += dt;
@@ -2700,7 +2797,40 @@
     ctx.fillRect(PLANET_X - PLANET_R, PLANET_Y - PLANET_R, PLANET_R * 2, PLANET_R * 2);
     ctx.restore();
 
+    if (dangerNow > 0) drawDanger();
+
     drawFace();
+
+    if (dangerNow > 0) drawSweat();
+  }
+
+  // The planet going red, and breathing while it does. The pulse is what carries
+  // the warning: a planet that simply turned red would read as another level
+  // colour, where one that throbs reads as alarm. It beats faster the closer the
+  // mass gets, so the tell sharpens rather than just brightening.
+  function drawDanger() {
+    var beat = 0.5 + 0.5 * Math.sin(clock * (5 + dangerNow * 7));
+    var wash = dangerNow * (0.34 + beat * 0.34);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(PLANET_X, PLANET_Y, PLANET_R, 0, TAU);
+    ctx.clip();
+    ctx.fillStyle = 'rgba(255, 40, 40, ' + wash.toFixed(3) + ')';
+    ctx.fillRect(PLANET_X - PLANET_R, PLANET_Y - PLANET_R, PLANET_R * 2, PLANET_R * 2);
+    ctx.restore();
+
+    // A halo outside the planet, so the warning is visible even when the mass
+    // has buried the surface itself.
+    var reach = PLANET_R * (1.18 + beat * 0.16 * dangerNow);
+    var glow = ctx.createRadialGradient(PLANET_X, PLANET_Y, PLANET_R * 0.9,
+                                        PLANET_X, PLANET_Y, reach);
+    glow.addColorStop(0, 'rgba(255, 40, 40, ' + (dangerNow * 0.5).toFixed(3) + ')');
+    glow.addColorStop(1, 'rgba(255, 40, 40, 0)');
+    ctx.beginPath();
+    ctx.arc(PLANET_X, PLANET_Y, reach, 0, TAU);
+    ctx.fillStyle = glow;
+    ctx.fill();
   }
 
   // ── Frame ─────────────────────────────────────────────────────────────────
@@ -3443,6 +3573,7 @@
     satelliteTierFor: satelliteTierFor,
     satelliteList: function () { return satellites; },
     satelliteOrbitRadius: function () { return SAT_ORBIT_R; },
+    dangerLevel: dangerLevel,
     theme: function () { return theme; },
     levelThemeCount: function () { return LEVEL_THEMES.length; },
     showComboText: showComboText,
