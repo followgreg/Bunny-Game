@@ -41,12 +41,12 @@ canvas,
 }
 
 /* ── Splash ── */
-/* The three rows are logo / directions / Play, and Play must survive any
-   viewport. The directions paragraph is long, and on a short window (landscape
-   phone, small laptop, an embedded frame) the stack overflowed its container and
-   pushed the Play button down behind the footer — unreachable, with no way to
-   start the game. The paragraph is the only row allowed to give: it shrinks and
-   scrolls on its own, so the logo and the button always hold their place. */
+/* The three rows are logo / artwork / Play, and Play must survive any viewport.
+   On a short window (landscape phone, small laptop, an embedded frame) the stack
+   used to overflow its container and push the Play button down behind the footer
+   — unreachable, with no way to start the game. The middle row is the only one
+   allowed to give: the picture shrinks, so the logo and the buttons always hold
+   their place. */
 #bp-start {
   position: absolute;
   inset: 0;
@@ -87,34 +87,38 @@ canvas,
   filter: drop-shadow(0 0 18px rgba(232, 255, 0, 0.35));
 }
 
-.bp-splash-line {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #b6a8d8;
-  max-width: 40ch;
-  /* min-height:0 is what actually lets a flex item shrink below its content —
-     without it the paragraph refuses to give and the button is pushed out. */
+/* The planet and its cluster, cut from the same artwork the share card carries,
+   so the picture on the start screen is the one that brought the player here.
+   The rules used to be printed in this slot; they have their own walkthrough
+   now, and a wall of text was a poor thing to meet a game with.
+
+   min-height:0 is what actually lets a flex item shrink below its content —
+   without it the picture refuses to give and the buttons are pushed out. */
+.bp-splash-art {
+  display: block;
+  width: min(290px, 60vw);
+  max-height: 44vh;
+  object-fit: contain;
   flex: 0 1 auto;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  filter: drop-shadow(0 12px 34px rgba(124, 58, 237, 0.42));
 }
 
-/* Short windows: give the logo and the copy less room so the button keeps its
-   place rather than the stack growing past the frame. */
+/* Short windows: give the logo and the picture less room so the buttons keep
+   their place rather than the stack growing past the frame. */
 @media (max-height: 620px) {
   #bp-start { gap: 12px; padding: 14px 20px; }
   .bp-splash-logo { width: min(210px, 46vw); }
-  .bp-splash-line { font-size: 0.82rem; line-height: 1.5; max-width: 46ch; }
+  .bp-splash-art { width: min(200px, 40vw); max-height: 36vh; }
   .bp-btn { padding: 10px 32px; }
 }
 
-/* Very short — a landscape phone. The wordmark yields the most, since the copy
-   is the part that has to stay readable. */
+/* Very short — a landscape phone. Both yield; the buttons are the one thing on
+   this screen that cannot. */
 @media (max-height: 440px) {
   #bp-start { gap: 9px; padding: 10px 18px; }
   .bp-splash-logo { width: min(158px, 34vw); }
-  .bp-splash-line { font-size: 0.76rem; line-height: 1.45; max-width: 54ch; }
+  .bp-splash-art { width: min(132px, 26vw); max-height: 30vh; }
   .bp-btn { padding: 9px 28px; font-size: 0.88rem; }
 }
 
@@ -128,6 +132,15 @@ canvas,
   gap: 10px;
   flex: 0 0 auto;
 }
+
+/* New Game is dealt in by the splash only when there is a saved board to throw
+   away; on a first visit there is nothing for it to do that Play does not. It
+   ships with .hidden and nothing on either stylesheet ever matched that — the
+   generic rule other games carry does not exist here — so the button stood on
+   every fresh splash next to a Play that did the same thing. Scoped to .bp-btn
+   so it outranks the button's own display rather than depending on which line
+   the cascade happens to read last. */
+.bp-btn.hidden { display: none; }
 
 .bp-btn {
   background: #7C3AED;

@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import sharp from './node_modules/sharp/dist/index.cjs';
@@ -196,3 +196,63 @@ await sharp(Buffer.from(svg))
   .toFile(join(__dirname, 'assets/og-images/bubbleplanet-og.png'));
 
 console.log('✓ bubbleplanet-og.png written');
+
+// ── The same artwork, on its own ─────────────────────────────────────────────
+// The splash screen wants the planet and its cluster without the card around
+// them. Cut from here rather than redrawn there, so the picture a player meets
+// on the start screen is the one they saw on the link they followed in.
+//
+// Cropped to what is actually drawn — the loose bubbles reach further out than
+// the mass, and on three sides only, so a symmetric box would hang the whole
+// thing off centre. Written as SVG: it is a few kilobytes, it stays sharp at any
+// size, and it carries no background, so the splash shows through behind it.
+const ART_PAD = 10;
+let minX = PX - PR * 1.6, maxX = PX + PR * 1.6;      // the ring is the widest part
+let minY = PY - PR * 1.26, maxY = PY + PR * 1.26;    // and the halo the tallest
+placed.forEach(b => {
+  minX = Math.min(minX, b.x - R); maxX = Math.max(maxX, b.x + R);
+  minY = Math.min(minY, b.y - R); maxY = Math.max(maxY, b.y + R);
+});
+[[-0.62, 214, 0.85], [0.42, 246, 0.6], [-1.32, 268, 0.42]].forEach(([a, d, al]) => {
+  const r = R * (0.5 + al * 0.45);
+  const ex = PX + Math.cos(a) * d, ey = PY + Math.sin(a) * d;
+  minX = Math.min(minX, ex - r); maxX = Math.max(maxX, ex + r);
+  minY = Math.min(minY, ey - r); maxY = Math.max(maxY, ey + r);
+});
+minX -= ART_PAD; minY -= ART_PAD; maxX += ART_PAD; maxY += ART_PAD;
+
+const art = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX.toFixed(1)} ${minY.toFixed(1)} ${(maxX - minX).toFixed(1)} ${(maxY - minY).toFixed(1)}">
+  <defs>
+    <radialGradient id="planet" cx="35%" cy="35%" r="72%">
+      <stop offset="0%"   stop-color="#A78BFA"/>
+      <stop offset="40%"  stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#2D1B69"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="76%"  stop-color="#00FFC8" stop-opacity="0"/>
+      <stop offset="88%"  stop-color="#00FFC8" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#00FFC8" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="pclip"><circle cx="${PX}" cy="${PY}" r="${PR}"/></clipPath>
+  </defs>
+
+  <g transform="translate(${PX} ${PY}) scale(1 0.3)">
+    <path d="M ${-PR * 1.6} 0 A ${PR * 1.6} ${PR * 1.6} 0 0 1 ${PR * 1.6} 0"
+      fill="none" stroke="#00FFC8" stroke-opacity="0.42" stroke-width="${10 / 0.3}" stroke-linecap="round"/>
+  </g>
+
+  <circle cx="${PX}" cy="${PY}" r="${PR * 1.26}" fill="url(#halo)"/>
+  <circle cx="${PX}" cy="${PY}" r="${PR}" fill="url(#planet)"/>
+  <g clip-path="url(#pclip)">${continents}${craters}</g>
+
+  ${cluster}
+  ${escaping}
+
+  <g transform="translate(${PX} ${PY}) scale(1 0.3)">
+    <path d="M ${PR * 1.6} 0 A ${PR * 1.6} ${PR * 1.6} 0 0 1 ${-PR * 1.6} 0"
+      fill="none" stroke="#00FFC8" stroke-opacity="0.7" stroke-width="${10 / 0.3}" stroke-linecap="round"/>
+  </g>
+</svg>`;
+
+writeFileSync(join(__dirname, 'assets/logos/bubbleplanet_planet.svg'), art);
+console.log('✓ bubbleplanet_planet.svg written');
