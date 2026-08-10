@@ -1524,6 +1524,7 @@
     matched += result.direct.length;
     cascaded += result.cascade.length;
 
+    blink();
     sfx('pop', result.direct.length);
     if (result.cascade.length) sfx('cascade', result.cascade.length);
     if (mult > 1) sfx('combo', mult);
@@ -1750,6 +1751,7 @@
       combos[i].y -= (FLOAT_RISE / FLOAT_LIFE) * dt;
       if (combos[i].t > COMBO_LIFE) combos.splice(i, 1);
     }
+    stepBlink(dt);
     if (flash > 0) flash = Math.max(0, flash - dt / (flashMs / 1000));
 
     // The modal is held back until the red flash has been seen. Presenting it on
@@ -2493,6 +2495,60 @@
 
   // ── The planet ────────────────────────────────────────────────────────────
 
+  // ── The face ──────────────────────────────────────────────────────────────
+  //
+  // Drawn from the two supplied files rather than synthesised, and drawn outside
+  // the rotating clip that carries the craters and continents: the surface turns
+  // with the cluster, but a face that rolled with it would read as the planet
+  // tumbling rather than looking at you.
+  var eyesOpen = null, eyesShut = null;
+  var blinkT = -1;              // seconds into a blink, or -1 for none
+  var BLINK_DUR = 0.34;
+
+  function loadEyes() {
+    eyesOpen = new Image();
+    eyesOpen.src = 'assets/icons/bubbleplanet_eyes.svg';
+    eyesShut = new Image();
+    eyesShut.src = 'assets/icons/bubbleplanet_eyes_shut.svg';
+  }
+
+  function blink() { blinkT = 0; }
+
+  function stepBlink(dt) {
+    if (blinkT < 0) return;
+    blinkT += dt;
+    if (blinkT > BLINK_DUR) blinkT = -1;
+  }
+
+  // Shut, hold, open. The squash on the way in and out is what makes two still
+  // drawings read as a blink instead of a swap.
+  function drawFace() {
+    if (!eyesOpen || !eyesOpen.complete || !eyesOpen.naturalWidth) return;
+
+    var size = PLANET_R * 2 * 0.95;
+    var half = size / 2;
+    var k = blinkT < 0 ? -1 : blinkT / BLINK_DUR;
+
+    ctx.save();
+    ctx.translate(PLANET_X, PLANET_Y);
+
+    if (k < 0) {
+      ctx.drawImage(eyesOpen, -half, -half, size, size);
+    } else if (k < 0.34) {
+      ctx.scale(1, 1 - (k / 0.34) * 0.85);
+      ctx.drawImage(eyesOpen, -half, -half, size, size);
+    } else if (k < 0.62) {
+      if (eyesShut && eyesShut.complete && eyesShut.naturalWidth) {
+        ctx.drawImage(eyesShut, -half, -half, size, size);
+      }
+    } else {
+      ctx.scale(1, 0.15 + ((k - 0.62) / 0.38) * 0.85);
+      ctx.drawImage(eyesOpen, -half, -half, size, size);
+    }
+
+    ctx.restore();
+  }
+
   var CRATERS = [
     { ox: -0.30, oy: -0.20, r: 0.15 },
     { ox:  0.20, oy:  0.30, r: 0.10 },
@@ -2609,6 +2665,8 @@
     ctx.fillStyle = term;
     ctx.fillRect(PLANET_X - PLANET_R, PLANET_Y - PLANET_R, PLANET_R * 2, PLANET_R * 2);
     ctx.restore();
+
+    drawFace();
   }
 
   // ── Frame ─────────────────────────────────────────────────────────────────
@@ -3121,6 +3179,7 @@
 
     buildSprites();
     buildStars();
+    loadEyes();
     fitCanvas();
     window.addEventListener('resize', fitCanvas);
 
