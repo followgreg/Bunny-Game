@@ -192,6 +192,67 @@ canvas,
 #mute-btn[aria-pressed="true"] .mute-waves { opacity: 0; }
 #mute-btn[aria-pressed="true"] .mute-slash { opacity: 1; }
 
+/* ── Sound panel ───────────────────────────────────────────────────────────
+   Hangs under the header button rather than taking over the screen: it is a
+   two-line adjustment, not a page, and a full modal would make turning the
+   music down feel like leaving the game. */
+#bp-audio-panel {
+  position: fixed;
+  top: 58px;
+  right: 12px;
+  z-index: 200;
+  width: min(280px, calc(100vw - 24px));
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(26, 10, 46, 0.97);
+  border: 1px solid #4c3a7a;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#bp-audio-panel.hidden { display: none; }
+
+.bp-audio-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "head val" "slider slider";
+  gap: 8px 10px;
+  align-items: center;
+}
+.bp-audio-head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #E8FF00;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.bp-audio-head input { accent-color: #7C3AED; width: 15px; height: 15px; cursor: pointer; }
+.bp-audio-val {
+  grid-area: val;
+  color: #b6a8d8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  min-width: 3.2em;
+  text-align: right;
+}
+.bp-audio-row input[type="range"] {
+  grid-area: slider;
+  width: 100%;
+  accent-color: #E8FF00;
+  cursor: pointer;
+}
+
+/* A row whose sound is switched off says so by fading, so the slider beneath it
+   does not read as live. */
+.bp-audio-row.bp-off .bp-audio-head span,
+.bp-audio-row.bp-off .bp-audio-val,
+.bp-audio-row.bp-off input[type="range"] { opacity: 0.4; }
+
 /* ── Toast ── */
 #bp-toast {
   position: absolute;

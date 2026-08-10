@@ -2080,18 +2080,39 @@
   // ══════════════════════════════════════════════════════════════════════════
 
   var audioCtx = null;
-  var muted = false;
+  var sfxBus = null;          // every effect goes through here, so one gain rules them
   var musicEl = null;
   var muteBtn = null;
+  var audioPanel = null;
 
-  var MUSIC_VOL = 0.32;       // sits under the effects rather than over them
-  var SFX_VOL   = 0.22;
+  // Effects run at full and the music sits at a quarter, which is the balance
+  // asked for: the game should be loud and the track should be somewhere behind
+  // it. Both are the defaults only — each is on its own slider.
+  var audio = { musicOn: true, musicVol: 0.25, sfxOn: true, sfxVol: 1.0 };
 
   function getCtx() {
     if (typeof window === 'undefined') return null;
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
-    if (!audioCtx) audioCtx = new AC();
+    if (!audioCtx) {
+      audioCtx = new AC();
+
+      // A limiter on the effects bus. With effects now at full, a board clear
+      // that lands a fanfare over a cascade over a combo stacks a dozen voices
+      // at once, and summed gain above 1.0 clips into a crackle. This holds the
+      // peaks without making the quiet ones quieter.
+      var limiter = audioCtx.createDynamicsCompressor();
+      limiter.threshold.value = -8;
+      limiter.knee.value = 6;
+      limiter.ratio.value = 12;
+      limiter.attack.value = 0.002;
+      limiter.release.value = 0.12;
+
+      sfxBus = audioCtx.createGain();
+      sfxBus.gain.value = audio.sfxOn ? audio.sfxVol : 0;
+      sfxBus.connect(limiter);
+      limiter.connect(audioCtx.destination);
+    }
     // Browsers hand back a suspended context until a gesture unlocks it.
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
@@ -2100,7 +2121,7 @@
   // One voice: a pitch envelope and a volume envelope. Everything below is built
   // out of these, which is what keeps the whole set sounding related.
   function blip(opts) {
-    if (muted) return;
+    if (!audio.sfxOn) return;
     var c = getCtx();
     if (!c) return;
 
@@ -2117,13 +2138,13 @@
     }
 
     var g = c.createGain();
-    var peak = (opts.gain === undefined ? 1 : opts.gain) * SFX_VOL;
+    var peak = (opts.gain === undefined ? 1 : opts.gain);
     g.gain.setValueAtTime(0.0001, t0);
     g.gain.exponentialRampToValueAtTime(peak, t0 + Math.min(0.012, dur * 0.2));
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
 
     osc.connect(g);
-    g.connect(c.destination);
+    g.connect(sfxBus);
     osc.start(t0);
     osc.stop(t0 + dur + 0.02);
   }
@@ -2131,7 +2152,7 @@
   // A short burst of filtered noise, for the parts that are texture rather than
   // pitch — the click of a launch, the sparkle on a fanfare.
   function noise(opts) {
-    if (muted) return;
+    if (!audio.sfxOn) return;
     var c = getCtx();
     if (!c) return;
 
@@ -2151,10 +2172,10 @@
     f.Q.value = opts.q || 1.2;
 
     var g = c.createGain();
-    g.gain.setValueAtTime((opts.gain === undefined ? 0.5 : opts.gain) * SFX_VOL, t0);
+    g.gain.setValueAtTime((opts.gain === undefined ? 0.5 : opts.gain), t0);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
 
-    src.connect(f); f.connect(g); g.connect(c.destination);
+    src.connect(f); f.connect(g); g.connect(sfxBus);
     src.start(t0);
   }
 
@@ -2242,7 +2263,7 @@
   };
 
   function sfx(name, arg) {
-    if (muted) return;
+    if (!audio.sfxOn) return;
     var fn = SFX[name];
     if (fn) { try { fn(arg); } catch (e) {} }
   }
@@ -2250,8 +2271,8 @@
   // ── Music ─────────────────────────────────────────────────────────────────
 
   function startMusic() {
-    if (!musicEl || muted) return;
-    musicEl.volume = MUSIC_VOL;
+    if (!musicEl || !audio.musicOn) return;
+    musicEl.volume = audio.musicVol;
     // Autoplay is blocked until the page has had a gesture, and play() rejects
     // rather than throwing. Swallowed on purpose: the next Play or Continue is
     // a gesture and will start it.
@@ -2264,17 +2285,86 @@
     musicEl.pause();
   }
 
-  function setMuted(on) {
-    muted = !!on;
-    if (musicEl) musicEl.muted = muted;
-    if (muteBtn) {
-      // The icon is SVG and swaps on the attribute, so nothing here touches
-      // the button's contents.
-      muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
-      muteBtn.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
+  function inPlay() { return phase !== 'idle' && phase !== 'over'; }
+
+  // The single place audio state becomes audible. Everything else sets values
+  // and calls this, so the panel, the stored preference and what is actually
+  // coming out of the speakers can never drift apart.
+  function applyAudio() {
+    if (musicEl) {
+      musicEl.volume = audio.musicVol;
+      if (!audio.musicOn) stopMusic();
+      else if (inPlay()) startMusic();
     }
-    try { localStorage.setItem('bubbleplanet_muted', muted ? '1' : '0'); } catch (e) {}
-    if (!muted && phase !== 'idle' && phase !== 'over') startMusic();
+    if (sfxBus) {
+      sfxBus.gain.value = audio.sfxOn ? audio.sfxVol : 0;
+    }
+
+    // The header icon reports the whole system: it only shows muted when there
+    // is nothing left to hear.
+    var silent = (!audio.musicOn || audio.musicVol === 0) &&
+                 (!audio.sfxOn || audio.sfxVol === 0);
+    if (muteBtn) {
+      muteBtn.setAttribute('aria-pressed', silent ? 'true' : 'false');
+      muteBtn.setAttribute('aria-label', silent ? 'Sound settings — currently silent'
+                                               : 'Sound settings');
+    }
+
+    syncAudioPanel();
+    try { localStorage.setItem('bubbleplanet_audio', JSON.stringify(audio)); } catch (e) {}
+  }
+
+  function syncAudioPanel() {
+    if (!audioPanel) return;
+    var mOn = document.getElementById('bp-music-on');
+    var sOn = document.getElementById('bp-sfx-on');
+    var mVol = document.getElementById('bp-music-vol');
+    var sVol = document.getElementById('bp-sfx-vol');
+    var mVal = document.getElementById('bp-music-val');
+    var sVal = document.getElementById('bp-sfx-val');
+    if (!mOn) return;
+
+    mOn.checked = audio.musicOn;
+    sOn.checked = audio.sfxOn;
+    mVol.value = Math.round(audio.musicVol * 100);
+    sVol.value = Math.round(audio.sfxVol * 100);
+    mVal.textContent = Math.round(audio.musicVol * 100) + '%';
+    sVal.textContent = Math.round(audio.sfxVol * 100) + '%';
+    mOn.closest('.bp-audio-row').classList.toggle('bp-off', !audio.musicOn);
+    sOn.closest('.bp-audio-row').classList.toggle('bp-off', !audio.sfxOn);
+  }
+
+  function loadAudioPrefs() {
+    try {
+      var raw = localStorage.getItem('bubbleplanet_audio');
+      if (raw) {
+        var st = JSON.parse(raw);
+        if (typeof st.musicOn === 'boolean') audio.musicOn = st.musicOn;
+        if (typeof st.sfxOn === 'boolean') audio.sfxOn = st.sfxOn;
+        if (typeof st.musicVol === 'number') audio.musicVol = Math.max(0, Math.min(1, st.musicVol));
+        if (typeof st.sfxVol === 'number') audio.sfxVol = Math.max(0, Math.min(1, st.sfxVol));
+        return;
+      }
+      // Anyone who muted under the old single toggle keeps their silence.
+      if (localStorage.getItem('bubbleplanet_muted') === '1') {
+        audio.musicOn = false;
+        audio.sfxOn = false;
+      }
+    } catch (e) {}
+  }
+
+  // Kept for the test hook and for anything that just wants everything off.
+  function setMuted(on) {
+    audio.musicOn = !on;
+    audio.sfxOn = !on;
+    applyAudio();
+  }
+
+  function toggleAudioPanel(show) {
+    if (!audioPanel) return;
+    var open = show === undefined ? audioPanel.classList.contains('hidden') : show;
+    audioPanel.classList.toggle('hidden', !open);
+    if (open) syncAudioPanel();
   }
 
   // ── Star field ────────────────────────────────────────────────────────────
@@ -3036,23 +3126,60 @@
 
     try { best = parseInt(localStorage.getItem('bubbleplanet_bestScore'), 10) || 0; } catch (e) { best = 0; }
 
-    musicEl = document.getElementById('bp-music');
-    muteBtn = document.getElementById('mute-btn');
-    var savedMute = false;
-    try { savedMute = localStorage.getItem('bubbleplanet_muted') === '1'; } catch (e) {}
-    setMuted(savedMute);
+    musicEl    = document.getElementById('bp-music');
+    muteBtn    = document.getElementById('mute-btn');
+    audioPanel = document.getElementById('bp-audio-panel');
+
+    loadAudioPrefs();
+    applyAudio();
 
     if (muteBtn) {
-      muteBtn.addEventListener('click', function () {
-        setMuted(!muted);
-        if (!muted) sfx('pop', 3);      // a note back, so unmuting proves itself
+      muteBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleAudioPanel();
       });
     }
+
+    if (audioPanel) {
+      // Clicks inside must not reach the closer on the document.
+      audioPanel.addEventListener('click', function (e) { e.stopPropagation(); });
+
+      var mOn  = document.getElementById('bp-music-on');
+      var sOn  = document.getElementById('bp-sfx-on');
+      var mVol = document.getElementById('bp-music-vol');
+      var sVol = document.getElementById('bp-sfx-vol');
+
+      mOn.addEventListener('change', function () {
+        audio.musicOn = mOn.checked;
+        applyAudio();
+      });
+      sOn.addEventListener('change', function () {
+        audio.sfxOn = sOn.checked;
+        applyAudio();
+        if (audio.sfxOn) sfx('pop', 3);     // a note back, so the choice proves itself
+      });
+      mVol.addEventListener('input', function () {
+        audio.musicVol = mVol.value / 100;
+        applyAudio();
+      });
+      sVol.addEventListener('input', function () {
+        audio.sfxVol = sVol.value / 100;
+        applyAudio();
+      });
+      // Dragging a slider is how you judge a level, so play one on release
+      // rather than on every step of the drag.
+      sVol.addEventListener('change', function () { sfx('pop', 6); });
+    }
+
+    document.addEventListener('click', function () { toggleAudioPanel(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') toggleAudioPanel(false);
+    });
 
     // The tab going away should not leave music playing behind it.
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) stopMusic();
-      else if (phase !== 'idle' && phase !== 'over') startMusic();
+      else if (inPlay()) startMusic();
     });
 
     // Aim continuously on a mouse; on touch, aim while the finger is down and
@@ -3188,7 +3315,12 @@
     // waiting on frames — the test hook and the headless harness both use it.
     startGame: startGame,
     setMuted: setMuted,
-    isMuted: function () { return muted; },
+    isMuted: function () { return !audio.musicOn && !audio.sfxOn; },
+    audioState: function () { return JSON.parse(JSON.stringify(audio)); },
+    setAudio: function (patch) {
+      for (var k in patch) if (audio.hasOwnProperty(k)) audio[k] = patch[k];
+      applyAudio();
+    },
     sfx: sfx,
     saveGameState: saveGameState,
     loadGameState: loadGameState,

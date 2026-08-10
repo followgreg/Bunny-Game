@@ -82,6 +82,27 @@
   <source src="assets/audio/bubbleplanet-theme.m4a" type="audio/mp4">
 </audio>
 
+<div id="bp-audio-panel" class="hidden" role="dialog" aria-label="Sound settings">
+  <div class="bp-audio-row">
+    <label class="bp-audio-head" for="bp-music-on">
+      <input type="checkbox" id="bp-music-on" checked>
+      <span>Music</span>
+    </label>
+    <input type="range" id="bp-music-vol" min="0" max="100" step="1" value="25"
+           aria-label="Music volume">
+    <span class="bp-audio-val" id="bp-music-val">25%</span>
+  </div>
+  <div class="bp-audio-row">
+    <label class="bp-audio-head" for="bp-sfx-on">
+      <input type="checkbox" id="bp-sfx-on" checked>
+      <span>Effects</span>
+    </label>
+    <input type="range" id="bp-sfx-vol" min="0" max="100" step="1" value="100"
+           aria-label="Effects volume">
+    <span class="bp-audio-val" id="bp-sfx-val">100%</span>
+  </div>
+</div>
+
 <div id="canvas-wrap">
   <canvas id="game-canvas"></canvas>
 
