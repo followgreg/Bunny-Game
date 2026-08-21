@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Dev — Game Mechanic Code Library — Bunny Game</title>
-  <meta name="description" content="25 reusable game mechanic implementations in vanilla JavaScript. Hamiltonian solvers, hex grids, daily puzzle architecture, physics simulations, and more. MIT Licensed.">
+  <meta name="description" content="27 reusable game mechanic implementations in vanilla JavaScript. Hamiltonian solvers, hex grids, daily puzzle architecture, physics simulations, and more. MIT Licensed.">
   <link rel="canonical" href="https://www.thebunnygame.com/dev">
   <!-- Open Graph -->
   <meta property="og:title" content="Dev — Game Mechanic Code Library — Bunny Game">
-  <meta property="og:description" content="25 reusable game mechanic implementations in vanilla JavaScript. Hamiltonian solvers, hex grids, daily puzzle architecture, physics simulations, and more. MIT Licensed.">
+  <meta property="og:description" content="27 reusable game mechanic implementations in vanilla JavaScript. Hamiltonian solvers, hex grids, daily puzzle architecture, physics simulations, and more. MIT Licensed.">
   <meta property="og:url" content="https://www.thebunnygame.com/dev">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://www.thebunnygame.com/assets/og-images/bunnygame-og.png">
@@ -55,7 +55,7 @@
   </div>
 
   <nav class="toc" aria-label="Mechanics index">
-    <h2>25 Mechanics</h2>
+    <h2>27 Mechanics</h2>
     <ol>
       <li><a href="#hamiltonian-path">Hamiltonian Path Solver</a></li>
       <li><a href="#hex-grid">Hex Grid Coordinate System</a></li>
@@ -82,6 +82,8 @@
       <li><a href="#spiral-svg">Archimedean Spiral SVG Generation</a></li>
       <li><a href="#electric-network">Electricity Network Animation</a></li>
       <li><a href="#always-solvable">Always-Solvable Piece Generation</a></li>
+      <li><a href="#angle-diagram">SVG Angle Diagram Generation</a></li>
+      <li><a href="#cluster-physics">Rigid-Body Cluster Physics with Connection Graph</a></li>
     </ol>
   </nav>
 
@@ -2012,7 +2014,7 @@ function getShareGrid(correct, stageGuessedAt, totalStages) {
     </div>
     <p class="mechanic-row used-in"><span class="label">Used in:</span>
       <a href="proof.html">Proof</a></p>
-    <p class="mechanic-row"><span class="label">What it does:</span> Fetches plain text from Project Gutenberg's cache endpoint using stored character offsets, then injects a pre-planned typo by regex-replacing the original word with a corrupted version. The index stores metadata and offsets rather than the prose itself.</p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Fetches plain text from Project Gutenberg's cache endpoint using stored character offsets, then injects a pre-planned typo by regex-replacing the original word with a corrupted version. The index stores metadata and offsets rather than the prose itself. Excerpt uses the same offset-fetch pattern to pull its passage text, feeding the result into its progressive-reveal stages instead of a typo-detection round.</p>
     <ul class="concepts">
       <li>Character-offset slicing</li><li>Regex word-boundary replacement</li><li>Metadata-only index</li><li>Timeout with graceful fallback</li>
     </ul>
@@ -2604,6 +2606,147 @@ function onPiecePlaced(state, piece, row, col) {
 
   if (isGameOver(state.grid, state.tray)) state.over = true;
   return state;
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 26 -->
+  <section class="mechanic" id="angle-diagram">
+    <div class="mechanic-head">
+      <span class="mechanic-num">26</span>
+      <h2>SVG Angle Diagram Generation</h2>
+      <a class="anchor-link" href="#angle-diagram" aria-label="Link to SVG Angle Diagram Generation">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="protractor.html">Protractor</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Generates a precise geometric angle diagram entirely in SVG — two rays from a common vertex, one fixed horizontal and one at a random angle, with a colored arc showing the angle and arrowhead polygons on each ray tip. No image assets needed; the diagram is mathematically generated from a single degree value.</p>
+    <ul class="concepts">
+      <li>Parametric ray endpoint calculation (trigonometry)</li><li>SVG arc path with large-arc-flag</li><li>Arrowhead as rotated polygon</li><li>Reference diagram generation for multiple fixed angles</li>
+    </ul>
+    <p class="code-caption">renderAngleDiagram(), scoreRound(), and the badge-tier assignment.</p>
+    <div class="code-box"><pre><code>function renderAngleDiagram(angleDegrees, svgElement) {
+  var cx = 150, cy = 200, rayLength = 180;
+  var angleRad = (angleDegrees * Math.PI) / 180;
+
+  // Horizontal ray endpoint (always fixed)
+  var hx2 = cx + rayLength;
+
+  // Angled ray endpoint (rotated counterclockwise from horizontal)
+  var ax2 = cx + rayLength * Math.cos(angleRad);
+  var ay2 = cy - rayLength * Math.sin(angleRad);
+
+  // Arc showing the angle between rays
+  var arcR = 55;
+  var arcX = cx + arcR * Math.cos(angleRad);
+  var arcY = cy - arcR * Math.sin(angleRad);
+
+  svgElement.innerHTML =
+    '&lt;svg width="350" height="300" viewBox="0 0 350 300"&gt;' +
+      '&lt;path d="M ' + (cx + arcR) + ' ' + cy + ' A ' + arcR + ' ' + arcR + ' 0 0 0 ' + arcX + ' ' + arcY + '"' +
+            ' fill="none" stroke="#FF6B35" stroke-width="3" stroke-linecap="round"/&gt;' +
+      '&lt;line x1="' + cx + '" y1="' + cy + '" x2="' + hx2 + '" y2="' + cy + '"' +
+            ' stroke="#2C3E50" stroke-width="3"/&gt;' +
+      '&lt;polygon points="' + hx2 + ',' + cy + ' ' + (hx2-12) + ',' + (cy-5) + ' ' + (hx2-12) + ',' + (cy+5) + '"' +
+               ' fill="#2C3E50"/&gt;' +
+      '&lt;line x1="' + cx + '" y1="' + cy + '" x2="' + ax2 + '" y2="' + ay2 + '"' +
+            ' stroke="#3498DB" stroke-width="3"/&gt;' +
+      '&lt;circle cx="' + cx + '" cy="' + cy + '" r="5" fill="#2C3E50"/&gt;' +
+      '&lt;text x="' + (cx + arcR * 1.6 * Math.cos(angleRad/2)) + '"' +
+            ' y="' + (cy - arcR * 1.6 * Math.sin(angleRad/2) + 6) + '"' +
+            ' font-size="20" font-weight="bold" fill="#FF6B35"' +
+            ' text-anchor="middle"&gt;?°&lt;/text&gt;' +
+    '&lt;/svg&gt;';
+}
+
+// Score: absolute difference, lower is better
+function scoreRound(correct, guess) {
+  return Math.abs(correct - guess);
+}
+
+// Badge assignment
+function getBadge(total) {
+  if (total &lt;= 9)  return { title: 'Protractor',     emoji: '📐' };
+  if (total &lt;= 30) return { title: 'Semi-Protractor', emoji: '📏' };
+  if (total &lt;= 50) return { title: 'Amateurtractor',  emoji: '📎' };
+  return               { title: 'Tractor',           emoji: '🚜' };
+}</code></pre></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ 27 -->
+  <section class="mechanic" id="cluster-physics">
+    <div class="mechanic-head">
+      <span class="mechanic-num">27</span>
+      <h2>Rigid-Body Cluster Physics with Connection Graph</h2>
+      <a class="anchor-link" href="#cluster-physics" aria-label="Link to Rigid-Body Cluster Physics with Connection Graph">#</a>
+    </div>
+    <p class="mechanic-row used-in"><span class="label">Used in:</span>
+      <a href="bubbleplanet.html">Bubble Planet</a></p>
+    <p class="mechanic-row"><span class="label">What it does:</span> Stores an entire bubble cluster in a single rotating reference frame (the planet's local coordinate system), applying rotation as a single transform at draw time rather than moving individual bubbles. A distance-based connection graph determines which bubbles are "held up" by a path back to the central hub — any bubble whose path is severed flies off as a cascade. Incoming bubbles are steered toward gaps in the cluster rather than the outer surface, so clearing the interior actually creates room.</p>
+    <ul class="concepts">
+      <li>Local vs. world coordinate frames</li><li>Moment-of-inertia spin physics</li><li>BFS connection graph with distance tolerance (TOUCH_SLOP)</li><li>Bearing-biased incoming bubble placement</li><li>Per-board color lock</li><li>Streak-wipe mechanic</li>
+    </ul>
+    <p class="code-caption">syncWorld(), applySpinImpact(), getDisconnectedBubbles(), and the streak-wipe trigger.</p>
+    <div class="code-box"><pre><code>// Cluster stored in planet's local frame (planet center = origin)
+// Rotation applied once per frame via syncWorld()
+function syncWorld(bubbles, theta, PLANET_X, PLANET_Y) {
+  var c = Math.cos(theta), s = Math.sin(theta);
+  bubbles.forEach(function (b) {
+    b.wx = PLANET_X + b.x * c - b.y * s;
+    b.wy = PLANET_Y + b.x * s + b.y * c;
+  });
+}
+
+// Spin: torque = r × v_relative (glancing rim hit spins harder than center shot)
+function applySpinImpact(rx, ry, vx, vy, omega, inertia, SPIN_GAIN, MAX_OMEGA) {
+  var vrx = vx - (-omega * ry);
+  var vry = vy - ( omega * rx);
+  return Math.max(-MAX_OMEGA,
+    Math.min(MAX_OMEGA, omega + SPIN_GAIN * (rx * vry - ry * vrx) / inertia));
+}
+
+// Connection graph: BFS from planet hub, find disconnected bubbles
+function getDisconnectedBubbles(bubbles, graph) {
+  var reachable = new Set(['planet']);
+  var queue = [];
+  bubbles.forEach(function (b) {
+    if (graph.get(b.id) &amp;&amp; graph.get(b.id).has('planet')) {
+      reachable.add(b.id); queue.push(b.id);
+    }
+  });
+  var head = 0;
+  while (head &lt; queue.length) {
+    var current = queue[head++];
+    var neighbors = graph.get(current);
+    if (neighbors) {
+      neighbors.forEach(function (n) {
+        if (!reachable.has(n)) { reachable.add(n); queue.push(n); }
+      });
+    }
+  }
+  return bubbles.filter(function (b) { return !reachable.has(b.id); });
+}
+
+// Incoming bearing selection: bias toward gaps, not outer surface
+// Shallower landing radius (further in) = higher weight
+function pickSpreadBearings(n, bubbles, PLANET_X, PLANET_Y) {
+  var SECT = 24;
+  var cands = [];
+  for (var i = 0; i &lt; SECT; i++) {
+    var a = ((i + 0.5) / SECT) * Math.PI * 2;
+    var d = probeLandingRadius(a, bubbles, PLANET_X, PLANET_Y);
+    cands.push({ a: a, d: d });
+  }
+  var shallowest = Math.max.apply(null, cands.map(function (c) { return c.d; }));
+  // Weighted sampling: gaps (low d) weighted much higher than surface (high d)
+  cands.forEach(function (c) { c.w = Math.pow((shallowest - c.d) + 22, 2); });
+  // ... weighted random selection returning n bearings
+}
+
+// Streak wipe: 5 consecutive clearing shots removes everything
+var STREAK_WIPE = 5;
+if (streak &gt;= STREAK_WIPE) {
+  remaining.forEach(function (b) { launchEscape(b, true); }); // cascade scoring
+  removeBubbles(remaining);
+  showComboText('5 IN A ROW!', PLANET_X, PLANET_Y - 96);
 }</code></pre></div>
   </section>
 
