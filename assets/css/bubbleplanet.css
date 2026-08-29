@@ -468,9 +468,19 @@ canvas,
 }
 
 .bp-banner-logo {
+  display: block;
   height: 64px;
-  width: auto;
-  filter: drop-shadow(0 0 12px rgba(255,230,0,0.4));
+  width: 200px;
+  background-color: #E8FF00;
+  -webkit-mask-image: url('/assets/logos/bubbleplanet_logo.svg');
+          mask-image: url('/assets/logos/bubbleplanet_logo.svg');
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  filter: drop-shadow(0 0 12px rgba(232,255,0,0.4));
 }
 
 .bp-banner-tagline {
@@ -493,6 +503,6 @@ canvas,
 }
 
 @media (max-width: 480px) {
-  .bp-banner-logo { height: 52px; }
+  .bp-banner-logo { height: 52px; width: 163px; }
   .bp-appstore-badge { height: 40px; }
 }
