@@ -1,4 +1,4 @@
-const CACHE = 'bunnygame-v147';
+const CACHE = 'bunnygame-v148';
 const ASSETS = [
   '/',
   '/index.html',
@@ -199,6 +199,7 @@ const ASSETS = [
   '/assets/js/threaded.js',
   '/assets/logos/threaded_logo.svg',
   '/assets/og-images/threaded-og.png',
+  '/assets/images/appstore-badge.svg',
   '/fuse.html',
   '/assets/css/fuse.css',
   '/assets/js/fuse.js',

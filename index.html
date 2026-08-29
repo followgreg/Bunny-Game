@@ -254,6 +254,18 @@
     .lc-bubbleplanet { background: #1A0A2E; border-color: rgba(232,255,0,0.28); }
     .lc-bubbleplanet .lobby-card-name { color: #E8FF00; }
     .lc-bubbleplanet .lobby-card-desc { color: rgba(242,236,255,0.58); }
+    .lobby-appstore-link {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.65rem;
+      color: rgba(232,255,0,0.55);
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 1.3;
+    }
+    .lobby-appstore-link:hover { color: rgba(232,255,0,0.85); }
     .bp-card-logo {
       display: block;
       height: 48px;
@@ -637,6 +649,11 @@
           <span class="bp-card-logo" role="img" aria-label="Bubble Planet"></span>
         </div>
         <p class="lobby-card-desc">Match bubbles. Defend the planet.</p>
+        <span class="lobby-appstore-link"
+              role="link"
+              tabindex="0"
+              onclick="event.stopPropagation();window.open('https://apps.apple.com/us/app/bubble-planet-bubble-shooter/id6803726892','_blank','noopener,noreferrer')"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.stopPropagation();window.open('https://apps.apple.com/us/app/bubble-planet-bubble-shooter/id6803726892','_blank','noopener,noreferrer')}">&#128241; Download on App Store</span>
       </a>
 
       <a class="lobby-card lc-gumball" data-categories="arcade,puzzle,matching,target" data-date="2026-08-06" href="gumball.html">
